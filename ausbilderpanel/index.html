@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notizen - Bundeswehr-Roleplay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    textarea {
+      resize: none;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 min-h-screen flex flex-col items-center p-4 transition-colors">
+  <!-- Header -->
+  <header class="w-full max-w-6xl flex flex-col sm:flex-row justify-between items-center py-4 px-4 mb-4 sticky top-0 bg-white dark:bg-zinc-800 shadow-md rounded-xl z-50">
+    <h1 class="text-3xl font-extrabold text-center sm:text-left">Bundeswehr-Roleplay Notizen</h1>
+    <div class="flex space-x-2 mt-2 sm:mt-0">
+      <button onclick="lockEntries()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition">Fertig</button>
+      <button onclick="unlockEntries()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">Zurück</button>
+      <button onclick="toggleDarkMode()" class="bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-black dark:text-white px-4 py-2 rounded-lg shadow transition">
+        <span id="darkModeIcon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container max-w-6xl w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Column: Namen -->
+    <section class="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow space-y-4">
+      <h2 class="text-xl font-bold">Namen</h2>
+      <div id="nameColumn" class="space-y-3"></div>
+    </section>
+
+    <!-- Column: Anmerkungen -->
+    <section class="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow space-y-4">
+      <h2 class="text-xl font-bold">Anmerkungen</h2>
+      <div id="noteColumn" class="space-y-3"></div>
+    </section>
+
+    <!-- Column: Strikes -->
+    <section class="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow space-y-4">
+      <h2 class="text-xl font-bold">Strikes</h2>
+      <div id="strikeColumn" class="space-y-3"></div>
+    </section>
+  </main>
+
+  <!-- Floating Add Button -->
+  <button onclick="addEntry()" id="addBtn"
+    class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full shadow-lg transition hidden sm:flex items-center space-x-2">
+    <span>+</span><span>Neuer Eintrag</span>
+  </button>
+
+  <!-- Script -->
+  <script>
+    let entries = [];
+    let isLocked = false;
+    const maxEntries = 32;
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      html.classList.toggle('dark');
+      const icon = document.getElementById("darkModeIcon");
+      icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+    }
+
+    function addEntry() {
+      if (isLocked) return alert("Einträge sind gesperrt!");
+      if (entries.length >= maxEntries) return alert('Maximal 32 Einträge erlaubt!');
+      entries.push({ name: '', note: '', strikes: 0 });
+      renderColumns();
+    }
+
+    function lockEntries() {
+      isLocked = true;
+      entries.forEach((_, i) => {
+        document.getElementById(`nameInput-${i}`).disabled = true;
+        document.getElementById(`noteInput-${i}`).disabled = true;
+      });
+      alert("Einträge sind jetzt gesperrt.");
+    }
+
+    function unlockEntries() {
+      isLocked = false;
+      entries.forEach((_, i) => {
+        document.getElementById(`nameInput-${i}`).disabled = false;
+        document.getElementById(`noteInput-${i}`).disabled = false;
+      });
+      alert("Einträge sind wieder freigegeben.");
+    }
+
+    function addStrike(i) {
+      if (entries[i].strikes < 3) {
+        entries[i].strikes++;
+        renderColumns();
+      }
+    }
+
+    function removeStrike(i) {
+      if (entries[i].strikes > 0) {
+        entries[i].strikes--;
+        renderColumns();
+      }
+    }
+
+    function updateEntry(i, field, val) {
+      if (!isLocked) entries[i][field] = val;
+    }
+
+    function handleKeyPress(e, i, field) {
+      if (e.key === ' ') {
+        e.preventDefault();
+        const input = document.getElementById(`${field}Input-${i}`);
+        input.value += ' ';
+      }
+    }
+
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+
+    function renderColumns() {
+      const nameCol = document.getElementById('nameColumn');
+      const noteCol = document.getElementById('noteColumn');
+      const strikeCol = document.getElementById('strikeColumn');
+      const addBtn = document.getElementById('addBtn');
+
+      nameCol.innerHTML = '';
+      noteCol.innerHTML = '';
+      strikeCol.innerHTML = '';
+
+      entries.forEach((entry, i) => {
+        nameCol.innerHTML += `
+          <input id="nameInput-${i}" type="text" value="${entry.name}"
+            oninput="updateEntry(${i}, 'name', this.value)" onkeypress="handleKeyPress(event, ${i}, 'name')"
+            class="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-700 focus:ring-2 focus:ring-blue-500 transition" placeholder="Name..." ${isLocked ? 'disabled' : ''}>
+        `;
+
+        noteCol.innerHTML += `
+          <textarea id="noteInput-${i}"
+            oninput="updateEntry(${i}, 'note', this.value); autoResizeTextarea(this)" onkeypress="handleKeyPress(event, ${i}, 'note')"
+            class="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-700 focus:ring-2 focus:ring-blue-500 transition" placeholder="Anmerkung..." ${isLocked ? 'disabled' : ''}>${entry.note}</textarea>
+        `;
+
+        strikeCol.innerHTML += `
+          <div class="flex items-center justify-between">
+            <span class="text-lg font-medium">${entry.strikes}/3 ${entry.strikes >= 3 ? '<span class="text-red-500 font-bold">Raus</span>' : ''}</span>
+            <div class="space-x-2">
+              <button onclick="addStrike(${i})" class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white transition ${entry.strikes >= 3 ? 'opacity-50 cursor-not-allowed' : ''}" ${entry.strikes >= 3 ? 'disabled' : ''}>+</button>
+              <button onclick="removeStrike(${i})" class="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white transition ${entry.strikes <= 0 ? 'opacity-50 cursor-not-allowed' : ''}" ${entry.strikes <= 0 ? 'disabled' : ''}>-</button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Show Add button only if not locked
+      addBtn.classList.toggle('hidden', isLocked || entries.length >= maxEntries);
+
+      entries.forEach((_, i) => {
+        const textarea = document.getElementById(`noteInput-${i}`);
+        if (textarea) autoResizeTextarea(textarea);
+      });
+    }
+
+    renderColumns();
+  </script>
+</body>
+</html>
