@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BWRP Staff Regelwerk</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #2b2d31;
+      color: #ffffff;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #1e1f22;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    header h1 {
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+      background-color: #313338;
+      padding: 1rem;
+      min-width: 250px;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    }
+
+    nav a {
+      display: block;
+      color: #b5bac1;
+      text-decoration: none;
+      padding: 0.5rem;
+      border-radius: 5px;
+      transition: background 0.3s;
+      margin-bottom: 0.3rem;
+    }
+
+    nav a:hover {
+      background-color: #404249;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 900px;
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      color: #ffffff;
+      border-bottom: 2px solid #5865f2;
+      padding-bottom: 0.3rem;
+    }
+
+    .content {
+      color: #d1d5db;
+    }
+
+    strong {
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      nav {
+        position: relative;
+        height: auto;
+        width: 100%;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BWRP Staff Regelwerk</h1>
+  </header>
+  <div class="container">
+    <nav>
+      <a href="#s1">§1 Verhalten im Spiel</a>
+      <a href="#s2">§2 Kommunikation</a>
+      <a href="#s3">§3 Nutzung von Admin-Rechten</a>
+      <a href="#s4">§4 Datenschutz</a>
+      <a href="#s5">§5 Meldepflichten</a>
+      <a href="#s6">§6 Teamarbeit</a>
+      <a href="#s7">§7 Konfliktlösung</a>
+      <a href="#s8">§8 Verantwortlichkeiten</a>
+      <a href="#s9">§9 Sanktionen bei Regelverstößen</a>
+      <a href="#s10">§10 Fortbildung und Weiterentwicklung</a>
+      <a href="#s11">§11 Mahnungssystem</a>
+    </nav>
+
+    <main>
+      <section id="s1">
+        <h2>§1 Verhalten im Spiel</h2>
+        <p class="content">Alle Staff Members müssen sich stets professionell und respektvoll verhalten. Beleidigungen, Diskriminierung oder unangemessenes Verhalten gegenüber Spielern und anderen Staff Members sind strengstens verboten.</p>
+      </section>
+
+      <section id="s2">
+        <h2>§2 Kommunikation</h2>
+        <p class="content">Die Kommunikation zwischen Staff Members und Spielern muss stets höflich und respektvoll sein. Staff Members sollen klar und verständlich kommunizieren und bei Problemen helfen. Intern wird eine professionelle, freundliche und kooperative Kommunikation erwartet.</p>
+      </section>
+
+      <section id="s3">
+        <h2>§3 Nutzung von Admin-Rechten</h2>
+        <p class="content">Admin-Rechte dürfen nur im Rahmen der Aufgaben und Verantwortlichkeiten genutzt werden. Jeglicher Missbrauch, einschließlich unbefugter Bannungen, Manipulationen oder Vorteilsnahmen, ist verboten.</p>
+      </section>
+
+      <section id="s4">
+        <h2>§4 Datenschutz</h2>
+        <p class="content">Alle Informationen über Spieler und Staff Members, die durch die Arbeit bekannt werden, sind vertraulich zu behandeln. Persönliche Daten dürfen nicht ohne ausdrückliche Zustimmung weitergegeben werden.</p>
+      </section>
+
+      <section id="s5">
+        <h2>§5 Meldepflichten</h2>
+        <p class="content">Jede Regelverletzung, ob von Spielern oder Staff Members, muss sofort an die entsprechenden Vorgesetzten gemeldet werden. Auch technische Probleme oder andere relevante Vorfälle sind unverzüglich zu melden.</p>
+      </section>
+
+      <section id="s6">
+        <h2>§6 Teamarbeit</h2>
+        <p class="content">Staff Members sollen stets kooperativ und hilfsbereit miteinander arbeiten. Teamarbeit und gegenseitige Unterstützung sind essentielle Bestandteile unserer Arbeitsweise.</p>
+      </section>
+
+      <section id="s7">
+        <h2>§7 Konfliktlösung</h2>
+        <p class="content">Konflikte zwischen Staff Members oder zwischen Staff Members und Spielern sollen ruhig und sachlich gelöst werden. Falls erforderlich, sollen Konflikte an höhere Instanzen weitergeleitet werden.</p>
+      </section>
+
+      <section id="s8">
+        <h2>§8 Verantwortlichkeiten</h2>
+        <p class="content">Jeder Staff Member hat klare Verantwortlichkeiten, die er gewissenhaft und zuverlässig auszuführen hat. Pünktlichkeit, Zuverlässigkeit und Verantwortungsbewusstsein sind grundlegende Anforderungen.</p>
+      </section>
+
+      <section id="s9">
+        <h2>§9 Sanktionen bei Regelverstößen</h2>
+        <p class="content">Verstöße gegen diese Regeln können je nach Schweregrad zu Ermahnungen, temporären Suspendierungen oder sogar dauerhaften Ausschlüssen aus dem Staff-Team führen.</p>
+      </section>
+
+      <section id="s10">
+        <h2>§10 Fortbildung und Weiterentwicklung</h2>
+        <p class="content">Staff Members werden ermutigt, sich kontinuierlich weiterzubilden und neue Fähigkeiten zu erlernen, die zur Verbesserung des Spiels und des Teams beitragen können. Regelmäßige Trainings und Besprechungen sind ein Teil davon.</p>
+      </section>
+
+      <section id="s11">
+        <h2>§11 Mahnungssystem</h2>
+        <p class="content">
+          Unser Mahnungssystem basiert auf einem "3-Strike"-Prinzip. Hier sind die Details:<br /><br />
+          <strong>Erste Mahnung:</strong> Bei einem ersten Regelverstoß erhält der Staff Member eine offizielle Ermahnung. Dies dient als Warnung und Gelegenheit zur Verbesserung.<br /><br />
+          <strong>Zweite Mahnung:</strong> Bei einem zweiten Regelverstoß erhält der Staff Member eine weitere Ermahnung. Es wird erwartet, dass der Staff Member die Konsequenzen versteht und sein Verhalten entsprechend anpasst.<br /><br />
+          <strong>Dritte Mahnung:</strong> Bei einem dritten Regelverstoß wird der Staff Member aus dem Team entfernt. Dies zeigt, dass trotz vorheriger Warnungen keine ausreichende Verbesserung stattgefunden hat.<br /><br />
+          Es ist wichtig zu beachten, dass die Schwere des Regelverstoßes berücksichtigt wird. Schwerwiegende Verstöße können sofort mehrere Mahnungen zur Folge haben. In extremen Fällen kann ein Staff Member nach einem einzigen, besonders gravierenden Verstoß direkt aus dem Team entfernt werden.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
