@@ -1,104 +1,75 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BWRP Moderationsteam Organigramm</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BWRP Moderationsteam</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #2b2d31;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 2.5rem;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    a.button {
+      background-color: #5865f2;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    a.button:hover {
+      background-color: #4752c4;
+      transform: translateY(-2px);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      font-size: 0.9rem;
+      color: #b5bac1;
+    }
+  </style>
 </head>
 <body>
-
   <header>
-    <img src="https://media.discordapp.net/attachments/1365815187768344677/1368990493425402087/8134448cd38ccb1b90a39aa3f3f13efc.png?ex=681a3b40&is=6818e9c0&hm=2d783965ae66635e60a753a0cb0825564bf94b6fc1edab674a1c97a328ffdf1f&=&format=webp&quality=lossless&width=160&height=160" alt="BWRP Logo">
-    <h1>BWRP Moderationsteam – Organigramm</h1>
+    <h1>BWRP Moderationsteam</h1>
+    <p>Willkommen! Wähle eine der folgenden Seiten:</p>
   </header>
 
-  <div class="container">
-    <div class="rank-columns">
-      
-      <!-- Low Rank -->
-      <div class="rank-section lr">
-        <h2>📘 <span>Low Rank (LR)</span></h2>
-        <ul>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Supporter</button>
-            <div class="dropdown-content">Hilft Spielern bei allgemeinen Problemen und leitet schwerwiegendere Anliegen weiter.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Test Moderator</button>
-            <div class="dropdown-content">Wird in Moderation eingearbeitet und unter Aufsicht geprüft.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Moderator</button>
-            <div class="dropdown-content">Moderiert den Discord und unterstützt bei allgemeinen Konflikten.</div>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Mid Rank -->
-      <div class="rank-section mr">
-        <h2>📙 <span>Mid Rank (MR)</span></h2>
-        <ul>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Head Discord Moderator</button>
-            <div class="dropdown-content">Koordiniert das Discord-Team, plant Maßnahmen und gibt Feedback.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Test Game Moderator</button>
-            <div class="dropdown-content">Wird im Spielgeschehen eingelernt, unterstützt bei Ingame-Regelverstößen.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Game Moderator</button>
-            <div class="dropdown-content">Moderiert im Spiel, achtet auf Regelverstöße und dokumentiert Strafen.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Head Game Moderator</button>
-            <div class="dropdown-content">Leitet das Ingame-Mod-Team, plant Events und bewertet Moderatoren.</div>
-          </li>
-        </ul>
-      </div>
-
-      <!-- High Rank -->
-      <div class="rank-section hr">
-        <h2>📗 <span>High Rank (HR)</span></h2>
-        <ul>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Junior Administrator</button>
-            <div class="dropdown-content">Unterstützt die Administration in Organisation und Durchsetzung der Regeln.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Administrator</button>
-            <div class="dropdown-content">Verwaltet Teammitglieder, trifft Entscheidungen bei Beschwerden.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Head Administrator</button>
-            <div class="dropdown-content">Oberste administrative Instanz, setzt teamweite Regeln durch.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Teamverwaltung</button>
-            <div class="dropdown-content">Verantwortlich für Struktur, Teamführung und Planung.</div>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Pinnacle Rank -->
-      <div class="rank-section pr">
-        <h2>📕 <span>Pinnacle Rank (PR)</span></h2>
-        <ul>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Projektverwaltung</button>
-            <div class="dropdown-content">Kümmert sich um technische Verwaltung, Kommunikation mit Partnern.</div>
-          </li>
-          <li class="dropdown">
-            <button class="dropdown-btn">BWRP | Projektleitung</button>
-            <div class="dropdown-content">Leitet das Projekt, trifft finale Entscheidungen und gibt die Richtung vor.</div>
-          </li>
-        </ul>
-      </div>
-
-    </div>
+  <div class="button-container">
+    <a class="button" href="./organigramm/index.html">Organigramm</a>
+    <a class="button" href="./regelwerk/index.html">Regelwerk</a>
   </div>
 
-  <script src="script.js"></script>
+  <footer>
+    &copy; 2025 Bundeswehr Roleplay Staff Team
+  </footer>
 </body>
 </html>
