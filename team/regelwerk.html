@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regelwerk – BWRP Staff</title>
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="theme-color" content="#2c2f33" />
+    <style>
+      #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1e2124;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+      }
+      .spinner {
+        width: 3rem;
+        height: 3rem;
+        border: 4px solid #7289da;
+        border-top-color: transparent;
+        border-radius: 9999px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-[#1e2124] text-white font-sans min-h-screen flex flex-col">
+    <div id="loader">
+      <div class="spinner"></div>
+    </div>
+
+    <script>
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+      });
+    </script>
+
+    <nav class="sticky top-0 z-50 bg-[#282b30] shadow-lg border-b border-[#424549]">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-[#7289da] hover:scale-105 transition-transform">BWRP Staff Portal</h1>
+        <ul class="flex gap-6 text-sm">
+          <li><a href="index.html" class="hover:text-[#7289da] transition-colors">Home</a></li>
+          <li><a href="organigramm.html" class="hover:text-[#7289da] transition-colors">Organigramm</a></li>
+          <li><a href="regelwerk.html" class="hover:text-[#7289da] transition-colors">Regelwerk</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="flex flex-grow flex-col md:flex-row">
+        <!-- Sidebar -->
+        <aside class="hidden md:block w-full md:w-64 bg-[#2f3136] p-4 md:p-6 border-r border-[#424549] text-sm sticky top-[72px] h-full md:h-screen overflow-y-auto rounded-r-2xl">
+          <ul class="space-y-3">
+            <li><a href="#p1" class="text-[#7289da] hover:underline">§1 Verhalten</a></li>
+            <li><a href="#p2" class="text-[#7289da] hover:underline">§2 Kommunikation</a></li>
+            <li><a href="#p3" class="text-[#7289da] hover:underline">§3 Admin-Rechte</a></li>
+            <li><a href="#p4" class="text-[#7289da] hover:underline">§4 Datenschutz</a></li>
+            <li><a href="#p5" class="text-[#7289da] hover:underline">§5 Meldepflichten</a></li>
+            <li><a href="#p6" class="text-[#7289da] hover:underline">§6 Teamarbeit</a></li>
+            <li><a href="#p7" class="text-[#7289da] hover:underline">§7 Konfliktlösung</a></li>
+            <li><a href="#p8" class="text-[#7289da] hover:underline">§8 Verantwortlichkeiten</a></li>
+            <li><a href="#p9" class="text-[#7289da] hover:underline">§9 Sanktionen</a></li>
+            <li><a href="#p10" class="text-[#7289da] hover:underline">§10 Fortbildung</a></li>
+            <li><a href="#p11" class="text-[#7289da] hover:underline">§11 Mahnungssystem</a></li>
+          </ul>
+        </aside>
+  
+        <!-- Regelwerk Content -->
+        <main class="flex-grow p-6 sm:p-10 space-y-10 rounded-xl bg-[#2c2f33] mt-4 md:mt-0 md:ml-6">
+          <h2 class="text-3xl font-bold text-[#7289da]">📜 Regelwerk</h2>
+  
+          <section id="p1" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§1 Verhalten im Spiel</h3>
+            <p class="text-gray-300">Alle Staff Members müssen sich stets professionell und respektvoll verhalten. Beleidigungen, Diskriminierung oder unangemessenes Verhalten gegenüber Spielern und anderen Staff Members sind strengstens verboten.</p>
+          </section>
+  
+          <section id="p2" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§2 Kommunikation</h3>
+            <p class="text-gray-300">Die Kommunikation zwischen Staff Members und Spielern muss stets höflich und respektvoll sein. Intern wird eine professionelle, freundliche und kooperative Kommunikation erwartet.</p>
+          </section>
+  
+          <section id="p3" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§3 Nutzung von Admin-Rechten</h3>
+            <p class="text-gray-300">Admin-Rechte dürfen nur im Rahmen der Aufgaben und Verantwortlichkeiten genutzt werden. Jeglicher Missbrauch ist strengstens untersagt.</p>
+          </section>
+  
+          <section id="p4" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§4 Datenschutz</h3>
+            <p class="text-gray-300">Alle Informationen über Spieler und Staff Members, die durch die Arbeit bekannt werden, sind vertraulich zu behandeln. Persönliche Daten dürfen nicht ohne Zustimmung weitergegeben werden.</p>
+          </section>
+  
+          <section id="p5" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§5 Meldepflichten</h3>
+            <p class="text-gray-300">Jede Regelverletzung sowie technische Probleme müssen umgehend an Vorgesetzte gemeldet werden.</p>
+          </section>
+  
+          <section id="p6" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§6 Teamarbeit</h3>
+            <p class="text-gray-300">Staff Members sollen kooperativ und unterstützend miteinander arbeiten. Teamarbeit ist zentraler Bestandteil unserer Arbeitsweise.</p>
+          </section>
+  
+          <section id="p7" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§7 Konfliktlösung</h3>
+            <p class="text-gray-300">Konflikte sollen sachlich und ruhig geklärt werden. Bei Bedarf ist die nächsthöhere Instanz einzubeziehen.</p>
+          </section>
+  
+          <section id="p8" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§8 Verantwortlichkeiten</h3>
+            <p class="text-gray-300">Jeder Staff Member hat definierte Aufgaben, die er verlässlich und pünktlich zu erfüllen hat.</p>
+          </section>
+  
+          <section id="p9" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§9 Sanktionen bei Regelverstößen</h3>
+            <p class="text-gray-300">Verstöße gegen diese Regeln werden je nach Schweregrad mit Ermahnungen, Suspendierungen oder Ausschluss geahndet.</p>
+          </section>
+  
+          <section id="p10" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§10 Fortbildung und Weiterentwicklung</h3>
+            <p class="text-gray-300">Alle Mitglieder werden zur Weiterentwicklung ermutigt. Fortbildungen und Workshops werden regelmäßig angeboten.</p>
+          </section>
+  
+          <section id="p11" class="bg-[#36393f] rounded-xl p-5 shadow-md hover:shadow-lg transition">
+            <h3 class="text-xl font-semibold text-white mb-2">§11 Mahnungssystem</h3>
+            <p class="text-gray-300">Das 3-Strike-System sieht nach einer ersten und zweiten Ermahnung beim dritten Verstoß den Ausschluss aus dem Team vor. Schwerwiegende Verstöße können sofortige Konsequenzen nach sich ziehen.</p>
+          </section>
+  
+        </main>
+      </div>
+  
+      <footer class="bg-[#282b30] border-t border-[#424549] text-center text-sm text-gray-400 py-6">
+        © 2025 Bundeswehr Roleplay – Staff Team
+      </footer>
+    </body>
+</html>
+  

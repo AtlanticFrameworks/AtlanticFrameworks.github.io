@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+    <title>Organigramm – BWRP Staff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .card-box {
+        background-color: #36393f;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+      }
+      .card-box:hover {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      }
+
+      /* Loader Animation */
+      #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1e2124;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+      }
+      .spinner {
+        width: 3rem;
+        height: 3rem;
+        border: 4px solid #7289da;
+        border-top-color: transparent;
+        border-radius: 9999px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <meta name="theme-color" content="#2c2f33" />
+  </head>
+  <body class="bg-[#1e2124] text-white font-sans min-h-screen flex flex-col">
+    <div id="loader">
+      <div class="spinner"></div>
+    </div>
+
+    <script>
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+      });
+    </script>
+
+    <nav class="sticky top-0 z-50 bg-[#282b30] shadow-lg border-b border-[#424549]">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-[#7289da]">BWRP Staff Portal</h1>
+        <ul class="flex gap-6 text-sm">
+          <li><a href="index.html" class="hover:text-[#7289da] transition-colors">Home</a></li>
+          <li><a href="organigramm.html" class="hover:text-[#7289da] transition-colors">Organigramm</a></li>
+          <li><a href="regelwerk.html" class="hover:text-[#7289da] transition-colors">Regelwerk</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <h2 class="text-3xl font-bold mb-10">🧭 Organigramm</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+
+        <!-- Low Rank -->
+        <div class="bg-[#2f3136] rounded-xl p-4 border-l-4 border-blue-400">
+          <h3 class="text-xl font-bold mb-4">📘 Low Rank (LR)</h3>
+          <div class="card-box">BWRP | Supporter</div>
+          <div class="card-box">BWRP | Test Moderator</div>
+          <div class="card-box">BWRP | Moderator</div>
+        </div>
+
+        <!-- Mid Rank -->
+        <div class="bg-[#2f3136] rounded-xl p-4 border-l-4 border-yellow-400">
+          <h3 class="text-xl font-bold mb-4">📙 Mid Rank (MR)</h3>
+          <div class="card-box">BWRP | Head Discord Moderator</div>
+          <div class="card-box">BWRP | Test Game Moderator</div>
+          <div class="card-box">BWRP | Game Moderator</div>
+          <div class="card-box">BWRP | Head Game Moderator</div>
+        </div>
+
+        <!-- High Rank -->
+        <div class="bg-[#2f3136] rounded-xl p-4 border-l-4 border-green-400">
+          <h3 class="text-xl font-bold mb-4">📗 High Rank (HR)</h3>
+          <div class="card-box">BWRP | Junior Administrator</div>
+          <div class="card-box">BWRP | Administrator</div>
+          <div class="card-box">BWRP | Head Administrator</div>
+          <div class="card-box">BWRP | Teamverwaltung</div>
+        </div>
+
+        <!-- Pinnacle Rank -->
+        <div class="bg-[#2f3136] rounded-xl p-4 border-l-4 border-red-400">
+          <h3 class="text-xl font-bold mb-4">📕 Pinnacle Rank (PR)</h3>
+          <div class="card-box">BWRP | Projektverwaltung</div>
+          <div class="card-box">BWRP | Projektleitung</div>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="bg-[#282b30] border-t border-[#424549] text-center text-sm text-gray-400 py-6">
+      © 2025 Bundeswehr Roleplay – Staff Team
+    </footer>
+  </body>
+</html>
