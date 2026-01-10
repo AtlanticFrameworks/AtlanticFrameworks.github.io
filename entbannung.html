@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entbannungsantrag | Bundeswehr Roleplay</title>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bw-dark': '#0a0a0a',
+                        'bw-gold': '#e2b007',
+                        'bw-gray': '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-bw-dark text-white overflow-x-hidden selection:bg-bw-gold selection:text-black">
+
+    <!-- Header (Dynamically Loaded) -->
+    <div id="navbar-container"></div>
+
+    <!-- Hero Section -->
+    <section class="relative h-[60vh] flex items-center justify-center pt-20 overflow-hidden border-b border-white/10">
+        <!-- Parallax Background -->
+        <div id="hero-bg" class="absolute inset-0 bg-[url('assets/images/hero-bg.png')] bg-cover bg-center opacity-30">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-tr from-red-900/20 via-bw-dark/80 to-bw-dark"></div>
+
+        <div class="relative z-10 text-center reveal max-w-2xl px-4">
+            <div
+                class="inline-block mb-4 px-3 py-1 border border-red-500/30 bg-red-500/10 backdrop-blur-md rounded-full">
+                <span class="text-red-500 text-xs font-mono tracking-widest uppercase">Support Center</span>
+            </div>
+            <h1 class="font-display text-5xl md:text-7xl font-bold uppercase tracking-tight text-white mb-6 drop-shadow-xl"
+                data-i18n="appeal.title">
+                ENTBANNUNG
+            </h1>
+            <p class="text-gray-400 text-lg font-light leading-relaxed mb-8" data-i18n="appeal.subtitle">
+                Jeder macht Fehler. Hier hast du die Möglichkeit, deinen Ausschluss aus der Community anzufechten.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://appeal.gg/bundeswehr-roleplay" target="_blank"
+                    class="group relative px-8 py-4 bg-bw-gold text-black font-display font-bold text-xl uppercase tracking-wider overflow-hidden clip-path-notch hover:bg-white transition-all transform hover:-translate-y-1 shadow-[0_0_20px_rgba(226,176,7,0.3)]">
+                    <span class="relative z-10 flex items-center gap-2">
+                        <i data-lucide="gavel" class="w-5 h-5"></i> <span data-i18n="appeal.btn">ANTRAG STELLEN</span>
+                    </span>
+                </a>
+                <a href="regelwerk.html"
+                    class="px-8 py-4 border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white font-display font-bold text-xl uppercase tracking-wider transition-all">
+                    Regelwerk lesen
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- INFO SECTION -->
+    <section class="max-w-4xl mx-auto px-6 py-24 relative">
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Card 1 -->
+            <div
+                class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden group hover:border-bw-gold/30 transition-all">
+                <div class="absolute top-0 right-0 p-4 opacity-5">
+                    <i data-lucide="alert-circle" class="w-24 h-24"></i>
+                </div>
+                <h3 class="font-display text-xl font-bold text-white mb-4">WICHTIGE HINWEISE</h3>
+                <ul class="space-y-3 text-sm text-gray-400 list-disc pl-4">
+                    <li>Sei ehrlich in deinem Antrag. Lügen führen zur sofortigen Ablehnung.</li>
+                    <li>Erkläre die Situation ausführlich.</li>
+                    <li>Zeige Reue und Verständnis für dein Fehlverhalten.</li>
+                    <li>Nutze das korrekte Feld für deinen Discord/Roblox Namen.</li>
+                </ul>
+            </div>
+
+            <!-- Card 2 -->
+            <div
+                class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden group hover:border-bw-gold/30 transition-all">
+                <div class="absolute top-0 right-0 p-4 opacity-5">
+                    <i data-lucide="clock" class="w-24 h-24"></i>
+                </div>
+                <h3 class="font-display text-xl font-bold text-white mb-4">BEARBEITUNGSZEIT</h3>
+                <p class="text-sm text-gray-400 leading-relaxed mb-4">
+                    Die Bearbeitung eines Entbannungsantrags kann bis zu <strong>48 Stunden</strong> dauern. Bitte sehe
+                    davon ab, Teammitglieder privat anzuschreiben oder im Discord nach dem Status zu fragen. Dies kann
+                    zur Ablehnung führen.
+                </p>
+                <div
+                    class="flex items-center gap-2 text-xs text-bw-gold font-mono uppercase tracking-widest bg-bw-gold/5 p-3 rounded border border-bw-gold/10">
+                    <i data-lucide="info" class="w-4 h-4"></i> Status: Bearbeitung Aktiv
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Dynamically Loaded) -->
+    <div id="footer-container"></div>
+
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script>
+        // Init Icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

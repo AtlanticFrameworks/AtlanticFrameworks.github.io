@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einheiten | Bundeswehr Roleplay</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bw: { dark: '#0f1115', gold: '#E2B007', goldHover: '#cca006', glass: 'rgba(20, 25, 30, 0.7)', border: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Oswald', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="text-gray-200 font-sans antialiased bg-[#050505]">
+
+    <div id="navbar-container"></div>
+
+    <!-- UNITS GRID SECTION -->
+    <section id="divisions" class="pt-32 pb-24 px-4 bg-bw-dark relative min-h-screen">
+        <div class="absolute inset-0 bg-grid opacity-20 pointer-events-none"></div>
+        <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-20">
+            <canvas id="particle-canvas"></canvas>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4 reveal active">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="h-px w-8 bg-bw-gold"></span>
+                        <span class="text-bw-gold text-xs font-bold uppercase tracking-[0.2em]"
+                            data-i18n="units.subtitle">Truppengattungen</span>
+                    </div>
+                    <h2 class="font-display text-5xl font-bold text-white" data-i18n="units.title">EINSATZKRÄFTE</h2>
+                </div>
+                <p class="text-gray-500 text-sm font-mono max-w-xs text-right hidden md:block" data-i18n="units.access">
+                    ZUGRIFF AUF PERSONALAKTEN.<br>WÄHLEN SIE EINE EINHEIT FÜR DETAILS.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- KSK -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('ksk')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/ksk.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="crosshair"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-01</span>
+                        </div>
+
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                KSK</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.ksk.desc">Eliteeinheit
+                                für spezielle Operationen.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feldjäger -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('feldjaeger')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/feldjaeger.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="shield-alert"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-02</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                FELDJÄGER</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.feldjaeger.desc">
+                                Militärpolizei der Bundeswehr.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marine -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('marine')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/marine.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="anchor"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-03</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                MARINE</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.marine.desc">Operationen
+                                zu Wasser.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sanitäter -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('sani')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/sani.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="heart-pulse"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-04</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                SANITÄTSDIENST</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.sani.desc">Medizinische
+                                Versorgung.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raider -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('raider')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/raider.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="swords"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-05</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                RAIDER</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.raider.desc">
+                                Feinddarstellung und Opposition.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABC -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('abc')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/abc.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="biohazard"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-06</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                ABC ABWEHR</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.abc.desc">Schutz vor
+                                atomaren Bedrohungen.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wachbataillon -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('wachbataillon')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/wachbataillon.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="flag"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-07</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                WACHBATAILLON</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.wachbataillon.desc">
+                                Ehrengarde und Protokoll.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- United Nations -->
+                <div class="tilt-card group bg-[#111] border border-white/5 hover:border-bw-gold/50 relative h-[400px] overflow-hidden reveal active cursor-pointer"
+                    onclick="openModal('un')">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/images/divisions/un.png')] bg-cover bg-center opacity-20 group-hover:opacity-40 transition-opacity duration-500 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div class="tilt-content relative z-10 p-8 h-full flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <i data-lucide="globe"
+                                class="w-10 h-10 text-white/50 group-hover:text-bw-gold transition-colors"></i>
+                            <span
+                                class="text-[10px] font-mono border border-white/20 px-2 py-1 text-gray-400">GP-08</span>
+                        </div>
+                        <div class="mt-auto">
+                            <h3
+                                class="font-display text-3xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
+                                UNITED NATIONS</h3>
+                            <div class="h-1 w-12 bg-bw-gold mb-4 group-hover:w-full transition-all duration-500"></div>
+                            <p class="text-gray-400 text-sm mb-6 line-clamp-2" data-i18n="units.un.desc">Internationale
+                                Friedenssicherung.</p>
+                            <span
+                                class="text-bw-gold text-xs font-bold uppercase tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                                <span data-i18n="modal.details">Details ansehen</span> <i data-lucide="arrow-right"
+                                    class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL OVERLAY -->
+    <div id="info-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+        <!-- Backdrop -->
+        <div class="modal-backdrop absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
+
+        <!-- Content -->
+        <div id="modal-content-wrapper"
+            class="modal-content relative bg-[#151515] border border-white/10 w-full max-w-2xl p-0 overflow-hidden shadow-2xl tactical-notch">
+            <!-- Modal Header -->
+            <div class="bg-[#0a0a0a] px-8 py-6 border-b border-white/5 flex justify-between items-center">
+                <div>
+                    <h3 id="modal-title" class="font-display text-2xl text-white font-bold tracking-wide">TITEL</h3>
+                    <p class="text-xs text-bw-gold font-mono uppercase tracking-widest" data-i18n="modal.class">
+                        Klassifiziert: Öffentlich</p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4"
+                            data-i18n="modal.task">Aufgabenbereich</h4>
+                        <p id="modal-desc" class="text-gray-300 text-sm leading-relaxed mb-6">
+                            Beschreibungstext hier...
+                        </p>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-xs border-b border-white/5 pb-2">
+                                <span class="text-gray-500" data-i18n="modal.access">Zugang</span>
+                                <span class="text-white font-mono" data-i18n="modal.gamepass">Gamepass /
+                                    Bewerbung</span>
+                            </div>
+                            <div class="flex justify-between text-xs border-b border-white/5 pb-2">
+                                <span class="text-gray-500" data-i18n="modal.difficulty">Schwierigkeit</span>
+                                <span class="text-bw-gold font-mono" data-i18n="modal.high">Hoch</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="modal-action-container"
+                        class="bg-black/30 p-4 rounded border border-white/5 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="lock" class="w-12 h-12 text-gray-600 mb-4"></i>
+                        <p class="text-xs text-gray-500 mb-4" data-i18n="modal.req">Um dieser Einheit beizutreten, ist
+                            ein Gamepass oder eine Ausbildung erforderlich.</p>
+                        <a href="https://www.roblox.com/games/17537413457/Bundeswehr-Roleplay" target="_blank"
+                            class="bg-bw-gold text-black px-4 py-2 text-xs font-bold uppercase hover:bg-white transition-colors w-full">
+                            <span data-i18n="modal.view">Im Spiel ansehen</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>

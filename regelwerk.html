@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regelwerk | Bundeswehr Roleplay</title>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bw-dark': '#0a0a0a',
+                        'bw-gold': '#e2b007',
+                        'bw-gray': '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-bw-dark text-white overflow-x-hidden selection:bg-bw-gold selection:text-black">
+
+    <!-- Header (Dynamically Loaded) -->
+    <div id="navbar-container"></div>
+
+    <!-- Hero Section -->
+    <section class="relative h-[50vh] flex items-center justify-center pt-20 overflow-hidden border-b border-white/10">
+        <!-- Parallax Background -->
+        <div id="hero-bg" class="absolute inset-0 bg-[url('assets/images/hero-bg.png')] bg-cover bg-center opacity-30">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-bw-dark via-bw-dark/50 to-transparent"></div>
+        <div class="absolute inset-0 tactical-grid opacity-10"></div>
+
+        <div class="relative z-10 text-center reveal">
+            <div
+                class="inline-block mb-4 px-3 py-1 border border-bw-gold/30 bg-bw-gold/5 backdrop-blur-md rounded-full">
+                <span class="text-bw-gold text-xs font-mono tracking-widest uppercase">Documentation</span>
+            </div>
+            <h1 class="font-display text-5xl md:text-7xl font-bold uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 mb-4 drop-shadow-xl"
+                data-i18n="rules.title">
+                REGELWERK
+            </h1>
+            <p class="max-w-2xl mx-auto text-gray-400 font-light text-lg" data-i18n="rules.subtitle">
+                Die Grundsätze für ein faires und authentisches Spielerlebnis.
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTENT -->
+    <section class="max-w-7xl mx-auto px-6 py-12 relative flex flex-col lg:flex-row gap-12">
+
+        <!-- SIDEBAR NAVIGATION (Sticky) -->
+        <aside class="lg:w-1/4 relative z-20">
+            <div class="sticky top-24 space-y-8">
+                <!-- Tab Switching Buttons -->
+                <div class="flex flex-col gap-2">
+                    <h3
+                        class="font-display text-white text-lg font-bold mb-2 uppercase border-b border-bw-gold/30 pb-2">
+                        Kategorien</h3>
+                    <button onclick="switchTab('allgemein')" id="bg-allgemein"
+                        class="tab-btn w-full text-left px-4 py-3 bg-bw-gold text-black font-bold uppercase text-sm border-l-4 border-bw-gold transition-all hover:translate-x-1">
+                        Allgemein
+                    </button>
+                    <button onclick="switchTab('ingame')" id="bg-ingame"
+                        class="tab-btn w-full text-left px-4 py-3 bg-[#111] text-gray-400 font-bold uppercase text-sm border-l-4 border-transparent hover:border-bw-gold/50 hover:text-white transition-all hover:translate-x-1">
+                        Ingame
+                    </button>
+                    <button onclick="switchTab('division')" id="bg-division"
+                        class="tab-btn w-full text-left px-4 py-3 bg-[#111] text-gray-400 font-bold uppercase text-sm border-l-4 border-transparent hover:border-bw-gold/50 hover:text-white transition-all hover:translate-x-1">
+                        Divisionen
+                    </button>
+                </div>
+
+                <!-- Quick Links (Dynamic based on Tab) -->
+                <div id="quick-links" class="hidden lg:block">
+                    <h3 class="font-display text-gray-500 text-xs font-bold mb-4 uppercase tracking-widest">Inhalt</h3>
+                    <ul class="space-y-2 text-xs text-gray-400 border-l border-white/10 pl-4" id="toc-list">
+                        <!-- Populated via JS -->
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="lg:w-3/4 space-y-12 min-h-[60vh]">
+
+            <!-- TAB: ALLGEMEIN -->
+            <div id="tab-allgemein" class="tab-content block animate-fade-in">
+                <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden mb-8">
+                    <h2 id="general-intro"
+                        class="font-display text-3xl font-bold mb-6 text-white border-b border-white/10 pb-4">
+                        Allgemeines Regelwerk</h2>
+
+                    <div class="space-y-8 text-sm text-gray-300 leading-relaxed">
+
+                        <div id="gen-1" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§1 Geltungsbereich</h3>
+                            <p>§1.1 Das Regelwerk bezieht sich auf alle Discord-Server und Foren der ATLANTIC Studios.
+                            </p>
+                            <p>§1.2 Dies umfasst, ist aber nicht beschränkt auf den “Bundeswehr Roleplay”
+                                Discord-Server.</p>
+                            <p>§1.3 Durch das Betreten und nutzen der erwähnten Discord-Server stimmt jeder Nutzer dem
+                                allgemeinen Regelwerk zu.</p>
+                            <p>§1.4 Das Server-Team behält sich das Recht vor, jederzeit unangekündigt Änderungen
+                                innerhalb des Regelwerks oder dessen Geltungsbereich vorzunehmen. Änderungen werden
+                                ebenfalls im Discord Server angekündigt und treten ab dem Moment der Ankündigung in
+                                Kraft.</p>
+                            <p>§1.5 Jeder Nutzer ist selbst dafür verantwortlich, sich über mögliche Regeländerungen zu
+                                informieren.</p>
+                            <p>§1.6 Weiterhin gelten ebenso die Discord Nutzungsbedingungen und werden entsprechend
+                                durchgesetzt.</p>
+                            <p>§1.7 Jeder Nutzer, egal welchen Status dieser innehat, muss sich an dieses Regelwerk
+                                halten. Niemand hat Immunität vor dem Regelwerk. Dazu zählen auch Teammitglieder.</p>
+                        </div>
+
+                        <div id="gen-2" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§2 Werbung & Spam</h3>
+                            <p>§2.1. Das Werben für fremde Discord-Server, Communitys, usw. ist ohne explizite Erlaubnis
+                                des COOs oder höher nicht gestattet.</p>
+                            <p>§2.2 Spammen jeglicher Art ist verboten, dazu gehören unter anderem das unnötige
+                                wiederholen von Text Nachrichten oder das übermäßige posten von Emojis oder Bildern.</p>
+                        </div>
+
+                        <div id="gen-3" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§3 Allgemeiner Umgang</h3>
+                            <p>§3.1 Es wird ein allgemein freundlicher und respektvoller Umgangston vorausgesetzt. Das
+                                heißt, dass "Talahon"-Verhalten nicht geduldet wird.</p>
+                            <p>§3.2 Störendes Verhalten oder laute Hintergrundgeräusche in Sprachkanälen sollten
+                                möglichst vermieden werden.</p>
+                            <p>§3.3 Beleidigende, rassistische, diskriminierende, sexistische, frauenfeindliche oder
+                                ausgrenzende Aussagen oder Handlungen jeglicher Art, egal aus welchem Grund, sind
+                                strengstens verboten.</p>
+                            <p>§3.4 Das “Mobben” oder Ausnutzen von anderen Personen ist strengstens verboten und wird
+                                ggf. strafrechtliche Konsequenzen nach sich ziehen.</p>
+                            <p>§3.5 Nötigung, um zum Beispiel private Informationen zu erlangen oder die Person zu etwas
+                                zu nötigen, was diese Person nicht tun möchte, ist ebenfalls strengstens verboten und
+                                wird ggf. strafrechtliche Konsequenzen nach sich ziehen.</p>
+                        </div>
+
+                        <div id="gen-4" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§4 Jugendschutz und NSFW(18+) Content</h3>
+                            <p>§4.1 Das Hochladen von nicht jugendfreien Inhalten (NSFW 18+) in Text-/Sprachkanälen
+                                innerhalb des Geltungsbereiches ist gemäß §15 JugSchG verboten und wird strengstens
+                                geahndet.</p>
+                            <p>§4.2 Das Verbreiten, Veröffentlichen oder Erstellen von kinderpornografischen Inhalten
+                                ist strengstens verboten und WIRD strafrechtlich verfolgt.</p>
+                        </div>
+
+                        <div id="gen-5" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§5 Soundboards und Stimmenverzerrer</h3>
+                            <p>§5.1 Die exzessive Nutzung von Soundboards oder Stimmenverzerrern innerhalb der
+                                Sprachkanäle ist verboten.</p>
+                        </div>
+
+                        <div id="gen-6" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§6 Religion und Politik</h3>
+                            <p>§6.1 Bei den Servern der “Bundeswehr Roleplay” Community handelt es sich um einen
+                                Religions- und Politik Freien Raum. Gespräche und Diskussionen zu den Themen sollten
+                                daher auf einem Minimum gehalten werden.</p>
+                            <p>§6.2 Personen, die ein politisch werbendes Profilbild/Namen haben, auch wenn dies nur
+                                Ihrer Meinungsfreiheit entspricht, sind dazu aufgefordert, diese zu etwas Neutralem zu
+                                verändern. Hierbei berufen wir uns auf das Hausrecht innerhalb des Geltungsbereiches.
+                            </p>
+                        </div>
+
+                        <div id="gen-7" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§7 Datenschutz</h3>
+                            <p>§7.1 Das Teilen und Verbreiten von privaten Personenbezogenen Daten, wie zum Beispiel
+                                vollständigen Namen oder Adressen von anderen oder einem selbst, ist strengstens
+                                verboten und wird entsprechend geahndet.</p>
+                        </div>
+
+                        <div id="gen-8" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§8 Sprachkanäle</h3>
+                            <p>§8.1 Das ständige wechseln des Sprachkanals (Channel Hopping) ist verboten.</p>
+                            <p>§8.2 Ebenso ist das Ausnutzen von der “Verschieben” Berechtigung, um Nutzer hin und her
+                                zu verschieben, verboten.</p>
+                        </div>
+
+                        <div id="gen-9" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§9 Erreichbarkeit</h3>
+                            <p>§9.1 Das unnötige “pingen” (@Name) eines Teammitglieds ist verboten und wird ggf. mit
+                                einem Timeout bestraft.</p>
+                            <p>§9.2 Das Anschreiben von Teammitgliedern per Direktnachricht (DM) ist verboten und wird
+                                ignoriert oder ggf. mit einem Timeout bestraft.</p>
+                        </div>
+
+                        <div id="gen-10" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§10 Support & Verifizierung</h3>
+                            <p>§10.1 Um ein Support Ticket zu öffnen, muss jeder Spieler sich zuerst über den
+                                Verifizierungs Kanal verifizieren. Um einen reibungslosen Ablauf zu gewährleisten und
+                                überhaupt helfen zu können, ist dies dringend notwendig.</p>
+                            <p>§10.2 Alle Nutzer sind angewiesen, Regelverstöße direkt zu melden und durch eine
+                                Videoaufzeichnung Beweise zu sichern.</p>
+                            <p>§10.3 Die Verhältnismäßigkeit einer Meldung sollte hierbei möglichst beachtet werden.
+                                Eine kleinere Auseinandersetzung, bzw. eine Frage, welche in den dafür vorgesehenen
+                                Kanälen beantwortet werden könnte, bedarf keines Tickets.</p>
+                        </div>
+
+                        <div id="gen-11" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§11 Namensgebung und Profilbilder</h3>
+                            <p>§11.1 Anstößige, irreführende oder gegen §3.3-§3.4 oder §6 verstoßende Name, Profilbilder
+                                oder Profilbanner sind verboten. Jeder Nutzer ist daher dazu angehalten, diese
+                                selbständig beim Betreten des Server zu verändern.</p>
+                        </div>
+
+                        <div id="gen-12" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§12 Sanktionen</h3>
+                            <p>§12.1 Nutzer, welche gegen das Regelwerk verstoßen, können mit einer Verwarnung oder bis
+                                zu einem temporären/permanenten Community-Ausschluss sanktioniert werden.</p>
+                            <p>§12.2 Das Staff-Team behält sich das Recht vor, Sanktionen im eigenen Ermessen anhand der
+                                Schwere des Regelverstoßes durchzuführen.</p>
+                        </div>
+
+                        <div id="gen-13" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§13 Meldepflicht</h3>
+                            <p>§13.1 Jeder Nutzer ist verpflichtet, Verstöße gegen dieses Regelwerk unverzüglich an das
+                                Moderations- oder Administrations-Team zu melden. Das Nicht melden eines Verstoßes
+                                stellt selber einen Verstoß dar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: INGAME -->
+            <div id="tab-ingame" class="tab-content hidden animate-fade-in">
+                <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden mb-8">
+                    <h2 class="font-display text-3xl font-bold mb-6 text-white border-b border-white/10 pb-4">Ingame
+                        Regelwerk</h2>
+
+                    <div class="bg-white/5 p-4 rounded mb-6 border-l-2 border-bw-gold">
+                        <strong class="text-white block mb-2">Legende:</strong>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li><strong class="text-bw-gold">IC (In Character):</strong> Alles was innerhalb des Roblox
+                                Spiels “Bundeswehr Roleplay” geschieht und mit dem Rollenspiel (RP) zu tun hat.</li>
+                            <li><strong class="text-bw-gold">OOC (Out of Character):</strong> Alles was außerhalb des
+                                Roblox Spiels “Bundeswehr Roleplay” geschieht.</li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-8 text-sm text-gray-300 leading-relaxed">
+
+                        <div id="ig-1" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§1 Geltungsbereich</h3>
+                            <p>§1.1 Das Regelwerk bezieht sich auf das Roblox Spiel “Bundeswehr Roleplay” der ATLANTIC
+                                Gruppe.</p>
+                            <p>§1.2 Durch das Betreten und Spielen auf “Bundeswehr Roleplay” stimmt jeder Nutzer dem
+                                Regelwerk zu.</p>
+                            <p>§1.4 Das Server-Team behält sich das Recht vor, jederzeit unangekündigt Änderungen
+                                innerhalb des Regelwerks oder dessen Geltungsbereich vorzunehmen.</p>
+                            <p>§1.5 Jeder Nutzer ist selbst dafür verantwortlich, sich über mögliche Regeländerungen zu
+                                informieren.</p>
+                            <p>§1.6 Weiterhin gelten ebenso die Roblox Nutzungsbedingungen und die Roblox Community
+                                Richtlinien.</p>
+                            <p>§1.7 Jeder Spieler, egal welchen Status dieser innehat, muss sich an dieses Regelwerk
+                                halten. Niemand hat Immunität vor dem Regelwerk.</p>
+                        </div>
+
+                        <div id="ig-2" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§2 Allgemeiner Umgang</h3>
+                            <p>§2.1 Es wird ein allgemein freundlicher und respektvoller Umgangston vorausgesetzt.</p>
+                            <p>§2.2 Beleidigende, rassistische, diskriminierende, sexistische, frauenfeindliche oder
+                                ausgrenzende Aussagen oder Handlungen jeglicher Art sind strengstens verboten.</p>
+                            <p>§2.3 Mobbing oder Ausnutzung von anderen Nutzern ist streng verboten und wird an Roblox
+                                weitergeleitet.</p>
+                            <p>§2.4 Das Nötigen anderer Nutzer, um unter anderem private Informationen zu erlangen, ist
+                                strengstens verboten.</p>
+                            <p>§2.5 Das Belästigen von Spielern aufgrund von Status, Herkunft, Geschlecht, Glaube oder
+                                Ähnlichem ist strengstens verboten.</p>
+                        </div>
+
+                        <div id="ig-3" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§3 OOC-Talk & Metagaming</h3>
+                            <p>§3.1 OOC-Talk, also das Besprechen von OOC Themen oder das Hinweisen auf das Regelwerk
+                                innerhalb des RPs, ist verboten.</p>
+                            <p>§3.2 Das Ansprechen von Teammitgliedern im Spiel wegen OOC Thematiken wie zum Beispiel
+                                Support Tickets ist verboten.</p>
+                            <p>§3.2.1 Das Ausgeben als Teammitglied ist strengstens verboten und wird mit einem
+                                permanenten CMA bestraft.</p>
+                            <p>§3.3 Metagaming, also das Verwenden von OOC Information IC ist verboten.</p>
+                        </div>
+
+                        <div id="ig-4" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§4 Chat und Voice Chat</h3>
+                            <p>§4.1 Das Werben für fremde Discord-Server, Communitys, usw. ob im Voicechat oder Textchat
+                                ist nicht gestattet.</p>
+                            <p>§4.2 Spammen im Text-Chat jeglicher Art ist verboten.</p>
+                            <p>§4.3 Die exzessive Nutzung von Stimmenverzerrern und Soundboards ist verboten.</p>
+                        </div>
+
+                        <div id="ig-5" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§5 Hacking, Bugabuse & Trolling</h3>
+                            <p>§5.1 Das Nutzen von Hack/Cheat Software oder Exploits ist strengstens verboten.</p>
+                            <p>§5.2 Das wissentliche Ausnutzen von Spielfehlern (Bugs) um einen unfairen Vorteil zu
+                                erlangen ist verboten.</p>
+                            <p>§5.3 Bunnyhopping ist strengstens untersagt.</p>
+                            <p>§5.4 Trolling, also das absichtliche Stören des normalen RP Flusses ohne Grund, ist
+                                verboten.</p>
+                        </div>
+
+                        <div id="ig-6" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§6 Kleiderordnung</h3>
+                            <p>§6.1 Jegliche Kleidung, Symbole, Abzeichen, Flaggen, Bärte oder sonstige Darstellungen
+                                aus dem Zweiten Weltkrieg oder welche, die diese Zeit verherrlicht, sind verboten.</p>
+                            <p>§6.2 Jegliche Kleidung, Symbole, Abzeichen, Flaggen, Bärte oder sonstige Darstellungen,
+                                welche gegen §7 oder die Roblox Nutzungsbedingungen verstößt, sind strengstens verboten.
+                            </p>
+                            <p>§6.3 Spielfiguren(Avatare) haben einem semi-realistischen Standard zu folgen.</p>
+                        </div>
+
+                        <div id="ig-7" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§7 Politik und Religion</h3>
+                            <p>Bei “Bundeswehr Roleplay”, handelt es sich um einen politik- und religionsfreien Raum.
+                            </p>
+                            <p>§7.1 Politische Symbole, Sprüche, Lieder oder sonstige Darstellungen sind verboten.</p>
+                            <p>§7.2 Meinungsbeeinflussende Darstellungen, wie zum Beispiel Wahlplakate oder ähnliches
+                                einer Partei, egal ob wählbar oder nicht, sind verboten.</p>
+                            <p>§7.3 Eine Ausnahme von §7.1 stellt die Deutsche Nationalflagge und die Deutsche
+                                Nationalhymne dar.</p>
+                        </div>
+
+                        <div id="ig-8" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§8 RDM</h3>
+                            <p>§8.1 RDM (Random Deathmatch), also das Angreifen oder Töten ohne Grund ist verboten.</p>
+                            <p>§8.2 Das Angreifen oder Töten von nicht bewaffneten Spielern ist verboten.</p>
+                            <p>§8.3 Ausnahme: Wenn Zivilisten durch einen Schießbefehl gesucht werden (KOS) oder
+                                bewaffnet sind und das Feuer eröffnen.</p>
+                            <p>§8.4 Massen-RDM (4 Personen oder mehr) in direkter Abfolge ist verboten.</p>
+                        </div>
+
+                        <div id="ig-9" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§9 Waffen & Kampfhandlungen</h3>
+                            <p>§9.1 Waffen dürfen nur bei klarem Grund (Selbstverteidigung) benutzt werden.</p>
+                            <p>§9.2 Die Waffenkammer darf nur von Spielern des “Raider”-Teams ausgeraubt werden.</p>
+                            <p>§9.3 Eine Kampfhandlung beginnt, sobald ein Schuss fällt oder ein Spieler aktiv bedroht
+                                wird.</p>
+                        </div>
+
+                        <div id="ig-10" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§10 Raidregeln</h3>
+                            <p>§10.1 Ein Raid beginnt, wenn der Raider den Spawnbereich verlässt Richtung Kaserne.</p>
+                            <p>§10.2 Ein Raid gilt als gescheitert, sobald der Raider erschossen oder inhaftiert wurde.
+                            </p>
+                            <p>§10.3 Raider dürfen nur bewaffnete Soldaten (Feldjäger, Marine, KSK, Wachbataillon)
+                                angreifen.</p>
+                            <p>§10.4 Spawncamping vor den Divisions Gebäuden ist untersagt.</p>
+                            <p>§10.6 10 Minuten Cooldown nach jedem gescheiterten Raid.</p>
+                            <p>§10.7 Friedenszeit beachten.</p>
+                        </div>
+
+                        <div id="ig-11" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§11 FailRP</h3>
+                            <p>FailRP, also unrealistische Handlungen im Roleplay, ist verboten.</p>
+                            <p>§11.1 Verstöße gegen die Division Spezifischen Regeln können unter FailRP fallen.</p>
+                            <p>§11.2 Reden nach dem Tod ist verboten.</p>
+                            <p>§11.3 Unnötige Provokation fällt unter FailRP.</p>
+                            <p>§11.4 Dein Leben ist dein höchstes Gut. FearRP ist zu beachten.</p>
+                        </div>
+
+                        <div id="ig-12" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§12 Geiselnahmen</h3>
+                            <p>§12.1 Raider können Zivilisten oder Soldaten als Geiseln nehmen.</p>
+                            <p>§12.2 Überleben der Geiseln hat oberste Priorität.</p>
+                            <p>§12.3 Wenn der Raider auf die Geisel zielt, dürfen Soldaten nicht schießen (FailRP).</p>
+                            <p>§12.4 Geiselnahme erst außerhalb des Spawnbereichs erlaubt.</p>
+                        </div>
+
+                        <div id="ig-13" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§13-§19 Sonstiges</h3>
+                            <p>§13 Offlineflucht ist verboten.</p>
+                            <p>§14 Supportflucht ist untersagt.</p>
+                            <p>§15 Kasernengelände ist Sperrgebiet.</p>
+                            <p>§16 Waffenladen: Nur Zivilisten/Raider dürfen Waffen kaufen.</p>
+                            <p>§19 Aufnahmepflicht: Jeder Spieler muss Beweisaufnahmen bei Regelverstößen haben (1
+                                Minute).</p>
+                        </div>
+
+                        <div id="ig-20" class="toc-target">
+                            <h3 class="font-bold text-bw-gold text-lg mb-2">§20 FearRP & §21 NLR</h3>
+                            <p>§20.1 FearRP: Angst muss ausgespielt werden.</p>
+                            <p>§21.1 New Life Rule: Nach dem Tod erinnert sich der Charakter nicht an die letzten
+                                Ereignisse.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: DIVISIONEN -->
+            <div id="tab-division" class="tab-content hidden animate-fade-in">
+                <div class="space-y-6">
+                    <h2 class="font-display text-3xl font-bold mb-6 text-white border-b border-white/10 pb-4">Divisions
+                        Regelwerk</h2>
+
+                    <!-- Feldjäger -->
+                    <div id="div-1"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="shield" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Feldjäger</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Zuständig für Ordnung auf der gesamten Kaserne.</li>
+                            <li>Haben stets am Haupttor Wache zu halten (mind. 2 Personen).</li>
+                            <li>Dürfen Zivilisten kontrollieren und verweisen.</li>
+                            <li>Festnahmen nur bei triftigem Grund.</li>
+                            <li>Zusammenarbeit mit dem Militärgericht verpflichtend.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Wachbataillon -->
+                    <div id="div-2"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="flag" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Wachbataillon</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Unterstützungseinheit für Sicherheit am Haupttor.</li>
+                            <li>Kein Zutritt ohne Pass oder Begleitung.</li>
+                            <li>Bei Angriffen Gelände sichern und Verstärkung rufen.</li>
+                            <li>Wachwechsel erfolgen diszipliniert.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Militärgericht -->
+                    <div id="div-3"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="scale" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Militärgericht</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Beurteilt interne Regelverstöße.</li>
+                            <li>Urteile auf Basis von RP-konformen Beweisen.</li>
+                            <li>Dienstgrad schützt nicht vor Gericht.</li>
+                            <li>Entscheidungen sind final.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Sanitätsdienst -->
+                    <div id="div-4"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="cross" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Sanitätsdienst</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Keine Waffen außer zur Selbstverteidigung.</li>
+                            <li>Neutrale Behandlung aller Verwundeten.</li>
+                            <li>Tragen eines Medikits ist Pflicht.</li>
+                            <li>Darf Kaserne für Notfälle verlassen.</li>
+                        </ul>
+                    </div>
+
+                    <!-- KSK -->
+                    <div id="div-5"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="swords" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Kommando Spezialkräfte (KSK)</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Hilfestellung am Haupttor bei Angriffen.</li>
+                            <li>Absolute Funkdisziplin.</li>
+                            <li>Freie Bewegung durch alle Zonen auf dem Gelände.</li>
+                            <li>Identität ist geheim zu halten.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Marine -->
+                    <div id="div-6"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="anchor" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Marine</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Kontrolle über Schiffe und küstennahes Territorium.</li>
+                            <li>Unterstützung für Spezialeinheiten.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Raider -->
+                    <div id="div-7"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="skull" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">Raider</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Dürfen kämpfende Einheiten eliminieren.</li>
+                            <li>Ausbilder und Sanitäter dürfen nicht angegriffen werden.</li>
+                            <li>Keine Wache über Divisions Gebäude.</li>
+                        </ul>
+                    </div>
+
+                    <!-- United Nations -->
+                    <div id="div-8"
+                        class="bg-[#111] border border-white/5 p-6 rounded relative overflow-hidden group toc-target">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i data-lucide="globe" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-bw-gold mb-3">United Nations</h3>
+                        <ul class="text-sm text-gray-400 space-y-2 list-disc pl-4">
+                            <li>Unterstützung am Gate nur mit Erlaubnis.</li>
+                            <li>Friedenssoldaten: Verhandlungen vor Waffengewalt.</li>
+                            <li>Kein Angriff ohne Grund.</li>
+                            <li>Beschuss bei gescheiterter Verhandlung erlaubt.</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer (Dynamically Loaded) -->
+    <div id="footer-container"></div>
+
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/components.js"></script>
+
+    <!-- Tab & TOC Logic -->
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Remove active style from buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-bw-gold', 'text-black', 'border-bw-gold');
+                btn.classList.add('bg-[#111]', 'text-gray-400', 'border-transparent');
+            });
+
+            // Show selected tab
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            // Highlight Button
+            const activeBtn = document.getElementById(`bg-${tabName}`);
+            activeBtn.classList.remove('bg-[#111]', 'text-gray-400', 'border-transparent');
+            activeBtn.classList.add('bg-bw-gold', 'text-black', 'border-bw-gold');
+
+            // Rebuild TOC
+            buildTOC(tabName);
+            // Re-render Lucide icons for the newly visible tab content
+            lucide.createIcons();
+        }
+
+        function buildTOC(tabName) {
+            const list = document.getElementById('toc-list');
+            list.innerHTML = '';
+
+            const container = document.getElementById(`tab-${tabName}`);
+            const headings = container.querySelectorAll('h3'); // Assuming H3 are main section headers within tabs
+
+            headings.forEach(heading => {
+                // Find parent container id if heading doesn't have one
+                let targetId = heading.parentElement.id;
+                if (!targetId) {
+                    // fallback
+                    heading.id = heading.innerText.replace(/\s+/g, '-').toLowerCase();
+                    targetId = heading.id;
+                }
+
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#${targetId}" class="hover:text-bw-gold transition-colors block py-1 truncate w-full" onclick="smoothScroll(event, '${targetId}')">${heading.innerText}</a>`;
+                list.appendChild(li);
+            });
+        }
+
+        function smoothScroll(e, targetId) {
+            e.preventDefault();
+            const el = document.getElementById(targetId);
+            if (el) {
+                // Offset for sticky header
+                const offset = 100;
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = el.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+        }
+
+        // Init Default
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('allgemein');
+            lucide.createIcons(); // Initial call for icons on page load
+        });
+    </script>
+</body>
+
+</html>

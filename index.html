@@ -1,93 +1,163 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="scroll-smooth">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Weiterleitung zu Roblox...</title>
-  <style>
-    /* Body and Background */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-image: url('https://raw.githubusercontent.com/AtlanticFrameworks/AtlanticFrameworks.github.io/refs/heads/main/images/ksk1.png');
-      background-size: cover;
-      background-position: center;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundeswehr Roleplay | ATLANTIC Studios</title>
 
-    /* Dark Blur Overlay */
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(8px);
-      background-color: rgba(0, 0, 0, 0.6);
-      z-index: 0;
-    }
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    /* Content Container */
-    .content {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      color: #ffffff;
-    }
+    <!-- Google Fonts: Inter & Oswald -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
+        rel="stylesheet">
 
-    .spinner {
-      border: 6px solid #2f3136;
-      border-top: 6px solid #7289da;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px auto;
-    }
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .message {
-      font-size: 1.3rem;
-      color: #d1d5db;
-    }
-
-    .link {
-      display: block;
-      margin-top: 12px;
-      font-size: 0.95rem;
-      color: #7289da;
-      text-decoration: none;
-    }
-
-    .link:hover {
-      text-decoration: underline;
-    }
-  </style>
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bw: {
+                            dark: '#0f1115',
+                            gold: '#E2B007',
+                            goldHover: '#cca006',
+                            glass: 'rgba(20, 25, 30, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scanline': 'scanline 8s linear infinite',
+                    },
+                    keyframes: {
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
-  <div class="overlay"></div>
-  <div class="content">
-    <div class="spinner"></div>
-    <div class="message">Du wirst jetzt zu Roblox weitergeleitet...</div>
-    <a class="link" href="https://www.roblox.com/games/17537413457/ALPHA-Bundeswehr-Roleplay">
-      Klicke hier, falls du nicht automatisch weitergeleitet wirst.
-    </a>
-  </div>
 
-  <script>
-    setTimeout(function () {
-      window.location.href = "https://www.roblox.com/games/17537413457/ALPHA-Bundeswehr-Roleplay";
-    }, 3000); // Nach 3 Sekunden weiterleiten
-  </script>
+<body class="text-gray-200 font-sans antialiased selection:bg-bw-gold selection:text-black">
+
+    <!-- CANVAS BACKGROUND (Dust/Embers) -->
+    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- SCANLINE OVERLAY -->
+    <div
+        class="fixed top-0 left-0 w-full h-full pointer-events-none z-50 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]">
+    </div>
+
+    <!-- HEADER (Dynamically Loaded) -->
+    <div id="navbar-container"></div>
+
+    <!-- HERO SECTION (Parallax) -->
+    <header id="hero-section" class="relative h-screen flex items-center justify-center overflow-hidden">
+        <!-- Parallax Background Layer -->
+        <div id="hero-bg" class="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
+            style="background-image: linear-gradient(to bottom, rgba(10,10,10,0.5), rgba(5,5,5,1)), url('assets/images/hero-bg.png');">
+        </div>
+
+        <!-- Content -->
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-16">
+            <!-- Status Badge -->
+            <div
+                class="inline-flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full mb-8 reveal">
+                <div class="relative flex h-3 w-3">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </div>
+                <span class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-gray-300"
+                    data-i18n="hero.system">System Online // v2.4</span>
+            </div>
+
+            <h1 class="font-display text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-6 tracking-tighter uppercase leading-[0.9] reveal"
+                style="transition-delay: 100ms;">
+                <span class="block text-stroke-thin" data-i18n="hero.serve">Wir. Dienen.</span>
+                <span class="block text-bw-gold glitch-text">Roblox.</span>
+            </h1>
+
+            <p class="text-gray-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed reveal"
+                style="transition-delay: 200ms;">
+                <span data-i18n="hero.sub">Authentisches Rollenspiel. Taktische Tiefe. Deutsche
+                    Militärtradition.</span><br>
+                <span class="text-bw-gold/80" data-i18n="hero.join">Tritt der größten deutschen Milsim-Community
+                    bei.</span>
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6 reveal"
+                style="transition-delay: 300ms;">
+                <button onclick="window.open('https://www.roblox.com/games/17537413457/Bundeswehr-Roleplay', '_blank')"
+                    class="group relative px-8 py-4 bg-white text-black font-display font-bold text-xl uppercase tracking-wider overflow-hidden tactical-notch">
+                    <span class="relative z-10 group-hover:text-white transition-colors" data-i18n="hero.start">Einsatz
+                        Beginnen</span>
+                    <div
+                        class="absolute inset-0 bg-bw-gold transform -translate-x-full skew-x-12 group-hover:translate-x-0 transition-transform duration-300 ease-out">
+                    </div>
+                </button>
+
+                <button onclick="window.open('https://discord.gg/bundeswehr-roleplay', '_blank')"
+                    class="group relative px-8 py-4 bg-transparent border border-white/30 text-white font-display font-bold text-xl uppercase tracking-wider overflow-hidden tactical-notch hover:border-bw-gold/50">
+                    <span class="relative z-10 flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-5 h-5"></i> <span
+                            data-i18n="hero.discord">Discord</span>
+                    </span>
+                    <div
+                        class="absolute inset-0 bg-white/5 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    </div>
+                </button>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- LIVE TICKER BAR -->
+    <div class="bg-bw-dark border-y border-white/5 py-3 relative overflow-hidden z-20">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center relative z-10">
+            <div class="flex items-center gap-6 font-mono text-xs md:text-sm">
+                <div class="flex items-center gap-2 text-green-500">
+                    <i data-lucide="wifi" class="w-4 h-4"></i>
+                    <span class="font-bold" data-i18n="ticker.connection">VERBINDUNG STABIL</span>
+                </div>
+                <div class="h-4 w-px bg-white/10"></div>
+                <div class="text-gray-400">
+                    <span class="text-gray-600 uppercase mr-2" data-i18n="ticker.personnel">Online Personal:</span>
+                    <span id="discord-count" class="text-white font-bold">Lade...</span>
+                </div>
+            </div>
+            <!-- Animated News Scroller -->
+            <div class="hidden md:flex flex-1 mx-12 overflow-hidden whitespace-nowrap mask-gradient">
+                <div class="animate-[translateX_20s_linear_infinite] inline-block text-gray-500 font-mono text-xs uppercase tracking-widest"
+                    data-i18n="ticker.update">
+                    +++ NEUES UPDATE: KARRIERE CENTER +++ FELDJÄGER FAHRZEUGE EINGETROFFEN +++ KSK REKRUTIERUNG OFFEN
+                    +++ MARINE ÜBUNG GESTARTET +++
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER (Dynamically Loaded) -->
+    <div id="footer-container"></div>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
+
 </html>
