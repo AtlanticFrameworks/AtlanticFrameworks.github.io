@@ -587,28 +587,27 @@
 
         async function initVerify(e) {
             e.preventDefault();
-            const username = document.getElementById('rblx-username').value.trim();
-            if (!username) return;
+            const usernameInput = document.getElementById('rblx-username').value.trim();
+            if (!usernameInput) return;
 
             showStatus("SEARCHING MAINFRAME...", 'loading');
 
             try {
                 const proxy = 'https://corsproxy.io/?';
 
-                // 1. Get ID
-                const userRes = await fetch(proxy + encodeURIComponent(`https://users.roblox.com/v1/usernames/users`), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
-                });
-
+                // 1. Get ID via Search (GET request is more reliable with proxies than POST)
+                const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${usernameInput}&limit=10`;
+                const userRes = await fetch(proxy + encodeURIComponent(searchUrl));
                 const userData = await userRes.json();
 
-                if (userData.data && userData.data.length > 0) {
-                    targetUserId = userData.data[0].id;
-                    targetUsername = userData.data[0].name; // Official case-correct name
+                // Find exact match (case-insensitive)
+                const user = userData.data.find(u => u.name.toLowerCase() === usernameInput.toLowerCase());
 
-                    // 2. Get Avatar (Compact Headshot)
+                if (user) {
+                    targetUserId = user.id;
+                    targetUsername = user.name;
+
+                    // 2. Get Avatar
                     const thumbUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${targetUserId}&size=150x150&format=Png&isCircular=false`;
                     const thumbRes = await fetch(proxy + encodeURIComponent(thumbUrl));
                     const thumbData = await thumbRes.json();
@@ -627,7 +626,7 @@
                     step2.classList.remove('hidden');
                     statusMsg.classList.add('hidden');
                 } else {
-                    showStatus("USER NOT FOUND IN DATABASE.", 'error');
+                    showStatus("USER NOT FOUND. CHECK SPELLING.", 'error');
                 }
 
             } catch (err) {
