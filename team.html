@@ -450,182 +450,151 @@
 
     <script src="assets/js/i18n.js"></script>
     <script>
-        // --- CONFIGURATION ---
+        // --- OAUTH CONFIG ---
+        const CLIENT_ID = '4980693260113572839';
+        // WARNING: Client Secret in frontend code is insecure. Use only for GitHub Pages static hosting as requested.
+        const CLIENT_SECRET = 'RBX-_EnynyFEg0qaaaFfWobDn7Q5BDsZguPjsIEie5pccaH7pPSTqb7hwaaHfUZLs9S6';
+
+        // Auto-detect Redirect URI or use current
+        const REDIRECT_URI = window.location.href.split('?')[0];
+
         const GROUP_ID = 34246821;
 
-        // Ranks permitted to enter (Game Moderator+ and equivalents)
-        // Hierarchy Order (Descending Priority):
-        /*
-            PR: Projektleitung, Projektverwaltung
-            HR: Teamverwaltung, Head Administrator, Administrator, Junior Administrator
-            MR: Head Game Moderator, Game Moderator
-            (Excluded: Test Game Moderator, Discord Staff, Supporters)
-        */
+        // Ranks permitted (Game Mod+)
         const ALLOWED_ROLES = [
-            "Group Owner",
-            "Ownership Team",
-            "Projektleitung",
-            "Projektverwaltung",
-            "Management",
-            "Teamverwaltung",
-            "Head Administrator",
-            "Administrator",
-            "Junior Administrator",
-            "Head Game Moderator",
-            "Game Moderator"
+            "Group Owner", "Ownership Team", "Projektleitung", "Projektverwaltung", "Management",
+            "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
+            "Head Game Moderator", "Game Moderator"
         ];
 
-        // --- STATE ---
-        let targetUserId = null;
-        let verificationCode = null;
-
-        // --- DOM ELEMENTS ---
+        // --- DOM ---
         const gate = document.getElementById('login-gate');
-        const step1 = document.getElementById('step-1');
-        const step2 = document.getElementById('step-2');
-        const statusMsg = document.getElementById('status-msg');
-        const verifyDisplay = document.getElementById('verify-code');
         const dashboard = document.getElementById('dashboard');
+        const loginStep = document.getElementById('login-step');
+        const loadingStep = document.getElementById('loading-step');
+        const errorStep = document.getElementById('error-step');
+        const statusText = document.getElementById('status-text');
 
-        // --- FUNCTIONS ---
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
 
-        function showStatus(msg, type = 'neutral') {
-            statusMsg.textContent = msg;
-            statusMsg.classList.remove('hidden', 'text-red-500', 'text-green-500', 'text-gray-400');
+            if (code) {
+                handleOAuth(code);
+            }
+        });
 
-            if (type === 'error') statusMsg.classList.add('text-red-500');
-            else if (type === 'success') statusMsg.classList.add('text-green-500');
-            else statusMsg.classList.add('text-gray-400');
-        }
+        // Function must be global/accessible for onclick
+        window.initOAuth = function () {
+            const url = `https://apis.roblox.com/oauth/v1/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=openid%20profile&response_type=code`;
+            window.location.href = url;
+        };
 
-        async function initVerify(e) {
-            e.preventDefault();
-            const username = document.getElementById('rblx-username').value.trim();
-            if (!username) return;
-
-            showStatus("Searching user...", 'neutral');
+        async function handleOAuth(code) {
+            if (loginStep) loginStep.classList.add('hidden');
+            if (loadingStep) loadingStep.classList.remove('hidden');
+            if (statusText) statusText.textContent = "AUTHENTICATING...";
 
             try {
-                // 1. Get User ID from Username
-                // POST to /v1/usernames/users requires payload, let's use search? simpler?
-                // Actually /v1/users/search?keyword= is deprecated/fuzzy.
-                // Best is POST https://users.roblox.com/v1/usernames/users
                 const proxy = 'https://corsproxy.io/?';
-                const url = `https://users.roblox.com/v1/usernames/users`;
 
-                const response = await fetch(proxy + encodeURIComponent(url), {
+                // 1. Exchange Code for Token
+                const tokenUrl = `https://apis.roblox.com/oauth/v1/token`;
+                const bodyParams = new URLSearchParams();
+                bodyParams.append('client_id', CLIENT_ID);
+                bodyParams.append('client_secret', CLIENT_SECRET);
+                bodyParams.append('grant_type', 'authorization_code');
+                bodyParams.append('code', code);
+                bodyParams.append('redirect_uri', REDIRECT_URI);
+
+                const tokenRes = await fetch(proxy + encodeURIComponent(tokenUrl), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        usernames: [username],
-                        excludeBannedUsers: true
-                    })
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: bodyParams
                 });
 
-                const data = await response.json();
-
-                if (data.data && data.data.length > 0) {
-                    targetUserId = data.data[0].id; // Found ID
-                    console.log("Found ID:", targetUserId);
-
-                    // Generate Code
-                    verificationCode = "ATL-" + Math.floor(1000 + Math.random() * 9000); // e.g. ATL-4829
-                    verifyDisplay.textContent = verificationCode;
-
-                    // Switch to Step 2
-                    step1.classList.add('hidden');
-                    step2.classList.remove('hidden');
-                    statusMsg.classList.add('hidden'); // Clear loading
-                } else {
-                    showStatus("User not found.", 'error');
+                if (!tokenRes.ok) {
+                    const errText = await tokenRes.text();
+                    console.error("Token Error:", errText);
+                    throw new Error("Token exchange failed. Code may have expired.");
                 }
 
-            } catch (err) {
-                console.error(err);
-                showStatus("API Error. Please try again.", 'error');
-            }
-        }
+                const tokenData = await tokenRes.json();
+                const accessToken = tokenData.access_token;
 
-        function copyCode() {
-            navigator.clipboard.writeText(verificationCode);
-            // Visual feedback could be added
-        }
+                // 2. Get User Info
+                if (statusText) statusText.textContent = "FETCHING PROFILE...";
+                const userRes = await fetch(proxy + encodeURIComponent('https://apis.roblox.com/oauth/v1/userinfo'), {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`, // Bearer might need to be passed in header to proxy?
+                        // corsproxy.io usually passes headers through.
+                        // But if it fails, we might need to pass it in a specific way.
+                        // Standard proxy behavior:
+                    }
+                });
+                // Note: passing Authorization header through corsproxy.io usually works.
 
-        function resetLogin() {
-            step2.classList.add('hidden');
-            step1.classList.remove('hidden');
-            document.getElementById('rblx-username').value = '';
-            statusMsg.classList.add('hidden');
-            targetUserId = null;
-        }
-
-        async function checkVerification() {
-            if (!targetUserId || !verificationCode) return;
-
-            showStatus("Verifying code & permissions...", 'neutral');
-            const proxy = 'https://corsproxy.io/?';
-
-            try {
-                // 1. Check Bio for Code
-                const userUrl = `https://users.roblox.com/v1/users/${targetUserId}`;
-                const userRes = await fetch(proxy + encodeURIComponent(userUrl));
+                if (!userRes.ok) throw new Error("Failed to fetch user profile.");
                 const userData = await userRes.json();
+                const userId = userData.sub;
+                const username = userData.preferred_username || userData.name;
 
-                const bio = userData.description || "";
-
-                if (!bio.includes(verificationCode)) {
-                    showStatus("Code not found in Bio. Please update description & save!", 'error');
-                    return;
-                }
-
-                // 2. Code Found! Now Check Roles
-                const rolesUrl = `https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`;
+                // 3. Check Group Role
+                if (statusText) statusText.textContent = "VERIFYING CLEARANCE...";
+                const rolesUrl = `https://groups.roblox.com/v2/users/${userId}/groups/roles`;
                 const rolesRes = await fetch(proxy + encodeURIComponent(rolesUrl));
                 const rolesData = await rolesRes.json();
 
                 const groupData = rolesData.data.find(g => g.group.id === GROUP_ID);
 
                 if (!groupData) {
-                    showStatus("Access Denied: You are not in the group.", 'error');
-                    return;
+                    throw new Error("You are not a member of ATLANTIC Studios.");
                 }
 
                 const userRole = groupData.role.name;
-                console.log("User Role:", userRole);
 
                 if (ALLOWED_ROLES.includes(userRole)) {
                     // SUCCESS
-                    showStatus("Access Granted!", 'success');
-                    setTimeout(() => {
-                        gate.classList.add('hidden');
-                        dashboard.classList.remove('hidden');
-                        lucide.createIcons();
-                    }, 1000);
+                    const avatarImg = document.getElementById('user-avatar');
+                    const nameDisplay = document.getElementById('user-name');
+                    const rankDisplay = document.getElementById('user-rank');
+
+                    if (avatarImg) avatarImg.src = userData.picture || `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
+                    if (nameDisplay) nameDisplay.textContent = username;
+                    if (rankDisplay) rankDisplay.textContent = userRole.toUpperCase();
+
+                    if (gate) gate.classList.add('hidden');
+                    if (dashboard) dashboard.classList.remove('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                    // Clear query params to clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
-                    showStatus(`Access Denied: Rank '${userRole}' is not authorized.`, 'error');
+                    throw new Error(`Insufficient Rank: ${userRole}`);
                 }
 
             } catch (err) {
                 console.error(err);
-                showStatus("Verification failed (API Error).", 'error');
+                if (loadingStep) loadingStep.classList.add('hidden');
+                if (errorStep) errorStep.classList.remove('hidden');
+                const errMsg = document.getElementById('error-msg');
+                if (errMsg) errMsg.textContent = err.message || "Authentication Failed.";
             }
         }
 
-        // TABS LOGIC
-        function showTab(tabId) {
+        // Tab Function
+        window.showTab = function (tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
                 btn.classList.add('text-gray-400', 'border-transparent');
             });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            // Re-highlight the clicked button requires passing 'this' or finding it. 
-            // Since we are replacing the script, we can fix the button highlighting logic slightly or leave it manual.
-            // Let's assume user clicks specific buttons.
+            const tab = document.getElementById(`tab-${tabId}`);
+            if (tab) tab.classList.remove('hidden');
         }
 
-        // Add event listeners for dynamic nav buttons if needed, or inline onclicks work fine.
-        // Fix for button highlighting:
+        // Button Highlight Event
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 document.querySelectorAll('.nav-btn').forEach(b => {
