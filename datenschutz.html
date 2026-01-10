@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datenschutzerklärung | Bundeswehr Roleplay</title>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bw-dark': '#0a0a0a',
+                        'bw-gold': '#e2b007',
+                        'bw-gray': '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-bw-dark text-white overflow-x-hidden selection:bg-bw-gold selection:text-black">
+
+    <!-- Header (Dynamically Loaded) -->
+    <div id="navbar-container"></div>
+
+    <!-- Hero Section -->
+    <section class="relative h-[40vh] flex items-center justify-center pt-20 overflow-hidden border-b border-white/10">
+        <!-- Parallax Background -->
+        <div id="hero-bg" class="absolute inset-0 bg-[url('assets/images/hero-bg.png')] bg-cover bg-center opacity-30">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-bw-dark via-bw-dark/50 to-transparent"></div>
+
+        <div class="relative z-10 text-center reveal">
+            <div
+                class="inline-block mb-4 px-3 py-1 border border-bw-gold/30 bg-bw-gold/5 backdrop-blur-md rounded-full">
+                <span class="text-bw-gold text-xs font-mono tracking-widest uppercase">Legal</span>
+            </div>
+            <h1
+                class="font-display text-5xl md:text-7xl font-bold uppercase tracking-tight text-white mb-4 drop-shadow-xl">
+                DATENSCHUTZ
+            </h1>
+        </div>
+    </section>
+
+    <!-- CONTENT -->
+    <section class="max-w-4xl mx-auto px-6 py-12 relative text-gray-300 leading-relaxed space-y-8 text-sm md:text-base">
+
+        <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden">
+            <h2 class="font-display text-2xl font-bold text-white mb-4">1. Einleitung</h2>
+            <p>Der Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Nachfolgend informieren wir dich
+                darüber, wie wir mit Daten umgehen, die im Rahmen der Nutzung unserer Webseite und unseres Roblox-Spiels
+                "Bundeswehr Roleplay" anfallen.</p>
+        </div>
+
+        <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden">
+            <h2 class="font-display text-2xl font-bold text-white mb-4">2. Verantwortliche Stelle</h2>
+            <p>Da es sich hierbei um ein privates Hobby-Projekt innerhalb der Roblox-Plattform handelt, erfolgt die
+                Datenverarbeitung primär durch die Roblox Corporation. Für die Inhalte dieser Fan-Webseite sind die
+                Betreiber der "ATLANTIC Studios" Roblox-Gruppe verantwortlich.</p>
+            <p class="mt-2 text-xs text-gray-500">Kontakt via Roblox-Nachricht an den Gruppenbesitzer oder über unseren
+                Community-Discord.</p>
+        </div>
+
+        <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden">
+            <h2 class="font-display text-2xl font-bold text-white mb-4">3. Welche Daten wir erfassen</h2>
+            <ul class="list-disc pl-5 space-y-2 mt-2">
+                <li><strong>Webseite:</strong> Beim Besuch dieser Webseite werden technisch notwendige Daten
+                    (IP-Adresse, Browser-Typ, Zugriffszeit) durch den Hosting-Anbieter (GitHub Pages) erfasst. Wir
+                    setzen keine Tracking-Cookies oder Analyse-Tools ein. Wir speichern lediglich deine gewählte
+                    Spracheinstellung lokal in deinem Browser (LocalStorage).</li>
+                <li><strong>Im Spiel (Roblox):</strong> Innerhalb des Spiels speichern wir deinen Roblox-Benutzernamen,
+                    deine User-ID und spielbezogene Fortschritte (Ränge, Statistiken, Ingame-Währung) auf den Servern
+                    von Roblox.</li>
+            </ul>
+        </div>
+
+        <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden">
+            <h2 class="font-display text-2xl font-bold text-white mb-4">4. Einbindung von Drittanbietern</h2>
+            <p>Diese Webseite lädt Inhalte von externen Servern:</p>
+            <ul class="list-disc pl-5 space-y-2 mt-2">
+                <li><strong>Roblox API:</strong> Um Statusinformationen und Teamlisten anzuzeigen, werden Daten von der
+                    Roblox-Schnittstelle geladen. Dabei wird deine IP-Adresse an Roblox übermittelt.</li>
+                <li><strong>Discord API:</strong> Um die Anzahl der Online-Nutzer anzuzeigen, verbinden wir uns mit der
+                    Discord-Schnittstelle.</li>
+                <li><strong>Google Fonts:</strong> Zur Darstellung von Schriftarten.</li>
+            </ul>
+            <p class="mt-4">Durch die Nutzung dieser Webseite erklärst du dich mit der Verbindung zu diesen Diensten
+                einverstanden.</p>
+        </div>
+
+        <div class="bg-[#111] border border-white/5 p-8 rounded-lg relative overflow-hidden">
+            <h2 class="font-display text-2xl font-bold text-white mb-4">5. Deine Rechte</h2>
+            <p>Du hast das Recht, Auskunft über die von uns gespeicherten spielbezogenen Daten zu erhalten. Da wir keine
+                persönlichen Klarnamen oder Adressen speichern, beschränkt sich dies auf deinen virtuellen Spielstand.
+                Für die Löschung deines Roblox-Accounts oder die Einsicht in die von Roblox gesammelten Daten wende dich
+                bitte direkt an den Roblox-Support.</p>
+        </div>
+
+    </section>
+
+    <!-- Footer (Dynamically Loaded) -->
+    <div id="footer-container"></div>
+
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/components.js"></script>
+</body>
+
+</html>
