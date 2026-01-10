@@ -127,61 +127,84 @@
                     <h1 class="font-display text-4xl font-bold mb-2">TEAM HIERARCHIE</h1>
                     <p class="text-gray-400 mb-8">Übersicht der internen Rangstruktur und Zuständigkeiten.</p>
 
-                    <div class="space-y-6">
-                        <!-- Management -->
-                        <div class="border border-bw-gold/30 bg-bw-gold/5 rounded-lg p-6">
-                            <h3
-                                class="font-display text-xl font-bold text-bw-gold mb-4 border-b border-bw-gold/20 pb-2 flex items-center gap-2">
-                                <i data-lucide="crown" class="w-5 h-5"></i> LEITUNGSEBENE
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-black/40 p-4 rounded border border-white/5 text-center">
-                                    <span class="block text-white font-bold text-lg">Group Owner</span>
-                                    <span class="text-xs text-gray-500 uppercase tracking-widest">Projektleitung</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                        <!-- COLUMN 1: LOW RANK (LR) -->
+                        <div class="space-y-4">
+                            <div class="bg-blue-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                                <h3 class="font-display font-bold text-white text-lg">Low Rank (LR)</h3>
+                            </div>
+                            <div class="space-y-2 relative">
+                                <!-- Connecting lines could be complex, simple stack for now -->
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-blue-400 text-center">
+                                    <span class="block text-white font-bold text-sm">Discord Moderator</span>
                                 </div>
-                                <div class="bg-black/40 p-4 rounded border border-white/5 text-center">
-                                    <span class="block text-white font-bold text-lg">Ownership Team</span>
-                                    <span class="text-xs text-gray-500 uppercase tracking-widest">Stellv. Leitung</span>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-emerald-300 text-center">
+                                    <span class="block text-white font-bold text-sm">Discord Test Moderator</span>
                                 </div>
-                                <div class="bg-black/40 p-4 rounded border border-white/5 text-center">
-                                    <span class="block text-white font-bold text-lg">Management</span>
-                                    <span class="text-xs text-gray-500 uppercase tracking-widest">Management</span>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-cyan-300 text-center">
+                                    <span class="block text-white font-bold text-sm">Supporter</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Administration -->
-                        <div class="border border-red-500/30 bg-red-500/5 rounded-lg p-6">
-                            <h3
-                                class="font-display text-xl font-bold text-red-500 mb-4 border-b border-red-500/20 pb-2 flex items-center gap-2">
-                                <i data-lucide="shield-alert" class="w-5 h-5"></i> ADMINISTRATION
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-black/40 p-4 rounded border border-white/5 text-center">
-                                    <span class="block text-white font-bold text-lg">Administrator</span>
-                                    <span class="text-xs text-gray-500 uppercase tracking-widest">Teamverwaltung</span>
+                        <!-- COLUMN 2: MID RANK (MR) -->
+                        <div class="space-y-4">
+                            <div class="bg-yellow-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(234,179,8,0.5)]">
+                                <h3 class="font-display font-bold text-black text-lg">Mid Rank (MR)</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-800 text-center">
+                                    <span class="block text-white font-bold text-sm">Head Game Moderator</span>
+                                </div>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-orange-500 text-center">
+                                    <span class="block text-white font-bold text-sm">Game Moderator</span>
+                                </div>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-orange-300 text-center">
+                                    <span class="block text-white font-bold text-sm">Test Game Moderator</span>
+                                </div>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-blue-600 text-center">
+                                    <span class="block text-white font-bold text-sm">Discord Head Moderator</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Moderation -->
-                        <div class="border border-blue-500/30 bg-blue-500/5 rounded-lg p-6">
-                            <h3
-                                class="font-display text-xl font-bold text-blue-500 mb-4 border-b border-blue-500/20 pb-2 flex items-center gap-2">
-                                <i data-lucide="users" class="w-5 h-5"></i> MODERATION
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-black/40 p-4 rounded border border-white/5 text-center">
-                                    <span class="block text-white font-bold text-lg">Game Moderator</span>
-                                    <span class="text-xs text-gray-500 uppercase tracking-widest">Ingame Support</span>
+                        <!-- COLUMN 3: HIGH RANK (HR) -->
+                        <div class="space-y-4">
+                            <div class="bg-green-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                                <h3 class="font-display font-bold text-white text-lg">High Rank (HR)</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-500 text-center">
+                                    <span class="block text-white font-bold text-sm">Teamverwaltung</span>
                                 </div>
-                                <div class="bg-black/40 p-4 rounded border border-white/5 text-center">
-                                    <span class="block text-white font-bold text-lg">Moderator</span>
-                                    <span class="text-xs text-gray-500 uppercase tracking-widest">Support &
-                                        Tickets</span>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-orange-600 text-center">
+                                    <span class="block text-white font-bold text-sm">Head Administrator</span>
+                                </div>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-700 text-center">
+                                    <span class="block text-white font-bold text-sm">Administrator</span>
+                                </div>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-400 text-center">
+                                    <span class="block text-white font-bold text-sm">Junior Administrator</span>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- COLUMN 4: PINNACLE RANK (PR) -->
+                        <div class="space-y-4">
+                            <div class="bg-red-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                                <h3 class="font-display font-bold text-white text-lg">Pinnacle Rank (PR)</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-400 text-center">
+                                    <span class="block text-white font-bold text-sm">Projektleitung</span>
+                                </div>
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-500 text-center">
+                                    <span class="block text-white font-bold text-sm">Projektverwaltung</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -239,7 +262,8 @@
                                     Schalter muss deaktiviert bleiben</strong> für einen vollständigen IP-Bann.</p>
                             <h4 class="font-bold text-white mb-2">4.3 Dokumentation</h4>
                             <p>Gründe müssen klar formuliert sein (Roblox-sichtbar). Moderator-Notiz Pflicht:
-                                <code>Gebannt von {Dein Name}</code>.</p>
+                                <code>Gebannt von {Dein Name}</code>.
+                            </p>
                         </section>
 
                         <section>
@@ -248,7 +272,8 @@
                                 <li>Keine Einmischung in RP-Situationen ohne Supportfall.</li>
                                 <li>Mod-Rechte sind NUR für Supportzwecke.</li>
                                 <li>"Herumspielen" (GodMode, Teleport, Force Respawn) ohne aktiven Supportfall ist
-                                    <strong class="text-red-500">strengstens untersagt</strong>.</li>
+                                    <strong class="text-red-500">strengstens untersagt</strong>.
+                                </li>
                             </ul>
                         </section>
 
@@ -421,7 +446,8 @@
                                     <p><strong class="text-orange-400">CMA:</strong> Bei Community-Ausschluss auch die
                                         Dauer (Tage) im Grund angeben.</p>
                                     <p><strong class="text-orange-400">Check:</strong> Vor Warn immer
-                                        <code>/moderations</code> nutzen.</p>
+                                        <code>/moderations</code> nutzen.
+                                    </p>
                                     <p><strong class="text-orange-400">Info:</strong> Entbannungen nur durch
                                         Admin/Management.</p>
                                 </div>
