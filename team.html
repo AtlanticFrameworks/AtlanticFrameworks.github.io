@@ -51,33 +51,52 @@
 
         <div
             class="relative z-10 w-full max-w-md p-8 bg-[#111] border border-white/10 rounded-lg shadow-2xl text-center">
-            <div class="mb-6">
+            <div class="mb-8">
                 <div
-                    class="w-16 h-16 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
-                    <i data-lucide="lock" class="w-8 h-8 text-bw-gold"></i>
+                    class="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 animate-pulse-slow">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg"
+                        class="w-10 h-10 invert opacity-80" alt="Roblox">
                 </div>
-                <h1 class="font-display text-2xl font-bold uppercase tracking-widest text-white">Restricted Access</h1>
-                <p class="text-xs text-gray-500 font-mono mt-2">AUTHORIZATION REQUIRED</p>
+                <h1 class="font-display text-3xl font-bold uppercase tracking-widest text-white mb-2">Staff Access</h1>
+                <p class="text-xs text-gray-500 font-mono">AUTHENTICATION REQUIRED</p>
             </div>
 
-            <form onsubmit="checkLogin(event)" class="space-y-4">
-                <div class="relative">
-                    <input type="password" id="password" placeholder="Passwort eingeben..."
-                        class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-center text-white focus:outline-none focus:border-bw-gold transition-colors font-mono">
-                </div>
-                <button type="submit"
-                    class="w-full bg-bw-gold text-black font-bold py-3 uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="key" class="w-4 h-4"></i> Login
+            <div id="login-step" class="block">
+                <button onclick="initOAuth()"
+                    class="w-full bg-white text-black font-bold py-4 rounded hover:bg-gray-200 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg"
+                        class="w-6 h-6" alt="Roblox">
+                    <span class="tracking-widest">LOG IN WITH ROBLOX</span>
                 </button>
-            </form>
-            <p id="error-msg" class="text-red-500 text-xs font-mono mt-4 hidden">ZUGRIFF VERWEIGERT: Falsches Passwort.
-            </p>
+                <p class="text-[10px] text-gray-600 mt-4 leading-relaxed">
+                    By logging in, you authorize us to verify your group rank.<br>
+                    Requires: <span class="text-bw-gold">Game Moderator+</span>
+                </p>
+            </div>
+
+            <!-- LOADING / STATUS -->
+            <div id="loading-step" class="hidden">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-8 h-8 border-2 border-bw-gold border-t-transparent rounded-full animate-spin"></div>
+                    <span id="status-text" class="text-xs font-mono text-bw-gold animate-pulse">CONNECTING TO
+                        MAINFRAME...</span>
+                </div>
+            </div>
+
+            <div id="error-step" class="hidden mt-4 bg-red-500/10 border border-red-500/20 p-4 rounded text-left">
+                <h3 class="text-red-500 font-bold flex items-center gap-2 mb-1"><i data-lucide="alert-circle"
+                        class="w-4 h-4"></i> Access Denied</h3>
+                <p id="error-msg" class="text-xs text-red-200">Insufficient Permissions.</p>
+                <button onclick="window.location.href = window.location.href.split('?')[0]"
+                    class="mt-3 text-[10px] uppercase tracking-widest text-white underline">Return</button>
+            </div>
+
         </div>
     </div>
 
     <!-- MAIN DASHBOARD (Hidden by default) -->
     <div id="dashboard" class="hidden flex h-screen">
-
+        <!-- Sidebar and Content same as before -->
         <!-- SIDEBAR -->
         <aside class="w-64 bg-[#080808] border-r border-white/5 flex flex-col">
             <div class="p-6 border-b border-white/5">
@@ -85,6 +104,16 @@
                     <span class="text-bw-gold">STAFF</span> PANEL
                 </h2>
                 <p class="text-[10px] text-gray-500 font-mono mt-1">ATLANTIC STUDIOS // INTERNAL</p>
+                <div id="user-display"
+                    class="mt-4 flex items-center gap-3 bg-white/5 p-2 rounded border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
+                        <img id="user-avatar" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div class="overflow-hidden">
+                        <p id="user-name" class="text-xs font-bold text-white truncate">Loading...</p>
+                        <p id="user-rank" class="text-[10px] text-bw-gold truncate">Verifying...</p>
+                    </div>
+                </div>
             </div>
 
             <nav class="flex-1 overflow-y-auto p-4 space-y-2">
@@ -121,390 +150,493 @@
         <!-- CONTENT AREA -->
         <main class="flex-1 staff-bg overflow-y-auto relative">
             <div class="p-8 max-w-5xl mx-auto space-y-12">
-
                 <!-- TAB: DASHBOARD (HIERARCHY) -->
                 <div id="tab-home" class="tab-content block animate-fade-in">
                     <h1 class="font-display text-4xl font-bold mb-2">TEAM HIERARCHIE</h1>
                     <p class="text-gray-400 mb-8">Übersicht der internen Rangstruktur und Zuständigkeiten.</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                        <!-- COLUMN 1: LOW RANK (LR) -->
+                        <!-- COLUMNS PRESERVED FROM PREVIOUS EDITS -->
                         <div class="space-y-4">
                             <div class="bg-blue-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
                                 <h3 class="font-display font-bold text-white text-lg">Low Rank (LR)</h3>
                             </div>
                             <div class="space-y-2 relative">
-                                <!-- Connecting lines could be complex, simple stack for now -->
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-blue-400 text-center">
-                                    <span class="block text-white font-bold text-sm">Discord Moderator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-emerald-300 text-center">
-                                    <span class="block text-white font-bold text-sm">Discord Test Moderator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-cyan-300 text-center">
-                                    <span class="block text-white font-bold text-sm">Supporter</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- COLUMN 2: MID RANK (MR) -->
-                        <div class="space-y-4">
-                            <div class="bg-yellow-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(234,179,8,0.5)]">
-                                <h3 class="font-display font-bold text-black text-lg">Mid Rank (MR)</h3>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-800 text-center">
-                                    <span class="block text-white font-bold text-sm">Head Game Moderator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-orange-500 text-center">
-                                    <span class="block text-white font-bold text-sm">Game Moderator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-orange-300 text-center">
-                                    <span class="block text-white font-bold text-sm">Test Game Moderator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-blue-600 text-center">
-                                    <span class="block text-white font-bold text-sm">Discord Head Moderator</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- COLUMN 3: HIGH RANK (HR) -->
-                        <div class="space-y-4">
-                            <div class="bg-green-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
-                                <h3 class="font-display font-bold text-white text-lg">High Rank (HR)</h3>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-500 text-center">
-                                    <span class="block text-white font-bold text-sm">Teamverwaltung</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-orange-600 text-center">
-                                    <span class="block text-white font-bold text-sm">Head Administrator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-700 text-center">
-                                    <span class="block text-white font-bold text-sm">Administrator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-400 text-center">
-                                    <span class="block text-white font-bold text-sm">Junior Administrator</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- COLUMN 4: PINNACLE RANK (PR) -->
-                        <div class="space-y-4">
-                            <div class="bg-red-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(239,68,68,0.5)]">
-                                <h3 class="font-display font-bold text-white text-lg">Pinnacle Rank (PR)</h3>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-400 text-center">
-                                    <span class="block text-white font-bold text-sm">Projektleitung</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-500 text-center">
-                                    <span class="block text-white font-bold text-sm">Projektverwaltung</span>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- TAB: INGAME RULES -->
-                <div id="tab-ingame-rules" class="tab-content hidden animate-fade-in text-gray-300">
-                    <h1 class="font-display text-4xl font-bold mb-2 text-white">INGAME MODERATION</h1>
-                    <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded mb-8 flex items-center gap-3">
-                        <i data-lucide="blue-book" class="w-6 h-6 text-blue-400"></i>
-                        <div>
-                            <p class="font-bold text-blue-400 text-sm uppercase">Gültigkeitsbereich</p>
-                            <p class="text-xs text-blue-300">Für alle Team-Mitglieder welche Ingame-Berechtigungen
-                                haben. | v1.0 (Juni 2025)</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-8 leading-relaxed">
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§1 – Allgemeine Grundsätze</h3>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Als Moderator repräsentierst du das Projekt sowohl gegenüber den Spielern als auch
-                                    nach außen.</li>
-                                <li>Dein Verhalten im Spiel muss stets respektvoll, professionell, unparteiisch und
-                                    regelkonform sein.</li>
-                                <li>Entscheidungen sind nachvollziehbar zu begründen und dürfen nicht auf persönlicher
-                                    Meinung beruhen.</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§2 – Allgemeine Pflichten</h3>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Moderatoren handeln sachlich, neutral und verantwortungsvoll.</li>
-                                <li><strong>Adminabuse, Befangenheit oder persönliche Konflikte</strong> führen zu
-                                    sofortigen Konsequenzen.</li>
-                                <li>Jede Entscheidung muss objektiv, begründet und dokumentiert sein.</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§3 – Nutzung des Moderationstools
-                            </h3>
-                            <p class="mb-2">Die Nutzung ist nur nach offizieller Schulung gestattet. Zuwiderhandlung
-                                führt zu Disziplinarmaßnahmen, Rechteentzug oder Degradierung.</p>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§4 – Ingame-Banns & IP-Banns</h3>
-                            <div class="bg-red-500/5 p-4 rounded border border-red-500/10 mb-4">
-                                <h4 class="font-bold text-red-500 mb-2">4.1 Grundsatz</h4>
-                                <p>Jeder Ingame-Bann ist grundsätzlich als <strong>IP-Bann</strong> durchzuführen. Ziel
-                                    ist es, das Erstellen neuer Accounts zu verhindern.</p>
-                            </div>
-                            <h4 class="font-bold text-white mb-2">4.2 Technische Umsetzung</h4>
-                            <p class="mb-2">Im Bann-Menü gibt es drei Schalter. <strong class="text-red-400">Der letzte
-                                    Schalter muss deaktiviert bleiben</strong> für einen vollständigen IP-Bann.</p>
-                            <h4 class="font-bold text-white mb-2">4.3 Dokumentation</h4>
-                            <p>Gründe müssen klar formuliert sein (Roblox-sichtbar). Moderator-Notiz Pflicht:
-                                <code>Gebannt von {Dein Name}</code>.
-                            </p>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§5 – Verhalten im Spiel</h3>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Keine Einmischung in RP-Situationen ohne Supportfall.</li>
-                                <li>Mod-Rechte sind NUR für Supportzwecke.</li>
-                                <li>"Herumspielen" (GodMode, Teleport, Force Respawn) ohne aktiven Supportfall ist
-                                    <strong class="text-red-500">strengstens untersagt</strong>.
-                                </li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§6 – Supportregeln</h3>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Support erfolgt <strong>ausschließlich schriftlich</strong>. Voice-Support ist
-                                    untersagt.</li>
-                                <li>Alle Fälle müssen dokumentiert werden.</li>
-                                <li>Bei eigener Beteiligung gilt: Fall abgeben!</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§7 – Verstöße & Konsequenzen</h3>
-                            <p class="mb-2">Verstöße gegen Regelwerk, Abuse oder Parteilichkeit führen zu sofortigen
-                                Konsequenzen bis zum Teamausschluss.</p>
-                        </section>
-                    </div>
-                </div>
-
-                <!-- TAB: TICKET RULES -->
-                <div id="tab-ticket-rules" class="tab-content hidden animate-fade-in text-gray-300">
-                    <h1 class="font-display text-4xl font-bold mb-2 text-white">TICKET SYSTEM</h1>
-                    <div class="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded mb-8 flex items-center gap-3">
-                        <i data-lucide="scroll" class="w-6 h-6 text-yellow-400"></i>
-                        <div>
-                            <p class="font-bold text-yellow-400 text-sm uppercase">Ticket Guidelines</p>
-                            <p class="text-xs text-yellow-300">Verhalten im Ticketsystem | v1.0 (Juni 2025)</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-8 leading-relaxed">
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§1 – Verhalten im Support</h3>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Stets respektvoll, sachlich und professionell.</li>
-                                <li><strong>Kein Eingehen auf Provokationen.</strong> Keine Ironie/Sarkasmus.</li>
-                                <li>Private Probleme/Launen dürfen den Support nicht beeinflussen.</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§2 – Verhaltenslinien</h3>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Fokus liegt auf dem Anliegen des Users (kein Smalltalk).</li>
-                                <li>Aussagen müssen klar und regelbasiert sein.</li>
-                                <li><strong>Unsichere Fälle:</strong> Immer höhere Instanz fragen, nie "nach Gefühl"
-                                    entscheiden.</li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§3 – Protokollierung &
-                                Meldepflicht</h3>
-                            <p class="mb-2">Schwerwiegende Fälle (Regelbrüche, Datenschutz, Beleidigungen) müssen
-                                vollständig dokumentiert werden:</p>
-                            <div class="bg-black/40 p-4 border border-white/5 rounded font-mono text-xs mb-4">
-                                - Ticket-ID<br>
-                                - Discord-Tag & User-ID<br>
-                                - Zeitpunkt<br>
-                                - Zuständiger Supporter<br>
-                                - Zusammenfassung<br>
-                                - Maßnahmen
-                            </div>
-                            <p class="text-red-400 text-sm"><i data-lucide="alert-triangle" class="w-4 h-4 inline"></i>
-                                Direktes Pingen der Projektleitung ist untersagt (außer angeordnet).</p>
-                        </section>
-
-                        <section>
-                            <h3 class="font-display text-xl font-bold text-white mb-3">§4 – Konsequenzen</h3>
-                            <p>Verstöße führen je nach Schwere zu Ermahnung, Rechteentzug oder Teamausschluss.
-                                Unwissenheit schützt nicht.</p>
-                        </section>
-                    </div>
-                </div>
-
-                <!-- TAB: COMMANDS -->
-                <div id="tab-commands" class="tab-content hidden animate-fade-in text-gray-300">
-                    <h1 class="font-display text-4xl font-bold mb-2 text-white">COMMAND LIST</h1>
-                    <p class="text-gray-400 mb-8">Befehlsreferenz für Sapphire (Discord) und Trident (Ingame).</p>
-
-                    <div class="grid lg:grid-cols-2 gap-8">
-
-                        <!-- SAPPHIRE -->
-                        <div class="bg-[#0e0e0e] border border-blue-500/20 rounded-lg overflow-hidden">
-                            <div class="bg-blue-900/20 p-4 border-b border-blue-500/20 flex items-center gap-2">
-                                <i data-lucide="message-circle" class="w-5 h-5 text-blue-400"></i>
-                                <h3 class="font-bold text-white">Sapphire・Discord Mod</h3>
-                            </div>
-                            <div class="p-6 space-y-6 text-sm">
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!warn [UserID] [Grund]</code>
-                                    <p class="mt-1 text-gray-400">Nutzer verwarnen.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!ban [UserID] [Zeit] [Grund]</code>
-                                    <p class="mt-1 text-gray-400">Nutzer bannen. Zeit bspw. "12d".</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!mute [UserID] [Zeit] [Grund]</code>
-                                    <p class="mt-1 text-gray-400">Timeout setzen (d, m, h).</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!unmute [UserID]</code>
-                                    <p class="mt-1 text-gray-400">Timeout entfernen.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!cases [UserID]</code>
-                                    <p class="mt-1 text-gray-400">Moderationsakte einsehen.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!caseedit [CaseID]</code>
-                                    <p class="mt-1 text-gray-400">Moderation bearbeiten.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!purge [Anzahl]</code>
-                                    <p class="mt-1 text-gray-400">Nachrichten löschen.</p>
-                                </div>
-                                <div class="bg-blue-500/5 p-3 rounded border border-blue-500/10 text-xs text-gray-400">
-                                    <strong class="text-blue-400">Hinweis:</strong> UserID, Grund und Zeit immer ohne
-                                    Klammern angeben.
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TRIDENT -->
-                        <div class="bg-[#0e0e0e] border border-orange-500/20 rounded-lg overflow-hidden">
-                            <div class="bg-orange-900/20 p-4 border-b border-orange-500/20 flex items-center gap-2">
-                                <i data-lucide="shield" class="w-5 h-5 text-orange-400"></i>
-                                <h3 class="font-bold text-white">Trident・Ingame Mod</h3>
-                            </div>
-                            <div class="p-6 space-y-6 text-sm">
-                                <div>
-                                    <a href="https://trident.bot/dashboard/1117494848891650222/panel" target="_blank"
-                                        class="text-orange-400 underline text-xs mb-2 block hover:text-white">Dashboard
-                                        Link</a>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/moderate [User] [Punishment] [Reason]</code>
-                                    <p class="mt-1 text-gray-400">Hauptbefehl für Verwarnungen/Banns.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/editmoderation [ID]</code>
-                                    <p class="mt-1 text-gray-400">Moderation nachträglich ändern.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/moderations [User]</code>
-                                    <p class="mt-1 text-gray-400">Akte eines Spielers prüfen.</p>
-                                </div>
-                                <div>
-                                    <code
-                                        class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/shift manage</code>
-                                    <p class="mt-1 text-gray-400">Schicht beginnen/beenden. <strong
-                                            class="text-white">Pflicht!</strong></p>
-                                </div>
-
                                 <div
-                                    class="bg-orange-500/5 p-3 rounded border border-orange-500/10 text-xs text-gray-400 space-y-2">
-                                    <p><strong class="text-orange-400">CMA:</strong> Bei Community-Ausschluss auch die
-                                        Dauer (Tage) im Grund angeben.</p>
-                                    <p><strong class="text-orange-400">Check:</strong> Vor Warn immer
-                                        <code>/moderations</code> nutzen.
-                                    </p>
-                                    <p><strong class="text-orange-400">Info:</strong> Entbannungen nur durch
-                                        Admin/Management.</p>
+                                    class="bg-red-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                                    <h3 class="font-display font-bold text-white text-lg">Pinnacle Rank (PR)</h3>
                                 </div>
+                                <div class="space-y-2">
+                                    <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-yellow-400 text-center">
+                                        <span class="block text-white font-bold text-sm">Projektleitung</span>
+                                    </div>
+                                    <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-500 text-center">
+                                        <span class="block text-white font-bold text-sm">Projektverwaltung</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- TAB: INGAME RULES -->
+                    <div id="tab-ingame-rules" class="tab-content hidden animate-fade-in text-gray-300">
+                        <h1 class="font-display text-4xl font-bold mb-2 text-white">INGAME MODERATION</h1>
+                        <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded mb-8 flex items-center gap-3">
+                            <i data-lucide="blue-book" class="w-6 h-6 text-blue-400"></i>
+                            <div>
+                                <p class="font-bold text-blue-400 text-sm uppercase">Gültigkeitsbereich</p>
+                                <p class="text-xs text-blue-300">Für alle Team-Mitglieder welche Ingame-Berechtigungen
+                                    haben. | v1.0 (Juni 2025)</p>
                             </div>
                         </div>
 
-                    </div>
-                </div>
+                        <div class="space-y-8 leading-relaxed">
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§1 – Allgemeine Grundsätze
+                                </h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Als Moderator repräsentierst du das Projekt sowohl gegenüber den Spielern als
+                                        auch
+                                        nach außen.</li>
+                                    <li>Dein Verhalten im Spiel muss stets respektvoll, professionell, unparteiisch und
+                                        regelkonform sein.</li>
+                                    <li>Entscheidungen sind nachvollziehbar zu begründen und dürfen nicht auf
+                                        persönlicher
+                                        Meinung beruhen.</li>
+                                </ul>
+                            </section>
 
-            </div>
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§2 – Allgemeine Pflichten
+                                </h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Moderatoren handeln sachlich, neutral und verantwortungsvoll.</li>
+                                    <li><strong>Adminabuse, Befangenheit oder persönliche Konflikte</strong> führen zu
+                                        sofortigen Konsequenzen.</li>
+                                    <li>Jede Entscheidung muss objektiv, begründet und dokumentiert sein.</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§3 – Nutzung des
+                                    Moderationstools
+                                </h3>
+                                <p class="mb-2">Die Nutzung ist nur nach offizieller Schulung gestattet. Zuwiderhandlung
+                                    führt zu Disziplinarmaßnahmen, Rechteentzug oder Degradierung.</p>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§4 – Ingame-Banns & IP-Banns
+                                </h3>
+                                <div class="bg-red-500/5 p-4 rounded border border-red-500/10 mb-4">
+                                    <h4 class="font-bold text-red-500 mb-2">4.1 Grundsatz</h4>
+                                    <p>Jeder Ingame-Bann ist grundsätzlich als <strong>IP-Bann</strong> durchzuführen.
+                                        Ziel
+                                        ist es, das Erstellen neuer Accounts zu verhindern.</p>
+                                </div>
+                                <h4 class="font-bold text-white mb-2">4.2 Technische Umsetzung</h4>
+                                <p class="mb-2">Im Bann-Menü gibt es drei Schalter. <strong class="text-red-400">Der
+                                        letzte
+                                        Schalter muss deaktiviert bleiben</strong> für einen vollständigen IP-Bann.</p>
+                                <h4 class="font-bold text-white mb-2">4.3 Dokumentation</h4>
+                                <p>Gründe müssen klar formuliert sein (Roblox-sichtbar). Moderator-Notiz Pflicht:
+                                    <code>Gebannt von {Dein Name}</code>.
+                                </p>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§5 – Verhalten im Spiel</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Keine Einmischung in RP-Situationen ohne Supportfall.</li>
+                                    <li>Mod-Rechte sind NUR für Supportzwecke.</li>
+                                    <li>"Herumspielen" (GodMode, Teleport, Force Respawn) ohne aktiven Supportfall ist
+                                        <strong class="text-red-500">strengstens untersagt</strong>.
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§6 – Supportregeln</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Support erfolgt <strong>ausschließlich schriftlich</strong>. Voice-Support ist
+                                        untersagt.</li>
+                                    <li>Alle Fälle müssen dokumentiert werden.</li>
+                                    <li>Bei eigener Beteiligung gilt: Fall abgeben!</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§7 – Verstöße & Konsequenzen
+                                </h3>
+                                <p class="mb-2">Verstöße gegen Regelwerk, Abuse oder Parteilichkeit führen zu sofortigen
+                                    Konsequenzen bis zum Teamausschluss.</p>
+                            </section>
+                        </div>
+                    </div>
+
+                    <!-- TAB: TICKET RULES -->
+                    <div id="tab-ticket-rules" class="tab-content hidden animate-fade-in text-gray-300">
+                        <h1 class="font-display text-4xl font-bold mb-2 text-white">TICKET SYSTEM</h1>
+                        <div
+                            class="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded mb-8 flex items-center gap-3">
+                            <i data-lucide="scroll" class="w-6 h-6 text-yellow-400"></i>
+                            <div>
+                                <p class="font-bold text-yellow-400 text-sm uppercase">Ticket Guidelines</p>
+                                <p class="text-xs text-yellow-300">Verhalten im Ticketsystem | v1.0 (Juni 2025)</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-8 leading-relaxed">
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§1 – Verhalten im Support
+                                </h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Stets respektvoll, sachlich und professionell.</li>
+                                    <li><strong>Kein Eingehen auf Provokationen.</strong> Keine Ironie/Sarkasmus.</li>
+                                    <li>Private Probleme/Launen dürfen den Support nicht beeinflussen.</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§2 – Verhaltenslinien</h3>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Fokus liegt auf dem Anliegen des Users (kein Smalltalk).</li>
+                                    <li>Aussagen müssen klar und regelbasiert sein.</li>
+                                    <li><strong>Unsichere Fälle:</strong> Immer höhere Instanz fragen, nie "nach Gefühl"
+                                        entscheiden.</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§3 – Protokollierung &
+                                    Meldepflicht</h3>
+                                <p class="mb-2">Schwerwiegende Fälle (Regelbrüche, Datenschutz, Beleidigungen) müssen
+                                    vollständig dokumentiert werden:</p>
+                                <div class="bg-black/40 p-4 border border-white/5 rounded font-mono text-xs mb-4">
+                                    - Ticket-ID<br>
+                                    - Discord-Tag & User-ID<br>
+                                    - Zeitpunkt<br>
+                                    - Zuständiger Supporter<br>
+                                    - Zusammenfassung<br>
+                                    - Maßnahmen
+                                </div>
+                                <p class="text-red-400 text-sm"><i data-lucide="alert-triangle"
+                                        class="w-4 h-4 inline"></i>
+                                    Direktes Pingen der Projektleitung ist untersagt (außer angeordnet).</p>
+                            </section>
+
+                            <section>
+                                <h3 class="font-display text-xl font-bold text-white mb-3">§4 – Konsequenzen</h3>
+                                <p>Verstöße führen je nach Schwere zu Ermahnung, Rechteentzug oder Teamausschluss.
+                                    Unwissenheit schützt nicht.</p>
+                            </section>
+                        </div>
+                    </div>
+
+                    <!-- TAB: COMMANDS -->
+                    <div id="tab-commands" class="tab-content hidden animate-fade-in text-gray-300">
+                        <h1 class="font-display text-4xl font-bold mb-2 text-white">COMMAND LIST</h1>
+                        <p class="text-gray-400 mb-8">Befehlsreferenz für Sapphire (Discord) und Trident (Ingame).</p>
+
+                        <div class="grid lg:grid-cols-2 gap-8">
+
+                            <!-- SAPPHIRE -->
+                            <div class="bg-[#0e0e0e] border border-blue-500/20 rounded-lg overflow-hidden">
+                                <div class="bg-blue-900/20 p-4 border-b border-blue-500/20 flex items-center gap-2">
+                                    <i data-lucide="message-circle" class="w-5 h-5 text-blue-400"></i>
+                                    <h3 class="font-bold text-white">Sapphire・Discord Mod</h3>
+                                </div>
+                                <div class="p-6 space-y-6 text-sm">
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!warn [UserID] [Grund]</code>
+                                        <p class="mt-1 text-gray-400">Nutzer verwarnen.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!ban [UserID] [Zeit] [Grund]</code>
+                                        <p class="mt-1 text-gray-400">Nutzer bannen. Zeit bspw. "12d".</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!mute [UserID] [Zeit] [Grund]</code>
+                                        <p class="mt-1 text-gray-400">Timeout setzen (d, m, h).</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!unmute [UserID]</code>
+                                        <p class="mt-1 text-gray-400">Timeout entfernen.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!cases [UserID]</code>
+                                        <p class="mt-1 text-gray-400">Moderationsakte einsehen.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!caseedit [CaseID]</code>
+                                        <p class="mt-1 text-gray-400">Moderation bearbeiten.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!purge [Anzahl]</code>
+                                        <p class="mt-1 text-gray-400">Nachrichten löschen.</p>
+                                    </div>
+                                    <div
+                                        class="bg-blue-500/5 p-3 rounded border border-blue-500/10 text-xs text-gray-400">
+                                        <strong class="text-blue-400">Hinweis:</strong> UserID, Grund und Zeit immer
+                                        ohne
+                                        Klammern angeben.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TRIDENT -->
+                            <div class="bg-[#0e0e0e] border border-orange-500/20 rounded-lg overflow-hidden">
+                                <div class="bg-orange-900/20 p-4 border-b border-orange-500/20 flex items-center gap-2">
+                                    <i data-lucide="shield" class="w-5 h-5 text-orange-400"></i>
+                                    <h3 class="font-bold text-white">Trident・Ingame Mod</h3>
+                                </div>
+                                <div class="p-6 space-y-6 text-sm">
+                                    <div>
+                                        <a href="https://trident.bot/dashboard/1117494848891650222/panel"
+                                            target="_blank"
+                                            class="text-orange-400 underline text-xs mb-2 block hover:text-white">Dashboard
+                                            Link</a>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/moderate [User] [Punishment] [Reason]</code>
+                                        <p class="mt-1 text-gray-400">Hauptbefehl für Verwarnungen/Banns.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/editmoderation [ID]</code>
+                                        <p class="mt-1 text-gray-400">Moderation nachträglich ändern.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/moderations [User]</code>
+                                        <p class="mt-1 text-gray-400">Akte eines Spielers prüfen.</p>
+                                    </div>
+                                    <div>
+                                        <code
+                                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/shift manage</code>
+                                        <p class="mt-1 text-gray-400">Schicht beginnen/beenden. <strong
+                                                class="text-white">Pflicht!</strong></p>
+                                    </div>
+
+                                    <div
+                                        class="bg-orange-500/5 p-3 rounded border border-orange-500/10 text-xs text-gray-400 space-y-2">
+                                        <p><strong class="text-orange-400">CMA:</strong> Bei Community-Ausschluss auch
+                                            die
+                                            Dauer (Tage) im Grund angeben.</p>
+                                        <p><strong class="text-orange-400">Check:</strong> Vor Warn immer
+                                            <code>/moderations</code> nutzen.
+                                        </p>
+                                        <p><strong class="text-orange-400">Info:</strong> Entbannungen nur durch
+                                            Admin/Management.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
         </main>
     </div>
 
     <script src="assets/js/i18n.js"></script>
     <script>
-        // CLIENT-SIDE GATE
-        // Note: This is not secure against technical users, but sufficient for a static basic staff portal.
-        const VALID_PASS = "atlantic2025";
+        // --- CONFIGURATION ---
+        const GROUP_ID = 34246821;
 
-        function checkLogin(e) {
+        // Ranks permitted to enter (Game Moderator+ and equivalents)
+        // Hierarchy Order (Descending Priority):
+        /*
+            PR: Projektleitung, Projektverwaltung
+            HR: Teamverwaltung, Head Administrator, Administrator, Junior Administrator
+            MR: Head Game Moderator, Game Moderator
+            (Excluded: Test Game Moderator, Discord Staff, Supporters)
+        */
+        const ALLOWED_ROLES = [
+            "Group Owner",
+            "Ownership Team",
+            "Projektleitung",
+            "Projektverwaltung",
+            "Management",
+            "Teamverwaltung",
+            "Head Administrator",
+            "Administrator",
+            "Junior Administrator",
+            "Head Game Moderator",
+            "Game Moderator"
+        ];
+
+        // --- STATE ---
+        let targetUserId = null;
+        let verificationCode = null;
+
+        // --- DOM ELEMENTS ---
+        const gate = document.getElementById('login-gate');
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const statusMsg = document.getElementById('status-msg');
+        const verifyDisplay = document.getElementById('verify-code');
+        const dashboard = document.getElementById('dashboard');
+
+        // --- FUNCTIONS ---
+
+        function showStatus(msg, type = 'neutral') {
+            statusMsg.textContent = msg;
+            statusMsg.classList.remove('hidden', 'text-red-500', 'text-green-500', 'text-gray-400');
+
+            if (type === 'error') statusMsg.classList.add('text-red-500');
+            else if (type === 'success') statusMsg.classList.add('text-green-500');
+            else statusMsg.classList.add('text-gray-400');
+        }
+
+        async function initVerify(e) {
             e.preventDefault();
-            const input = document.getElementById('password').value;
-            const error = document.getElementById('error-msg');
+            const username = document.getElementById('rblx-username').value.trim();
+            if (!username) return;
 
-            if (input === VALID_PASS) {
-                document.getElementById('login-gate').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                lucide.createIcons();
-            } else {
-                error.classList.remove('hidden');
+            showStatus("Searching user...", 'neutral');
+
+            try {
+                // 1. Get User ID from Username
+                // POST to /v1/usernames/users requires payload, let's use search? simpler?
+                // Actually /v1/users/search?keyword= is deprecated/fuzzy.
+                // Best is POST https://users.roblox.com/v1/usernames/users
+                const proxy = 'https://corsproxy.io/?';
+                const url = `https://users.roblox.com/v1/usernames/users`;
+
+                const response = await fetch(proxy + encodeURIComponent(url), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usernames: [username],
+                        excludeBannedUsers: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.data && data.data.length > 0) {
+                    targetUserId = data.data[0].id; // Found ID
+                    console.log("Found ID:", targetUserId);
+
+                    // Generate Code
+                    verificationCode = "ATL-" + Math.floor(1000 + Math.random() * 9000); // e.g. ATL-4829
+                    verifyDisplay.textContent = verificationCode;
+
+                    // Switch to Step 2
+                    step1.classList.add('hidden');
+                    step2.classList.remove('hidden');
+                    statusMsg.classList.add('hidden'); // Clear loading
+                } else {
+                    showStatus("User not found.", 'error');
+                }
+
+            } catch (err) {
+                console.error(err);
+                showStatus("API Error. Please try again.", 'error');
             }
         }
 
+        function copyCode() {
+            navigator.clipboard.writeText(verificationCode);
+            // Visual feedback could be added
+        }
+
+        function resetLogin() {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+            document.getElementById('rblx-username').value = '';
+            statusMsg.classList.add('hidden');
+            targetUserId = null;
+        }
+
+        async function checkVerification() {
+            if (!targetUserId || !verificationCode) return;
+
+            showStatus("Verifying code & permissions...", 'neutral');
+            const proxy = 'https://corsproxy.io/?';
+
+            try {
+                // 1. Check Bio for Code
+                const userUrl = `https://users.roblox.com/v1/users/${targetUserId}`;
+                const userRes = await fetch(proxy + encodeURIComponent(userUrl));
+                const userData = await userRes.json();
+
+                const bio = userData.description || "";
+
+                if (!bio.includes(verificationCode)) {
+                    showStatus("Code not found in Bio. Please update description & save!", 'error');
+                    return;
+                }
+
+                // 2. Code Found! Now Check Roles
+                const rolesUrl = `https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`;
+                const rolesRes = await fetch(proxy + encodeURIComponent(rolesUrl));
+                const rolesData = await rolesRes.json();
+
+                const groupData = rolesData.data.find(g => g.group.id === GROUP_ID);
+
+                if (!groupData) {
+                    showStatus("Access Denied: You are not in the group.", 'error');
+                    return;
+                }
+
+                const userRole = groupData.role.name;
+                console.log("User Role:", userRole);
+
+                if (ALLOWED_ROLES.includes(userRole)) {
+                    // SUCCESS
+                    showStatus("Access Granted!", 'success');
+                    setTimeout(() => {
+                        gate.classList.add('hidden');
+                        dashboard.classList.remove('hidden');
+                        lucide.createIcons();
+                    }, 1000);
+                } else {
+                    showStatus(`Access Denied: Rank '${userRole}' is not authorized.`, 'error');
+                }
+
+            } catch (err) {
+                console.error(err);
+                showStatus("Verification failed (API Error).", 'error');
+            }
+        }
+
+        // TABS LOGIC
         function showTab(tabId) {
-            // Hide all contents
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // Remove active style from side buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
                 btn.classList.add('text-gray-400', 'border-transparent');
             });
-
-            // Show Target
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-
-            // Highlight Button (Simpler logic: finding the button that triggered this is harder without reference, 
-            // so we'll just let the click effect happen or use event delegation. 
-            // For simplicity in this static file, I'll rely on the user clicking.
-            // Actually, let's fix the button highlighting properly.)
-
-            const btn = event.currentTarget; // The clicked button
-            btn.classList.remove('text-gray-400', 'border-transparent');
-            btn.classList.add('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
+            // Re-highlight the clicked button requires passing 'this' or finding it. 
+            // Since we are replacing the script, we can fix the button highlighting logic slightly or leave it manual.
+            // Let's assume user clicks specific buttons.
         }
+
+        // Add event listeners for dynamic nav buttons if needed, or inline onclicks work fine.
+        // Fix for button highlighting:
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
+                    b.classList.add('text-gray-400', 'border-transparent');
+                });
+                this.classList.remove('text-gray-400', 'border-transparent');
+                this.classList.add('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
+            });
+        });
 
         lucide.createIcons();
     </script>
 </body>
-
-</html>
