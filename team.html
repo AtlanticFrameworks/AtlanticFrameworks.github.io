@@ -711,18 +711,31 @@
 
             try {
                 // 1. Check Bio
-                const bioRes = await fetch(proxy + encodeURIComponent(`https://users.roblox.com/v1/users/${targetUserId}`));
+                // Force cache bust to see new bio updates
+                const bioUrl = `https://users.roblox.com/v1/users/${targetUserId}?_t=${Date.now()}`;
+                const bioRes = await fetch(proxy + encodeURIComponent(bioUrl));
+
+                if (!bioRes.ok) throw new Error("Failed to fetch user bio.");
+
                 const bioData = await bioRes.json();
                 const bio = bioData.description || "";
 
                 if (!bio.includes(verificationCode)) {
                     showStatus("VERIFICATION CODE NOT FOUND IN BIO.", 'error');
+                    console.warn(`Bio Check Failed. Expected: ${verificationCode}, Found in bio: ${bio.substring(0, 20)}...`);
                     return;
                 }
 
                 // 2. Check Rank
                 const rolesRes = await fetch(proxy + encodeURIComponent(`https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`));
+                if (!rolesRes.ok) throw new Error("Failed to fetch group roles.");
+
                 const rolesData = await rolesRes.json();
+
+                if (!rolesData || !rolesData.data) {
+                    throw new Error("Invalid Roles API Response");
+                }
+
                 const groupData = rolesData.data.find(g => g.group.id === GROUP_ID);
 
                 if (!groupData) {
@@ -731,6 +744,7 @@
                 }
 
                 const userRole = groupData.role.name;
+                console.log("Verifying User Role:", userRole);
 
                 if (ALLOWED_ROLES.includes(userRole)) {
                     // SUCCESS
@@ -752,11 +766,12 @@
                     }, 1000);
 
                 } else {
+                    console.error(`Access Denied. Role '${userRole}' not in allowed list:`, ALLOWED_ROLES);
                     showStatus(`ACCESS DENIED: INSUFFICIENT RANK (${userRole.toUpperCase()}).`, 'error');
                 }
 
             } catch (err) {
-                console.error(err);
+                console.error("Verification Error:", err);
                 showStatus("SYSTEM ERROR. TRY AGAIN.", 'error');
             }
         }
