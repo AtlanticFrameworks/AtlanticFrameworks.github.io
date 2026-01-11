@@ -200,71 +200,53 @@
                     <h1 class="font-display text-4xl font-bold mb-2">TEAM HIERARCHIE</h1>
                     <p class="text-gray-400 mb-8">Übersicht der internen Rangstruktur und Zuständigkeiten.</p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- LOADING INDICATOR -->
+                    <div id="staff-loading" class="text-center py-12 hidden">
+                        <div
+                            class="inline-block px-4 py-2 bg-white/5 rounded-full border border-white/10 animate-pulse">
+                            <i data-lucide="loader-2" class="w-4 h-4 inline animate-spin mr-2 text-bw-gold"></i>
+                            <span class="text-xs font-mono text-gray-400">SYNCING PERSONNEL DATABASE...</span>
+                        </div>
+                    </div>
+
+                    <div id="staff-hierarchy-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 hidden">
                         <!-- LOW RANK -->
                         <div class="space-y-4">
                             <div class="bg-blue-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
                                 <h3 class="font-display font-bold text-white text-lg">Low Rank (LR)</h3>
                             </div>
+                            <!-- Static content for LR as they are not fetched -->
                             <div class="space-y-2">
-                                <div
-                                    class="bg-[#2a2a2a] p-3 rounded border-l-4 border-gray-500 text-center text-gray-400">
-                                    <span class="block text-xs uppercase">Supporter</span>
-                                    <span class="block text-[10px] italic">(Nicht im Panel)</span>
+                                <div class="bg-[#1a1a1a] p-3 rounded border-l-4 border-gray-600 text-center opacity-50">
+                                    <span class="block text-white font-bold text-sm">Supporter</span>
+                                    <span class="block text-[10px] text-gray-500 italic mt-1">(Restricted Access)</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- MID RANK -->
+                        <!-- MID RANK (Dynamic) -->
                         <div class="space-y-4">
                             <div class="bg-green-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
                                 <h3 class="font-display font-bold text-white text-lg">Mid Rank (MR)</h3>
                             </div>
-                            <div class="space-y-2">
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-green-400 text-center">
-                                    <span class="block text-white font-bold text-sm">Head Game Moderator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-green-600 text-center">
-                                    <span class="block text-white font-bold text-sm">Game Moderator</span>
-                                </div>
-                            </div>
+                            <div id="container-mr" class="space-y-4 min-h-[100px]"></div>
                         </div>
 
-                        <!-- HIGH RANK -->
+                        <!-- HIGH RANK (Dynamic) -->
                         <div class="space-y-4">
                             <div
                                 class="bg-purple-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(168,85,247,0.5)]">
                                 <h3 class="font-display font-bold text-white text-lg">High Rank (HR)</h3>
                             </div>
-                            <div class="space-y-2">
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-400 text-center">
-                                    <span class="block text-white font-bold text-sm">Teamverwaltung</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-500 text-center">
-                                    <span class="block text-white font-bold text-sm">Head Administrator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-600 text-center">
-                                    <span class="block text-white font-bold text-sm">Administrator</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-purple-700 text-center">
-                                    <span class="block text-white font-bold text-sm">Junior Administrator</span>
-                                </div>
-                            </div>
+                            <div id="container-hr" class="space-y-4 min-h-[100px]"></div>
                         </div>
 
-                        <!-- PINNACLE RANK -->
+                        <!-- PINNACLE RANK (Dynamic) -->
                         <div class="space-y-4">
                             <div class="bg-red-600 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(220,38,38,0.5)]">
                                 <h3 class="font-display font-bold text-white text-lg">Pinnacle Rank (PR)</h3>
                             </div>
-                            <div class="space-y-2">
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-red-500 text-center">
-                                    <span class="block text-white font-bold text-sm">Projektleitung</span>
-                                </div>
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 border-red-700 text-center">
-                                    <span class="block text-white font-bold text-sm">Projektverwaltung</span>
-                                </div>
-                            </div>
+                            <div id="container-pr" class="space-y-4 min-h-[100px]"></div>
                         </div>
                     </div>
                 </div>
@@ -612,6 +594,29 @@
             else statusMsg.classList.add('text-gray-400');
         }
 
+        const HIERARCHY_CONFIG = [
+            {
+                containerId: 'container-pr',
+                roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'],
+                borderColor: 'border-red-500',
+                textColor: 'text-red-400'
+            },
+            {
+                containerId: 'container-hr',
+                roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'],
+                borderColor: 'border-purple-500',
+                textColor: 'text-purple-400'
+            },
+            {
+                containerId: 'container-mr',
+                roles: ['Head Game Moderator', 'Game Moderator'],
+                borderColor: 'border-green-500',
+                textColor: 'text-green-400'
+            }
+        ];
+
+        let staffLoaded = false;
+
         function enterDashboard(username, rank, avatarUrl) {
             document.getElementById('user-avatar').src = avatarUrl;
             document.getElementById('user-name').textContent = username;
@@ -622,6 +627,96 @@
 
             // Re-init icons
             if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Load Staff if not already loaded
+            if (!staffLoaded) {
+                loadStaffHierarchy();
+            }
+        }
+
+        async function loadStaffHierarchy() {
+            const loading = document.getElementById('staff-loading');
+            const grid = document.getElementById('staff-hierarchy-grid');
+
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+
+            const proxy = 'https://corsproxy.io/?';
+
+            try {
+                // 1. Fetch All Roles
+                const rolesRes = await fetch(proxy + encodeURIComponent(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles`));
+                if (!rolesRes.ok) throw new Error("Roles Fetch Failed");
+                const rolesData = await rolesRes.json();
+
+                // 2. Process each category
+                for (const config of HIERARCHY_CONFIG) {
+                    const container = document.getElementById(config.containerId);
+                    if (!container) continue;
+                    container.innerHTML = ''; // Clear
+
+                    // Filter roles that belong to this category
+                    // We also want to maintain the order defined in config.roles
+                    const categoryRoles = config.roles.map(roleName =>
+                        rolesData.roles.find(r => r.name === roleName)
+                    ).filter(r => r !== undefined);
+
+                    for (const role of categoryRoles) {
+                        try {
+                            // Fetch Members for this Role
+                            const membersRes = await fetch(proxy + encodeURIComponent(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`));
+                            const membersData = await membersRes.json();
+                            const members = membersData.data || [];
+
+                            if (members.length === 0) continue; // Skip empty roles
+
+                            // Create Role Block
+                            const roleBlock = document.createElement('div');
+                            roleBlock.className = 'animate-fade-in mb-6';
+
+                            // Header
+                            roleBlock.innerHTML = `
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 ${config.borderColor} text-center mb-3">
+                                    <span class="block text-white font-bold text-sm uppercase tracking-wider">${role.name}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono">${members.length} Members</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    ${members.map(m => `
+                                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded border border-white/5 hover:bg-white/10 transition-colors">
+                                           <div class="w-6 h-6 rounded-full bg-black overflow-hidden flex-shrink-0">
+                                                <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${m.userId}&width=150&height=150&format=png" 
+                                                     class="w-full h-full object-cover" 
+                                                     loading="lazy"
+                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
+                                           </div>
+                                           <div class="overflow-hidden">
+                                                <p class="text-[10px] font-bold text-gray-300 truncate leading-tight">${m.username}</p>
+                                                <!-- <p class="text-[8px] text-gray-600 truncate">ID: ${m.userId}</p> -->
+                                           </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                            container.appendChild(roleBlock);
+
+                        } catch (err) {
+                            console.warn(`Failed to load members for role ${role.name}`, err);
+                        }
+                    }
+                }
+
+                staffLoaded = true;
+
+            } catch (err) {
+                console.error("Staff Hierarchy Load Error:", err);
+                const grid = document.getElementById('staff-hierarchy-grid');
+                grid.innerHTML += `<div class="col-span-full text-center text-red-500 font-mono text-xs p-4 border border-red-500/20 bg-red-500/5 rounded">
+                    ERROR SYNCING PERSONNEL DATA. <br> CHECK CONSOLE.
+                </div>`;
+            } finally {
+                loading.classList.add('hidden');
+                grid.classList.remove('hidden');
+            }
         }
 
         // --- AUTH FLOW ---
