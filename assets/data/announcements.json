@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "title": "Staff Panel Update v2.0",
+        "date": "Jan 12, 2026",
+        "content": "The new Staff Panel is now live! Features include Shift Timer, Punishment Calculator, and dynamic Staff Hierarchy.",
+        "badge": "NEW",
+        "badgeColor": "bg-green-500 text-black"
+    },
+    {
+        "id": 2,
+        "title": "Moderation Guidelines Reminder",
+        "date": "Jan 10, 2026",
+        "content": "Please review the updated VDM punishment rules in the calculator. Strict enforcement starts today.",
+        "badge": "IMPORTANT",
+        "badgeColor": "bg-red-500 text-white"
+    },
+    {
+        "id": 3,
+        "title": "Weekly Meeting",
+        "date": "Jan 08, 2026",
+        "content": "Staff meeting this Sunday at 18:00 CET. Attendance is mandatory for High Ranks.",
+        "badge": "INFO",
+        "badgeColor": "bg-blue-500 text-white"
+    }
+]
