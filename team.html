@@ -639,10 +639,21 @@
                 // 1. Get ID via Search (GET request is more reliable with proxies than POST)
                 const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${usernameInput}&limit=10`;
                 const userRes = await fetch(proxy + encodeURIComponent(searchUrl));
+
+                if (!userRes.ok) {
+                    throw new Error(`API Error: ${userRes.status}`);
+                }
+
                 const userData = await userRes.json();
 
+                // Robustness check: Ensure .data exists
+                if (!userData || !Array.isArray(userData.data)) {
+                    console.error("Invalid API Response:", userData);
+                    throw new Error("Invalid API Response Structure");
+                }
+
                 // Find exact match (case-insensitive)
-                const user = userData.data.find(u => u.name.toLowerCase() === usernameInput.toLowerCase());
+                const user = userData.data.find(u => u.name && u.name.toLowerCase() === usernameInput.toLowerCase());
 
                 if (user) {
                     targetUserId = user.id;
@@ -671,7 +682,7 @@
                 }
 
             } catch (err) {
-                console.error(err);
+                console.error("Verify Error:", err);
                 showStatus("CONNECTION ERROR. RETRY.", 'error');
             }
         }
