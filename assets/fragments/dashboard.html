@@ -1,0 +1,635 @@
+<!-- SIDEBAR -->
+<!-- Toggle Button for Mobile -->
+<button id="sidebar-toggle" onclick="toggleSidebar()"
+    class="fixed top-4 left-4 z-50 md:hidden bg-bw-dark/80 p-2 rounded border border-white/10 text-white">
+    <i data-lucide="menu" class="w-6 h-6"></i>
+</button>
+
+<aside id="sidebar"
+    class="fixed md:relative z-40 w-64 h-full bg-[#080808] border-r border-white/5 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+    <div class="p-6 border-b border-white/5 flex justify-between items-start">
+        <div>
+            <h2 class="font-display text-xl font-bold text-white tracking-wider flex items-center gap-2">
+                <span class="text-bw-gold">STAFF</span> PANEL
+            </h2>
+            <p class="text-[10px] text-gray-500 font-mono mt-1">ATLANTIC STUDIOS // INTERNAL</p>
+        </div>
+        <button onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <div id="user-display" class="mx-6 mt-4 flex items-center gap-3 bg-white/5 p-2 rounded border border-white/5">
+        <div class="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
+            <img id="user-avatar" src="" class="w-full h-full object-cover">
+        </div>
+        <div class="overflow-hidden">
+            <p id="user-name" class="text-xs font-bold text-white truncate">Loading...</p>
+            <p id="user-rank" class="text-[10px] text-bw-gold truncate">Verifying...</p>
+        </div>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+        <button onclick="showTab('home')"
+            class="nav-btn w-full text-left px-4 py-3 rounded text-sm font-bold uppercase tracking-wide flex items-center gap-3 bg-white/5 text-bw-gold border border-bw-gold/20">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span
+                data-i18n="panel.sidebar.dashboard">Dashboard</span>
+        </button>
+        <div class="h-px bg-white/5 my-2"></div>
+
+        <p class="px-4 text-[10px] text-gray-600 font-mono uppercase mb-1">Operations</p>
+        <button onclick="showTab('shift')"
+            class="nav-btn w-full text-left px-4 py-3 rounded text-sm font-bold uppercase tracking-wide flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+            <i data-lucide="clock" class="w-4 h-4"></i> <span data-i18n="panel.sidebar.shift">Shift Check</span>
+        </button>
+        <button onclick="showTab('calculator')"
+            class="nav-btn w-full text-left px-4 py-3 rounded text-sm font-bold uppercase tracking-wide flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+            <i data-lucide="calculator" class="w-4 h-4"></i> <span data-i18n="panel.sidebar.calc">Justice Calc</span>
+        </button>
+
+        <div class="h-px bg-white/5 my-2"></div>
+        <p class="px-4 text-[10px] text-gray-600 font-mono uppercase mb-1">Guidelines</p>
+        <button onclick="showTab('ingame-rules')"
+            class="nav-btn w-full text-left px-4 py-3 rounded text-sm font-bold uppercase tracking-wide flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+            <i data-lucide="gamepad-2" class="w-4 h-4"></i> <span data-i18n="panel.sidebar.rules_ingame">Ingame
+                Rules</span>
+        </button>
+        <button onclick="showTab('ticket-rules')"
+            class="nav-btn w-full text-left px-4 py-3 rounded text-sm font-bold uppercase tracking-wide flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+            <i data-lucide="message-square" class="w-4 h-4"></i> <span data-i18n="panel.sidebar.rules_ticket">Ticket
+                Rules</span>
+        </button>
+        <div class="h-px bg-white/5 my-2"></div>
+        <p class="px-4 text-[10px] text-gray-600 font-mono uppercase mb-1">Tools</p>
+        <button onclick="showTab('commands')"
+            class="nav-btn w-full text-left px-4 py-3 rounded text-sm font-bold uppercase tracking-wide flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+            <i data-lucide="terminal" class="w-4 h-4"></i> <span data-i18n="panel.sidebar.commands">Commands</span>
+        </button>
+    </nav>
+
+    <div class="p-4 border-t border-white/5 flex flex-col gap-3">
+        <button onclick="toggleLanguage()"
+            class="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors uppercase font-bold tracking-wider text-left border border-white/10 p-2 rounded justify-center mb-2">
+            <i data-lucide="globe" class="w-4 h-4"></i> <span id="lang-display">DE/EN</span>
+        </button>
+        <button onclick="logout()"
+            class="flex items-center gap-2 text-xs text-red-500 hover:text-red-400 transition-colors uppercase font-bold tracking-wider text-left">
+            <i data-lucide="log-out" class="w-4 h-4"></i> <span data-i18n="panel.sidebar.logout">Abmelden</span>
+        </button>
+        <a href="index.html" class="flex items-center gap-2 text-xs text-gray-600 hover:text-white transition-colors">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i> <span data-i18n="panel.sidebar.back">Zurück zur
+                Website</span>
+        </a>
+    </div>
+</aside>
+
+<!-- CONTENT AREA -->
+<main class="flex-1 staff-bg overflow-y-auto relative">
+    <div class="p-8 max-w-5xl mx-auto space-y-12">
+        <!-- TAB: DASHBOARD (HIERARCHY) -->
+        <div id="tab-home" class="tab-content block animate-fade-in">
+
+            <!-- ANNOUNCEMENTS FEED -->
+            <div id="announcements-feed" class="mb-8 grid gap-4 hidden empty:hidden">
+                <!-- Dynamic Content -->
+            </div>
+
+            <h1 class="font-display text-4xl font-bold mb-2" data-i18n="panel.dashboard.hierarchy">TEAM HIERARCHIE</h1>
+            <p class="text-gray-400 mb-8" data-i18n="panel.dashboard.hierarchy_desc">Übersicht der internen Rangstruktur
+                und Zuständigkeiten.</p>
+
+            <!-- LOADING INDICATOR -->
+            <div id="staff-loading" class="text-center py-12 hidden">
+                <div class="inline-block px-4 py-2 bg-white/5 rounded-full border border-white/10 animate-pulse">
+                    <i data-lucide="loader-2" class="w-4 h-4 inline animate-spin mr-2 text-bw-gold"></i>
+                    <span class="text-xs font-mono text-gray-400">SYNCING PERSONNEL DATABASE...</span>
+                </div>
+            </div>
+
+            <!-- SEARCH BAR -->
+            <div id="staff-search-container" class="mb-6 hidden animate-fade-in">
+                <div class="relative">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+                    <input type="text" id="staff-search-input" onkeyup="filterStaff()"
+                        data-i18n="panel.dashboard.search_placeholder" placeholder="Search staff members..."
+                        class="w-full bg-[#1a1a1a] border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:border-bw-gold focus:outline-none transition-colors">
+                </div>
+            </div>
+
+            <!-- NEW FEATURES: STATUS & ACTIVITY (Idea Additions) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                <div class="bg-[#111] border border-white/5 rounded-lg p-6 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-bw-gold/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <h3 class="font-display font-bold text-white text-lg mb-4 flex items-center gap-2">
+                        <i data-lucide="activity" class="text-bw-gold"></i> <span
+                            data-i18n="panel.features.status">SERVER STATUS</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Roblox API</span>
+                            <span class="text-green-500 font-bold">OPERATIONAL</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Discord Bot</span>
+                            <span class="text-green-500 font-bold">ONLINE</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Database</span>
+                            <span class="text-green-500 font-bold">SYNCED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#111] border border-white/5 rounded-lg p-6 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <h3 class="font-display font-bold text-white text-lg mb-4 flex items-center gap-2">
+                        <i data-lucide="list" class="text-blue-500"></i> <span
+                            data-i18n="panel.features.activity">RECENT ACTIVITY</span>
+                    </h3>
+                    <div class="space-y-3 text-xs font-mono">
+                        <div class="flex gap-2">
+                            <span class="text-gray-500">[12:30]</span>
+                            <span class="text-white">User <span class="text-bw-gold">Smokey</span> banned for <span
+                                    class="text-red-400">RDM</span></span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-gray-500">[12:15]</span>
+                            <span class="text-white">Shift started by <span class="text-bw-gold">Officer42</span></span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-gray-500">[11:55]</span>
+                            <span class="text-white">Ticket #492 closed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="staff-hierarchy-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 hidden">
+                <!-- LOW RANK -->
+                <div class="space-y-4">
+                    <div class="bg-blue-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                        <h3 class="font-display font-bold text-white text-lg" data-i18n="panel.dashboard.rank.low">Low
+                            Rank (LR)</h3>
+                    </div>
+                    <!-- Static content for LR as they are not fetched -->
+                    <div class="space-y-2">
+                        <div class="bg-[#1a1a1a] p-3 rounded border-l-4 border-gray-600 text-center opacity-50">
+                            <span class="block text-white font-bold text-sm">Supporter</span>
+                            <span class="block text-[10px] text-gray-500 italic mt-1">(Restricted Access)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MID RANK (Dynamic) -->
+                <div class="space-y-4">
+                    <div class="bg-green-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                        <h3 class="font-display font-bold text-white text-lg" data-i18n="panel.dashboard.rank.mid">Mid
+                            Rank (MR)</h3>
+                    </div>
+                    <div id="container-mr" class="space-y-4 min-h-[100px]"></div>
+                </div>
+
+                <!-- HIGH RANK (Dynamic) -->
+                <div class="space-y-4">
+                    <div class="bg-purple-500 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                        <h3 class="font-display font-bold text-white text-lg" data-i18n="panel.dashboard.rank.high">High
+                            Rank (HR)</h3>
+                    </div>
+                    <div id="container-hr" class="space-y-4 min-h-[100px]"></div>
+                </div>
+
+                <!-- PINNACLE RANK (Dynamic) -->
+                <div class="space-y-4">
+                    <div class="bg-red-600 rounded-lg p-3 text-center shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                        <h3 class="font-display font-bold text-white text-lg" data-i18n="panel.dashboard.rank.pinnacle">
+                            Pinnacle Rank (PR)</h3>
+                    </div>
+                    <div id="container-pr" class="space-y-4 min-h-[100px]"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: SHIFT MANAGEMENT -->
+    <div id="tab-shift" class="tab-content hidden animate-fade-in text-gray-300">
+        <h1 class="font-display text-4xl font-bold mb-2 text-white">SHIFT CHECK</h1>
+        <p class="text-gray-400 mb-8">Track your moderation duty time and generate reports.</p>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- TIMER CONTROLS -->
+            <div
+                class="bg-[#0e0e0e] border border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center">
+
+                <div class="relative w-48 h-48 flex items-center justify-center mb-6">
+                    <svg class="absolute inset-0 w-full h-full text-white/5" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4" />
+                    </svg>
+                    <svg class="absolute inset-0 w-full h-full text-bw-gold transform -rotate-90 origin-center"
+                        viewBox="0 0 100 100">
+                        <circle id="timer-progress" cx="50" cy="50" r="45" fill="none" stroke="currentColor"
+                            stroke-width="4" stroke-dasharray="283" stroke-dashoffset="283"
+                            class="transition-[stroke-dashoffset] duration-1000" />
+                    </svg>
+                    <div class="relative z-10">
+                        <span id="shift-timer-display"
+                            class="block text-4xl font-mono font-bold text-white tracking-widest">00:00:00</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 w-full">
+                    <button id="btn-shift-start" onclick="toggleShift()"
+                        class="flex-1 bg-green-600 hover:bg-green-500 text-black font-bold py-3 rounded uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-4 h-4"></i> Start Shift
+                    </button>
+                    <button id="btn-shift-stop" onclick="stopShift()" disabled
+                        class="flex-1 bg-red-600/20 text-red-500 border border-red-500/50 hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed font-bold py-3 rounded uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="square" class="w-4 h-4"></i> End Shift
+                    </button>
+                </div>
+            </div>
+
+            <!-- ACTIVITY LOG -->
+            <div class="bg-[#0e0e0e] border border-white/10 rounded-lg p-6 space-y-4">
+                <h3 class="font-bold text-white uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
+                    Activity Log</h3>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-bold mb-1">Cases
+                            Handled</label>
+                        <input type="number" id="shift-cases" min="0" value="0"
+                            class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-mono focus:border-bw-gold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-bold mb-1">Bans Issued</label>
+                        <input type="number" id="shift-bans" min="0" value="0"
+                            class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-mono focus:border-bw-gold focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded mt-4">
+                    <p class="text-xs text-blue-300 mb-2"><strong>Tip:</strong> Don't forget to sync your cases
+                        with the Discord bot separately.</p>
+                </div>
+
+                <hr class="border-white/5 my-4">
+
+                <button onclick="copyShiftReport()"
+                    class="w-full bg-white/5 hover:bg-white/10 text-gray-300 font-bold py-2 rounded border border-white/10 uppercase text-xs tracking-wider transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="copy" class="w-3 h-3"></i> Copy Shift Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: PUNISHMENT CALCULATOR -->
+    <div id="tab-calculator" class="tab-content hidden animate-fade-in text-gray-300">
+        <h1 class="font-display text-4xl font-bold mb-2 text-white">JUSTICE CALCULATOR</h1>
+        <p class="text-gray-400 mb-8">Standardized punishment determination system.</p>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- INPUT -->
+            <div class="bg-[#0e0e0e] border border-white/10 rounded-lg p-6 space-y-6">
+
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold mb-2">Offense Category</label>
+                    <select id="calc-offense" onchange="runCalculation()"
+                        class="w-full bg-black/50 border border-white/10 rounded px-3 py-3 text-white focus:border-bw-gold focus:outline-none appearance-none">
+                        <option value="">Select an offense...</option>
+                        <optgroup label="Combat Violations">
+                            <option value="RDM">RDM (Random Deathmatch)</option>
+                            <option value="VDM">VDM (Vehicle Deathmatch)</option>
+                            <option value="Spawnkill">Spawnkilling</option>
+                            <option value="CombatLogging">Combat Logging</option>
+                        </optgroup>
+                        <optgroup label="Roleplay Violations">
+                            <option value="FailRP">FailRP</option>
+                            <option value="Metagaming">Metagaming</option>
+                            <option value="Powergaming">Powergaming</option>
+                            <option value="NLR">New Life Rule (NLR)</option>
+                        </optgroup>
+                        <optgroup label="Chat/Behavior">
+                            <option value="Toxicity">Toxicity / Insults</option>
+                            <option value="Spam">Chat Spam</option>
+                            <option value="Advertising">Advertising</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold mb-2">Offense Count</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="offense-count" value="1" checked onchange="runCalculation()"
+                                class="peer sr-only">
+                            <div
+                                class="bg-white/5 border border-white/10 rounded py-2 text-center peer-checked:bg-bw-gold peer-checked:text-black peer-checked:border-bw-gold transition-colors font-bold text-sm">
+                                1st
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="offense-count" value="2" onchange="runCalculation()"
+                                class="peer sr-only">
+                            <div
+                                class="bg-white/5 border border-white/10 rounded py-2 text-center peer-checked:bg-bw-gold peer-checked:text-black peer-checked:border-bw-gold transition-colors font-bold text-sm">
+                                2nd
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="offense-count" value="3" onchange="runCalculation()"
+                                class="peer sr-only">
+                            <div
+                                class="bg-white/5 border border-white/10 rounded py-2 text-center peer-checked:bg-bw-gold peer-checked:text-black peer-checked:border-bw-gold transition-colors font-bold text-sm">
+                                3rd+
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RESULT -->
+            <div
+                class="bg-[#0e0e0e] border border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <!-- Background Effect -->
+                <div class="absolute inset-0 bg-gradient-to-br from-red-600/10 to-transparent pointer-events-none">
+                </div>
+
+                <h3 class="text-sm font-mono text-gray-500 uppercase mb-2">Recommended Action</h3>
+
+                <div id="calc-result" class="text-3xl font-bold text-white mb-2 animate-fade-in">
+                    Select Offense
+                </div>
+                <div id="calc-duration" class="text-bw-gold font-mono text-xl mb-6">
+                    --
+                </div>
+
+                <p class="text-xs text-gray-500 max-w-sm mx-auto">
+                    This calculator provides the <strong>standard</strong> guidelines. Discretion may be applied
+                    by High Ranks based on context.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: INGAME RULES -->
+    <div id="tab-ingame-rules" class="tab-content hidden animate-fade-in text-gray-300">
+        <h1 class="font-display text-4xl font-bold mb-2 text-white">INGAME MODERATION</h1>
+        <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded mb-8 flex items-center gap-3">
+            <i data-lucide="blue-book" class="w-6 h-6 text-blue-400"></i>
+            <div>
+                <p class="font-bold text-blue-400 text-sm uppercase">Gültigkeitsbereich</p>
+                <p class="text-xs text-blue-300">Für alle Team-Mitglieder welche Ingame-Berechtigungen
+                    haben. | v1.0 (Juni 2025)</p>
+            </div>
+        </div>
+
+        <div class="space-y-8 leading-relaxed">
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§1 – Allgemeine Grundsätze
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Als Moderator repräsentierst du das Projekt sowohl gegenüber den Spielern als
+                        auch
+                        nach außen.</li>
+                    <li>Dein Verhalten im Spiel muss stets respektvoll, professionell, unparteiisch und
+                        regelkonform sein.</li>
+                    <li>Entscheidungen sind nachvollziehbar zu begründen und dürfen nicht auf
+                        persönlicher
+                        Meinung beruhen.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§2 – Allgemeine Pflichten
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Moderatoren handeln sachlich, neutral und verantwortungsvoll.</li>
+                    <li><strong>Adminabuse, Befangenheit oder persönliche Konflikte</strong> führen zu
+                        sofortigen Konsequenzen.</li>
+                    <li>Jede Entscheidung muss objektiv, begründet und dokumentiert sein.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§3 – Nutzung des
+                    Moderationstools
+                </h3>
+                <p class="mb-2">Die Nutzung ist nur nach offizieller Schulung gestattet. Zuwiderhandlung
+                    führt zu Disziplinarmaßnahmen, Rechteentzug oder Degradierung.</p>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§4 – Ingame-Banns & IP-Banns
+                </h3>
+                <div class="bg-red-500/5 p-4 rounded border border-red-500/10 mb-4">
+                    <h4 class="font-bold text-red-500 mb-2">4.1 Grundsatz</h4>
+                    <p>Jeder Ingame-Bann ist grundsätzlich als <strong>IP-Bann</strong> durchzuführen.
+                        Ziel
+                        ist es, das Erstellen neuer Accounts zu verhindern.</p>
+                </div>
+                <h4 class="font-bold text-white mb-2">4.2 Technische Umsetzung</h4>
+                <p class="mb-2">Im Bann-Menü gibt es drei Schalter. <strong class="text-red-400">Der
+                        letzte
+                        Schalter muss deaktiviert bleiben</strong> für einen vollständigen IP-Bann.</p>
+                <h4 class="font-bold text-white mb-2">4.3 Dokumentation</h4>
+                <p>Gründe müssen klar formuliert sein (Roblox-sichtbar). Moderator-Notiz Pflicht:
+                    <code>Gebannt von {Dein Name}</code>.
+                </p>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§5 – Verhalten im Spiel</h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Keine Einmischung in RP-Situationen ohne Supportfall.</li>
+                    <li>Mod-Rechte sind NUR für Supportzwecke.</li>
+                    <li>"Herumspielen" (GodMode, Teleport, Force Respawn) ohne aktiven Supportfall ist
+                        <strong class="text-red-500">strengstens untersagt</strong>.
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§6 – Supportregeln</h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Support erfolgt <strong>ausschließlich schriftlich</strong>. Voice-Support ist
+                        untersagt.</li>
+                    <li>Alle Fälle müssen dokumentiert werden.</li>
+                    <li>Bei eigener Beteiligung gilt: Fall abgeben!</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§7 – Verstöße & Konsequenzen
+                </h3>
+                <p class="mb-2">Verstöße gegen Regelwerk, Abuse oder Parteilichkeit führen zu sofortigen
+                    Konsequenzen bis zum Teamausschluss.</p>
+            </section>
+        </div>
+    </div>
+
+    <!-- TAB: TICKET RULES -->
+    <div id="tab-ticket-rules" class="tab-content hidden animate-fade-in text-gray-300">
+        <h1 class="font-display text-4xl font-bold mb-2 text-white">TICKET SYSTEM</h1>
+        <div class="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded mb-8 flex items-center gap-3">
+            <i data-lucide="scroll" class="w-6 h-6 text-yellow-400"></i>
+            <div>
+                <p class="font-bold text-yellow-400 text-sm uppercase">Ticket Guidelines</p>
+                <p class="text-xs text-yellow-300">Verhalten im Ticketsystem | v1.0 (Juni 2025)</p>
+            </div>
+        </div>
+
+        <div class="space-y-8 leading-relaxed">
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§1 – Verhalten im Support
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Stets respektvoll, sachlich und professionell.</li>
+                    <li><strong>Kein Eingehen auf Provokationen.</strong> Keine Ironie/Sarkasmus.</li>
+                    <li>Private Probleme/Launen dürfen den Support nicht beeinflussen.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§2 – Verhaltenslinien</h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Fokus liegt auf dem Anliegen des Users (kein Smalltalk).</li>
+                    <li>Aussagen müssen klar und regelbasiert sein.</li>
+                    <li><strong>Unsichere Fälle:</strong> Immer höhere Instanz fragen, nie "nach Gefühl"
+                        entscheiden.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§3 – Protokollierung &
+                    Meldepflicht</h3>
+                <p class="mb-2">Schwerwiegende Fälle (Regelbrüche, Datenschutz, Beleidigungen) müssen
+                    vollständig dokumentiert werden:</p>
+                <div class="bg-black/40 p-4 border border-white/5 rounded font-mono text-xs mb-4">
+                    - Ticket-ID<br>
+                    - Discord-Tag & User-ID<br>
+                    - Zeitpunkt<br>
+                    - Zuständiger Supporter<br>
+                    - Zusammenfassung<br>
+                    - Maßnahmen
+                </div>
+                <p class="text-red-400 text-sm"><i data-lucide="alert-triangle" class="w-4 h-4 inline"></i>
+                    Direktes Pingen der Projektleitung ist untersagt (außer angeordnet).</p>
+            </section>
+
+            <section>
+                <h3 class="font-display text-xl font-bold text-white mb-3">§4 – Konsequenzen</h3>
+                <p>Verstöße führen je nach Schwere zu Ermahnung, Rechteentzug oder Teamausschluss.
+                    Unwissenheit schützt nicht.</p>
+            </section>
+        </div>
+    </div>
+
+    <!-- TAB: COMMANDS -->
+    <div id="tab-commands" class="tab-content hidden animate-fade-in text-gray-300">
+        <h1 class="font-display text-4xl font-bold mb-2 text-white">COMMAND LIST</h1>
+        <p class="text-gray-400 mb-8">Befehlsreferenz für Sapphire (Discord) und Trident (Ingame).</p>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+
+            <!-- SAPPHIRE -->
+            <div class="bg-[#0e0e0e] border border-blue-500/20 rounded-lg overflow-hidden">
+                <div class="bg-blue-900/20 p-4 border-b border-blue-500/20 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5 text-blue-400"></i>
+                    <h3 class="font-bold text-white">Sapphire・Discord Mod</h3>
+                </div>
+                <div class="p-6 space-y-6 text-sm">
+                    <div>
+                        <code
+                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!warn [UserID] [Grund]</code>
+                        <p class="mt-1 text-gray-400">Nutzer verwarnen.</p>
+                    </div>
+                    <div>
+                        <code
+                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!ban [UserID] [Zeit] [Grund]</code>
+                        <p class="mt-1 text-gray-400">Nutzer bannen. Zeit bspw. "12d".</p>
+                    </div>
+                    <div>
+                        <code
+                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!mute [UserID] [Zeit] [Grund]</code>
+                        <p class="mt-1 text-gray-400">Timeout setzen (d, m, h).</p>
+                    </div>
+                    <div>
+                        <code class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!unmute [UserID]</code>
+                        <p class="mt-1 text-gray-400">Timeout entfernen.</p>
+                    </div>
+                    <div>
+                        <code class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!cases [UserID]</code>
+                        <p class="mt-1 text-gray-400">Moderationsakte einsehen.</p>
+                    </div>
+                    <div>
+                        <code
+                            class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!caseedit [CaseID]</code>
+                        <p class="mt-1 text-gray-400">Moderation bearbeiten.</p>
+                    </div>
+                    <div>
+                        <code class="text-blue-400 font-bold bg-blue-400/10 px-2 py-1 rounded">s!purge [Anzahl]</code>
+                        <p class="mt-1 text-gray-400">Nachrichten löschen.</p>
+                    </div>
+                    <div class="bg-blue-500/5 p-3 rounded border border-blue-500/10 text-xs text-gray-400">
+                        <strong class="text-blue-400">Hinweis:</strong> UserID, Grund und Zeit immer
+                        ohne
+                        Klammern angeben.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRIDENT -->
+            <div class="bg-[#0e0e0e] border border-orange-500/20 rounded-lg overflow-hidden">
+                <div class="bg-orange-900/20 p-4 border-b border-orange-500/20 flex items-center gap-2">
+                    <i data-lucide="shield" class="w-5 h-5 text-orange-400"></i>
+                    <h3 class="font-bold text-white">Trident・Ingame Mod</h3>
+                </div>
+                <div class="p-6 space-y-6 text-sm">
+                    <div>
+                        <a href="https://trident.bot/dashboard/1117494848891650222/panel" target="_blank"
+                            class="text-orange-400 underline text-xs mb-2 block hover:text-white">Dashboard
+                            Link</a>
+                    </div>
+                    <div>
+                        <code
+                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/moderate [User] [Punishment] [Reason]</code>
+                        <p class="mt-1 text-gray-400">Hauptbefehl für Verwarnungen/Banns.</p>
+                    </div>
+                    <div>
+                        <code
+                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/editmoderation [ID]</code>
+                        <p class="mt-1 text-gray-400">Moderation nachträglich ändern.</p>
+                    </div>
+                    <div>
+                        <code
+                            class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/moderations [User]</code>
+                        <p class="mt-1 text-gray-400">Akte eines Spielers prüfen.</p>
+                    </div>
+                    <div>
+                        <code class="text-orange-400 font-bold bg-orange-400/10 px-2 py-1 rounded">/shift manage</code>
+                        <p class="mt-1 text-gray-400">Schicht beginnen/beenden. <strong
+                                class="text-white">Pflicht!</strong></p>
+                    </div>
+
+                    <div
+                        class="bg-orange-500/5 p-3 rounded border border-orange-500/10 text-xs text-gray-400 space-y-2">
+                        <p><strong class="text-orange-400">CMA:</strong> Bei Community-Ausschluss auch
+                            die
+                            Dauer (Tage) im Grund angeben.</p>
+                        <p><strong class="text-orange-400">Check:</strong> Vor Warn immer
+                            <code>/moderations</code> nutzen.
+                        </p>
+                        <p><strong class="text-orange-400">Info:</strong> Entbannungen nur durch
+                            Admin/Management.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
