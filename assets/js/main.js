@@ -306,7 +306,7 @@ async function fetchStaff() {
     const groupId = '34246821'; // ATLANTIC Studios
     // GitHub Pages doesn't support PHP, so we use a public CORS proxy
     // const proxy = 'proxy.php?url='; 
-    const proxy = 'https://corsproxy.io/?';
+    const proxy = 'https://api.allorigins.win/raw?url=';
 
     try {
         // 1. Get Roles

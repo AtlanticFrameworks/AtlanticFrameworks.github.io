@@ -438,7 +438,7 @@
             showStatus("SEARCHING MAINFRAME...", 'loading');
 
             try {
-                const proxy = 'https://corsproxy.io/?';
+                const proxy = 'https://api.allorigins.win/raw?url=';
 
                 // 1. Get ID via Search (GET request is more reliable with proxies than POST)
                 const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${usernameInput}&limit=10`;
@@ -511,7 +511,7 @@
             if (!targetUserId || !verificationCode) return;
 
             showStatus("VERIFYING SECURITY CREDENTIALS...", 'loading');
-            const proxy = 'https://corsproxy.io/?';
+            const proxy = 'https://api.allorigins.win/raw?url=';
 
             try {
                 // 1. Check Bio
