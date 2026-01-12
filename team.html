@@ -305,6 +305,9 @@
             // 4. Initialize Tools
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
+            // Initialize Dashboard Event Listeners (Shift, etc.)
+            initDashboardListeners();
+
             // Re-run i18n for the newly injected content
             const currentLang = localStorage.getItem('lang') || 'de';
             setLanguage(currentLang);
@@ -764,13 +767,18 @@
             });
         }
 
-        // Auto-save input changes
-        document.getElementById('shift-cases').addEventListener('change', saveShiftState);
-        document.getElementById('shift-bans').addEventListener('change', saveShiftState);
+        // Wraps init logic that depends on Dashboard HTML being present
+        function initDashboardListeners() {
+            // Shift inputs
+            const casesInput = document.getElementById('shift-cases');
+            const bansInput = document.getElementById('shift-bans');
 
-        window.addEventListener('DOMContentLoaded', () => {
+            if (casesInput) casesInput.addEventListener('change', saveShiftState);
+            if (bansInput) bansInput.addEventListener('change', saveShiftState);
+
+            // Restore previous state if any
             restoreShiftState();
-        });
+        }
         // --- PUNISHMENT CALCULATOR ---
         const PUNISHMENT_DATA = {
             "RDM": ["Warn / Kick", "Ban 3 Days", "Ban 7 Days"],
