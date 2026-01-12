@@ -278,44 +278,65 @@
         let staffLoaded = false;
 
         async function enterDashboard(username, rank, avatarUrl) {
+            console.log("Entering Dashboard...");
             const dashboard = document.getElementById('dashboard');
+            const gate = document.getElementById('login-gate'); // Re-select to be safe
 
             // 1. Fetch Dashboard Content Securely
             try {
                 const res = await fetch('assets/fragments/dashboard.html');
-                if (!res.ok) throw new Error("Failed to load secure dashboard content.");
+                if (!res.ok) throw new Error(`Fetch Failed: ${res.status}`);
                 const html = await res.text();
+
+                if (!html) throw new Error("Dashboard HTML is empty");
+
                 dashboard.innerHTML = html;
+                console.log("Dashboard Content Injected");
+
+                // 2. Setup User Data
+                const avatarEl = document.getElementById('user-avatar');
+                const nameEl = document.getElementById('user-name');
+                const rankEl = document.getElementById('user-rank');
+
+                if (!avatarEl || !nameEl || !rankEl) {
+                    throw new Error("Dashboard DOM elements missing after injection");
+                }
+
+                avatarEl.src = avatarUrl;
+                nameEl.textContent = username;
+                rankEl.textContent = rank;
+
+                // 3. Reveal Dashboard
+                gate.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+
+                // 4. Initialize Tools
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                // Initialize Dashboard Event Listeners
+                if (typeof initDashboardListeners === 'function') {
+                    initDashboardListeners();
+                }
+
+                // Re-run i18n
+                const currentLang = localStorage.getItem('lang') || 'de';
+                if (typeof setLanguage === 'function') setLanguage(currentLang);
+
+                // Load Staff
+                if (!staffLoaded && typeof loadStaffHierarchy === 'function') {
+                    loadStaffHierarchy().catch(e => console.error("Staff Load Error:", e));
+                    if (typeof loadAnnouncements === 'function') loadAnnouncements();
+                }
+
+                // Initialize Database (Supabase)
+                if (typeof initDatabase === 'function') {
+                    initDatabase().catch(e => console.error("DB Init Error:", e));
+                }
+
             } catch (e) {
-                console.error("Security/Load Error:", e);
-                alert("Security handshake failed. Please reload.");
-                return;
-            }
-
-            // 2. Setup User Data
-            // Note: Elements only exist AFTER injection
-            document.getElementById('user-avatar').src = avatarUrl;
-            document.getElementById('user-name').textContent = username;
-            document.getElementById('user-rank').textContent = rank;
-
-            // 3. Reveal Dashboard
-            gate.classList.add('hidden');
-            dashboard.classList.remove('hidden');
-
-            // 4. Initialize Tools
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-
-            // Initialize Dashboard Event Listeners (Shift, etc.)
-            initDashboardListeners();
-
-            // Re-run i18n for the newly injected content
-            const currentLang = localStorage.getItem('lang') || 'de';
-            setLanguage(currentLang);
-
-            // Load Staff if not already loaded
-            if (!staffLoaded) {
-                loadStaffHierarchy();
-                loadAnnouncements();
+                console.error("Critical Dashboard Error:", e);
+                alert("Dashboard Load Error: " + e.message);
+                // Try to show dashboard anyway if partial partial
             }
         }
 
@@ -921,4 +942,8 @@
             }
         }
     </script>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/db.js"></script> <!-- Supabase Database Logic -->
 </body>
