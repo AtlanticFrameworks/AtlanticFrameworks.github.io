@@ -320,22 +320,59 @@
         }
 
         // --- PROXY HELPER ---
+        // --- PROXY HELPER WITH FAILOVER ---
         async function fetchProxy(targetUrl) {
-            const proxyBase = 'https://api.allorigins.win/get?url=';
-            const res = await fetch(proxyBase + encodeURIComponent(targetUrl));
-            if (!res.ok) throw new Error(`Proxy Error: ${res.status}`);
+            const proxies = [
+                // 1. AllOrigins (JSON wrapper)
+                {
+                    url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl),
+                    type: 'json-wrapper'
+                },
+                // 2. CORSProxy.io (Direct)
+                {
+                    url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl),
+                    type: 'direct'
+                },
+                // 3. ThingProxy (Direct)
+                {
+                    url: 'https://thingproxy.freeboard.io/fetch/' + targetUrl,
+                    type: 'direct'
+                }
+            ];
 
-            const data = await res.json();
-            // allorigins returns content in 'contents' property as a string
-            if (!data.contents) throw new Error("Proxy returned empty content");
+            // Attempt sequential fetch
+            for (const proxy of proxies) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout per proxy
 
-            try {
-                return JSON.parse(data.contents);
-            } catch (e) {
-                // If it's not JSON (e.g. text), return as is, but for Roblox API it should be JSON
-                return data.contents;
+                    const res = await fetch(proxy.url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (!res.ok) continue; // Try next proxy
+
+                    if (proxy.type === 'json-wrapper') {
+                        const data = await res.json();
+                        if (!data.contents) continue; // Invalid wrapper response
+
+                        try {
+                            return JSON.parse(data.contents);
+                        } catch (e) {
+                            return data.contents;
+                        }
+                    } else {
+                        return await res.json(); // Direct proxy return
+                    }
+
+                } catch (e) {
+                    console.warn(`Proxy ${proxy.url} failed:`, e);
+                    continue; // Try next
+                }
             }
+            throw new Error("All proxies failed to fetch data.");
         }
+
+        const delay = ms => new Promise(res => setTimeout(res, ms));
 
         async function loadStaffHierarchy() {
             const loading = document.getElementById('staff-loading');
@@ -370,6 +407,9 @@
                     for (const role of categoryRoles) {
                         try {
                             // Fetch Members for this Role
+                            // Add slight delay to avoid rate-limiting the proxy
+                            await delay(200);
+
                             const membersData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`);
                             const members = membersData.data || [];
 

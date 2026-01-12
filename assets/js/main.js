@@ -306,18 +306,37 @@ async function fetchStaff() {
 
     const groupId = '34246821'; // ATLANTIC Studios
 
-    // Proxy Helper for allorigins.win (to handle JSON wrapper)
+    // Proxy Helper with Failover
     async function fetchProxy(targetUrl) {
-        const proxyBase = 'https://api.allorigins.win/get?url=';
-        const res = await fetch(proxyBase + encodeURIComponent(targetUrl));
-        const data = await res.json();
-        // allorigins returns content in 'contents' property as a string
-        if (!data.contents) throw new Error("Proxy returned empty content");
-        try {
-            return JSON.parse(data.contents);
-        } catch (e) {
-            return data.contents;
+        const proxies = [
+            { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), type: 'json-wrapper' },
+            { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' },
+            { url: 'https://thingproxy.freeboard.io/fetch/' + targetUrl, type: 'direct' }
+        ];
+
+        for (const proxy of proxies) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+                const res = await fetch(proxy.url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!res.ok) continue;
+
+                if (proxy.type === 'json-wrapper') {
+                    const data = await res.json();
+                    if (!data.contents) continue;
+                    try { return JSON.parse(data.contents); } catch (e) { return data.contents; }
+                } else {
+                    return await res.json();
+                }
+            } catch (e) {
+                console.warn(`Proxy fail: ${proxy.url}`, e);
+                continue;
+            }
         }
+        throw new Error("All proxies failed.");
     }
 
     try {
