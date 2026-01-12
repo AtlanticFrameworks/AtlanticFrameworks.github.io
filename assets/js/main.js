@@ -299,29 +299,35 @@ async function fetchDiscordStats() {
 }
 
 // --- 6. STAFF LIST LOADER ---
+// --- 6. STAFF LIST LOADER ---
 async function fetchStaff() {
     const grid = document.getElementById('staff-grid');
     if (!grid) return;
 
     const groupId = '34246821'; // ATLANTIC Studios
-    // GitHub Pages doesn't support PHP, so we use a public CORS proxy
-    // const proxy = 'proxy.php?url='; 
-    const proxy = 'https://api.allorigins.win/raw?url=';
+
+    // Proxy Helper for allorigins.win (to handle JSON wrapper)
+    async function fetchProxy(targetUrl) {
+        const proxyBase = 'https://api.allorigins.win/get?url=';
+        const res = await fetch(proxyBase + encodeURIComponent(targetUrl));
+        const data = await res.json();
+        // allorigins returns content in 'contents' property as a string
+        if (!data.contents) throw new Error("Proxy returned empty content");
+        try {
+            return JSON.parse(data.contents);
+        } catch (e) {
+            return data.contents;
+        }
+    }
 
     try {
         // 1. Get Roles
-        const rolesUrl = `https://groups.roblox.com/v1/groups/${groupId}/roles`;
-        const rolesRes = await fetch(proxy + encodeURIComponent(rolesUrl));
-        const rolesData = await rolesRes.json();
+        const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
         console.log("DEBUG: Available Group Roles:", rolesData.roles.map(r => r.name));
 
         // Define the roles we want to show and their display order
-        // Note: Exact role names must match what is on Roblox. 
-        // Based on request: Administrator, Game Moderator, Moderator. 
-        // We also likely want "Owner" or high ranks if present, but request was specific. 
-        // I will attempt to match these strings.
         const targetRoles = [
-            "Group Owner", // NOTE: Group Owner is merged into Ownership Team
+            "Group Owner",
             "Ownership Team",
             "Management",
             "Administrator",
@@ -334,52 +340,37 @@ async function fetchStaff() {
         // Sort specifically by the order in targetRoles array
         filteredRoles.sort((a, b) => targetRoles.indexOf(a.name) - targetRoles.indexOf(b.name));
 
-        if (filteredRoles.length === 0) {
-            // Fallback: If no exact matches (maybe names differ slightly), fallback to top 3 ranks
-            // to ensure SOMETHING shows.
-            const sortedByRank = rolesData.roles.sort((a, b) => b.rank - a.rank);
-            // filteredRoles.push(...sortedByRank.slice(0, 3));
-            // Actually, let's just stick to the request. If empty, maybe show "Check Group".
-        }
-
         // 2. Fetch Members & Prepare Groups
-        let staffGroups = {}; // { "Ownership Team": [...], "Manager": [...] }
+        let staffGroups = {};
         let allUserIds = [];
 
         // Initialize empty arrays for targets to ensure order
         targetRoles.forEach(r => {
-            // Skip Group Owner here as we merge it into Ownership Team
             if (r !== "Group Owner") staffGroups[r] = [];
         });
-        // Ensure Ownership Team exists if not already (it should be in targetRoles but let's be safe)
         if (!staffGroups["Ownership Team"]) staffGroups["Ownership Team"] = [];
 
 
         for (const role of filteredRoles) {
-            // Determine target group name
             let targetGroupName = role.name;
             let displayRoleName = role.name;
 
-            // Merge Logic: Group Owner -> Ownership Team
             if (role.name === "Group Owner") {
                 targetGroupName = "Ownership Team";
                 displayRoleName = "Ownership Team";
             }
 
             if (role.memberCount > 0) {
-                const membersUrl = `https://groups.roblox.com/v1/groups/${groupId}/roles/${role.id}/users?limit=25&sortOrder=Desc`;
-                const memRes = await fetch(proxy + encodeURIComponent(membersUrl));
-                const memData = await memRes.json();
+                const memData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles/${role.id}/users?limit=25&sortOrder=Desc`);
 
                 if (memData.data) {
                     memData.data.forEach(user => {
-                        // Push to the target group container
                         if (staffGroups[targetGroupName]) {
                             staffGroups[targetGroupName].push({
                                 id: user.userId,
                                 username: user.username,
                                 displayName: user.displayName, // Use Display Name
-                                role: displayRoleName // Override role name if needed
+                                role: displayRoleName
                             });
                             allUserIds.push(user.userId);
                         }
@@ -396,10 +387,8 @@ async function fetchStaff() {
         }
 
         // 4. Fetch Avatars (Batch)
-        // Roblox Avatar API limits? We might need chunking if > 100 users, but unlikely for these ranks.
         const avatarUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${allUserIds.join(',')}&size=150x150&format=Png&isCircular=false`;
-        const avatarRes = await fetch(proxy + encodeURIComponent(avatarUrl));
-        const avatarData = await avatarRes.json();
+        const avatarData = await fetchProxy(avatarUrl);
 
         // 5. Render Groups
         for (const roleName of targetRoles) {

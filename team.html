@@ -319,38 +319,58 @@
             }
         }
 
+        // --- PROXY HELPER ---
+        async function fetchProxy(targetUrl) {
+            const proxyBase = 'https://api.allorigins.win/get?url=';
+            const res = await fetch(proxyBase + encodeURIComponent(targetUrl));
+            if (!res.ok) throw new Error(`Proxy Error: ${res.status}`);
+
+            const data = await res.json();
+            // allorigins returns content in 'contents' property as a string
+            if (!data.contents) throw new Error("Proxy returned empty content");
+
+            try {
+                return JSON.parse(data.contents);
+            } catch (e) {
+                // If it's not JSON (e.g. text), return as is, but for Roblox API it should be JSON
+                return data.contents;
+            }
+        }
+
         async function loadStaffHierarchy() {
             const loading = document.getElementById('staff-loading');
             const grid = document.getElementById('staff-hierarchy-grid');
 
+            // Show loading, hide others
             loading.classList.remove('hidden');
             grid.classList.add('hidden');
-
-            const proxy = 'https://corsproxy.io/?';
+            document.getElementById('staff-search-container').classList.add('hidden');
 
             try {
-                // 1. Fetch All Roles
-                const rolesRes = await fetch(proxy + encodeURIComponent(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles`));
-                if (!rolesRes.ok) throw new Error("Roles Fetch Failed");
-                const rolesData = await rolesRes.json();
+                // 1. Get Roles
+                const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles`);
 
-                // 2. Process each category
+                if (!rolesData || !rolesData.roles) throw new Error("Invalid Roles Data");
+
+                // Filter & Sort Configured Roles
+                // Sort by Rank DESC
+                rolesData.roles.sort((a, b) => b.rank - a.rank);
+
+                // Clear Grid
+                grid.innerHTML = '';
+
                 for (const config of HIERARCHY_CONFIG) {
                     const container = document.getElementById(config.containerId);
                     if (!container) continue;
-                    container.innerHTML = ''; // Clear
+                    container.innerHTML = ''; // Reset
 
-                    // Filter roles that belong to this category
-                    // We also want to maintain the order defined in config.roles
-                    const categoryRoles = config.roles.map(roleName =>
-                        rolesData.roles.find(r => r.name === roleName)
-                    ).filter(r => r !== undefined);
+                    // Find roles matching this category
+                    const categoryRoles = rolesData.roles.filter(r => config.roles.includes(r.name));
 
                     for (const role of categoryRoles) {
                         try {
                             // Fetch Members for this Role
-                            const membersRes = await fetch(proxy + encodeURIComponent(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`));
-                            const membersData = await membersRes.json();
+                            const membersData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`);
                             const members = membersData.data || [];
 
                             if (members.length === 0) continue; // Skip empty roles
@@ -372,7 +392,7 @@
                                                 <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${m.userId}&width=150&height=150&format=png" 
                                                      class="w-full h-full object-cover" 
                                                      loading="lazy"
-                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
+                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
                                            </div>
                                            <div class="overflow-hidden">
                                                 <p class="text-[10px] font-bold text-gray-300 truncate leading-tight">${m.username}</p>
@@ -438,17 +458,9 @@
             showStatus("SEARCHING MAINFRAME...", 'loading');
 
             try {
-                const proxy = 'https://api.allorigins.win/raw?url=';
-
-                // 1. Get ID via Search (GET request is more reliable with proxies than POST)
+                // 1. Get ID via Search
                 const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${usernameInput}&limit=10`;
-                const userRes = await fetch(proxy + encodeURIComponent(searchUrl));
-
-                if (!userRes.ok) {
-                    throw new Error(`API Error: ${userRes.status}`);
-                }
-
-                const userData = await userRes.json();
+                const userData = await fetchProxy(searchUrl);
 
                 // Robustness check: Ensure .data exists
                 if (!userData || !Array.isArray(userData.data)) {
@@ -463,10 +475,10 @@
                     targetUserId = user.id;
                     targetUsername = user.name;
 
-                    // 2. Get Avatar
+                    // 2. Get Avatar (This URL is an image, but the endpoint returns JSON data about the image url)
                     const thumbUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${targetUserId}&size=150x150&format=Png&isCircular=false`;
-                    const thumbRes = await fetch(proxy + encodeURIComponent(thumbUrl));
-                    const thumbData = await thumbRes.json();
+                    const thumbData = await fetchProxy(thumbUrl);
+
                     const avatarUrl = (thumbData.data && thumbData.data[0]) ? thumbData.data[0].imageUrl : '';
 
                     // Update UI
@@ -511,17 +523,12 @@
             if (!targetUserId || !verificationCode) return;
 
             showStatus("VERIFYING SECURITY CREDENTIALS...", 'loading');
-            const proxy = 'https://api.allorigins.win/raw?url=';
 
             try {
                 // 1. Check Bio
                 // Force cache bust to see new bio updates
                 const bioUrl = `https://users.roblox.com/v1/users/${targetUserId}?_t=${Date.now()}`;
-                const bioRes = await fetch(proxy + encodeURIComponent(bioUrl));
-
-                if (!bioRes.ok) throw new Error("Failed to fetch user bio.");
-
-                const bioData = await bioRes.json();
+                const bioData = await fetchProxy(bioUrl);
                 const bio = bioData.description || "";
 
                 if (!bio.includes(verificationCode)) {
@@ -531,10 +538,11 @@
                 }
 
                 // 2. Check Rank
-                const rolesRes = await fetch(proxy + encodeURIComponent(`https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`));
-                if (!rolesRes.ok) throw new Error("Failed to fetch group roles.");
+                const rolesData = await fetchProxy(`https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`);
 
-                const rolesData = await rolesRes.json();
+                if (!rolesData || !rolesData.data) {
+                    throw new Error("Invalid Roles API Response");
+                }
 
                 if (!rolesData || !rolesData.data) {
                     throw new Error("Invalid Roles API Response");
