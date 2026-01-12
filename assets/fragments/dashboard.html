@@ -129,15 +129,15 @@
                     <div class="space-y-3">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Roblox API</span>
-                            <span class="text-green-500 font-bold">OPERATIONAL</span>
+                            <span id="status-roblox" class="text-green-500 font-bold">OPERATIONAL</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Discord Bot</span>
-                            <span class="text-green-500 font-bold">ONLINE</span>
+                            <span id="status-discord" class="text-green-500 font-bold">ONLINE</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Database</span>
-                            <span class="text-green-500 font-bold">SYNCED</span>
+                            <span id="status-db" class="text-green-500 font-bold">SYNCED</span>
                         </div>
                     </div>
                 </div>
@@ -149,19 +149,10 @@
                         <i data-lucide="list" class="text-blue-500"></i> <span
                             data-i18n="panel.features.activity">RECENT ACTIVITY</span>
                     </h3>
-                    <div class="space-y-3 text-xs font-mono">
+                    <div id="activity-feed" class="space-y-3 text-xs font-mono">
                         <div class="flex gap-2">
-                            <span class="text-gray-500">[12:30]</span>
-                            <span class="text-white">User <span class="text-bw-gold">Smokey</span> banned for <span
-                                    class="text-red-400">RDM</span></span>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="text-gray-500">[12:15]</span>
-                            <span class="text-white">Shift started by <span class="text-bw-gold">Officer42</span></span>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="text-gray-500">[11:55]</span>
-                            <span class="text-white">Ticket #492 closed</span>
+                            <span class="text-gray-500">[--:--]</span>
+                            <span class="text-white">Loading data...</span>
                         </div>
                     </div>
                 </div>
