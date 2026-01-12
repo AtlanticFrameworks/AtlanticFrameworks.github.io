@@ -323,19 +323,19 @@
         // --- PROXY HELPER WITH FAILOVER ---
         async function fetchProxy(targetUrl) {
             const proxies = [
-                // 1. AllOrigins (JSON wrapper)
+                // 1. CodeTabs (Usually fast & reliable)
+                {
+                    url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl),
+                    type: 'direct'
+                },
+                // 2. AllOrigins (JSON wrapper)
                 {
                     url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl),
                     type: 'json-wrapper'
                 },
-                // 2. CORSProxy.io (Direct)
+                // 3. CORSProxy.io (Backup)
                 {
                     url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl),
-                    type: 'direct'
-                },
-                // 3. ThingProxy (Direct)
-                {
-                    url: 'https://thingproxy.freeboard.io/fetch/' + targetUrl,
                     type: 'direct'
                 }
             ];
@@ -344,7 +344,7 @@
             for (const proxy of proxies) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout per proxy
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased 15s timeout
 
                     const res = await fetch(proxy.url, { signal: controller.signal });
                     clearTimeout(timeoutId);

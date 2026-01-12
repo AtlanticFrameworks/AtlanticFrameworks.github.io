@@ -309,15 +309,15 @@ async function fetchStaff() {
     // Proxy Helper with Failover
     async function fetchProxy(targetUrl) {
         const proxies = [
+            { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl), type: 'direct' },
             { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), type: 'json-wrapper' },
-            { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' },
-            { url: 'https://thingproxy.freeboard.io/fetch/' + targetUrl, type: 'direct' }
+            { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' }
         ];
 
         for (const proxy of proxies) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
 
                 const res = await fetch(proxy.url, { signal: controller.signal });
                 clearTimeout(timeoutId);
