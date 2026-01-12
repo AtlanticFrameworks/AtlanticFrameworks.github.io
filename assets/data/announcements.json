@@ -1,26 +1,26 @@
 [
     {
         "id": 1,
-        "title": "Staff Panel Update v2.0",
-        "date": "Jan 12, 2026",
-        "content": "The new Staff Panel is now live! Features include Shift Timer, Punishment Calculator, and dynamic Staff Hierarchy.",
-        "badge": "NEW",
+        "title": "Neuer Server Browser & Lobby System",
+        "date": "25. Dez 2025",
+        "content": "Das neue BWRP Lobby System ist jetzt live. Spieler können ab sofort Server bequem über die neue Serverauswahl betreten.",
+        "badge": "NEU",
         "badgeColor": "bg-green-500 text-black"
     },
     {
         "id": 2,
-        "title": "Moderation Guidelines Reminder",
-        "date": "Jan 10, 2026",
-        "content": "Please review the updated VDM punishment rules in the calculator. Strict enforcement starts today.",
-        "badge": "IMPORTANT",
-        "badgeColor": "bg-red-500 text-white"
+        "title": "Fahrzeug-System Überarbeitung",
+        "date": "26. Dez 2025",
+        "content": "Das Fahrzeug-System wurde vollständig überarbeitet. Enthalten sind ein neues Spawn-UI, bessere Einpark-Mechaniken sowie ein realistisches Schlüssel- und Abschließsystem.",
+        "badge": "UPDATE",
+        "badgeColor": "bg-yellow-500 text-black"
     },
     {
         "id": 3,
-        "title": "Weekly Meeting",
-        "date": "Jan 08, 2026",
-        "content": "Staff meeting this Sunday at 18:00 CET. Attendance is mandatory for High Ranks.",
-        "badge": "INFO",
+        "title": "Chat-System Fix",
+        "date": "09. Jan 2026",
+        "content": "TextChat ist wieder für alle Altersgruppen freigeschaltet. Befehle wie !grant werden nicht mehr als Chat-Nachrichten über dem Kopf angezeigt.",
+        "badge": "FIX",
         "badgeColor": "bg-blue-500 text-white"
     }
 ]
