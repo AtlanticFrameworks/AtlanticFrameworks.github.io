@@ -299,27 +299,54 @@ async function fetchDiscordStats() {
 }
 
 // --- 6. STAFF LIST LOADER ---
+// --- 6. STAFF LIST LOADER ---
 async function fetchStaff() {
     const grid = document.getElementById('staff-grid');
     if (!grid) return;
 
     const groupId = '34246821'; // ATLANTIC Studios
-    const proxy = 'proxy.php?url=';
+
+    // Proxy Helper with Failover
+    async function fetchProxy(targetUrl) {
+        const proxies = [
+            { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl), type: 'direct' },
+            { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), type: 'json-wrapper' },
+            { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' }
+        ];
+
+        for (const proxy of proxies) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                const res = await fetch(proxy.url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!res.ok) continue;
+
+                if (proxy.type === 'json-wrapper') {
+                    const data = await res.json();
+                    if (!data.contents) continue;
+                    try { return JSON.parse(data.contents); } catch (e) { return data.contents; }
+                } else {
+                    return await res.json();
+                }
+            } catch (e) {
+                console.warn(`Proxy fail: ${proxy.url}`, e);
+                continue;
+            }
+        }
+        throw new Error("All proxies failed.");
+    }
 
     try {
         // 1. Get Roles
-        const rolesUrl = `https://groups.roblox.com/v1/groups/${groupId}/roles`;
-        const rolesRes = await fetch(proxy + encodeURIComponent(rolesUrl));
-        const rolesData = await rolesRes.json();
+        const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
         console.log("DEBUG: Available Group Roles:", rolesData.roles.map(r => r.name));
 
         // Define the roles we want to show and their display order
-        // Note: Exact role names must match what is on Roblox. 
-        // Based on request: Administrator, Game Moderator, Moderator. 
-        // We also likely want "Owner" or high ranks if present, but request was specific. 
-        // I will attempt to match these strings.
         const targetRoles = [
-            "Group Owner", // NOTE: Group Owner is merged into Ownership Team
+            "Group Owner",
             "Ownership Team",
             "Management",
             "Administrator",
@@ -332,52 +359,37 @@ async function fetchStaff() {
         // Sort specifically by the order in targetRoles array
         filteredRoles.sort((a, b) => targetRoles.indexOf(a.name) - targetRoles.indexOf(b.name));
 
-        if (filteredRoles.length === 0) {
-            // Fallback: If no exact matches (maybe names differ slightly), fallback to top 3 ranks
-            // to ensure SOMETHING shows.
-            const sortedByRank = rolesData.roles.sort((a, b) => b.rank - a.rank);
-            // filteredRoles.push(...sortedByRank.slice(0, 3));
-            // Actually, let's just stick to the request. If empty, maybe show "Check Group".
-        }
-
         // 2. Fetch Members & Prepare Groups
-        let staffGroups = {}; // { "Ownership Team": [...], "Manager": [...] }
+        let staffGroups = {};
         let allUserIds = [];
 
         // Initialize empty arrays for targets to ensure order
         targetRoles.forEach(r => {
-            // Skip Group Owner here as we merge it into Ownership Team
             if (r !== "Group Owner") staffGroups[r] = [];
         });
-        // Ensure Ownership Team exists if not already (it should be in targetRoles but let's be safe)
         if (!staffGroups["Ownership Team"]) staffGroups["Ownership Team"] = [];
 
 
         for (const role of filteredRoles) {
-            // Determine target group name
             let targetGroupName = role.name;
             let displayRoleName = role.name;
 
-            // Merge Logic: Group Owner -> Ownership Team
             if (role.name === "Group Owner") {
                 targetGroupName = "Ownership Team";
                 displayRoleName = "Ownership Team";
             }
 
             if (role.memberCount > 0) {
-                const membersUrl = `https://groups.roblox.com/v1/groups/${groupId}/roles/${role.id}/users?limit=25&sortOrder=Desc`;
-                const memRes = await fetch(proxy + encodeURIComponent(membersUrl));
-                const memData = await memRes.json();
+                const memData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles/${role.id}/users?limit=25&sortOrder=Desc`);
 
                 if (memData.data) {
                     memData.data.forEach(user => {
-                        // Push to the target group container
                         if (staffGroups[targetGroupName]) {
                             staffGroups[targetGroupName].push({
                                 id: user.userId,
                                 username: user.username,
                                 displayName: user.displayName, // Use Display Name
-                                role: displayRoleName // Override role name if needed
+                                role: displayRoleName
                             });
                             allUserIds.push(user.userId);
                         }
@@ -394,10 +406,8 @@ async function fetchStaff() {
         }
 
         // 4. Fetch Avatars (Batch)
-        // Roblox Avatar API limits? We might need chunking if > 100 users, but unlikely for these ranks.
         const avatarUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${allUserIds.join(',')}&size=150x150&format=Png&isCircular=false`;
-        const avatarRes = await fetch(proxy + encodeURIComponent(avatarUrl));
-        const avatarData = await avatarRes.json();
+        const avatarData = await fetchProxy(avatarUrl);
 
         // 5. Render Groups
         for (const roleName of targetRoles) {

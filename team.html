@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Panel | ATLANTIC Studios</title>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bw-dark': '#0a0a0a',
+                        'bw-gold': '#e2b007',
+                        'bw-gray': '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .staff-bg {
+            background-color: #050505;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-bw-dark text-white overflow-hidden h-screen selection:bg-bw-gold selection:text-black">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-gate"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-[url('assets/images/hero-bg.png')] bg-cover bg-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+        <div
+            class="relative z-10 w-full max-w-md p-8 bg-[#111] border border-white/10 rounded-lg shadow-2xl text-center">
+
+            <!-- HEADER -->
+            <div class="mb-8 relative">
+                <button onclick="toggleLanguage()"
+                    class="absolute top-0 right-0 p-2 text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                </button>
+                <div
+                    class="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                    <i data-lucide="shield-check" class="w-10 h-10 text-bw-gold"></i>
+                </div>
+                <h1 class="font-display text-2xl font-bold uppercase tracking-widest text-white mb-1"
+                    data-i18n="panel.login.title">Staff Verification
+                </h1>
+                <p class="text-xs text-gray-500 font-mono" data-i18n="panel.login.subtitle">SECURE ACCESS GATEWAY</p>
+            </div>
+
+            <!-- STEP 1: USERNAME -->
+            <div id="step-1" class="step-container animate-fade-in">
+                <form onsubmit="initVerify(event)" class="space-y-4">
+                    <div class="group relative">
+                        <i data-lucide="user"
+                            class="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-bw-gold transition-colors"></i>
+                        <input type="text" id="rblx-username" data-i18n="panel.login.user_placeholder"
+                            placeholder="Roblox Username" required
+                            class="w-full bg-black/50 border border-white/10 rounded pl-12 pr-4 py-3 text-white focus:outline-none focus:border-bw-gold transition-all font-mono placeholder:text-gray-700">
+                    </div>
+                    <button type="submit" id="btn-init"
+                        class="w-full bg-white text-black font-bold py-3 uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
+                        <span data-i18n="panel.login.btn_start">Start Verification</span> <i data-lucide="arrow-right"
+                            class="w-4 h-4"></i>
+                    </button>
+                    <p class="text-[10px] text-gray-600 mt-2"><span data-i18n="panel.login.rank_req">Requires Group
+                            Rank:</span> <span class="text-bw-gold">Game
+                            Mod+</span></p>
+                </form>
+            </div>
+
+            <!-- STEP 2: PROFILE CHECK & CODE -->
+            <div id="step-2" class="step-container hidden animate-fade-in">
+
+                <!-- USER PREVIEW -->
+                <div class="bg-white/5 border border-white/10 rounded p-4 mb-6 flex items-center gap-4">
+                    <img id="verify-avatar" src="" class="w-12 h-12 rounded bg-black/50 object-cover">
+                    <div class="text-left overflow-hidden">
+                        <p class="text-xs text-gray-500 uppercase font-mono">Is this you?</p>
+                        <p id="verify-username" class="font-bold text-white truncate text-lg">User</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-blue-500/10 border border-blue-500/20 p-4 rounded mb-6 text-left relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-2 opacity-10"><i data-lucide="info"
+                            class="w-16 h-16 text-blue-500"></i></div>
+                    <p class="text-xs text-blue-200 mb-2 font-bold uppercase tracking-wider">Instructions</p>
+                    <ol class="list-decimal list-inside text-xs text-gray-300 space-y-1 mb-4">
+                        <li>Copy the code below.</li>
+                        <li>Paste it into your <strong>Roblox About Me / Bio</strong>.</li>
+                        <li>Click "Verify Access".</li>
+                    </ol>
+
+                    <div onclick="copyCode()"
+                        class="bg-black/40 border border-blue-500/30 p-3 rounded font-mono text-center text-xl text-bw-gold tracking-widest cursor-pointer hover:bg-white/5 transition-colors relative group">
+                        <span id="verify-code">LOADING...</span>
+                        <div
+                            class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="text-xs text-white font-bold flex items-center gap-1"><i data-lucide="copy"
+                                    class="w-3 h-3"></i> COPY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="resetLogin()"
+                        class="bg-white/5 text-gray-400 font-bold py-3 rounded hover:bg-white/10 transition-colors text-xs uppercase tracking-wider">
+                        Cancel
+                    </button>
+                    <button onclick="checkVerification()" id="btn-verify"
+                        class="bg-bw-gold text-black font-bold py-3 rounded hover:bg-white transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider">
+                        <i data-lucide="check" class="w-4 h-4"></i> Verify Access
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATUS MESSAGES -->
+            <div id="status-msg"
+                class="mt-6 text-xs font-mono hidden flex items-center justify-center gap-2 text-center"></div>
+
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD (Hidden by default) -->
+    <!-- MAIN DASHBOARD (Dynamic Load) -->
+    <div id="dashboard" class="hidden flex h-screen">
+        <!-- Content will be injected here after verification -->
+    </div>
+
+    <script src="assets/js/i18n.js"></script>
+    <script>
+        // --- CONFIGURATION ---
+        const GROUP_ID = 34246821;
+
+        // Ranks permitted (Game Mod+)
+        const ALLOWED_ROLES = [
+            "Group Owner", "Ownership Team", "Projektleitung", "Projektverwaltung", "Management",
+            "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
+            "Head Game Moderator", "Game Moderator"
+        ];
+
+        // --- STATE ---
+        let targetUserId = null;
+        let targetUsername = null;
+        let verificationCode = null;
+
+        // --- DOM ELEMENTS ---
+        const gate = document.getElementById('login-gate');
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const statusMsg = document.getElementById('status-msg');
+        const verifyDisplay = document.getElementById('verify-code');
+        const dashboard = document.getElementById('dashboard');
+
+        // --- UI ACTIONS ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function showTab(id) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+
+            // Show target
+            const target = document.getElementById('tab-' + id);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+
+            // Mobile: Close sidebar on selection
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+        });
+
+        // --- SESSION MANAGEMENT ---
+        function saveSession(data) {
+            const session = {
+                ...data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('atlantic_staff_session', JSON.stringify(session));
+        }
+
+        function checkSession() {
+            const sessionRaw = localStorage.getItem('atlantic_staff_session');
+            if (!sessionRaw) return;
+
+            try {
+                const session = JSON.parse(sessionRaw);
+                // Optional: Check expiry (e.g., 7 days)
+                const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+                if (Date.now() - session.timestamp > ONE_WEEK) {
+                    logout();
+                    return;
+                }
+
+                // Restore Session
+                console.log("Session Restored for:", session.username);
+                enterDashboard(session.username, session.rank, session.avatarUrl);
+
+            } catch (e) {
+                console.error("Session Parse Error:", e);
+                localStorage.removeItem('atlantic_staff_session');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('atlantic_staff_session');
+            window.location.reload();
+        }
+
+        // --- UI FUNCTIONS ---
+        function showStatus(msg, type = 'neutral') {
+            statusMsg.textContent = msg;
+            statusMsg.classList.remove('hidden', 'text-red-500', 'text-green-500', 'text-gray-400', 'text-bw-gold');
+
+            if (type === 'error') statusMsg.classList.add('text-red-500');
+            else if (type === 'success') statusMsg.classList.add('text-green-500');
+            else if (type === 'loading') statusMsg.classList.add('text-bw-gold', 'animate-pulse');
+            else statusMsg.classList.add('text-gray-400');
+        }
+
+        const HIERARCHY_CONFIG = [
+            {
+                containerId: 'container-pr',
+                roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'],
+                borderColor: 'border-red-500',
+                textColor: 'text-red-400'
+            },
+            {
+                containerId: 'container-hr',
+                roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'],
+                borderColor: 'border-purple-500',
+                textColor: 'text-purple-400'
+            },
+            {
+                containerId: 'container-mr',
+                roles: ['Head Game Moderator', 'Game Moderator'],
+                borderColor: 'border-green-500',
+                textColor: 'text-green-400'
+            }
+        ];
+
+        let staffLoaded = false;
+
+        async function enterDashboard(username, rank, avatarUrl) {
+            console.log("Entering Dashboard...");
+            const dashboard = document.getElementById('dashboard');
+            const gate = document.getElementById('login-gate'); // Re-select to be safe
+
+            // 1. Fetch Dashboard Content Securely
+            try {
+                const res = await fetch('assets/fragments/dashboard.html');
+                if (!res.ok) throw new Error(`Fetch Failed: ${res.status}`);
+                const html = await res.text();
+
+                if (!html) throw new Error("Dashboard HTML is empty");
+
+                dashboard.innerHTML = html;
+                console.log("Dashboard Content Injected");
+
+                // 2. Setup User Data
+                const avatarEl = document.getElementById('user-avatar');
+                const nameEl = document.getElementById('user-name');
+                const rankEl = document.getElementById('user-rank');
+
+                if (!avatarEl || !nameEl || !rankEl) {
+                    throw new Error("Dashboard DOM elements missing after injection");
+                }
+
+                avatarEl.src = avatarUrl;
+                nameEl.textContent = username;
+                rankEl.textContent = rank;
+
+                // 3. Reveal Dashboard
+                gate.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+
+                // 4. Initialize Tools
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                // Initialize Dashboard Event Listeners
+                if (typeof initDashboardListeners === 'function') {
+                    initDashboardListeners();
+                }
+
+                // Re-run i18n
+                const currentLang = localStorage.getItem('lang') || 'de';
+                if (typeof setLanguage === 'function') setLanguage(currentLang);
+
+                // Load Staff
+                if (!staffLoaded && typeof loadStaffHierarchy === 'function') {
+                    loadStaffHierarchy().catch(e => console.error("Staff Load Error:", e));
+                    if (typeof loadAnnouncements === 'function') loadAnnouncements();
+                }
+
+                // Initialize Database (Supabase)
+                if (typeof initDatabase === 'function') {
+                    initDatabase().catch(e => console.error("DB Init Error:", e));
+                }
+
+            } catch (e) {
+                console.error("Critical Dashboard Error:", e);
+                alert("Dashboard Load Error: " + e.message);
+                // Try to show dashboard anyway if partial partial
+            }
+        }
+
+        // --- PROXY HELPER ---
+        // --- PROXY HELPER WITH FAILOVER ---
+        async function fetchProxy(targetUrl) {
+            const proxies = [
+                // 1. CodeTabs (Usually fast & reliable)
+                {
+                    url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl),
+                    type: 'direct'
+                },
+                // 2. AllOrigins (JSON wrapper)
+                {
+                    url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl),
+                    type: 'json-wrapper'
+                },
+                // 3. CORSProxy.io (Backup)
+                {
+                    url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl),
+                    type: 'direct'
+                }
+            ];
+
+            // Attempt sequential fetch
+            for (const proxy of proxies) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased 15s timeout
+
+                    const res = await fetch(proxy.url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (!res.ok) continue; // Try next proxy
+
+                    if (proxy.type === 'json-wrapper') {
+                        const data = await res.json();
+                        if (!data.contents) continue; // Invalid wrapper response
+
+                        try {
+                            return JSON.parse(data.contents);
+                        } catch (e) {
+                            return data.contents;
+                        }
+                    } else {
+                        return await res.json(); // Direct proxy return
+                    }
+
+                } catch (e) {
+                    console.warn(`Proxy ${proxy.url} failed:`, e);
+                    continue; // Try next
+                }
+            }
+            throw new Error("All proxies failed to fetch data.");
+        }
+
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
+        async function loadStaffHierarchy() {
+            const loading = document.getElementById('staff-loading');
+            const grid = document.getElementById('staff-hierarchy-grid');
+
+            // Show loading, hide others
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            document.getElementById('staff-search-container').classList.add('hidden');
+
+            try {
+                // 1. Get Roles
+                const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles`);
+
+                if (!rolesData || !rolesData.roles) throw new Error("Invalid Roles Data");
+
+                // Filter & Sort Configured Roles
+                // Sort by Rank DESC
+                rolesData.roles.sort((a, b) => b.rank - a.rank);
+
+                // Clear Grid
+                grid.innerHTML = '';
+
+                for (const config of HIERARCHY_CONFIG) {
+                    const container = document.getElementById(config.containerId);
+                    if (!container) continue;
+                    container.innerHTML = ''; // Reset
+
+                    // Find roles matching this category
+                    const categoryRoles = rolesData.roles.filter(r => config.roles.includes(r.name));
+
+                    for (const role of categoryRoles) {
+                        try {
+                            // Fetch Members for this Role
+                            // Add slight delay to avoid rate-limiting the proxy
+                            await delay(200);
+
+                            const membersData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`);
+                            const members = membersData.data || [];
+
+                            if (members.length === 0) continue; // Skip empty roles
+
+                            // Create Role Block
+                            const roleBlock = document.createElement('div');
+                            roleBlock.className = 'animate-fade-in mb-6';
+
+                            // Header
+                            roleBlock.innerHTML = `
+                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 ${config.borderColor} text-center mb-3">
+                                    <span class="block text-white font-bold text-sm uppercase tracking-wider">${role.name}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono">${members.length} Members</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    ${members.map(m => `
+                                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded border border-white/5 hover:bg-white/10 transition-colors">
+                                           <div class="w-6 h-6 rounded-full bg-black overflow-hidden flex-shrink-0">
+                                                <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${m.userId}&width=150&height=150&format=png" 
+                                                     class="w-full h-full object-cover" 
+                                                     loading="lazy"
+                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
+                                           </div>
+                                           <div class="overflow-hidden">
+                                                <p class="text-[10px] font-bold text-gray-300 truncate leading-tight">${m.username}</p>
+                                                <!-- <p class="text-[8px] text-gray-600 truncate">ID: ${m.userId}</p> -->
+                                           </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                            container.appendChild(roleBlock);
+
+                        } catch (err) {
+                            console.warn(`Failed to load members for role ${role.name}`, err);
+                        }
+                    }
+                }
+
+                staffLoaded = true;
+
+            } catch (err) {
+                console.error("Staff Hierarchy Load Error:", err);
+                const grid = document.getElementById('staff-hierarchy-grid');
+                grid.innerHTML += `<div class="col-span-full text-center text-red-500 font-mono text-xs p-4 border border-red-500/20 bg-red-500/5 rounded">
+                    ERROR SYNCING PERSONNEL DATA. <br> CHECK CONSOLE.
+                </div>`;
+            } finally {
+                loading.classList.add('hidden');
+                grid.classList.remove('hidden');
+                document.getElementById('staff-search-container').classList.remove('hidden'); // Show Search
+            }
+        }
+
+        function filterStaff() {
+            const input = document.getElementById('staff-search-input');
+            const filter = input.value.toUpperCase();
+            const grid = document.getElementById('staff-hierarchy-grid');
+            const userCards = grid.querySelectorAll('.grid > div'); // Select flex items inside the internal grids
+
+            userCards.forEach(card => {
+                const nameP = card.querySelector('p');
+                if (nameP) {
+                    const txtValue = nameP.textContent || nameP.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        card.style.display = "";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
+
+            // Optional: Hide empty Role Blocks?
+            // This requires more complex DOM traversing. 
+            // For now, empty roles will just show empty grids, which is acceptable.
+        }
+
+        // --- AUTH FLOW ---
+
+        async function initVerify(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('rblx-username').value.trim();
+            if (!usernameInput) return;
+
+            showStatus("SEARCHING MAINFRAME...", 'loading');
+
+            try {
+                // 1. Get ID via Search
+                const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${usernameInput}&limit=10`;
+                const userData = await fetchProxy(searchUrl);
+
+                // Robustness check: Ensure .data exists
+                if (!userData || !Array.isArray(userData.data)) {
+                    console.error("Invalid API Response:", userData);
+                    throw new Error("Invalid API Response Structure");
+                }
+
+                // Find exact match (case-insensitive)
+                const user = userData.data.find(u => u.name && u.name.toLowerCase() === usernameInput.toLowerCase());
+
+                if (user) {
+                    targetUserId = user.id;
+                    targetUsername = user.name;
+
+                    // 2. Get Avatar (This URL is an image, but the endpoint returns JSON data about the image url)
+                    const thumbUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${targetUserId}&size=150x150&format=Png&isCircular=false`;
+                    const thumbData = await fetchProxy(thumbUrl);
+
+                    const avatarUrl = (thumbData.data && thumbData.data[0]) ? thumbData.data[0].imageUrl : '';
+
+                    // Update UI
+                    document.getElementById('verify-avatar').src = avatarUrl;
+                    document.getElementById('verify-username').textContent = targetUsername;
+
+                    // Generate Code
+                    verificationCode = "ATL-" + Math.floor(1000 + Math.random() * 9000);
+                    verifyDisplay.textContent = verificationCode;
+
+                    // Transition
+                    step1.classList.add('hidden');
+                    step2.classList.remove('hidden');
+                    statusMsg.classList.add('hidden');
+                } else {
+                    showStatus("USER NOT FOUND. CHECK SPELLING.", 'error');
+                }
+
+            } catch (err) {
+                console.error("Verify Error:", err);
+                showStatus("CONNECTION ERROR. RETRY.", 'error');
+            }
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(verificationCode);
+            const el = document.getElementById('verify-code');
+            const original = el.textContent;
+            el.textContent = "COPIED!";
+            setTimeout(() => el.textContent = original, 1500);
+        }
+
+        function resetLogin() {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+            document.getElementById('rblx-username').value = '';
+            statusMsg.classList.add('hidden');
+            targetUserId = null;
+        }
+
+        async function checkVerification() {
+            if (!targetUserId || !verificationCode) return;
+
+            showStatus("VERIFYING SECURITY CREDENTIALS...", 'loading');
+
+            try {
+                // 1. Check Bio
+                // Force cache bust to see new bio updates
+                const bioUrl = `https://users.roblox.com/v1/users/${targetUserId}?_t=${Date.now()}`;
+                const bioData = await fetchProxy(bioUrl);
+                const bio = bioData.description || "";
+
+                if (!bio.includes(verificationCode)) {
+                    showStatus("VERIFICATION CODE NOT FOUND IN BIO.", 'error');
+                    console.warn(`Bio Check Failed. Expected: ${verificationCode}, Found in bio: ${bio.substring(0, 20)}...`);
+                    return;
+                }
+
+                // 2. Check Rank
+                const rolesData = await fetchProxy(`https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`);
+
+                if (!rolesData || !rolesData.data) {
+                    throw new Error("Invalid Roles API Response");
+                }
+
+                if (!rolesData || !rolesData.data) {
+                    throw new Error("Invalid Roles API Response");
+                }
+
+                const groupData = rolesData.data.find(g => g.group.id === GROUP_ID);
+
+                if (!groupData) {
+                    showStatus("ACCESS DENIED: NOT A GROUP MEMBER.", 'error');
+                    return;
+                }
+
+                const userRole = groupData.role.name;
+                console.log("Verifying User Role:", userRole);
+
+                if (ALLOWED_ROLES.includes(userRole)) {
+                    // SUCCESS
+                    showStatus("ACCESS GRANTED. WELCOME.", 'success');
+
+                    const avatarSrc = document.getElementById('verify-avatar').src;
+
+                    // Save Session
+                    saveSession({
+                        userId: targetUserId,
+                        username: targetUsername,
+                        rank: userRole.toUpperCase(),
+                        avatarUrl: avatarSrc
+                    });
+
+                    // Enter
+                    setTimeout(() => {
+                        enterDashboard(targetUsername, userRole.toUpperCase(), avatarSrc);
+                    }, 1000);
+
+                } else {
+                    console.error(`Access Denied. Role '${userRole}' not in allowed list:`, ALLOWED_ROLES);
+                    showStatus(`ACCESS DENIED: INSUFFICIENT RANK (${userRole.toUpperCase()}).`, 'error');
+                }
+
+            } catch (err) {
+                console.error("Verification Error:", err);
+                showStatus("SYSTEM ERROR. TRY AGAIN.", 'error');
+            }
+        }
+
+        // TABS
+        window.showTab = function (tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
+                btn.classList.add('text-gray-400', 'border-transparent');
+            });
+            const tab = document.getElementById(`tab-${tabId}`);
+            if (tab) tab.classList.remove('hidden');
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
+                    b.classList.add('text-gray-400', 'border-transparent');
+                });
+                this.classList.remove('text-gray-400', 'border-transparent');
+                this.classList.add('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
+            });
+        });
+
+        // lucide.createIcons(); // Removed as per instructions, handled by enterDashboard
+
+        // --- SHIFT TIMER ---
+        let shiftInterval = null;
+        let shiftStartTime = null;
+        let shiftTimeElapsed = 0; // in seconds
+        let isShiftActive = false;
+
+        function toggleShift() {
+            const btn = document.getElementById('btn-shift-start');
+            const btnStop = document.getElementById('btn-shift-stop');
+
+            if (!isShiftActive) {
+                // START / RESUME
+                isShiftActive = true;
+                if (!shiftStartTime) {
+                    // New start or resume from 0
+                    shiftStartTime = Date.now() - (shiftTimeElapsed * 1000);
+                } else {
+                    // Resume: Recalculate start based on elapsed
+                    shiftStartTime = Date.now() - (shiftTimeElapsed * 1000);
+                }
+
+                shiftInterval = setInterval(updateTimerDisplay, 1000);
+
+                // UI Updates
+                btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause Shift';
+                btn.classList.add('bg-yellow-600', 'hover:bg-yellow-500');
+                btn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                btnStop.disabled = false;
+
+            } else {
+                // PAUSE
+                isShiftActive = false;
+                clearInterval(shiftInterval);
+                shiftTimeElapsed = Math.floor((Date.now() - shiftStartTime) / 1000);
+
+                // UI Updates
+                btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Resume Shift';
+                btn.classList.add('bg-green-600', 'hover:bg-green-500');
+                btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500');
+            }
+
+            saveShiftState();
+            lucide.createIcons();
+        }
+
+        function stopShift() {
+            if (!confirm("Are you sure you want to END your shift? This will reset the timer.")) return;
+
+            isShiftActive = false;
+            clearInterval(shiftInterval);
+
+            // Reset
+            shiftStartTime = null;
+            shiftTimeElapsed = 0;
+            updateTimerDisplay(true); // Reset display to 00:00:00
+
+            // UI Reset
+            const btn = document.getElementById('btn-shift-start');
+            const btnStop = document.getElementById('btn-shift-stop');
+
+            btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Start Shift';
+            btn.classList.add('bg-green-600', 'hover:bg-green-500');
+            btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500');
+            btnStop.disabled = true;
+
+            document.getElementById('shift-cases').value = 0;
+            document.getElementById('shift-bans').value = 0;
+
+            localStorage.removeItem('atlantic_shift_state');
+            lucide.createIcons();
+        }
+
+        function updateTimerDisplay(reset = false) {
+            let seconds = 0;
+            if (!reset && isShiftActive) {
+                const diff = Date.now() - shiftStartTime;
+                seconds = Math.floor(diff / 1000);
+            } else if (!reset && !isShiftActive) {
+                seconds = shiftTimeElapsed;
+            }
+
+            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+
+            const displayEl = document.getElementById('shift-timer-display');
+            if (displayEl) displayEl.textContent = `${h}:${m}:${s}`;
+
+            // Update Circle Progress
+            const progress = document.getElementById('timer-progress');
+            if (progress) {
+                const percent = (seconds % 60) / 60;
+                const dashoffset = 283 - (283 * percent);
+                progress.style.strokeDashoffset = dashoffset;
+            }
+        }
+
+        function saveShiftState() {
+            const state = {
+                active: isShiftActive,
+                startTime: shiftStartTime,
+                elapsed: isShiftActive ? Math.floor((Date.now() - shiftStartTime) / 1000) : shiftTimeElapsed,
+                cases: document.getElementById('shift-cases').value,
+                bans: document.getElementById('shift-bans').value,
+                lastUpdated: Date.now()
+            };
+            localStorage.setItem('atlantic_shift_state', JSON.stringify(state));
+        }
+
+        function restoreShiftState() {
+            const raw = localStorage.getItem('atlantic_shift_state');
+            if (!raw) return;
+
+            try {
+                const state = JSON.parse(raw);
+                isShiftActive = state.active;
+                shiftTimeElapsed = state.elapsed || 0;
+
+                if (state.cases) document.getElementById('shift-cases').value = state.cases;
+                if (state.bans) document.getElementById('shift-bans').value = state.bans;
+
+                if (isShiftActive) {
+                    // Recalculate start time based on elapsed time if we want to trust elapsed
+                    // OR stick to original logic: start = now - elapsed
+                    shiftStartTime = Date.now() - (shiftTimeElapsed * 1000);
+
+                    shiftInterval = setInterval(updateTimerDisplay, 1000);
+
+                    const btn = document.getElementById('btn-shift-start');
+                    const btnStop = document.getElementById('btn-shift-stop');
+                    btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause Shift';
+                    btn.classList.add('bg-yellow-600', 'hover:bg-yellow-500');
+                    btn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                    btnStop.disabled = false;
+                } else {
+                    updateTimerDisplay(); // Show saved time
+                    if (shiftTimeElapsed > 0) document.getElementById('btn-shift-stop').disabled = false;
+                }
+
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            } catch (e) {
+                console.error("Shift State Restore Error:", e);
+            }
+        }
+
+        function copyShiftReport() {
+            const timeStr = document.getElementById('shift-timer-display').textContent;
+            const cases = document.getElementById('shift-cases').value;
+            const bans = document.getElementById('shift-bans').value;
+            const user = document.getElementById('user-name').textContent;
+
+            const report = `**👮 STAFF SHIFT REPORT**\n` +
+                `**User:** ${user}\n` +
+                `**Duration:** ${timeStr}\n` +
+                `**Cases Handled:** ${cases}\n` +
+                `**Bans Issued:** ${bans}`;
+
+            navigator.clipboard.writeText(report).then(() => {
+                alert("Shift report copied to clipboard!");
+            });
+        }
+
+        // Wraps init logic that depends on Dashboard HTML being present
+        function initDashboardListeners() {
+            // Shift inputs
+            const casesInput = document.getElementById('shift-cases');
+            const bansInput = document.getElementById('shift-bans');
+
+            if (casesInput) casesInput.addEventListener('change', saveShiftState);
+            if (bansInput) bansInput.addEventListener('change', saveShiftState);
+
+            // Restore previous state if any
+            restoreShiftState();
+        }
+        // --- PUNISHMENT CALCULATOR ---
+        const PUNISHMENT_DATA = {
+            "RDM": ["Warn / Kick", "Ban 3 Days", "Ban 7 Days"],
+            "VDM": ["Warn / Kick", "Ban 3 Days", "Ban 7 Days"],
+            "Spawnkill": ["Kick", "Ban 3 Days", "Ban 7 Days"],
+            "CombatLogging": ["Ban 2 Days", "Ban 5 Days", "Ban 14 Days"],
+            "FailRP": ["Warn", "Kick", "Ban 3 Days"],
+            "Metagaming": ["Kick", "Ban 3 Days", "Ban 7 Days"],
+            "Powergaming": ["Kick", "Ban 3 Days", "Ban 7 Days"],
+            "NLR": ["Warn", "Kick", "Ban 1 Day"],
+            "Toxicity": ["Mute / Warn", "Ban 1 Day", "Ban 7 Days"],
+            "Spam": ["Mute", "Kick", "Ban 1 Day"],
+            "Advertising": ["Ban Permanent", "Ban Permanent", "Ban Permanent"]
+        };
+
+        function runCalculation() {
+            const offense = document.getElementById('calc-offense').value;
+            const countRadio = document.querySelector('input[name="offense-count"]:checked');
+            const resultEl = document.getElementById('calc-result');
+            const durationEl = document.getElementById('calc-duration');
+
+            if (!offense || !countRadio) {
+                resultEl.textContent = "Select Offense";
+                resultEl.classList.remove('text-red-500');
+                resultEl.classList.add('text-white');
+                durationEl.textContent = "--";
+                return;
+            }
+
+            const countIndex = parseInt(countRadio.value) - 1; // 0, 1, 2
+            const data = PUNISHMENT_DATA[offense];
+
+            if (data && data[countIndex]) {
+                const punishment = data[countIndex];
+
+                // Visual feedback
+                resultEl.textContent = punishment;
+                resultEl.classList.remove('text-white');
+                resultEl.classList.add('text-red-500'); // Highlight punishment
+
+                // Extract duration part for the sub-label (if any 'Ban' logic exists)
+                if (punishment.includes("Ban")) {
+                    durationEl.textContent = "ACTION REQUIRED";
+                    durationEl.classList.add('text-red-400');
+                    durationEl.classList.remove('text-bw-gold');
+                } else {
+                    durationEl.textContent = "WARNING / KICK";
+                    durationEl.classList.add('text-bw-gold');
+                    durationEl.classList.remove('text-red-400');
+                }
+            } else {
+                resultEl.textContent = "Data Missing";
+                durationEl.textContent = "--";
+            }
+        }
+        // --- ANNOUNCEMENTS ---
+        async function loadAnnouncements() {
+            const feed = document.getElementById('announcements-feed');
+            if (!feed) return;
+
+            try {
+                // Use cache busting for announcements too
+                const res = await fetch(`assets/data/announcements.json?_t=${Date.now()}`);
+                if (!res.ok) return; // Silent fail if file missing
+
+                const data = await res.json();
+                if (!Array.isArray(data) || data.length === 0) return;
+
+                feed.innerHTML = '';
+                feed.classList.remove('hidden');
+
+                // Show top 3
+                data.slice(0, 3).forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'bg-[#1a1a1a] border-l-4 border-bw-gold p-4 rounded shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between';
+
+                    el.innerHTML = `
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <span class="${item.badgeColor || 'bg-gray-600 text-white'} text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">${item.badge}</span>
+                                <span class="text-xs text-gray-500 font-mono">${item.date}</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg leading-tight">${item.title}</h3>
+                            <p class="text-gray-400 text-sm mt-1">${item.content}</p>
+                        </div>
+                    `;
+                    feed.appendChild(el);
+                });
+
+            } catch (e) {
+                console.warn("Failed to load announcements", e);
+            }
+        }
+    </script>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/db.js"></script> <!-- Supabase Database Logic -->
+</body>

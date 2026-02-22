@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "title": "Neuer Server Browser & Lobby System",
+        "date": "25. Dez 2025",
+        "content": "Das neue BWRP Lobby System ist jetzt live. Spieler können ab sofort Server bequem über die neue Serverauswahl betreten.",
+        "badge": "NEU",
+        "badgeColor": "bg-green-500 text-black"
+    },
+    {
+        "id": 2,
+        "title": "Fahrzeug-System Überarbeitung",
+        "date": "26. Dez 2025",
+        "content": "Das Fahrzeug-System wurde vollständig überarbeitet. Enthalten sind ein neues Spawn-UI, bessere Einpark-Mechaniken sowie ein realistisches Schlüssel- und Abschließsystem.",
+        "badge": "UPDATE",
+        "badgeColor": "bg-yellow-500 text-black"
+    },
+    {
+        "id": 3,
+        "title": "Chat-System Fix",
+        "date": "09. Jan 2026",
+        "content": "TextChat ist wieder für alle Altersgruppen freigeschaltet. Befehle wie !grant werden nicht mehr als Chat-Nachrichten über dem Kopf angezeigt.",
+        "badge": "FIX",
+        "badgeColor": "bg-blue-500 text-white"
+    }
+]
