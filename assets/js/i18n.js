@@ -32,7 +32,7 @@ const translations = {
         "studio.roblox": "Roblox Gruppe",
         "studio.team": "UNSER TEAM",
         "studio.team_desc": "Die Köpfe hinter dem Projekt.",
-        "footer.rights": "&#169; 2024 ATLANTIC Studios. Alle Rechte vorbehalten.",
+        "footer.rights": "©; 2024 ATLANTIC Studios. Alle Rechte vorbehalten.",
         "footer.privacy": "Datenschutz",
         "modal.class": "Klassifiziert: Öffentlich",
         "modal.task": "Aufgabenbereich",
