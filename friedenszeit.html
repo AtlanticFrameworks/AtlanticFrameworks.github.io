@@ -1,1 +1,422 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friedenszeit Status | ATLANTIC Studios</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & Oswald & Roboto Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bw: {
+                            dark: '#0f1115',
+                            darker: '#0a0c0f',
+                            gold: '#E2B007',
+                            goldHover: '#cca006',
+                            glass: 'rgba(20, 25, 30, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scanline': 'scanline 8s linear infinite',
+                        'glow-green': 'glowGreen 2s ease-in-out infinite alternate',
+                        'glow-red': 'glowRed 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' },
+                        },
+                        glowGreen: {
+                            'from': { textShadow: '0 0 10px rgba(34, 197, 94, 0.2)' },
+                            'to': { textShadow: '0 0 20px rgba(34, 197, 94, 0.6)' }
+                        },
+                        glowRed: {
+                            'from': { textShadow: '0 0 10px rgba(239, 68, 68, 0.2)' },
+                            'to': { textShadow: '0 0 20px rgba(239, 68, 68, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        /* Custom Scrollbar Override for Timeline */
+        .timeline-scroll::-webkit-scrollbar { width: 4px; }
+        .timeline-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-left: 1px solid rgba(255,255,255,0.05); }
+        .timeline-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
+        .timeline-scroll::-webkit-scrollbar-thumb:hover { background: #E2B007; }
+
+        /* Tactical Cuts - specific for Friedenszeit */
+        .tactical-notch-tl { clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px); }
+        .tactical-notch-br { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
+        .tactical-panel {
+            background: var(--tw-colors-bw-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--tw-colors-bw-border);
+        }
+
+        /* Tech Grid Background overlay */
+        .tech-grid {
+            background-size: 30px 30px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        }
+
+        /* Timeline Styles */
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.05);
+        }
+        .timeline-item.active::before {
+            background: #E2B007;
+            box-shadow: 0 0 10px #E2B007;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #0f1115;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .timeline-item.active .timeline-dot {
+            border-color: #E2B007;
+            background: #E2B007;
+        }
+
+        /* Text Utilities */
+        .text-stroke-thin {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+            color: transparent;
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 font-sans antialiased selection:bg-bw-gold selection:text-black">
+
+    <!-- CANVAS BACKGROUND (Dust/Embers) from main.js will attach here -->
+    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- SCANLINE OVERLAY -->
+    <div
+        class="fixed top-0 left-0 w-full h-full pointer-events-none z-50 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]">
+    </div>
+
+    <!-- HEADER (Dynamically Loaded) -->
+    <div id="navbar-container"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="relative z-10 flex-grow min-h-screen flex items-center justify-center p-4 md:p-8 pt-32 pb-20">
+        
+        <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 relative">
+            
+            <!-- LEFT COLUMN: STATUS DASHBOARD -->
+            <div class="lg:col-span-7 flex flex-col justify-center reveal">
+                
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="h-px w-8 bg-bw-gold"></div>
+                    <span class="font-mono text-xs uppercase tracking-[0.2em] text-bw-gold" data-i18n="friedenszeit.subtitle">Protokoll Übersicht</span>
+                </div>
+
+                <h1 class="font-display text-6xl md:text-8xl font-bold uppercase tracking-tighter leading-[0.9] mb-8">
+                    <span class="block text-stroke-thin" data-i18n="friedenszeit.title1">Friedens-</span>
+                    <span class="block text-white" data-i18n="friedenszeit.title2">Zeit</span>
+                </h1>
+
+                <!-- Live Status Panel -->
+                <div class="tactical-panel tactical-notch-br p-6 md:p-8 tech-grid relative overflow-hidden bg-black/40">
+                    <!-- Corner Accents -->
+                    <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white/20"></div>
+                    <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white/20"></div>
+
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                        <div>
+                            <p class="font-mono text-xs text-gray-500 uppercase tracking-widest mb-2" data-i18n="friedenszeit.current_status">Aktueller Systemstatus</p>
+                            <div id="status-display" class="font-display text-5xl md:text-6xl font-bold uppercase tracking-wider text-gray-700 leading-none">
+                                Lade...
+                            </div>
+                        </div>
+                        <div class="text-left md:text-right">
+                            <p class="font-mono text-xs text-gray-500 uppercase tracking-widest mb-2" id="next-state-label" data-i18n="friedenszeit.next_switch">Nächster Wechsel</p>
+                            <div id="countdown" class="font-mono text-3xl text-white font-bold tracking-tight">
+                                00:00:00
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tech Progress Bar -->
+                    <div class="relative w-full h-2 bg-black/50 overflow-hidden">
+                        <!-- Background Markers -->
+                        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:10%_100%]"></div>
+                        <!-- Actual Progress -->
+                        <div id="progress-bar" class="absolute top-0 left-0 h-full bg-bw-gold transition-all duration-1000 ease-linear shadow-[0_0_10px_#E2B007]" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 font-mono text-[10px] text-gray-500">
+                        <span>0 MIN</span>
+                        <span>60 MIN</span>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex items-start gap-4 p-4 bg-white/[0.02] border border-white/5 reveal" style="transition-delay: 200ms;">
+                    <i data-lucide="info" class="w-5 h-5 text-gray-400 shrink-0 mt-0.5"></i>
+                    <p class="text-sm text-gray-400 leading-relaxed font-sans" data-i18n="friedenszeit.info">
+                        Die Zeiten sind im 12-Stunden-Format (AM/PM) angegeben. Das System wechselt vollautomatisch alle 60 Minuten zwischen aktivem und inaktivem Zustand.
+                    </p>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: TIMELINE -->
+            <div class="lg:col-span-5 h-[600px] flex flex-col tactical-panel tactical-notch-tl bg-black/40 reveal" style="transition-delay: 400ms;">
+                <!-- Timeline Header -->
+                <div class="p-5 border-b border-white/5 bg-black/40 flex justify-between items-center shrink-0">
+                    <h3 class="font-display text-lg tracking-widest uppercase text-white" data-i18n="friedenszeit.schedule">24h Zeitplan</h3>
+                    <div class="flex items-center gap-2 border border-white/10 px-3 py-1 bg-black/50">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-bw-gold opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-bw-gold"></span>
+                        </span>
+                        <span class="font-mono text-[10px] uppercase text-gray-400 tracking-widest" data-i18n="friedenszeit.live_sync">LIVE SYNC</span>
+                    </div>
+                </div>
+
+                <!-- Timeline Scroll Area -->
+                <div class="flex-grow overflow-y-auto p-6 scroll-smooth timeline-scroll" id="schedule-container">
+                    <!-- JS injects timeline here -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER (Dynamically Loaded) -->
+    <div id="footer-container"></div>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+        // --- Logic: Friedenszeit ---
+        // Rule: 00:00-01:00 (Even Hour Start) -> Active
+        // Rule: 01:00-02:00 (Odd Hour Start) -> Inactive
+
+        function formatAMPM(hour) {
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const h = hour % 12 || 12; 
+            return { h: h.toString().padStart(2, '0'), ampm };
+        }
+
+        function generateScheduleData() {
+            const schedule = [];
+            for (let i = 0; i < 24; i++) {
+                const startHour = i;
+                const endHour = (i + 1) % 24;
+                const isActive = startHour % 2 === 0;
+                
+                const start = formatAMPM(startHour);
+                const end = formatAMPM(endHour);
+                
+                schedule.push({
+                    hour: startHour,
+                    timeString: `${start.h}:00 ${start.ampm} – ${end.h}:00 ${end.ampm}`,
+                    isActive: isActive
+                });
+            }
+            return schedule;
+        }
+
+        const scheduleData = generateScheduleData();
+
+        function renderSchedule() {
+            const container = document.getElementById('schedule-container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            const currentHour = new Date().getHours();
+            
+            // Get translations for badges
+            const currentLang = localStorage.getItem('lang') || 'de';
+            const isActiveText = (typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang]['friedenszeit.active']) ? translations[currentLang]['friedenszeit.active'] : 'Aktiv';
+            const isInactiveText = (typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang]['friedenszeit.inactive']) ? translations[currentLang]['friedenszeit.inactive'] : 'Inaktiv';
+            const nowTextLabel = (typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang]['friedenszeit.now']) ? translations[currentLang]['friedenszeit.now'] : 'JETZT';
+
+            scheduleData.forEach(item => {
+                const isCurrentSlot = item.hour === currentHour;
+                
+                // Item Container
+                const el = document.createElement('div');
+                el.className = `timeline-item mb-6 last:mb-0 transition-all duration-300 ${isCurrentSlot ? 'active' : 'opacity-60 hover:opacity-100'}`;
+                el.id = `hour-${item.hour}`;
+                
+                // Timeline Dot
+                const dot = document.createElement('div');
+                dot.className = 'timeline-dot';
+                el.appendChild(dot);
+
+                // Content Wrapper
+                const contentWrap = document.createElement('div');
+                contentWrap.className = `p-4 border border-white/5 bg-white/[0.02] ${isCurrentSlot ? 'bg-gradient-to-r from-bw-gold/10 to-transparent border-l-bw-gold/50' : ''}`;
+                
+                // Flex Header inside Content
+                const headerWrap = document.createElement('div');
+                headerWrap.className = 'flex justify-between items-center';
+
+                // Time String
+                const timeDiv = document.createElement('div');
+                timeDiv.className = `font-mono text-sm ${isCurrentSlot ? 'text-white font-bold' : 'text-gray-400'}`;
+                timeDiv.innerHTML = item.timeString;
+                
+                // Badge
+                const badgeDiv = document.createElement('div');
+                if (item.isActive) {
+                    badgeDiv.className = `text-[10px] font-bold uppercase px-2 py-0.5 border border-green-500/20 text-green-400 ${isCurrentSlot ? 'bg-green-500/20' : 'bg-transparent'}`;
+                    badgeDiv.innerText = isActiveText.toUpperCase();
+                } else {
+                    badgeDiv.className = `text-[10px] font-bold uppercase px-2 py-0.5 border border-red-500/20 text-red-400 ${isCurrentSlot ? 'bg-red-500/20' : 'bg-transparent'}`;
+                    badgeDiv.innerText = isInactiveText.toUpperCase();
+                }
+
+                headerWrap.appendChild(timeDiv);
+                
+                if (isCurrentSlot) {
+                    const badgeWrap = document.createElement('div');
+                    badgeWrap.className = 'flex items-center gap-2';
+                    
+                    const nowText = document.createElement('span');
+                    nowText.className = 'text-[10px] font-display text-bw-gold uppercase tracking-widest animate-pulse';
+                    nowText.innerText = nowTextLabel;
+                    
+                    badgeWrap.appendChild(nowText);
+                    badgeWrap.appendChild(badgeDiv);
+                    headerWrap.appendChild(badgeWrap);
+                } else {
+                    headerWrap.appendChild(badgeDiv);
+                }
+
+                contentWrap.appendChild(headerWrap);
+                el.appendChild(contentWrap);
+                container.appendChild(el);
+            });
+        }
+
+        // Auto-scroll to current hour
+        function scrollToCurrentHour() {
+            const currentHour = new Date().getHours();
+            const element = document.getElementById(`hour-${currentHour}`);
+            const container = document.getElementById('schedule-container');
+            
+            if (element && container) {
+                // Scroll so the current item is roughly in the middle
+                const scrollPos = element.offsetTop - (container.offsetHeight / 2) + (element.offsetHeight / 2);
+                container.scrollTop = scrollPos;
+            }
+        }
+
+        function updateLiveStatus() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            // Re-render schedule only if hour changed
+            if (window.lastRenderedHour !== hours) {
+                renderSchedule();
+                if(window.lastRenderedHour === undefined) {
+                    // Only scroll on first load
+                    setTimeout(scrollToCurrentHour, 100); 
+                }
+                window.lastRenderedHour = hours;
+            }
+
+            const isActive = hours % 2 === 0;
+            
+            // Get translations for status
+            const currentLang = localStorage.getItem('lang') || 'de';
+            const statusActiveText = (typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang]['friedenszeit.status_active']) ? translations[currentLang]['friedenszeit.status_active'] : 'AKTIV';
+            const statusInactiveText = (typeof translations !== 'undefined' && translations[currentLang] && translations[currentLang]['friedenszeit.status_inactive']) ? translations[currentLang]['friedenszeit.status_inactive'] : 'INAKTIV';
+
+            // Update Main Display
+            const statusDisplay = document.getElementById('status-display');
+            if (statusDisplay) {
+                if (isActive) {
+                    statusDisplay.innerText = statusActiveText;
+                    statusDisplay.className = 'font-display text-5xl md:text-7xl font-bold uppercase tracking-wider text-green-500 animate-glow-green leading-none';
+                } else {
+                    statusDisplay.innerText = statusInactiveText;
+                    statusDisplay.className = 'font-display text-5xl md:text-7xl font-bold uppercase tracking-wider text-red-500 animate-glow-red leading-none';
+                }
+            }
+            
+            // Calculate Countdown
+            const remMin = 59 - minutes;
+            const remSec = 59 - seconds;
+            
+            const formattedMin = remMin.toString().padStart(2, '0');
+            const formattedSec = remSec.toString().padStart(2, '0');
+            
+            const countdownEl = document.getElementById('countdown');
+            if (countdownEl) {
+                countdownEl.innerText = `00:${formattedMin}:${formattedSec}`;
+            }
+            
+            // Update Progress Bar
+            const totalSecondsPassed = (minutes * 60) + seconds;
+            const percentage = (totalSecondsPassed / 3600) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+                progressBar.className = `absolute top-0 left-0 h-full transition-all duration-1000 ease-linear ${isActive ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]'}`;
+            }
+        }
+
+        // Delay starting the loop exactly so i18n triggers first
+        document.addEventListener('DOMContentLoaded', () => {
+             // Init and Loop
+             setTimeout(() => {
+                updateLiveStatus();
+                setInterval(updateLiveStatus, 1000);
+             }, 100);
+        });
+        
+    </script>
+</body>
+
+</html>
