@@ -465,7 +465,7 @@
 
         function startRobloxOAuth() {
             const clientId = '1185800266267472506';
-            const redirectUri = window.location.href.split('?')[0]; // Current URL without query
+            const redirectUri = 'https://bwrp.net/team'; 
             const authUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid profile`;
             window.location.href = authUrl;
         }
@@ -489,7 +489,7 @@
 
             try {
                 // 1. Process OAuth code via our backend
-                const redirectUri = window.location.href.split('?')[0];
+                const redirectUri = 'https://bwrp.net/team';
                 const res = await fetch('oauth.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
