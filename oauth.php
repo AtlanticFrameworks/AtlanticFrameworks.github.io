@@ -20,7 +20,7 @@ if (!$client_secret) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $code = $input['code'] ?? null;
-$redirect_uri = $input['redirect_uri'] ?? 'https://bwrp.net/team.html';
+$redirect_uri = $input['redirect_uri'] ?? 'https://bwrp.net/team';
 
 if (!$code) {
     http_response_code(400);
