@@ -58,6 +58,7 @@
                         'glitch':     'glitch 1s linear infinite',
                     }
                 }
+            }
         };
     </script>
 
@@ -1413,6 +1414,88 @@
         const errDiv  = document.getElementById('radar-error');
         const emptyDiv = document.getElementById('radar-empty');
         const summary = document.getElementById('radar-summary');
+        const refreshBtn = document.getElementById('radar-refresh-btn');
+
+        if (!loading) return; // tab not loaded yet
+
+        [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
+        loading.classList.remove('hidden');
+        if (refreshBtn) refreshBtn.disabled = true;
+
+        try {
+            const { servers, totalPlayers, serverCount } = await window.api.getServers();
+            loading.classList.add('hidden');
+
+            if (!servers.length) {
+                emptyDiv?.classList.remove('hidden');
+                return;
+            }
+
+            // Summary bar
+            const totalEl = document.getElementById('radar-total-players');
+            const countEl = document.getElementById('radar-server-count');
+            if (totalEl) totalEl.textContent = totalPlayers;
+            if (countEl) countEl.textContent = serverCount;
+            summary?.classList.remove('hidden');
+
+            // Render cards
+            if (grid) {
+                grid.innerHTML = servers.map(s => {
+                    const fillPct = Math.round((s.players / s.maxPlayers) * 100);
+                    const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
+                    const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
+                    const fpsColor  = s.fps  >= 55 ? 'text-tac-green' : s.fps  >= 30  ? 'text-tac-amber' : 'text-tac-red';
+                    return `
+                    <div class="bg-tac-panel border border-tac-border p-4 relative overflow-hidden group hover:border-tac-green/40 transition-colors">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <i data-lucide="server" class="w-12 h-12 text-tac-green"></i>
+                        </div>
+                        <p class="font-mono text-[9px] text-tac-muted tracking-widest mb-3">SERVER #${s.index}</p>
+
+                        <div class="flex items-end justify-between mb-3">
+                            <div>
+                                <p class="font-display text-2xl font-bold text-white">${s.players}<span class="text-tac-muted text-base">/${s.maxPlayers}</span></p>
+                                <p class="font-mono text-[9px] text-tac-muted uppercase">Spieler</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono text-sm font-bold ${pingColor}">${s.ping}ms</p>
+                                <p class="font-mono text-[9px] text-tac-muted">Ping</p>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-1 bg-tac-dark border border-tac-border/50 mb-3">
+                            <div class="h-full ${fillColor} transition-all" style="width:${fillPct}%"></div>
+                        </div>
+
+                        <div class="flex justify-between font-mono text-[9px] text-tac-muted">
+                            <span>FPS: <span class="${fpsColor} font-bold">${s.fps}</span></span>
+                            <span class="text-[8px] truncate max-w-[100px] opacity-50">${s.jobId.substring(0, 8)}…</span>
+                        </div>
+                    </div>`;
+                }).join('');
+                grid.classList.remove('hidden');
+                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
+            }
+
+            // Auto-refresh every 60s
+            clearInterval(radarInterval);
+            radarInterval = setInterval(() => {
+                if (document.getElementById('tab-radar')?.classList.contains('block')) {
+                    window.loadServerIntel();
+                } else {
+                    clearInterval(radarInterval);
+                }
+            }, 60000);
+
+        } catch(e) {
+            loading.classList.add('hidden');
+            const errMsg = document.getElementById('radar-error-msg');
+            if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
+            errDiv?.classList.remove('hidden');
+        } finally {
+            if (refreshBtn) refreshBtn.disabled = false;
+        }
+    };
     // ====================================================
     // STAFF STATS (MY STATS WIDGET)
     // ====================================================
