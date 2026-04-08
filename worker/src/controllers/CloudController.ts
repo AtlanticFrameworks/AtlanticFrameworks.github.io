@@ -1,5 +1,5 @@
 import type { Env, JWTPayload } from '../types/index.js';
-import { json, err, corsHeaders } from '../middleware/auth.js';
+import { json, err, auditLog, getIP } from '../middleware/auth.js';
 import { RobloxCloudService } from '../services/RobloxCloudService.js';
 import { ROLE_RANK } from '../types/index.js';
 
@@ -33,11 +33,7 @@ export class CloudController {
         issuedAt:   new Date().toISOString(),
       });
 
-      // Log to audit_log
-      await env.DATABASE.prepare(
-        `INSERT INTO audit_logs (actor_id, action, target, details, created_at)
-         VALUES (?, 'CLOUD_KICK', ?, ?, datetime('now'))`
-      ).bind(user.sub, String(targetRobloxId), JSON.stringify({ targetUsername, reason })).run();
+      await auditLog(env.DATABASE, Number(user.sub), 'CLOUD_KICK', 'users', String(targetRobloxId), { targetUsername, reason }, getIP(request));
 
       return json({ success: true, message: `Kick-Signal für ${targetUsername ?? targetRobloxId} gesendet.` }, 200, origin);
     } catch (e) {
@@ -77,10 +73,7 @@ export class CloudController {
         issuedAt: new Date().toISOString(),
       });
 
-      await env.DATABASE.prepare(
-        `INSERT INTO audit_logs (actor_id, action, target, details, created_at)
-         VALUES (?, 'CLOUD_BAN', ?, ?, datetime('now'))`
-      ).bind(user.sub, String(targetRobloxId), JSON.stringify({ targetUsername, reason, durationDays })).run();
+      await auditLog(env.DATABASE, Number(user.sub), 'CLOUD_BAN', 'users', String(targetRobloxId), { targetUsername, reason, durationDays }, getIP(request));
 
       return json({ success: true, message: `${targetUsername ?? targetRobloxId} wurde gesperrt.` }, 200, origin);
     } catch (e) {
@@ -105,10 +98,7 @@ export class CloudController {
       const cloud = new RobloxCloudService(env);
       await cloud.unbanUser(Number(targetRobloxId));
 
-      await env.DATABASE.prepare(
-        `INSERT INTO audit_logs (actor_id, action, target, details, created_at)
-         VALUES (?, 'CLOUD_UNBAN', ?, ?, datetime('now'))`
-      ).bind(user.sub, String(targetRobloxId), JSON.stringify({ targetUsername })).run();
+      await auditLog(env.DATABASE, Number(user.sub), 'CLOUD_UNBAN', 'users', String(targetRobloxId), { targetUsername }, getIP(request));
 
       return json({ success: true, message: `${targetUsername ?? targetRobloxId} wurde entsperrt.` }, 200, origin);
     } catch (e) {
