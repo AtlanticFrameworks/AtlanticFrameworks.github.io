@@ -499,7 +499,7 @@
                 if (!res.ok) {
                     const errPayload = await res.json().catch(()=>({}));
                     console.error("OAuth Backend Error:", errPayload);
-                    throw new Error("OAuth handshake failed");
+                    throw new Error(errPayload.error || "OAuth handshake failed");
                 }
 
                 const data = await res.json();
@@ -558,7 +558,7 @@
 
             } catch (err) {
                 console.error("OAuth/Verification Error:", err);
-                showStatus("LOGIN FAILED. TRY AGAIN.", 'error');
+                showStatus("LOGIN FAILED: " + (err.message || "Unknown error"), 'error');
                 resetLoginDelay();
             }
         }

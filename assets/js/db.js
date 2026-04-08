@@ -6,11 +6,14 @@ const SUPABASE_URL = 'https://yhqfnjbukyosfhytsojo.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocWZuamJ1a3lvc2ZoeXRzb2pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyMjYzMzAsImV4cCI6MjA4MzgwMjMzMH0.OKBMh8sEn5IiLXkdD_PSTRDvgcEnbtJc8bsyaedFsqU';
 
 // Initialize Client
-let supabase = null;
+let supabaseClient = null;
 
 if (typeof createClient !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
     console.log("Supabase Client Initialized");
+} else if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function' && SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log("Supabase Client Initialized (via window.supabase)");
 } else {
     console.warn("Supabase credentials missing or library not loaded.");
 }
@@ -22,9 +25,9 @@ if (typeof createClient !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_PROJE
  * If credentials are missing, returns mock data.
  */
 async function fetchServerStatus() {
-    if (!supabase) return getMockStatus();
+    if (!supabaseClient) return getMockStatus();
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('server_status')
         .select('*')
         .order('id', { ascending: true });
@@ -41,9 +44,9 @@ async function fetchServerStatus() {
  * Fetches the latest 5 activity logs.
  */
 async function fetchActivityLogs() {
-    if (!supabase) return getMockActivity();
+    if (!supabaseClient) return getMockActivity();
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('activity_logs')
         .select('*')
         .order('created_at', { ascending: false })
@@ -74,7 +77,7 @@ function getMockActivity() {
 
 // --- INITIALIZATION ---
 async function initDatabase() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
 
     // Initial Fetch
     const statusData = await fetchServerStatus();
@@ -84,7 +87,7 @@ async function initDatabase() {
     updateActivityUI(activityData);
 
     // Realtime Subscription
-    supabase
+    supabaseClient
         .channel('public:server_status')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'server_status' }, payload => {
             console.log('Status Update:', payload);
@@ -92,7 +95,7 @@ async function initDatabase() {
         })
         .subscribe();
 
-    supabase
+    supabaseClient
         .channel('public:activity_logs')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, payload => {
             console.log('New Activity:', payload);

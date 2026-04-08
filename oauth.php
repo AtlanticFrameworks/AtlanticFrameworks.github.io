@@ -10,11 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $client_id = '1185800266267472506';
-$client_secret = getenv('ROBLOX_AUTH_SECRET'); // This must be configured in your environment
+$client_secret = getenv('ROBLOX_AUTH_SECRET')
+    ?: ($_ENV['ROBLOX_AUTH_SECRET'] ?? null)
+    ?: ($_SERVER['ROBLOX_AUTH_SECRET'] ?? null);
 
 if (!$client_secret) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server Configuration Error: Secret not found']);
+    echo json_encode(['error' => 'Server Configuration Error: ROBLOX_AUTH_SECRET not set']);
     exit;
 }
 
