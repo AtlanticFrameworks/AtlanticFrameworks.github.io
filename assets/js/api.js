@@ -4,7 +4,7 @@
  * Cookies werden automatisch vom Browser gesendet (credentials: 'include')
  */
 
-const API_BASE = '/api';  // Same domain via Worker Route – no CORS issues
+const API_BASE = 'https://bwrp.net/api';  // Absolute URL: frontend is github.io, API is bwrp.net
 
 class ApiClient {
     constructor() {

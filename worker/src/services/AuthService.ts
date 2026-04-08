@@ -36,10 +36,19 @@ export class AuthService {
     return { robloxId: u.sub, username: u.preferred_username ?? u.name ?? 'Unbekannt', picture: u.picture ?? null };
   }
 
+  private static readonly ROBLOX_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (compatible; BWRPStaffPanel/1.0; +https://bwrp.net)',
+    'Accept':     'application/json',
+  };
+
   async getRobloxRole(robloxId: string): Promise<Role | null> {
     try {
-      const res  = await fetch(`https://groups.roblox.com/v2/users/${robloxId}/groups/roles`);
-      if (!res.ok) return null;
+      const res  = await fetch(`https://groups.roblox.com/v2/users/${robloxId}/groups/roles`, { headers: AuthService.ROBLOX_HEADERS });
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        console.error(`[Roblox/groups] ${res.status}: ${body.slice(0, 200)}`);
+        return null;
+      }
       const data = await res.json() as { data: Array<{ group: { id: number }; role: { name: string } }> };
       const grp  = data.data.find(g => g.group.id === Number(this.env.ROBLOX_GROUP_ID));
       return grp ? (ALLOWED_ROLES[grp.role.name] ?? null) : null;

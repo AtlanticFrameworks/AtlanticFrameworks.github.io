@@ -5,6 +5,25 @@ const ROBLOX_USERS_API  = 'https://users.roblox.com/v1';
 const ROBLOX_GROUPS_API = 'https://groups.roblox.com/v1';
 const ROBLOX_GAMES_API  = 'https://games.roblox.com/v1';
 
+// Roblox blocks many datacenter IPs without a recognisable User-Agent.
+// Including Accept: application/json avoids the HTML error-page fallback.
+const ROBLOX_FETCH_HEADERS: HeadersInit = {
+  'User-Agent': 'Mozilla/5.0 (compatible; BWRPStaffPanel/1.0; +https://bwrp.net)',
+  'Accept':     'application/json',
+};
+
+async function robloxFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { ...ROBLOX_FETCH_HEADERS, ...(init.headers as Record<string, string> ?? {}) },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error(`[Roblox] ${init.method ?? 'GET'} ${url} → ${res.status}: ${body.slice(0, 300)}`);
+  }
+  return res;
+}
+
 export class RobloxController {
   // GET /api/roblox/player/:identifier  (username or numeric ID)
   static async getPlayer(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
@@ -19,7 +38,7 @@ export class RobloxController {
         userId = id;
       } else {
         // Username → resolve to ID
-        const res  = await fetch(`${ROBLOX_USERS_API}/usernames/users`, {
+        const res  = await robloxFetch(`${ROBLOX_USERS_API}/usernames/users`, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ usernames: [id], excludeBannedUsers: false }),
@@ -32,8 +51,8 @@ export class RobloxController {
 
       // Fetch profile + thumbnail in parallel
       const [profileRes, thumbRes] = await Promise.all([
-        fetch(`${ROBLOX_USERS_API}/users/${userId}`),
-        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`),
+        robloxFetch(`${ROBLOX_USERS_API}/users/${userId}`),
+        robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`),
       ]);
 
       if (!profileRes.ok) return err('Spieler nicht gefunden', 404);
@@ -63,7 +82,7 @@ export class RobloxController {
   // GET /api/roblox/group/roles  – All roles in the configured Roblox group
   static async getGroupRoles(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
     try {
-      const res = await fetch(`${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles`);
+      const res = await robloxFetch(`${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles`);
       if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502);
       return json(await res.json());
     } catch (e) {
@@ -74,7 +93,7 @@ export class RobloxController {
   // GET /api/roblox/group/roles/:roleId/users  – Members of a specific role (with avatar URLs)
   static async getGroupRoleUsers(_request: Request, env: Env, _user: JWTPayload, params: Record<string, string>): Promise<Response> {
     try {
-      const res = await fetch(
+      const res = await robloxFetch(
         `${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles/${params.roleId}/users?sortOrder=Asc&limit=100`,
       );
       if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502);
@@ -86,7 +105,7 @@ export class RobloxController {
       if (members.length) {
         try {
           const ids = members.map(m => m.userId).join(',');
-          const thumbRes = await fetch(
+          const thumbRes = await robloxFetch(
             `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${ids}&size=150x150&format=Png&isCircular=false`,
           );
           if (thumbRes.ok) {
@@ -110,9 +129,8 @@ export class RobloxController {
     if (!placeId) return err('ROBLOX_PLACE_ID nicht konfiguriert', 503);
 
     try {
-      const res = await fetch(
+      const res = await robloxFetch(
         `${ROBLOX_GAMES_API}/games/${placeId}/servers/Public?sortOrder=Desc&limit=25&excludeFullGames=false`,
-        { headers: { Accept: 'application/json' } },
       );
       if (!res.ok) return err('Roblox-Server-API nicht erreichbar', 502);
 

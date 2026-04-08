@@ -48,11 +48,13 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
 // ─── Cookie Helpers ───────────────────────────────────────────────────────────
 
 export function setCookie(name: string, value: string, maxAgeSeconds: number): string {
-  return `${name}=${value}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${maxAgeSeconds}`;
+  // SameSite=None is required for cross-origin cookie sending (frontend on github.io → API on bwrp.net).
+  // Secure is mandatory when SameSite=None.
+  return `${name}=${value}; HttpOnly; Secure; SameSite=None; Path=/api; Max-Age=${maxAgeSeconds}`;
 }
 
 export function clearCookie(name: string): string {
-  return `${name}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`;
+  return `${name}=; HttpOnly; Secure; SameSite=None; Path=/api; Max-Age=0`;
 }
 
 export function getCookie(request: Request, name: string): string | null {
