@@ -36,9 +36,12 @@ export class AuthService {
     return { robloxId: u.sub, username: u.preferred_username ?? u.name ?? 'Unbekannt', picture: u.picture ?? null };
   }
 
-  private static readonly ROBLOX_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (compatible; BWRPStaffPanel/1.0; +https://bwrp.net)',
-    'Accept':     'application/json',
+  private static readonly ROBLOX_HEADERS: Record<string, string> = {
+    'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept':          'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer':         'https://www.roblox.com/',
+    'Origin':          'https://www.roblox.com',
   };
 
   async getRobloxRole(robloxId: string): Promise<Role | null> {

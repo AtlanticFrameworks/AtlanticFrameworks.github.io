@@ -5,11 +5,14 @@ const ROBLOX_USERS_API  = 'https://users.roblox.com/v1';
 const ROBLOX_GROUPS_API = 'https://groups.roblox.com/v1';
 const ROBLOX_GAMES_API  = 'https://games.roblox.com/v1';
 
-// Roblox blocks many datacenter IPs without a recognisable User-Agent.
-// Including Accept: application/json avoids the HTML error-page fallback.
-const ROBLOX_FETCH_HEADERS: HeadersInit = {
-  'User-Agent': 'Mozilla/5.0 (compatible; BWRPStaffPanel/1.0; +https://bwrp.net)',
-  'Accept':     'application/json',
+// Roblox's CDN/WAF blocks plain datacenter requests.
+// A browser-like User-Agent + Referer + Accept are required to pass their edge checks.
+const ROBLOX_FETCH_HEADERS: Record<string, string> = {
+  'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept':          'application/json, text/plain, */*',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Referer':         'https://www.roblox.com/',
+  'Origin':          'https://www.roblox.com',
 };
 
 async function robloxFetch(url: string, init: RequestInit = {}): Promise<Response> {
