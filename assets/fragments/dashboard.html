@@ -8,7 +8,7 @@
 
 <aside id="sidebar"
     class="fixed md:relative z-40 w-64 h-full bg-tac-panel border-r border-tac-border flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-    
+
     <!-- Sidebar Header -->
     <div class="h-16 flex items-center px-6 border-b border-tac-border relative">
         <div class="absolute left-0 top-0 bottom-0 w-1 bg-tac-amber"></div>
@@ -21,11 +21,13 @@
         <div class="flex items-center gap-4">
             <div class="relative">
                 <img id="user-avatar" src="" alt="Avatar" class="w-10 h-10 rounded border border-tac-border grayscale">
-                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-tac-green border-2 border-tac-panel rounded-full"></div>
+                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-tac-green border-2 border-tac-panel rounded-full">
+                </div>
             </div>
             <div class="overflow-hidden">
                 <p id="user-name" class="font-mono text-[11px] font-bold text-white truncate">Laden...</p>
-                <p id="user-rank" class="font-mono text-[9px] text-tac-amber uppercase tracking-wider mt-0.5 truncate">VERIFY</p>
+                <p id="user-rank" class="font-mono text-[9px] text-tac-amber uppercase tracking-wider mt-0.5 truncate">
+                    VERIFY</p>
             </div>
         </div>
     </div>
@@ -33,7 +35,7 @@
     <!-- Navigation -->
     <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
         <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-3 px-3">MODULE</p>
-        
+
         <button onclick="showTab('home')" data-tab="home"
             class="nav-btn nav-active w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-tac-amber bg-tac-amber/10 border-l-2 border-tac-amber">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i> ÜBERSICHT
@@ -53,12 +55,12 @@
         <button onclick="showTab('quickmod')" data-tab="quickmod"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
             <div class="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <i data-lucide="zap" class="w-4 h-4 group-hover:text-blue-400 transition-colors"></i> 
+            <i data-lucide="zap" class="w-4 h-4 group-hover:text-blue-400 transition-colors"></i>
             <span class="group-hover:text-blue-400 transition-colors">SCHNELLMODERATOR</span>
         </button>
-        
+
         <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-6 mb-3 px-3">DOKUMENTATION</p>
-        
+
         <button onclick="showTab('rules')" data-tab="rules"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700">
             <i data-lucide="book-open" class="w-4 h-4"></i> RICHTLINIEN
@@ -71,10 +73,12 @@
 
     <!-- Bottom Actions -->
     <div class="p-4 border-t border-tac-border">
-        <a href="index.html" class="flex items-center gap-2 text-[10px] p-2 text-tac-muted font-mono hover:text-white transition-colors mb-2">
+        <a href="index.html"
+            class="flex items-center gap-2 text-[10px] p-2 text-tac-muted font-mono hover:text-white transition-colors mb-2">
             <i data-lucide="arrow-left" class="w-3 h-3"></i> ZURÜCK ZUR WEBSITE
         </a>
-        <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-mono text-tac-red hover:bg-tac-red/10 border border-tac-red/20 transition-all clip-both">
+        <button onclick="logout()"
+            class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-mono text-tac-red hover:bg-tac-red/10 border border-tac-red/20 transition-all clip-both">
             <i data-lucide="log-out" class="w-4 h-4"></i> SITZUNG BEENDEN
         </button>
     </div>
@@ -84,22 +88,26 @@
      MAIN CONTENT AREA
 =============================================== -->
 <main class="flex-1 flex flex-col min-w-0 bg-tac-dark/95 backdrop-blur-sm relative">
-    
+
     <!-- Top Status Bar -->
-    <header class="h-16 border-b border-tac-border flex items-center justify-between px-6 bg-tac-panel/50 flex-shrink-0">
+    <header
+        class="h-16 border-b border-tac-border flex items-center justify-between px-6 bg-tac-panel/50 flex-shrink-0">
         <div class="flex items-center gap-4">
             <span class="flex h-2.5 w-2.5 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tac-green opacity-75"></span>
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tac-green opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tac-green"></span>
             </span>
             <span class="font-mono text-xs text-tac-green tracking-widest hidden sm:inline">VERBINDUNG STABIL</span>
         </div>
         <div class="flex items-center gap-4">
             <!-- Shift Status Chip -->
-            <div id="shift-chip" class="hidden md:flex items-center gap-1.5 font-mono text-[10px] text-tac-muted tracking-wider px-2 py-1 border border-tac-border bg-tac-panel">
+            <div id="shift-chip"
+                class="hidden md:flex items-center gap-1.5 font-mono text-[10px] text-tac-muted tracking-wider px-2 py-1 border border-tac-border bg-tac-panel">
                 AUS DIENST
             </div>
-            <div class="font-mono text-xs text-tac-muted tracking-widest flex items-center gap-2 bg-black/40 px-3 py-1.5 border border-tac-border">
+            <div
+                class="font-mono text-xs text-tac-muted tracking-widest flex items-center gap-2 bg-black/40 px-3 py-1.5 border border-tac-border">
                 <span id="sys-time">00:00:00 UTC</span>
                 <i data-lucide="wifi" class="w-3.5 h-3.5 text-tac-green"></i>
             </div>
@@ -114,7 +122,8 @@
         =========================================== -->
         <div id="tab-home" class="tab-content block animate-fade-in">
             <div class="mb-8">
-                <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Taktische Übersicht</h2>
+                <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Taktische
+                    Übersicht</h2>
                 <p class="font-mono text-xs text-tac-muted mt-1">SYSTEM-STATUS UND GLOBALE MELDUNGEN</p>
             </div>
 
@@ -122,7 +131,8 @@
                 <!-- Vitals -->
                 <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i data-lucide="server" class="w-16 h-16 text-tac-amber"></i></div>
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i
+                                data-lucide="server" class="w-16 h-16 text-tac-amber"></i></div>
                         <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-1">SERVER STATUS</p>
                         <p class="font-display text-3xl font-bold text-white">ONLINE</p>
                         <div class="mt-4 pt-4 border-t border-tac-border flex justify-between font-mono text-xs">
@@ -131,7 +141,8 @@
                         </div>
                     </div>
                     <div class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i data-lucide="bot" class="w-16 h-16 text-tac-blue"></i></div>
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i
+                                data-lucide="bot" class="w-16 h-16 text-tac-blue"></i></div>
                         <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-1">DISCORD BOT</p>
                         <p class="font-display text-3xl font-bold text-white">VERBUNDEN</p>
                         <div class="mt-4 pt-4 border-t border-tac-border flex justify-between font-mono text-xs">
@@ -139,7 +150,7 @@
                             <span id="status-discord" class="text-tac-green">READY</span>
                         </div>
                     </div>
-                    
+
                     <!-- Announcements -->
                     <div class="sm:col-span-2 bg-tac-panel border border-tac-border p-5 flex flex-col">
                         <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-4">NEUESTE FUNKSAMMLUNGEN</p>
@@ -153,29 +164,33 @@
                 <!-- Right Column (Quick Actions) -->
                 <div class="space-y-4">
                     <div class="bg-tac-amber/5 border border-tac-amber/30 p-5 clip-tl">
-                        <h3 class="font-display font-bold text-tac-amber uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <h3
+                            class="font-display font-bold text-tac-amber uppercase tracking-wider mb-2 flex items-center gap-2">
                             <i data-lucide="shield-alert" class="w-4 h-4"></i> Schnelleinsatz
                         </h3>
                         <p class="font-mono text-xs text-zinc-400 mb-4 leading-relaxed">
                             Starten Sie Ihre Schicht oder prüfen Sie Spielerakten im Schnellmodus.
                         </p>
                         <div class="flex flex-col gap-2">
-                            <button onclick="showTab('shift'); if(!isShiftActive) toggleShift();" class="bg-tac-amber text-black font-bold font-mono text-sm py-2 hover:bg-white transition-colors clip-br bracket-hover">
+                            <button onclick="showTab('shift'); if(!isShiftActive) toggleShift();"
+                                class="bg-tac-amber text-black font-bold font-mono text-sm py-2 hover:bg-white transition-colors clip-br bracket-hover">
                                 DIENST STARTEN
                             </button>
-                            <button onclick="showTab('quickmod')" class="bg-transparent border border-tac-border text-white font-bold font-mono text-sm py-2 hover:border-blue-500 hover:text-blue-400 transition-colors mt-1">
+                            <button onclick="showTab('quickmod')"
+                                class="bg-transparent border border-tac-border text-white font-bold font-mono text-sm py-2 hover:border-blue-500 hover:text-blue-400 transition-colors mt-1">
                                 SCHNELL-MODERATOR
                             </button>
                         </div>
                     </div>
 
                     <div class="bg-tac-panel border border-tac-border p-5 overflow-hidden h-64 flex flex-col">
-                         <h3 class="font-display font-bold text-white uppercase tracking-wider mb-3 text-sm flex items-center gap-2">
+                        <h3
+                            class="font-display font-bold text-white uppercase tracking-wider mb-3 text-sm flex items-center gap-2">
                             <i data-lucide="radio" class="w-4 h-4 text-tac-muted"></i> System-Log
-                         </h3>
-                         <div id="activity-feed" class="flex-1 overflow-y-auto space-y-2 pr-1 font-mono text-[10px]">
+                        </h3>
+                        <div id="activity-feed" class="flex-1 overflow-y-auto space-y-2 pr-1 font-mono text-[10px]">
                             <!-- Activity injected via db.js -->
-                         </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,39 +202,49 @@
         <div id="tab-shift" class="tab-content hidden animate-fade-in text-gray-300">
             <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-border pb-4 mb-6">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Dienst-Terminal</h2>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
+                        Dienst-Terminal</h2>
                     <p class="font-mono text-xs text-tac-muted mt-1">ZEITERFASSUNG UND EINSATZ-METRIKEN</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- TIMER -->
-                <div class="lg:col-span-5 bg-tac-panel border border-tac-border p-6 flex flex-col items-center justify-center relative shadow-[inset_0_0_40px_rgba(0,0,0,0.8)]">
+                <div
+                    class="lg:col-span-5 bg-tac-panel border border-tac-border p-6 flex flex-col items-center justify-center relative shadow-[inset_0_0_40px_rgba(0,0,0,0.8)]">
                     <div class="hud-corners absolute inset-4 pointer-events-none"></div>
-                    
+
                     <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-6">AKTIVE EINSATZZEIT</p>
-                    
+
                     <div class="relative w-48 h-48 flex items-center justify-center mb-8">
                         <svg class="absolute inset-0 w-full h-full text-tac-border" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2" />
                         </svg>
-                        <svg class="absolute inset-0 w-full h-full text-tac-green transform -rotate-90 origin-center" viewBox="0 0 100 100">
-                            <circle id="timer-progress" cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="283" stroke-dashoffset="283" class="transition-[stroke-dashoffset] duration-1000" />
+                        <svg class="absolute inset-0 w-full h-full text-tac-green transform -rotate-90 origin-center"
+                            viewBox="0 0 100 100">
+                            <circle id="timer-progress" cx="50" cy="50" r="45" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-dasharray="283" stroke-dashoffset="283"
+                                class="transition-[stroke-dashoffset] duration-1000" />
                         </svg>
-                        <span id="shift-timer-display" class="block text-4xl font-mono font-bold text-white tracking-tight relative z-10 w-full text-center">00:00:00</span>
+                        <span id="shift-timer-display"
+                            class="block text-4xl font-mono font-bold text-white tracking-tight relative z-10 w-full text-center">00:00:00</span>
                     </div>
 
                     <div class="flex gap-3 w-full max-w-[280px]">
-                        <button id="btn-shift-start" onclick="toggleShift()" class="flex-1 bg-tac-green/10 border border-tac-green text-tac-green font-mono font-bold py-3 hover:bg-tac-green hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2">
+                        <button id="btn-shift-start" onclick="toggleShift()"
+                            class="flex-1 bg-tac-green/10 border border-tac-green text-tac-green font-mono font-bold py-3 hover:bg-tac-green hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2">
                             <i data-lucide="play" class="w-4 h-4"></i> Starten
                         </button>
-                        <button id="btn-shift-stop" onclick="stopShift()" disabled class="flex-1 bg-transparent border border-tac-border text-tac-muted font-mono font-bold py-3 hover:border-tac-red hover:text-tac-red transition-all clip-both text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="btn-shift-stop" onclick="stopShift()" disabled
+                            class="flex-1 bg-transparent border border-tac-border text-tac-muted font-mono font-bold py-3 hover:border-tac-red hover:text-tac-red transition-all clip-both text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                             Beenden
                         </button>
                     </div>
-                    
-                    <div class="mt-6 flex items-center justify-center gap-2 border border-tac-border px-3 py-1.5 bg-black">
-                        <div id="shift-status-indicator" class="w-2.5 h-2.5 rounded-full bg-zinc-600 flex-shrink-0"></div>
+
+                    <div
+                        class="mt-6 flex items-center justify-center gap-2 border border-tac-border px-3 py-1.5 bg-black">
+                        <div id="shift-status-indicator" class="w-2.5 h-2.5 rounded-full bg-zinc-600 flex-shrink-0">
+                        </div>
                         <span id="shift-status-text" class="font-mono text-xs text-tac-muted">AUS DIENST</span>
                     </div>
                 </div>
@@ -227,57 +252,82 @@
                 <!-- METRICS -->
                 <div class="lg:col-span-7 bg-tac-panel border border-tac-border flex flex-col">
                     <div class="p-6 flex-1">
-                        <h3 class="font-display font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
+                        <h3
+                            class="font-display font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
                             <i data-lucide="bar-chart" class="w-4 h-4 text-tac-amber"></i> Einsatz-Protokoll
                         </h3>
-                        
+
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             <!-- Metrik: Fälle -->
                             <div class="bg-tac-dark border border-tac-border p-3">
-                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">FÄLLE BEARBEITET</label>
+                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">FÄLLE
+                                    BEARBEITET</label>
                                 <div class="flex border border-tac-border">
-                                    <button onclick="adjustMetric('shift-cases', -1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
-                                    <input type="number" id="shift-cases" value="0" min="0" class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none" readonly>
-                                    <button onclick="adjustMetric('shift-cases', 1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
+                                    <button onclick="adjustMetric('shift-cases', -1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
+                                    <input type="number" id="shift-cases" value="0" min="0"
+                                        class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none"
+                                        readonly>
+                                    <button onclick="adjustMetric('shift-cases', 1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
                                 </div>
                             </div>
                             <!-- Metrik: Bans -->
                             <div class="bg-tac-dark border border-tac-border p-3">
-                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">BANS ERTEILT</label>
+                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">BANS
+                                    ERTEILT</label>
                                 <div class="flex border border-tac-border">
-                                    <button onclick="adjustMetric('shift-bans', -1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
-                                    <input type="number" id="shift-bans" value="0" min="0" class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none" readonly>
-                                    <button onclick="adjustMetric('shift-bans', 1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
+                                    <button onclick="adjustMetric('shift-bans', -1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
+                                    <input type="number" id="shift-bans" value="0" min="0"
+                                        class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none"
+                                        readonly>
+                                    <button onclick="adjustMetric('shift-bans', 1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
                                 </div>
                             </div>
                             <!-- Metrik: Verwarnungen -->
                             <div class="bg-tac-dark border border-tac-border p-3">
-                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">VERWARNUNGEN</label>
+                                <label
+                                    class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">VERWARNUNGEN</label>
                                 <div class="flex border border-tac-border">
-                                    <button onclick="adjustMetric('shift-warns', -1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
-                                    <input type="number" id="shift-warns" value="0" min="0" class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none" readonly>
-                                    <button onclick="adjustMetric('shift-warns', 1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
+                                    <button onclick="adjustMetric('shift-warns', -1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
+                                    <input type="number" id="shift-warns" value="0" min="0"
+                                        class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none"
+                                        readonly>
+                                    <button onclick="adjustMetric('shift-warns', 1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
                                 </div>
                             </div>
                             <!-- Metrik: Kicks -->
                             <div class="bg-tac-dark border border-tac-border p-3">
-                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">KICKS AUSGEFÜHRT</label>
+                                <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">KICKS
+                                    AUSGEFÜHRT</label>
                                 <div class="flex border border-tac-border">
-                                    <button onclick="adjustMetric('shift-kicks', -1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
-                                    <input type="number" id="shift-kicks" value="0" min="0" class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none" readonly>
-                                    <button onclick="adjustMetric('shift-kicks', 1)" class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
+                                    <button onclick="adjustMetric('shift-kicks', -1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">-</button>
+                                    <input type="number" id="shift-kicks" value="0" min="0"
+                                        class="w-full bg-transparent text-center font-mono text-white py-1 focus:outline-none"
+                                        readonly>
+                                    <button onclick="adjustMetric('shift-kicks', 1)"
+                                        class="px-2 hover:bg-tac-border transition-colors text-tac-muted">+</button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Notes -->
                         <div class="bg-tac-dark border border-tac-border p-4 h-[120px] flex flex-col">
-                             <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">BESONDERE VORKOMMNISSE / NOTIZEN</label>
-                             <textarea id="shift-notes" class="w-full flex-1 bg-transparent border-none text-white font-mono text-xs resize-none focus:outline-none" placeholder="Eingabe..."></textarea>
+                            <label class="font-mono text-[9px] text-tac-muted tracking-widest block mb-2">BESONDERE
+                                VORKOMMNISSE / NOTIZEN</label>
+                            <textarea id="shift-notes"
+                                class="w-full flex-1 bg-transparent border-none text-white font-mono text-xs resize-none focus:outline-none"
+                                placeholder="Eingabe..."></textarea>
                         </div>
                     </div>
-                    
-                    <button onclick="copyShiftReport()" class="w-full bg-tac-amber hover:bg-white text-black transition-colors font-mono font-bold text-sm py-4 uppercase tracking-widest flex items-center justify-center gap-2">
+
+                    <button onclick="copyShiftReport()"
+                        class="w-full bg-tac-amber hover:bg-white text-black transition-colors font-mono font-bold text-sm py-4 uppercase tracking-widest flex items-center justify-center gap-2">
                         <i data-lucide="clipboard-copy" class="w-4 h-4"></i> SCHICHT-BERICHT KOPIEREN
                     </button>
                 </div>
@@ -288,18 +338,25 @@
              TAB: PERSONAL (ROSTER)
         =========================================== -->
         <div id="tab-roster" class="tab-content hidden animate-fade-in">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 border-b border-tac-border pb-4">
+            <div
+                class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 border-b border-tac-border pb-4">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Personalakte</h2>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
+                        Personalakte</h2>
                     <p class="font-mono text-xs text-tac-muted mt-1">ÜBERSICHT DER FREIGABESTUFEN</p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="loadStaffHierarchy()" class="bg-tac-panel border border-tac-border px-3 py-2 text-tac-muted hover:text-white transition-colors" title="Neu laden">
+                    <button onclick="loadStaffHierarchy()"
+                        class="bg-tac-panel border border-tac-border px-3 py-2 text-tac-muted hover:text-white transition-colors"
+                        title="Neu laden">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                     </button>
                     <div id="staff-search-container" class="relative hidden">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tac-muted"></i>
-                        <input type="text" id="staff-search-input" onkeyup="filterStaff()" placeholder="IDENTIFIKATION..." class="w-full sm:w-64 bg-tac-dark border border-tac-border pl-10 pr-4 py-2 font-mono text-xs text-white focus:outline-none focus:border-tac-amber transition-colors placeholder:text-zinc-600">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tac-muted"></i>
+                        <input type="text" id="staff-search-input" onkeyup="filterStaff()"
+                            placeholder="IDENTIFIKATION..."
+                            class="w-full sm:w-64 bg-tac-dark border border-tac-border pl-10 pr-4 py-2 font-mono text-xs text-white focus:outline-none focus:border-tac-amber transition-colors placeholder:text-zinc-600">
                     </div>
                 </div>
             </div>
@@ -314,17 +371,23 @@
             <div id="staff-hierarchy-grid" class="hidden space-y-6">
                 <!-- Tier: COMMAND -->
                 <div>
-                    <h3 class="font-display font-bold text-tac-red tracking-[0.2em] uppercase text-lg border-b border-tac-border/50 pb-2 mb-4">Pinnacle / Command</h3>
+                    <h3
+                        class="font-display font-bold text-tac-red tracking-[0.2em] uppercase text-lg border-b border-tac-border/50 pb-2 mb-4">
+                        Pinnacle / Command</h3>
                     <div id="container-pr"></div>
                 </div>
                 <!-- Tier: SUPERVISORY -->
                 <div class="mt-8">
-                    <h3 class="font-display font-bold text-tac-amber tracking-[0.2em] uppercase text-lg border-b border-tac-border/50 pb-2 mb-4">Supervisory / HR</h3>
+                    <h3
+                        class="font-display font-bold text-tac-amber tracking-[0.2em] uppercase text-lg border-b border-tac-border/50 pb-2 mb-4">
+                        Supervisory / HR</h3>
                     <div id="container-hr"></div>
                 </div>
                 <!-- Tier: FIELD STAFF -->
                 <div class="mt-8">
-                    <h3 class="font-display font-bold text-tac-green tracking-[0.2em] uppercase text-lg border-b border-tac-border/50 pb-2 mb-4">Field Staff / MR</h3>
+                    <h3
+                        class="font-display font-bold text-tac-green tracking-[0.2em] uppercase text-lg border-b border-tac-border/50 pb-2 mb-4">
+                        Field Staff / MR</h3>
                     <div id="container-mr"></div>
                 </div>
             </div>
@@ -336,7 +399,8 @@
         <div id="tab-calculator" class="tab-content hidden animate-fade-in text-gray-300">
             <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-border pb-4 mb-6">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Aktions-Matrix</h2>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
+                        Aktions-Matrix</h2>
                     <p class="font-mono text-xs text-tac-muted mt-1">BESTRAFUNGSRICHTLINIEN & RECHNER</p>
                 </div>
             </div>
@@ -347,7 +411,8 @@
                     <div>
                         <label class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">VERGEHEN</label>
                         <div class="relative">
-                            <select id="calc-offense" onchange="runCalculation()" class="w-full bg-tac-dark border border-tac-border text-white font-mono text-sm p-3 focus:outline-none focus:border-tac-amber appearance-none cursor-pointer">
+                            <select id="calc-offense" onchange="runCalculation()"
+                                class="w-full bg-tac-dark border border-tac-border text-white font-mono text-sm p-3 focus:outline-none focus:border-tac-amber appearance-none cursor-pointer">
                                 <option value="" disabled selected>[ VERGEHEN AUSWÄHLEN ]</option>
                                 <optgroup label="KAMPF-VERSTÖSSE">
                                     <option value="RDM">Random Deathmatch (RDM)</option>
@@ -368,52 +433,76 @@
                                     <option value="Exploiting">Exploiting / Cheating</option>
                                 </optgroup>
                             </select>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tac-muted pointer-events-none"></i>
+                            <i data-lucide="chevron-down"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tac-muted pointer-events-none"></i>
                         </div>
                     </div>
 
                     <div>
-                        <label class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">VERSTOSS-ZÄHLER</label>
+                        <label
+                            class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">VERSTOSS-ZÄHLER</label>
                         <div class="grid grid-cols-3 gap-2">
                             <label class="cursor-pointer">
-                                <input type="radio" name="offense-count" value="1" class="peer hidden" checked onchange="runCalculation()">
-                                <div class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">1. MAL</div>
+                                <input type="radio" name="offense-count" value="1" class="peer hidden" checked
+                                    onchange="runCalculation()">
+                                <div
+                                    class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">
+                                    1. MAL</div>
                             </label>
                             <label class="cursor-pointer">
-                                <input type="radio" name="offense-count" value="2" class="peer hidden" onchange="runCalculation()">
-                                <div class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">2. MAL</div>
+                                <input type="radio" name="offense-count" value="2" class="peer hidden"
+                                    onchange="runCalculation()">
+                                <div
+                                    class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">
+                                    2. MAL</div>
                             </label>
                             <label class="cursor-pointer">
-                                <input type="radio" name="offense-count" value="3" class="peer hidden" onchange="runCalculation()">
-                                <div class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-red/20 peer-checked:text-tac-red peer-checked:border-tac-red transition-all">3. MAL+</div>
+                                <input type="radio" name="offense-count" value="3" class="peer hidden"
+                                    onchange="runCalculation()">
+                                <div
+                                    class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-red/20 peer-checked:text-tac-red peer-checked:border-tac-red transition-all">
+                                    3. MAL+</div>
                             </label>
                         </div>
                     </div>
 
                     <!-- Generator Zusatz -->
                     <div class="pt-4 border-t border-tac-border">
-                        <label class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">ZIEL-IDENTIFIKATION (OPTIONAL)</label>
-                        <input type="text" id="calc-username" onkeyup="runCalculation()" placeholder="Username eingeben..." class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors">
-                        <p class="text-[9px] text-zinc-500 font-mono mt-2">Dient zur automatischen Befehlsgenerierung.</p>
+                        <label
+                            class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">ZIEL-IDENTIFIKATION
+                            (OPTIONAL)</label>
+                        <input type="text" id="calc-username" onkeyup="runCalculation()"
+                            placeholder="Username eingeben..."
+                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors">
+                        <p class="text-[9px] text-zinc-500 font-mono mt-2">Dient zur automatischen Befehlsgenerierung.
+                        </p>
                     </div>
 
                     <!-- Offense Quick Actions -->
                     <div class="grid grid-cols-2 gap-2 mt-auto">
-                        <button onclick="runCalculation('RDM')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">RDM</button>
-                        <button onclick="runCalculation('FailRP')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">FAILRP</button>
-                        <button onclick="runCalculation('Toxicity')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">TOXIZITÄT</button>
-                        <button onclick="runCalculation('NLR')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">NLR</button>
+                        <button onclick="runCalculation('RDM')"
+                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">RDM</button>
+                        <button onclick="runCalculation('FailRP')"
+                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">FAILRP</button>
+                        <button onclick="runCalculation('Toxicity')"
+                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">TOXIZITÄT</button>
+                        <button onclick="runCalculation('NLR')"
+                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">NLR</button>
                     </div>
                 </div>
 
                 <!-- Ergebnis -->
-                <div class="lg:col-span-7 bg-[#0a0a0c] border border-tac-border p-8 relative overflow-hidden flex flex-col justify-center items-center text-center min-h-[350px]">
+                <div
+                    class="lg:col-span-7 bg-[#0a0a0c] border border-tac-border p-8 relative overflow-hidden flex flex-col justify-center items-center text-center min-h-[350px]">
                     <div class="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none"></div>
-                    
-                    <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-4 relative z-10">EMPFOHLENE MASSNAHME</p>
-                    
+
+                    <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-4 relative z-10">EMPFOHLENE
+                        MASSNAHME</p>
+
                     <div class="relative z-10 w-full mb-8">
-                        <h3 id="calc-result" class="font-display text-4xl md:text-5xl font-bold text-white tracking-widest mb-2 transition-colors">STANDBY</h3>
+                        <h3 id="calc-result"
+                            class="font-display text-4xl md:text-5xl font-bold text-white tracking-widest mb-2 transition-colors">
+                            STANDBY</h3>
                         <p id="calc-subtext" class="font-mono text-sm text-tac-muted">WARTE AUF PARAMETER</p>
                     </div>
 
@@ -421,8 +510,12 @@
                     <div id="calc-command-box" class="w-full relative z-10 hidden animate-slide-up">
                         <p class="font-mono text-[9px] text-tac-muted tracking-widest mb-2 text-left">TRIDENT BEFEHL</p>
                         <div class="flex items-stretch border border-tac-border bg-black">
-                            <input type="text" id="calc-command-output" class="flex-1 bg-transparent px-3 font-mono text-xs text-white focus:outline-none" readonly>
-                            <button onclick="copyCalcCommand()" class="bg-tac-dark border-l border-tac-border px-4 py-2 text-tac-amber hover:bg-tac-amber hover:text-black transition-colors" title="Kopieren">
+                            <input type="text" id="calc-command-output"
+                                class="flex-1 bg-transparent px-3 font-mono text-xs text-white focus:outline-none"
+                                readonly>
+                            <button onclick="copyCalcCommand()"
+                                class="bg-tac-dark border-l border-tac-border px-4 py-2 text-tac-amber hover:bg-tac-amber hover:text-black transition-colors"
+                                title="Kopieren">
                                 <i data-lucide="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -437,7 +530,8 @@
         <div id="tab-quickmod" class="tab-content hidden animate-fade-in text-gray-300">
             <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-blue-500/30 pb-4 mb-6">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-blue-400 uppercase tracking-wider flex items-center gap-3">
+                    <h2
+                        class="font-display text-2xl md:text-3xl font-bold text-blue-400 uppercase tracking-wider flex items-center gap-3">
                         <i data-lucide="zap" class="w-6 h-6"></i> Schnellmoderator
                     </h2>
                     <p class="font-mono text-xs text-blue-500/70 mt-1">ALL-IN-ONE WORKFLOW FÜR SCHNELLE MASSNAHMEN</p>
@@ -447,31 +541,39 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Sektion A & C: Lookup + Checkliste -->
                 <div class="flex flex-col gap-6">
-                    
+
                     <!-- Sektion A -->
                     <div class="bg-tac-panel border border-blue-500/30 p-6">
-                        <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 mb-4 uppercase">1. Spieler-Identifikation</h3>
+                        <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 mb-4 uppercase">1.
+                            Spieler-Identifikation</h3>
                         <div class="flex gap-2">
-                            <input type="text" id="lookup-input" placeholder="Roblox ID oder Username..." class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500 transition-colors">
-                            <button onclick="lookupPlayer()" class="bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 hover:bg-blue-500 hover:text-black transition-colors tooltip" title="Suchen">
+                            <input type="text" id="lookup-input" placeholder="Roblox ID oder Username..."
+                                class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                            <button onclick="lookupPlayer()"
+                                class="bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 hover:bg-blue-500 hover:text-black transition-colors tooltip"
+                                title="Suchen">
                                 <i data-lucide="search" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        
+
                         <!-- Ladeanzeige -->
                         <div id="lookup-loading" class="hidden mt-4 py-4 text-center">
                             <i data-lucide="loader-2" class="w-6 h-6 text-blue-400 animate-spin mx-auto"></i>
                         </div>
 
                         <!-- Ergebnis -->
-                        <div id="lookup-result" class="hidden mt-6 bg-black/40 border border-tac-border p-4 flex items-center gap-4 animate-fade-in">
+                        <div id="lookup-result"
+                            class="hidden mt-6 bg-black/40 border border-tac-border p-4 flex items-center gap-4 animate-fade-in">
                             <img id="lookup-avatar" src="" alt="Avatar" class="w-12 h-12 border border-tac-border">
                             <div class="flex-1 overflow-hidden">
-                                <p id="lookup-username" class="font-mono text-sm font-bold text-white truncate">Username</p>
+                                <p id="lookup-username" class="font-mono text-sm font-bold text-white truncate">Username
+                                </p>
                                 <p id="lookup-rank" class="font-mono text-[10px] text-tac-muted">ID: 0000</p>
                             </div>
                             <div class="flex gap-2">
-                                <a id="lookup-profile-btn" href="#" target="_blank" class="p-2 border border-tac-border bg-tac-dark hover:text-blue-400 hover:border-blue-400 transition-colors" title="Roblox Profil">
+                                <a id="lookup-profile-btn" href="#" target="_blank"
+                                    class="p-2 border border-tac-border bg-tac-dark hover:text-blue-400 hover:border-blue-400 transition-colors"
+                                    title="Roblox Profil">
                                     <i data-lucide="external-link" class="w-4 h-4"></i>
                                 </a>
                             </div>
@@ -481,30 +583,44 @@
                     <!-- Sektion C: Checkliste -->
                     <div class="bg-tac-panel border border-blue-500/30 p-6 flex-1 flex flex-col">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 uppercase">3. Protokollierung</h3>
-                            <button onclick="resetChecklist()" class="text-[9px] text-tac-muted hover:text-white uppercase font-mono">Reset</button>
+                            <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 uppercase">3.
+                                Protokollierung</h3>
+                            <button onclick="resetChecklist()"
+                                class="text-[9px] text-tac-muted hover:text-white uppercase font-mono">Reset</button>
                         </div>
-                        
+
                         <div class="w-full h-1 bg-tac-dark border border-tac-border mb-4">
                             <div id="checklist-fill" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
                         </div>
 
                         <div class="space-y-3 font-mono text-xs">
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors" onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">Spielerakte in Trident geprüft</span>
+                                <input type="checkbox"
+                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
+                                    onchange="toggleChecklist()">
+                                <span class="text-gray-400 group-hover:text-white transition-colors">Spielerakte in
+                                    Trident geprüft</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors" onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">Richtiger Verstoß-Zähler ausgewählt</span>
+                                <input type="checkbox"
+                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
+                                    onchange="toggleChecklist()">
+                                <span class="text-gray-400 group-hover:text-white transition-colors">Richtiger
+                                    Verstoß-Zähler ausgewählt</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors" onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">Befehl ausgeführt & bestraft</span>
+                                <input type="checkbox"
+                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
+                                    onchange="toggleChecklist()">
+                                <span class="text-gray-400 group-hover:text-white transition-colors">Befehl ausgeführt &
+                                    bestraft</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors" onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">In Schichtbericht vermerkt (+1)</span>
+                                <input type="checkbox"
+                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
+                                    onchange="toggleChecklist()">
+                                <span class="text-gray-400 group-hover:text-white transition-colors">In Schichtbericht
+                                    vermerkt (+1)</span>
                             </label>
                         </div>
                     </div>
@@ -512,17 +628,22 @@
 
                 <!-- Sektion B: Generator -->
                 <div class="bg-tac-panel border border-blue-500/30 p-6 flex flex-col">
-                    <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 mb-6 uppercase">2. Massnahmen-Generator</h3>
-                    
+                    <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 mb-6 uppercase">2.
+                        Massnahmen-Generator</h3>
+
                     <div class="space-y-4 mb-8">
                         <div>
-                            <label class="font-mono text-[9px] text-tac-muted block mb-1">ZIEL (AUTOMATISCH ÜBERNOMMEN)</label>
-                            <input type="text" id="qm-username" class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none" readonly>
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1">ZIEL (AUTOMATISCH
+                                ÜBERNOMMEN)</label>
+                            <input type="text" id="qm-username"
+                                class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none"
+                                readonly>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="font-mono text-[9px] text-tac-muted block mb-1">VERGEHEN</label>
-                                <select id="qm-offense" onchange="generateQuickCommand()" class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2.5 focus:outline-none focus:border-blue-500">
+                                <select id="qm-offense" onchange="generateQuickCommand()"
+                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2.5 focus:outline-none focus:border-blue-500">
                                     <option value="" disabled selected>-- Auswahl --</option>
                                     <option value="RDM">RDM</option>
                                     <option value="VDM">VDM</option>
@@ -533,7 +654,8 @@
                             </div>
                             <div>
                                 <label class="font-mono text-[9px] text-tac-muted block mb-1">MAL</label>
-                                <select id="qm-count" onchange="generateQuickCommand()" class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2.5 focus:outline-none focus:border-blue-500">
+                                <select id="qm-count" onchange="generateQuickCommand()"
+                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2.5 focus:outline-none focus:border-blue-500">
                                     <option value="1">1. Mal</option>
                                     <option value="2">2. Mal</option>
                                     <option value="3">3.+ Mal</option>
@@ -546,11 +668,15 @@
                         <!-- Trident String -->
                         <div>
                             <div class="flex justify-between items-end mb-1">
-                                <label class="font-mono text-[9px] text-orange-400 font-bold uppercase">Trident (Ingame)</label>
+                                <label class="font-mono text-[9px] text-orange-400 font-bold uppercase">Trident
+                                    (Ingame)</label>
                             </div>
                             <div class="flex items-stretch border border-orange-500/30 bg-black">
-                                <input type="text" id="qm-trident-output" class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none" readonly>
-                                <button onclick="copyQmCommand('trident')" class="bg-orange-500/10 px-4 hover:bg-orange-500 hover:text-black transition-colors text-orange-400 border-l border-orange-500/30">
+                                <input type="text" id="qm-trident-output"
+                                    class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
+                                    readonly>
+                                <button onclick="copyQmCommand('trident')"
+                                    class="bg-orange-500/10 px-4 hover:bg-orange-500 hover:text-black transition-colors text-orange-400 border-l border-orange-500/30">
                                     <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -558,11 +684,15 @@
                         <!-- Sapphire String -->
                         <div>
                             <div class="flex justify-between items-end mb-1">
-                                <label class="font-mono text-[9px] text-blue-400 font-bold uppercase">Sapphire (Discord)</label>
+                                <label class="font-mono text-[9px] text-blue-400 font-bold uppercase">Sapphire
+                                    (Discord)</label>
                             </div>
                             <div class="flex items-stretch border border-blue-500/30 bg-black">
-                                <input type="text" id="qm-sapphire-output" class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none" readonly>
-                                <button onclick="copyQmCommand('sapphire')" class="bg-blue-500/10 px-4 hover:bg-blue-500 hover:text-black transition-colors text-blue-400 border-l border-blue-500/30">
+                                <input type="text" id="qm-sapphire-output"
+                                    class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
+                                    readonly>
+                                <button onclick="copyQmCommand('sapphire')"
+                                    class="bg-blue-500/10 px-4 hover:bg-blue-500 hover:text-black transition-colors text-blue-400 border-l border-blue-500/30">
                                     <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -577,9 +707,11 @@
              TAB: RICHTLINIEN
         =========================================== -->
         <div id="tab-rules" class="tab-content hidden animate-fade-in text-gray-300">
-            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-border pb-4 mb-6 gap-4">
+            <div
+                class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-border pb-4 mb-6 gap-4">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Richtlinien</h2>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
+                        Richtlinien</h2>
                     <p class="font-mono text-xs text-tac-muted mt-1">DOKUMENTATION & VORSCHRIFTEN</p>
                 </div>
                 <div class="bg-tac-panel border border-tac-border px-3 py-1 font-mono text-[10px] text-tac-amber">
@@ -590,8 +722,10 @@
             <!-- Ingame Rules -->
             <div class="mb-12">
                 <div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-6">
-                    <h3 class="font-bold text-blue-400 flex items-center gap-2 uppercase tracking-wide text-sm"><i data-lucide="shield" class="w-4 h-4"></i> Ingame Moderation</h3>
-                    <p class="text-xs text-blue-300/70 font-mono mt-1">Gültig für alle Teammitglieder mit Trident-Rechten.</p>
+                    <h3 class="font-bold text-blue-400 flex items-center gap-2 uppercase tracking-wide text-sm"><i
+                            data-lucide="shield" class="w-4 h-4"></i> Ingame Moderation</h3>
+                    <p class="text-xs text-blue-300/70 font-mono mt-1">Gültig für alle Teammitglieder mit
+                        Trident-Rechten.</p>
                 </div>
 
                 <div class="space-y-6">
@@ -600,26 +734,31 @@
                         <h4 class="font-display text-lg text-white mb-3">§1 – Allgemeine Grundsätze</h4>
                         <ul class="list-disc pl-5 space-y-2 text-sm text-zinc-400">
                             <li>Als Moderator repräsentierst du das Projekt.</li>
-                            <li>Verhalten muss stets <strong class="text-zinc-200">respektvoll, neutral und regelkonform</strong> sein.</li>
+                            <li>Verhalten muss stets <strong class="text-zinc-200">respektvoll, neutral und
+                                    regelkonform</strong> sein.</li>
                             <li>Entscheidungen sind objektiv zu treffen und nachvollziehbar zu begründen.</li>
                         </ul>
                     </section>
 
-                    <section class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden border-l-tac-red">
+                    <section
+                        class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden border-l-tac-red">
                         <div class="absolute top-0 left-0 bottom-0 w-1 bg-tac-red opacity-50"></div>
                         <h4 class="font-display text-lg text-white mb-3">§2 – Ingame-Banns & Ausführung</h4>
                         <div class="bg-tac-red/5 border border-tac-red/20 p-3 mb-3 text-sm">
                             <p class="font-bold text-tac-red mb-1">WICHTIG:</p>
-                            Jeder Ingame-Bann ist grundsätzlich als <strong>IP-Bann</strong> durchzuführen (Trident-Panel Schalter beachten).
+                            Jeder Ingame-Bann ist grundsätzlich als <strong>IP-Bann</strong> durchzuführen
+                            (Trident-Panel Schalter beachten).
                         </div>
-                        <p class="text-sm text-zinc-400 font-mono">Dokumentationspflicht: <code class="bg-black text-tac-amber px-1">Grund | Gebannt von [Name]</code></p>
+                        <p class="text-sm text-zinc-400 font-mono">Dokumentationspflicht: <code
+                                class="bg-black text-tac-amber px-1">Grund | Gebannt von [Name]</code></p>
                     </section>
 
                     <section class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden">
                         <div class="absolute top-0 left-0 bottom-0 w-1 bg-tac-muted opacity-50"></div>
                         <h4 class="font-display text-lg text-white mb-3">§3 – Verhalten im RP</h4>
                         <ul class="list-disc pl-5 space-y-2 text-sm text-zinc-400">
-                            <li>Mod-Rechte (Noclip, Godmode) dürfen <strong class="text-zinc-200">niemals</strong> außerhalb eines aktiven Supportfalls genutzt werden.</li>
+                            <li>Mod-Rechte (Noclip, Godmode) dürfen <strong class="text-zinc-200">niemals</strong>
+                                außerhalb eines aktiven Supportfalls genutzt werden.</li>
                             <li>Einmischung in fremde RP-Situationen ist verboten.</li>
                         </ul>
                     </section>
@@ -629,10 +768,11 @@
             <!-- Discord Rules -->
             <div>
                 <div class="bg-tac-amber/10 border-l-4 border-tac-amber p-4 mb-6">
-                    <h3 class="font-bold text-tac-amber flex items-center gap-2 uppercase tracking-wide text-sm"><i data-lucide="message-square" class="w-4 h-4"></i> Support & Tickets</h3>
+                    <h3 class="font-bold text-tac-amber flex items-center gap-2 uppercase tracking-wide text-sm"><i
+                            data-lucide="message-square" class="w-4 h-4"></i> Support & Tickets</h3>
                     <p class="text-xs text-tac-amber/70 font-mono mt-1">Gültig für Discord-Ticketbearbeitung.</p>
                 </div>
-                
+
                 <div class="space-y-6">
                     <section class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden">
                         <div class="absolute top-0 left-0 bottom-0 w-1 bg-tac-amber opacity-50"></div>
@@ -653,7 +793,8 @@
         <div id="tab-commands" class="tab-content hidden animate-fade-in text-gray-300">
             <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-border pb-4 mb-6">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">Befehlsreferenz</h2>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
+                        Befehlsreferenz</h2>
                     <p class="font-mono text-xs text-tac-muted mt-1">SYNTAX FÜR BOT- SYSTEME</p>
                 </div>
             </div>
@@ -661,30 +802,40 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- TRIDENT -->
                 <div class="bg-tac-panel border border-orange-500/30 overflow-hidden relative">
-                    <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="shield" class="w-24 h-24 text-orange-500"></i></div>
-                    <div class="bg-orange-500/10 p-4 border-b border-orange-500/30 flex justify-between items-center relative z-10">
-                        <h3 class="font-bold text-orange-400 flex items-center gap-2 uppercase tracking-widest text-sm"><i data-lucide="shield" class="w-4 h-4"></i> TRIDENT (INGAME)</h3>
-                        <a href="https://trident.bot" target="_blank" class="text-[10px] bg-black border border-orange-500/20 text-orange-400 px-2 py-1 hover:bg-orange-500 hover:text-black transition-colors font-mono">DASHBOARD OPEN</a>
+                    <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="shield"
+                            class="w-24 h-24 text-orange-500"></i></div>
+                    <div
+                        class="bg-orange-500/10 p-4 border-b border-orange-500/30 flex justify-between items-center relative z-10">
+                        <h3 class="font-bold text-orange-400 flex items-center gap-2 uppercase tracking-widest text-sm">
+                            <i data-lucide="shield" class="w-4 h-4"></i> TRIDENT (INGAME)</h3>
+                        <a href="https://trident.bot/dashboard/1436737649636409356/panel" target="_blank"
+                            class="text-[10px] bg-black border border-orange-500/20 text-orange-400 px-2 py-1 hover:bg-orange-500 hover:text-black transition-colors font-mono">DASHBOARD
+                            OPEN</a>
                     </div>
                     <div class="p-6 space-y-5 relative z-10">
                         <!-- Cmd 1 -->
                         <div class="group">
                             <div class="flex items-center bg-black border border-tac-border">
-                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] [Bestrafung] [Grund]</code>
+                                <code
+                                    class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] [Bestrafung] [Grund]</code>
                             </div>
-                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Hauptbefehl Bestrafungen</p>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Hauptbefehl Bestrafungen
+                            </p>
                         </div>
                         <!-- Cmd 2 -->
                         <div class="group">
                             <div class="flex items-center bg-black border border-tac-border">
-                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/editmoderation [ID]</code>
+                                <code
+                                    class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/editmoderation [ID]</code>
                             </div>
-                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Bestehende Mod bearbeiten</p>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Bestehende Mod
+                                bearbeiten</p>
                         </div>
                         <!-- Cmd 3 -->
                         <div class="group">
                             <div class="flex items-center bg-black border border-tac-border">
-                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderations [User]</code>
+                                <code
+                                    class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderations [User]</code>
                             </div>
                             <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Akte aufrufen</p>
                         </div>
@@ -693,9 +844,12 @@
 
                 <!-- SAPPHIRE -->
                 <div class="bg-tac-panel border border-blue-500/30 overflow-hidden relative">
-                    <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="message-square" class="w-24 h-24 text-blue-500"></i></div>
-                    <div class="bg-blue-500/10 p-4 border-b border-blue-500/30 flex justify-between items-center relative z-10">
-                        <h3 class="font-bold text-blue-400 flex items-center gap-2 uppercase tracking-widest text-sm"><i data-lucide="message-square" class="w-4 h-4"></i> SAPPHIRE (DISCORD)</h3>
+                    <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="message-square"
+                            class="w-24 h-24 text-blue-500"></i></div>
+                    <div
+                        class="bg-blue-500/10 p-4 border-b border-blue-500/30 flex justify-between items-center relative z-10">
+                        <h3 class="font-bold text-blue-400 flex items-center gap-2 uppercase tracking-widest text-sm"><i
+                                data-lucide="message-square" class="w-4 h-4"></i> SAPPHIRE (DISCORD)</h3>
                     </div>
                     <div class="p-6 space-y-5 relative z-10">
                         <div class="grid grid-cols-1 gap-3">
