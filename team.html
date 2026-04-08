@@ -886,6 +886,12 @@
         // QUICK MODERATOR TAB LOGIC
         // ===================================================
         let lookedUpPlayer = null; // { id, username } – set by lookupPlayer, used by generateQuickCommand
+        // Mirror on window so cloudKickPlayer / cloudBanPlayer can read it from any scope
+        Object.defineProperty(window, 'lookedUpPlayer', {
+            get() { return lookedUpPlayer; },
+            set(v) { lookedUpPlayer = v; },
+            configurable: true,
+        });
 
         window.lookupPlayer = async function() {
             const input = document.getElementById('lookup-input')?.value?.trim();
