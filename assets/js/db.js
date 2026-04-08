@@ -84,11 +84,11 @@ function updateStatusUI(data) {
             // Update Color
             el.className = 'font-bold';
             if (item.status === 'OPERATIONAL' || item.status === 'ONLINE' || item.status.includes('SYNCED')) {
-                el.classList.add('text-green-500');
+                el.classList.add('text-tac-green');
             } else if (item.status === 'OFFLINE') {
-                el.classList.add('text-red-500');
+                el.classList.add('text-tac-red');
             } else {
-                el.classList.add('text-yellow-500');
+                el.classList.add('text-tac-amber');
             }
         }
     });
@@ -101,20 +101,20 @@ function updateActivityUI(data) {
     feed.innerHTML = '';
 
     if (data.length === 0) {
-        feed.innerHTML = '<div class="text-gray-500 italic">No recent activity.</div>';
+        feed.innerHTML = '<div class="text-tac-muted italic">Keine aktuellen Aktivitäten.</div>';
         return;
     }
 
     data.forEach(log => {
-        const time = new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const time = new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
         const row = document.createElement('div');
-        row.className = 'flex gap-2 animate-fade-in';
+        row.className = 'flex gap-2 animate-fade-in mb-1';
         row.innerHTML = `
-            <span class="text-gray-500">[${time}]</span>
-            <span class="text-white">
-                <span class="text-bw-gold font-bold">${log.user}</span>: ${log.action} 
-                <span class="text-gray-400 text-[10px] ml-1">(${log.details})</span>
+            <span class="text-tac-muted mt-0.5">[${time}]</span>
+            <span class="text-white block">
+                <span class="text-tac-amber font-bold">${log.user}</span>: ${log.action} 
+                <span class="text-tac-muted text-[9px] ml-1 uppercase">(${log.details})</span>
             </span>
         `;
         feed.appendChild(row);

@@ -5,563 +5,994 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Panel | ATLANTIC Studios</title>
+    <meta name="description" content="Internes Staff-Panel für ATLANTIC Studios Moderation und Teamverwaltung. Nur für autorisierte Mitarbeiter.">
+    <meta name="robots" content="noindex, nofollow">
 
-    <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Oswald:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/images/logo.png">
+
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'bw-dark': '#0a0a0a',
-                        'bw-gold': '#e2b007',
-                        'bw-gray': '#1f2937'
+                        'tac-dark':   '#08080a',
+                        'tac-panel':  '#111114',
+                        'tac-card':   '#16161a',
+                        'tac-border': '#252529',
+                        'tac-amber':  '#e2a800',
+                        'tac-green':  '#10b981',
+                        'tac-red':    '#ef4444',
+                        'tac-blue':   '#3b82f6',
+                        'tac-purple': '#a855f7',
+                        'tac-muted':  '#71717a',
+                        'bw-gold':    '#e2a800',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans:    ['Inter', 'sans-serif'],
                         display: ['Oswald', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                        mono:    ['JetBrains Mono', 'monospace'],
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAyNSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')",
+                    },
+                    keyframes: {
+                        fadeIn:    { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideUp:   { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideInR:  { '0%': { opacity: '0', transform: 'translateX(100%)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+                        slideOutR: { '0%': { opacity: '1', transform: 'translateX(0)' },   '100%': { opacity: '0', transform: 'translateX(100%)' } },
+                        glitch:    { '0%,100%': { transform: 'translate(0)' }, '20%': { transform: 'translate(-2px,2px)' }, '40%': { transform: 'translate(2px,-2px)' }, '60%': { transform: 'translate(-1px,1px)' }, '80%': { transform: 'translate(1px,-1px)' } },
+                        scanline:  { '0%': { backgroundPosition: '0 0' }, '100%': { backgroundPosition: '0 100%' } },
+                    },
+                    animation: {
+                        'fade-in':    'fadeIn 0.3s ease-out',
+                        'slide-up':   'slideUp 0.4s ease-out',
+                        'slide-in-r': 'slideInR 0.3s ease-out',
+                        'slide-out-r':'slideOutR 0.3s ease-in forwards',
+                        'glitch':     'glitch 1s linear infinite',
                     }
                 }
             }
         }
     </script>
+
     <style>
-        .staff-bg {
-            background-color: #050505;
-            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #08080a; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 0; }
+        ::-webkit-scrollbar-thumb:hover { background: #e2a800; }
+
+        /* === CLIP PATHS === */
+        .clip-tl  { clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px); }
+        .clip-br  { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+        .clip-both{ clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+
+        /* === HUD CORNERS === */
+        .hud-corners { position: relative; }
+        .hud-corners::before,
+        .hud-corners::after { content: ''; position: absolute; width: 14px; height: 14px; border-color: #e2a800; border-style: solid; opacity: 0.5; }
+        .hud-corners::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+        .hud-corners::after  { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+        /* === CRT SUBTLE === */
+        .crt-overlay::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+            pointer-events: none;
+            z-index: 9999;
         }
+
+        /* === BRACKET HOVER EFFECT === */
+        .bracket-hover { position: relative; transition: all 0.2s; }
+        .bracket-hover::before { content: '['; position: absolute; left: 0; color: #e2a800; opacity: 0; transform: translateX(4px); transition: all 0.2s; }
+        .bracket-hover::after  { content: ']'; position: absolute; right: 0; color: #e2a800; opacity: 0; transform: translateX(-4px); transition: all 0.2s; }
+        .bracket-hover:hover::before { opacity: 1; transform: translateX(-10px); }
+        .bracket-hover:hover::after  { opacity: 1; transform: translateX(10px); }
+
+        /* === CURSOR BLINK === */
+        .cursor-blink::after { content: '█'; color: #e2a800; animation: blink 1s step-start infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* === Selection === */
+        ::selection { background: #e2a800; color: black; }
+
+        /* === NAV ACTIVE GLOW === */
+        .nav-active { box-shadow: inset 3px 0 0 #e2a800, inset 0 0 20px rgba(226,168,0,0.07); }
+
+        /* === TOAST === */
+        #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9998; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+
+        /* === PULSE DOT === */
+        .pulse-dot { position: relative; display: inline-flex; }
+        .pulse-dot::before { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; opacity: 0.4; animation: ping 1s cubic-bezier(0,0,0.2,1) infinite; }
+        @keyframes ping { 75%,100% { transform: scale(2); opacity: 0; } }
     </style>
 </head>
 
-<body class="bg-bw-dark text-white overflow-hidden h-screen selection:bg-bw-gold selection:text-black">
+<body class="bg-tac-dark text-zinc-300 font-sans h-screen overflow-hidden crt-overlay bg-grid-pattern">
 
-    <!-- LOGIN OVERLAY -->
-    <div id="login-gate"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-[url('assets/images/hero-bg.png')] bg-cover bg-center">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+    <!-- ================================================
+         TOAST CONTAINER
+    ================================================= -->
+    <div id="toast-container" aria-live="polite"></div>
 
-        <div
-            class="relative z-10 w-full max-w-md p-8 bg-[#111] border border-white/10 rounded-lg shadow-2xl text-center">
+    <!-- ================================================
+         AUTH GATE
+    ================================================= -->
+    <div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-tac-dark bg-grid-pattern">
+        <!-- Ambient glow -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-tac-amber/5 rounded-full blur-3xl"></div>
+        </div>
 
-            <!-- HEADER -->
-            <div class="mb-8 relative">
-                <button onclick="toggleLanguage()"
-                    class="absolute top-0 right-0 p-2 text-gray-500 hover:text-white transition-colors">
-                    <i data-lucide="globe" class="w-4 h-4"></i>
-                </button>
-                <div
-                    class="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
-                    <i data-lucide="shield-check" class="w-10 h-10 text-bw-gold"></i>
+        <div class="relative w-full max-w-md px-6 py-10 hud-corners">
+            <!-- Extra corner decorations -->
+            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-tac-amber opacity-50"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-tac-amber opacity-50"></div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full border border-tac-border bg-tac-panel mb-5 relative">
+                    <i data-lucide="shield-alert" class="w-9 h-9 text-tac-amber"></i>
+                    <div class="absolute inset-0 rounded-full border border-tac-amber/20 animate-ping opacity-30"></div>
                 </div>
-                <h1 class="font-display text-2xl font-bold uppercase tracking-widest text-white mb-1"
-                    data-i18n="panel.login.title">Staff Verification
+                <h1 class="font-display text-3xl font-bold uppercase tracking-[0.2em] text-white">
+                    ATLANTIC <span class="text-tac-amber">STUDIOS</span>
                 </h1>
-                <p class="text-xs text-gray-500 font-mono" data-i18n="panel.login.subtitle">SECURE ACCESS GATEWAY</p>
+                <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-1 cursor-blink" id="typewriter-el"></p>
             </div>
 
-            <!-- STEP 1: OAUTH -->
-            <div id="step-1" class="step-container animate-fade-in">
+            <!-- Terminal Status Block -->
+            <div class="bg-black/60 border border-tac-border p-4 font-mono text-xs mb-6" id="login-terminal">
+                <p class="text-tac-green">&gt; SERVER: ONLINE</p>
+                <p class="text-tac-green">&gt; VERBINDUNG: AUFGEBAUT</p>
+                <p class="text-tac-amber mt-1">&gt; WARTE AUF OPERATOR-ZUGANGSDATEN...</p>
+            </div>
+
+            <!-- STEP 1: OAuth -->
+            <div id="step-1">
                 <button onclick="startRobloxOAuth()" id="btn-oauth"
-                    class="w-full bg-[#1F1F1F] border border-white/10 text-white font-bold py-3 uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 mt-4 rounded-sm">
+                    class="w-full bg-white text-black font-display font-bold py-4 uppercase tracking-widest hover:bg-tac-amber transition-all flex items-center justify-center gap-3 clip-both group mb-3">
                     <i data-lucide="gamepad-2" class="w-5 h-5"></i>
-                    <span data-i18n="panel.login.btn_oauth">Log in with Roblox</span>
+                    Mit Roblox anmelden
                 </button>
-                <p class="text-[10px] text-gray-600 mt-3"><span data-i18n="panel.login.rank_req">Requires Group
-                        Rank:</span> <span class="text-bw-gold">Game Mod+</span></p>
+                <p class="text-center font-mono text-[10px] text-tac-muted mt-2">
+                    Rang-Anforderung: <span class="text-tac-amber">Game Mod+</span>
+                </p>
             </div>
 
-            <!-- STEP 2: VERIFYING -->
-            <div id="step-2" class="step-container hidden animate-fade-in">
-                <div class="flex flex-col items-center justify-center space-y-4 my-8">
-                    <i data-lucide="loader-2" class="w-10 h-10 text-bw-gold animate-spin"></i>
-                    <p class="text-sm font-mono text-gray-400" id="verify-text">AUTHENTICATING...</p>
-                </div>
+            <!-- STEP 2: Verifying animation -->
+            <div id="step-2" class="hidden flex flex-col items-center justify-center space-y-4 py-6">
+                <i data-lucide="loader-2" class="w-10 h-10 text-tac-amber animate-spin"></i>
+                <p class="font-mono text-sm text-tac-amber cursor-blink" id="verify-text">AUTHENTIFIZIERUNG LÄUFT</p>
             </div>
 
-            <!-- STATUS MESSAGES -->
-            <div id="status-msg"
-                class="mt-6 text-xs font-mono hidden flex items-center justify-center gap-2 text-center"></div>
-
+            <!-- Status Messages -->
+            <div id="status-msg" class="mt-5 text-xs font-mono hidden text-center"></div>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD (Hidden by default) -->
-    <!-- MAIN DASHBOARD (Dynamic Load) -->
-    <div id="dashboard" class="hidden flex h-screen">
-        <!-- Content will be injected here after verification -->
-    </div>
+    <!-- ================================================
+         MAIN DASHBOARD (dynamisch geladen)
+    ================================================= -->
+    <div id="dashboard" class="hidden h-screen w-full flex"></div>
 
+    <!-- ================================================
+         SCRIPTS
+    ================================================= -->
     <script src="assets/js/i18n.js"></script>
     <script>
-        // --- CONFIGURATION ---
+        // ===================================================
+        // CONFIGURATION
+        // ===================================================
         const GROUP_ID = 34246821;
-
-        // Ranks permitted (Game Mod+)
         const ALLOWED_ROLES = [
             "Group Owner", "Ownership Team", "Projektleitung", "Projektverwaltung", "Management",
             "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
             "Head Game Moderator", "Game Moderator"
         ];
+        const WORKER_URL = 'https://bwrpauth.thatzane.workers.dev/';
+        const REDIRECT_URI = 'https://bwrp.net/team';
 
-        // --- STATE ---
-        let targetUserId = null;
-        let targetUsername = null;
-        let verificationCode = null;
-
-        // --- DOM ELEMENTS ---
-        const gate = document.getElementById('login-gate');
-        const step1 = document.getElementById('step-1');
-        const step2 = document.getElementById('step-2');
+        // ===================================================
+        // DOM ELEMENTS
+        // ===================================================
+        const gate      = document.getElementById('login-gate');
+        const step1     = document.getElementById('step-1');
+        const step2     = document.getElementById('step-2');
         const statusMsg = document.getElementById('status-msg');
-        const verifyDisplay = document.getElementById('verify-code');
         const dashboard = document.getElementById('dashboard');
 
-        // --- UI ACTIONS ---
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) sidebar.classList.toggle('-translate-x-full');
-        }
-
-        function showTab(id) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.add('hidden');
-                el.classList.remove('block');
-            });
-
-            // Show target
-            const target = document.getElementById('tab-' + id);
-            if (target) {
-                target.classList.remove('hidden');
-                target.classList.add('block');
+        // ===================================================
+        // TYPEWRITER ON LOAD
+        // ===================================================
+        (function() {
+            const text = 'SICHERER TERMINAL // ZUGANG BESCHRÄNKT';
+            const el = document.getElementById('typewriter-el');
+            el.textContent = '';
+            let i = 0;
+            function type() {
+                if (i < text.length) { el.textContent += text[i++]; setTimeout(type, 45); }
             }
+            setTimeout(type, 600);
+        })();
 
-            // Mobile: Close sidebar on selection
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
-                sidebar.classList.add('-translate-x-full');
-            }
-        }
+        // Initialize icons
+        lucide.createIcons();
 
-        // --- INIT ---
-        window.addEventListener('DOMContentLoaded', () => {
-            checkOAuthCallback();
-            checkSession();
-        });
+        // ===================================================
+        // TOAST NOTIFICATION SYSTEM
+        // ===================================================
+        function showToast(message, type = 'info', duration = 3500) {
+            const container = document.getElementById('toast-container');
+            const id = 'toast-' + Date.now();
 
-        // --- SESSION MANAGEMENT ---
-        function saveSession(data) {
-            const session = {
-                ...data,
-                timestamp: Date.now()
+            const colorMap = {
+                success: 'border-tac-green text-tac-green bg-tac-card',
+                error:   'border-tac-red   text-tac-red   bg-tac-card',
+                info:    'border-tac-amber text-tac-amber bg-tac-card',
+                warn:    'border-yellow-500 text-yellow-400 bg-tac-card',
             };
-            localStorage.setItem('atlantic_staff_session', JSON.stringify(session));
+            const iconMap = {
+                success: 'circle-check',
+                error:   'circle-x',
+                info:    'info',
+                warn:    'triangle-alert',
+            };
+
+            const toast = document.createElement('div');
+            toast.id = id;
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 border font-mono text-xs max-w-xs backdrop-blur-sm animate-slide-in-r ${colorMap[type] || colorMap.info}`;
+            toast.innerHTML = `<i data-lucide="${iconMap[type] || 'info'}" class="w-4 h-4 flex-shrink-0"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            lucide.createIcons({ nodes: [toast] });
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutR 0.3s ease-in forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // ===================================================
+        // SESSION MANAGEMENT
+        // ===================================================
+        function saveSession(data) {
+            localStorage.setItem('atlantic_staff_session', JSON.stringify({ ...data, timestamp: Date.now() }));
         }
 
         function checkSession() {
-            const sessionRaw = localStorage.getItem('atlantic_staff_session');
-            if (!sessionRaw) return;
-
+            const raw = localStorage.getItem('atlantic_staff_session');
+            if (!raw) return;
             try {
-                const session = JSON.parse(sessionRaw);
-                // Optional: Check expiry (e.g., 7 days)
+                const session = JSON.parse(raw);
                 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-                if (Date.now() - session.timestamp > ONE_WEEK) {
-                    logout();
-                    return;
-                }
-
-                // Restore Session
-                console.log("Session Restored for:", session.username);
+                if (Date.now() - session.timestamp > ONE_WEEK) { logout(); return; }
                 enterDashboard(session.username, session.rank, session.avatarUrl);
-
-            } catch (e) {
-                console.error("Session Parse Error:", e);
+            } catch(e) {
                 localStorage.removeItem('atlantic_staff_session');
             }
         }
 
         function logout() {
             localStorage.removeItem('atlantic_staff_session');
-            window.location.reload();
+            if (isShiftActive) stopShift(true);
+            dashboard.classList.add('hidden');
+            dashboard.innerHTML = '';
+            gate.classList.remove('hidden');
+            gate.style.opacity = '1';
+            step1.classList.remove('hidden');
+            step2.classList.add('hidden');
+            statusMsg.classList.add('hidden');
         }
 
-        // --- UI FUNCTIONS ---
+        // ===================================================
+        // UI HELPERS
+        // ===================================================
         function showStatus(msg, type = 'neutral') {
             statusMsg.textContent = msg;
-            statusMsg.classList.remove('hidden', 'text-red-500', 'text-green-500', 'text-gray-400', 'text-bw-gold');
-
-            if (type === 'error') statusMsg.classList.add('text-red-500');
-            else if (type === 'success') statusMsg.classList.add('text-green-500');
-            else if (type === 'loading') statusMsg.classList.add('text-bw-gold', 'animate-pulse');
-            else statusMsg.classList.add('text-gray-400');
+            statusMsg.classList.remove('hidden', 'text-tac-red', 'text-tac-green', 'text-tac-amber', 'text-zinc-400', 'animate-pulse');
+            const map = { error: 'text-tac-red', success: 'text-tac-green', loading: ['text-tac-amber', 'animate-pulse'] };
+            if (Array.isArray(map[type])) map[type].forEach(c => statusMsg.classList.add(c));
+            else if (map[type]) statusMsg.classList.add(map[type]);
+            else statusMsg.classList.add('text-zinc-400');
         }
 
-        const HIERARCHY_CONFIG = [
-            {
-                containerId: 'container-pr',
-                roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'],
-                borderColor: 'border-red-500',
-                textColor: 'text-red-400'
-            },
-            {
-                containerId: 'container-hr',
-                roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'],
-                borderColor: 'border-purple-500',
-                textColor: 'text-purple-400'
-            },
-            {
-                containerId: 'container-mr',
-                roles: ['Head Game Moderator', 'Game Moderator'],
-                borderColor: 'border-green-500',
-                textColor: 'text-green-400'
-            }
-        ];
-
-        let staffLoaded = false;
-
+        // ===================================================
+        // ENTER DASHBOARD
+        // ===================================================
         async function enterDashboard(username, rank, avatarUrl) {
-            console.log("Entering Dashboard...");
-            const dashboard = document.getElementById('dashboard');
-            const gate = document.getElementById('login-gate'); // Re-select to be safe
-
-            // 1. Fetch Dashboard Content Securely
             try {
                 const res = await fetch('assets/fragments/dashboard.html');
-                if (!res.ok) throw new Error(`Fetch Failed: ${res.status}`);
+                if (!res.ok) throw new Error(`Fetch Error: ${res.status}`);
                 const html = await res.text();
-
-                if (!html) throw new Error("Dashboard HTML is empty");
+                if (!html) throw new Error('Dashboard-Fragment leer');
 
                 dashboard.innerHTML = html;
-                console.log("Dashboard Content Injected");
 
-                // 2. Setup User Data
+                // Inject user data
                 const avatarEl = document.getElementById('user-avatar');
-                const nameEl = document.getElementById('user-name');
-                const rankEl = document.getElementById('user-rank');
+                const nameEl   = document.getElementById('user-name');
+                const rankEl   = document.getElementById('user-rank');
+                if (avatarEl) avatarEl.src = avatarUrl;
+                if (nameEl)   nameEl.textContent = username;
+                if (rankEl)   rankEl.textContent = rank;
 
-                if (!avatarEl || !nameEl || !rankEl) {
-                    throw new Error("Dashboard DOM elements missing after injection");
-                }
-
-                avatarEl.src = avatarUrl;
-                nameEl.textContent = username;
-                rankEl.textContent = rank;
-
-                // 3. Reveal Dashboard
-                gate.classList.add('hidden');
+                // Reveal
+                gate.style.transition = 'opacity 0.5s ease';
+                gate.style.opacity = '0';
+                setTimeout(() => gate.classList.add('hidden'), 500);
                 dashboard.classList.remove('hidden');
+                dashboard.classList.add('animate-fade-in');
 
-                // 4. Initialize Tools
+                // Init
                 if (typeof lucide !== 'undefined') lucide.createIcons();
-
-                // Initialize Dashboard Event Listeners
-                if (typeof initDashboardListeners === 'function') {
-                    initDashboardListeners();
-                }
-
-                // Re-run i18n
-                const currentLang = localStorage.getItem('lang') || 'de';
-                if (typeof setLanguage === 'function') setLanguage(currentLang);
-
-                // Load Staff
+                startClock();
+                if (typeof initDashboardListeners === 'function') initDashboardListeners();
                 if (!staffLoaded && typeof loadStaffHierarchy === 'function') {
-                    loadStaffHierarchy().catch(e => console.error("Staff Load Error:", e));
+                    loadStaffHierarchy().catch(e => console.error('Staff Fehler:', e));
                     if (typeof loadAnnouncements === 'function') loadAnnouncements();
                 }
+                if (typeof initDatabase === 'function') initDatabase().catch(e => console.error('DB Fehler:', e));
 
-                // Initialize Database (Supabase)
-                if (typeof initDatabase === 'function') {
-                    initDatabase().catch(e => console.error("DB Init Error:", e));
-                }
-
-            } catch (e) {
-                console.error("Critical Dashboard Error:", e);
-                alert("Dashboard Load Error: " + e.message);
-                // Try to show dashboard anyway if partial partial
+            } catch(e) {
+                console.error('Dashboard-Ladefehler:', e);
+                showStatus('DASHBOARD LADEFEHLER: ' + e.message, 'error');
             }
         }
 
-        // --- PROXY HELPER ---
-        // --- PROXY HELPER WITH FAILOVER ---
+        // ===================================================
+        // SYSTEM CLOCK
+        // ===================================================
+        function startClock() {
+            const el = document.getElementById('sys-time');
+            if (!el) return;
+            function tick() {
+                el.textContent = new Date().toISOString().substring(11, 19) + ' UTC';
+            }
+            tick();
+            setInterval(tick, 1000);
+        }
+
+        // ===================================================
+        // PROXY FETCH WITH FAILOVER
+        // ===================================================
+        const delay = ms => new Promise(r => setTimeout(r, ms));
+
         async function fetchProxy(targetUrl) {
             const proxies = [
-                // 1. CodeTabs (Usually fast & reliable)
-                {
-                    url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl),
-                    type: 'direct'
-                },
-                // 2. AllOrigins (JSON wrapper)
-                {
-                    url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl),
-                    type: 'json-wrapper'
-                },
-                // 3. CORSProxy.io (Backup)
-                {
-                    url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl),
-                    type: 'direct'
-                }
+                { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl), type: 'direct' },
+                { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), type: 'json-wrapper' },
+                { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' },
             ];
-
-            // Attempt sequential fetch
             for (const proxy of proxies) {
                 try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased 15s timeout
-
-                    const res = await fetch(proxy.url, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-
-                    if (!res.ok) continue; // Try next proxy
-
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 15000);
+                    const res = await fetch(proxy.url, { signal: ctrl.signal });
+                    clearTimeout(tid);
+                    if (!res.ok) continue;
                     if (proxy.type === 'json-wrapper') {
                         const data = await res.json();
-                        if (!data.contents) continue; // Invalid wrapper response
-
-                        try {
-                            return JSON.parse(data.contents);
-                        } catch (e) {
-                            return data.contents;
-                        }
-                    } else {
-                        return await res.json(); // Direct proxy return
+                        if (!data.contents) continue;
+                        try { return JSON.parse(data.contents); } catch { return data.contents; }
                     }
-
-                } catch (e) {
-                    console.warn(`Proxy ${proxy.url} failed:`, e);
-                    continue; // Try next
-                }
+                    return await res.json();
+                } catch(e) { console.warn('Proxy fehlgeschlagen:', proxy.url, e); }
             }
-            throw new Error("All proxies failed to fetch data.");
+            throw new Error('Alle Proxies fehlgeschlagen.');
         }
 
-        const delay = ms => new Promise(res => setTimeout(res, ms));
+        // ===================================================
+        // TAB NAVIGATION (global, wird auch im Fragment genutzt)
+        // ===================================================
+        window.showTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block', 'animate-fade-in');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-tac-amber', 'nav-active');
+                btn.classList.add('text-zinc-500');
+            });
+            const tab = document.getElementById(`tab-${tabId}`);
+            if (tab) { tab.classList.remove('hidden'); tab.classList.add('block', 'animate-fade-in'); }
+            const btn = document.querySelector(`.nav-btn[data-tab="${tabId}"]`);
+            if (btn) { btn.classList.remove('text-zinc-500'); btn.classList.add('text-tac-amber', 'nav-active'); }
+
+            // Mobile: close sidebar
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
+        };
+
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('-translate-x-full');
+        };
+
+        // ===================================================
+        // STAFF HIERARCHY CONFIG
+        // ===================================================
+        const HIERARCHY_CONFIG = [
+            { containerId: 'container-pr', tierLabel: 'KOMMANDO', tierColor: '#ef4444', roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'] },
+            { containerId: 'container-hr', tierLabel: 'AUFSICHT', tierColor: '#e2a800', roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'] },
+            { containerId: 'container-mr', tierLabel: 'FELD-TEAM', tierColor: '#10b981', roles: ['Head Game Moderator', 'Game Moderator'] },
+        ];
+        let staffLoaded = false;
 
         async function loadStaffHierarchy() {
             const loading = document.getElementById('staff-loading');
-            const grid = document.getElementById('staff-hierarchy-grid');
+            const grid    = document.getElementById('staff-hierarchy-grid');
+            const search  = document.getElementById('staff-search-container');
+            if (!loading || !grid) return;
 
-            // Show loading, hide others
             loading.classList.remove('hidden');
             grid.classList.add('hidden');
-            document.getElementById('staff-search-container').classList.add('hidden');
+            if (search) search.classList.add('hidden');
 
             try {
-                // 1. Get Roles
                 const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles`);
-
-                if (!rolesData || !rolesData.roles) throw new Error("Invalid Roles Data");
-
-                // Filter & Sort Configured Roles
-                // Sort by Rank DESC
+                if (!rolesData?.roles) throw new Error('Ungültige Rollen-Daten');
                 rolesData.roles.sort((a, b) => b.rank - a.rank);
-
-                // Clear Grid
-                grid.innerHTML = '';
 
                 for (const config of HIERARCHY_CONFIG) {
                     const container = document.getElementById(config.containerId);
                     if (!container) continue;
-                    container.innerHTML = ''; // Reset
-
-                    // Find roles matching this category
+                    container.innerHTML = '';
                     const categoryRoles = rolesData.roles.filter(r => config.roles.includes(r.name));
 
                     for (const role of categoryRoles) {
                         try {
-                            // Fetch Members for this Role
-                            // Add slight delay to avoid rate-limiting the proxy
                             await delay(200);
-
                             const membersData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`);
                             const members = membersData.data || [];
+                            if (!members.length) continue;
 
-                            if (members.length === 0) continue; // Skip empty roles
-
-                            // Create Role Block
-                            const roleBlock = document.createElement('div');
-                            roleBlock.className = 'animate-fade-in mb-6';
-
-                            // Header
-                            roleBlock.innerHTML = `
-                                <div class="bg-[#2a2a2a] p-3 rounded border-l-4 ${config.borderColor} text-center mb-3">
-                                    <span class="block text-white font-bold text-sm uppercase tracking-wider">${role.name}</span>
-                                    <span class="text-[10px] text-gray-500 font-mono">${members.length} Members</span>
+                            const block = document.createElement('div');
+                            block.className = 'mb-4';
+                            block.innerHTML = `
+                                <div class="bg-tac-dark border-l-2 border-[${config.tierColor}] px-3 py-2 mb-2 flex items-center justify-between">
+                                    <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">${role.name}</span>
+                                    <span class="font-mono text-[10px] text-tac-muted">${members.length} OPS</span>
                                 </div>
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                     ${members.map(m => `
-                                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded border border-white/5 hover:bg-white/10 transition-colors">
-                                           <div class="w-6 h-6 rounded-full bg-black overflow-hidden flex-shrink-0">
-                                                <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${m.userId}&width=150&height=150&format=png" 
-                                                     class="w-full h-full object-cover" 
+                                        <div class="user-card group flex items-center gap-2 bg-tac-dark border border-tac-border p-2 hover:border-[${config.tierColor}]/60 transition-all cursor-default relative">
+                                            <div class="w-9 h-9 bg-zinc-800 border border-tac-border overflow-hidden flex-shrink-0">
+                                                <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${m.userId}&width=150&height=150&format=png"
+                                                     class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 transition-all"
                                                      loading="lazy"
-                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
-                                           </div>
-                                           <div class="overflow-hidden">
-                                                <p class="text-[10px] font-bold text-gray-300 truncate leading-tight">${m.username}</p>
-                                                <!-- <p class="text-[8px] text-gray-600 truncate">ID: ${m.userId}</p> -->
-                                           </div>
+                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
+                                            </div>
+                                            <div class="overflow-hidden flex-1">
+                                                <p class="user-name font-mono text-[11px] font-bold text-zinc-200 truncate">${m.username}</p>
+                                                <p class="font-mono text-[9px] text-tac-muted">ID: ${m.userId}</p>
+                                            </div>
+                                            <a href="https://www.roblox.com/users/${m.userId}/profile" target="_blank"
+                                               class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-tac-muted hover:text-tac-amber"
+                                               title="Profil öffnen">
+                                                <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            </a>
                                         </div>
                                     `).join('')}
                                 </div>
                             `;
-                            container.appendChild(roleBlock);
-
-                        } catch (err) {
-                            console.warn(`Failed to load members for role ${role.name}`, err);
-                        }
+                            container.appendChild(block);
+                        } catch(err) { console.warn('Mitglieder-Ladefehler:', role.name, err); }
                     }
                 }
-
                 staffLoaded = true;
-
-            } catch (err) {
-                console.error("Staff Hierarchy Load Error:", err);
-                const grid = document.getElementById('staff-hierarchy-grid');
-                grid.innerHTML += `<div class="col-span-full text-center text-red-500 font-mono text-xs p-4 border border-red-500/20 bg-red-500/5 rounded">
-                    ERROR SYNCING PERSONNEL DATA. <br> CHECK CONSOLE.
-                </div>`;
+                lucide.createIcons({ nodes: [grid] });
+            } catch(err) {
+                console.error('Hierarchie-Ladefehler:', err);
+                if (grid) grid.insertAdjacentHTML('beforeend', `
+                    <div class="col-span-full text-center text-tac-red font-mono text-xs p-4 border border-tac-red/20 bg-tac-red/5">
+                        FEHLER BEIM LADEN DER MITARBEITERDATEN
+                    </div>`);
             } finally {
-                loading.classList.add('hidden');
-                grid.classList.remove('hidden');
-                document.getElementById('staff-search-container').classList.remove('hidden'); // Show Search
+                if (loading) loading.classList.add('hidden');
+                if (grid)    grid.classList.remove('hidden');
+                if (search)  search.classList.remove('hidden');
             }
         }
 
-        function filterStaff() {
-            const input = document.getElementById('staff-search-input');
-            const filter = input.value.toUpperCase();
-            const grid = document.getElementById('staff-hierarchy-grid');
-            const userCards = grid.querySelectorAll('.grid > div'); // Select flex items inside the internal grids
-
-            userCards.forEach(card => {
-                const nameP = card.querySelector('p');
-                if (nameP) {
-                    const txtValue = nameP.textContent || nameP.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        card.style.display = "";
-                    } else {
-                        card.style.display = "none";
-                    }
-                }
+        window.filterStaff = function() {
+            const filter = (document.getElementById('staff-search-input')?.value || '').toUpperCase();
+            document.querySelectorAll('.user-card').forEach(card => {
+                const name = card.querySelector('.user-name')?.textContent?.toUpperCase() || '';
+                card.style.display = name.includes(filter) ? '' : 'none';
             });
+        };
 
-            // Optional: Hide empty Role Blocks?
-            // This requires more complex DOM traversing. 
-            // For now, empty roles will just show empty grids, which is acceptable.
+        // ===================================================
+        // SHIFT TIMER
+        // ===================================================
+        let shiftInterval  = null;
+        let shiftStartTime = null;
+        let shiftTimeElap  = 0;
+        let isShiftActive  = false;
+
+        function updateTimerDisplay(reset = false) {
+            let secs = reset ? 0 : isShiftActive
+                ? Math.floor((Date.now() - shiftStartTime) / 1000)
+                : shiftTimeElap;
+            const h = String(Math.floor(secs / 3600)).padStart(2, '0');
+            const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
+            const s = String(secs % 60).padStart(2, '0');
+            const el = document.getElementById('shift-timer-display');
+            if (el) el.textContent = `${h}:${m}:${s}`;
+
+            // SVG Progress Ring (seconds within current minute)
+            const ring = document.getElementById('timer-progress');
+            if (ring) {
+                const pct = (secs % 60) / 60;
+                ring.style.strokeDashoffset = 283 - 283 * pct;
+            }
+
+            // Shift Status Chip in header
+            const chip = document.getElementById('shift-chip');
+            if (chip) {
+                if (isShiftActive) {
+                    chip.textContent = 'IM DIENST';
+                    chip.className = 'hidden md:flex items-center gap-1.5 font-mono text-[10px] text-tac-green tracking-wider px-2 py-1 border border-tac-green/30 bg-tac-green/10';
+                } else {
+                    chip.textContent = 'AUS DIENST';
+                    chip.className = 'hidden md:flex items-center gap-1.5 font-mono text-[10px] text-tac-muted tracking-wider px-2 py-1 border border-tac-border bg-tac-panel';
+                }
+            }
         }
 
-        // --- AUTH FLOW ---
+        function saveShiftState() {
+            const state = {
+                active: isShiftActive,
+                startTime: shiftStartTime,
+                elapsed: isShiftActive ? Math.floor((Date.now() - shiftStartTime) / 1000) : shiftTimeElap,
+                cases:   document.getElementById('shift-cases')?.value   || 0,
+                bans:    document.getElementById('shift-bans')?.value    || 0,
+                warns:   document.getElementById('shift-warns')?.value   || 0,
+                kicks:   document.getElementById('shift-kicks')?.value   || 0,
+                notes:   document.getElementById('shift-notes')?.value   || '',
+            };
+            localStorage.setItem('atlantic_shift_state', JSON.stringify(state));
+        }
 
+        function restoreShiftState() {
+            const raw = localStorage.getItem('atlantic_shift_state');
+            if (!raw) return;
+            try {
+                const state = JSON.parse(raw);
+                isShiftActive  = state.active;
+                shiftTimeElap  = state.elapsed || 0;
+
+                if (document.getElementById('shift-cases')) document.getElementById('shift-cases').value = state.cases || 0;
+                if (document.getElementById('shift-bans'))  document.getElementById('shift-bans').value  = state.bans  || 0;
+                if (document.getElementById('shift-warns')) document.getElementById('shift-warns').value = state.warns || 0;
+                if (document.getElementById('shift-kicks')) document.getElementById('shift-kicks').value = state.kicks || 0;
+                if (document.getElementById('shift-notes')) document.getElementById('shift-notes').value = state.notes || '';
+
+                if (isShiftActive) {
+                    shiftStartTime = Date.now() - (shiftTimeElap * 1000);
+                    shiftInterval = setInterval(updateTimerDisplay, 1000);
+                    updateShiftButtons('active');
+                } else {
+                    if (shiftTimeElap > 0) updateShiftButtons('paused');
+                    updateTimerDisplay();
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            } catch(e) { console.error('Shift-Status-Fehler:', e); }
+        }
+
+        window.toggleShift = function() {
+            if (!isShiftActive) {
+                isShiftActive = true;
+                shiftStartTime = Date.now() - (shiftTimeElap * 1000);
+                shiftInterval = setInterval(updateTimerDisplay, 1000);
+                updateShiftButtons('active');
+            } else {
+                isShiftActive = false;
+                clearInterval(shiftInterval);
+                shiftTimeElap = Math.floor((Date.now() - shiftStartTime) / 1000);
+                updateShiftButtons('paused');
+            }
+            updateTimerDisplay();
+            saveShiftState();
+            lucide.createIcons();
+        };
+
+        window.stopShift = function(force = false) {
+            if (!force && !confirm('Schicht wirklich beenden? Die Zeit wird zurückgesetzt.')) return;
+            isShiftActive = false;
+            clearInterval(shiftInterval);
+            shiftStartTime = null;
+            shiftTimeElap  = 0;
+            updateTimerDisplay(true);
+            updateShiftButtons('stopped');
+            ['shift-cases','shift-bans','shift-warns','shift-kicks'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = 0;
+            });
+            const notes = document.getElementById('shift-notes');
+            if (notes) notes.value = '';
+            localStorage.removeItem('atlantic_shift_state');
+            lucide.createIcons();
+        };
+
+        function updateShiftButtons(state) {
+            const btnToggle = document.getElementById('btn-shift-start');
+            const btnStop   = document.getElementById('btn-shift-stop');
+            const statusInd = document.getElementById('shift-status-indicator');
+            const statusTxt = document.getElementById('shift-status-text');
+
+            if (!btnToggle) return;
+
+            if (state === 'active') {
+                btnToggle.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
+                btnToggle.className = 'flex-1 bg-tac-amber/10 border border-tac-amber text-tac-amber font-mono font-bold py-3 hover:bg-tac-amber hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2';
+                if (btnStop)   btnStop.disabled = false;
+                if (statusInd) { statusInd.className = 'pulse-dot w-2.5 h-2.5 rounded-full bg-tac-green text-tac-green flex-shrink-0'; }
+                if (statusTxt) { statusTxt.textContent = 'IM DIENST'; statusTxt.className = 'font-mono text-xs text-tac-green'; }
+            } else if (state === 'paused') {
+                btnToggle.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Fortsetzen';
+                btnToggle.className = 'flex-1 bg-tac-green/10 border border-tac-green text-tac-green font-mono font-bold py-3 hover:bg-tac-green hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2';
+                if (btnStop)   btnStop.disabled = false;
+                if (statusInd) { statusInd.className = 'w-2.5 h-2.5 rounded-full bg-tac-amber flex-shrink-0'; }
+                if (statusTxt) { statusTxt.textContent = 'PAUSIERT'; statusTxt.className = 'font-mono text-xs text-tac-amber'; }
+            } else {
+                btnToggle.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Starten';
+                btnToggle.className = 'flex-1 bg-tac-green/10 border border-tac-green text-tac-green font-mono font-bold py-3 hover:bg-tac-green hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2';
+                if (btnStop)   { btnStop.disabled = true; }
+                if (statusInd) { statusInd.className = 'w-2.5 h-2.5 rounded-full bg-zinc-600 flex-shrink-0'; }
+                if (statusTxt) { statusTxt.textContent = 'AUS DIENST'; statusTxt.className = 'font-mono text-xs text-tac-muted'; }
+            }
+        }
+
+        window.copyShiftReport = function() {
+            const time  = document.getElementById('shift-timer-display')?.textContent || '00:00:00';
+            const cases = document.getElementById('shift-cases')?.value  || 0;
+            const bans  = document.getElementById('shift-bans')?.value   || 0;
+            const warns = document.getElementById('shift-warns')?.value  || 0;
+            const kicks = document.getElementById('shift-kicks')?.value  || 0;
+            const notes = document.getElementById('shift-notes')?.value  || '-';
+            const user  = document.getElementById('user-name')?.textContent || 'Unbekannt';
+            const rank  = document.getElementById('user-rank')?.textContent || '-';
+
+            const report =
+                `**👮 SCHICHT-BERICHT**\n` +
+                `**Mitarbeiter:** ${user}\n` +
+                `**Rang:** ${rank}\n` +
+                `**Dauer:** ${time}\n` +
+                `**Fälle bearbeitet:** ${cases}\n` +
+                `**Bans erteilt:** ${bans}\n` +
+                `**Verwarnungen:** ${warns}\n` +
+                `**Kicks:** ${kicks}\n` +
+                `**Notizen:** ${notes}`;
+
+            navigator.clipboard.writeText(report)
+                .then(() => showToast('Schichtbericht in Zwischenablage kopiert!', 'success'))
+                .catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = report;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { document.execCommand('copy'); showToast('Bericht kopiert!', 'success'); }
+                    catch { showToast('Kopieren fehlgeschlagen.', 'error'); }
+                    document.body.removeChild(ta);
+                });
+        };
+
+        // ===================================================
+        // METRIC ADJUSTMENT
+        // ===================================================
+        window.adjustMetric = function(id, delta) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            let val = parseInt(el.value || 0) + delta;
+            if (val < 0) val = 0;
+            el.value = val;
+            saveShiftState();
+        };
+
+        // ===================================================
+        // PUNISHMENT CALCULATOR
+        // ===================================================
+        const PUNISHMENT_DATA = {
+            "RDM":         { label: "RDM (Zufälliger Angriff)",           data: ["Verwarnung / Kick", "Ban 3 Tage",       "Ban 7 Tage"       ] },
+            "VDM":         { label: "VDM (Fahrzeug-Angriff)",             data: ["Verwarnung / Kick", "Ban 3 Tage",       "Ban 7 Tage"       ] },
+            "Spawnkill":   { label: "Spawnkilling",                        data: ["Kick",              "Ban 3 Tage",       "Ban 7 Tage"       ] },
+            "CombatLog":   { label: "Combat Logging",                      data: ["Ban 2 Tage",        "Ban 5 Tage",       "Ban 14 Tage"      ] },
+            "FailRP":      { label: "FailRP",                              data: ["Verwarnung",        "Kick",             "Ban 3 Tage"       ] },
+            "Metagaming":  { label: "Metagaming",                         data: ["Kick",              "Ban 3 Tage",       "Ban 7 Tage"       ] },
+            "Powergaming": { label: "Powergaming",                        data: ["Kick",              "Ban 3 Tage",       "Ban 7 Tage"       ] },
+            "NLR":         { label: "New Life Rule (NLR)",                data: ["Verwarnung",        "Kick",             "Ban 1 Tag"        ] },
+            "Toxicity":    { label: "Toxizität / Beleidigungen",          data: ["Mute / Verwarnung", "Ban 1 Tag",        "Ban 7 Tage"       ] },
+            "Spam":        { label: "Chat-Spam",                          data: ["Mute",              "Kick",             "Ban 1 Tag"        ] },
+            "Advertising": { label: "Werbung",                            data: ["Permanenter Ban",   "Permanenter Ban",  "Permanenter Ban"  ] },
+            "Exploiting":  { label: "Exploiting / Cheating",             data: ["Permanenter Ban",   "Permanenter Ban",  "Permanenter Ban"  ] },
+        };
+
+        window.runCalculation = function(offenseOverride) {
+            const offense = offenseOverride || document.getElementById('calc-offense')?.value;
+            const countRadio = document.querySelector('input[name="offense-count"]:checked');
+            const resultEl   = document.getElementById('calc-result');
+            const subtextEl  = document.getElementById('calc-subtext');
+            const cmdEl      = document.getElementById('calc-command-output');
+            const cmdBox     = document.getElementById('calc-command-box');
+
+            if (!offense || !countRadio || !resultEl) return;
+
+            const countIndex = parseInt(countRadio.value) - 1;
+            const entry = PUNISHMENT_DATA[offense];
+            if (!entry) return;
+
+            const punishment = entry.data[countIndex];
+            resultEl.textContent = punishment.toUpperCase();
+
+            // Color-coding
+            if (punishment.toLowerCase().includes('permanent')) {
+                resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-tac-red animate-glitch';
+                if (subtextEl) { subtextEl.textContent = 'KRITISCHE MASSNAHME ERFORDERLICH'; subtextEl.className = 'font-mono text-xs text-tac-red mt-1'; }
+            } else if (punishment.toLowerCase().includes('ban')) {
+                resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-tac-amber';
+                if (subtextEl) { subtextEl.textContent = 'SUSPENDIERUNG PROTOKOLL'; subtextEl.className = 'font-mono text-xs text-tac-amber mt-1'; }
+            } else {
+                resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-tac-green';
+                if (subtextEl) { subtextEl.textContent = 'STANDARD-WARNUNG ERTEILT'; subtextEl.className = 'font-mono text-xs text-tac-green mt-1'; }
+            }
+
+            // Generate command
+            const username  = document.getElementById('calc-username')?.value?.trim() || '[Username]';
+            const countLbl  = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
+            const reason    = `${countLbl} – ${entry.label}`;
+            const cmd       = `/moderate ${username} ${punishment} ${reason}`;
+            if (cmdEl) cmdEl.value = cmd;
+            if (cmdBox) cmdBox.classList.remove('hidden');
+
+            // Quick offense selector highlight
+            if (offenseOverride) {
+                const sel = document.getElementById('calc-offense');
+                if (sel) sel.value = offenseOverride;
+            }
+        };
+
+        window.copyCalcCommand = function() {
+            const el = document.getElementById('calc-command-output');
+            if (!el || !el.value) return;
+            navigator.clipboard.writeText(el.value)
+                .then(() => showToast('Befehl kopiert!', 'success'))
+                .catch(() => showToast('Kopieren fehlgeschlagen.', 'error'));
+        };
+
+        // ===================================================
+        // QUICK MODERATOR TAB LOGIC
+        // ===================================================
+        window.lookupPlayer = async function() {
+            const input = document.getElementById('lookup-input')?.value?.trim();
+            if (!input) { showToast('Bitte Username oder ID eingeben.', 'warn'); return; }
+
+            const result = document.getElementById('lookup-result');
+            const loading = document.getElementById('lookup-loading');
+            if (result)  result.classList.add('hidden');
+            if (loading) loading.classList.remove('hidden');
+
+            try {
+                let userId, username;
+                if (/^\d+$/.test(input)) {
+                    userId = input;
+                    const userData = await fetchProxy(`https://users.roblox.com/v1/users/${userId}`);
+                    username = userData.name;
+                } else {
+                    const byName = await fetchProxy(`https://users.roblox.com/v1/usernames/users`);
+                    // fallback: just treat as username
+                    userId = null;
+                    username = input;
+                }
+
+                if (loading) loading.classList.add('hidden');
+
+                if (result) {
+                    result.classList.remove('hidden');
+                    const nameEl   = document.getElementById('lookup-username');
+                    const rankEl   = document.getElementById('lookup-rank');
+                    const avatarEl = document.getElementById('lookup-avatar');
+                    const profileBtn = document.getElementById('lookup-profile-btn');
+
+                    if (nameEl)   nameEl.textContent = username;
+                    if (rankEl)   rankEl.textContent = userId ? `ID: ${userId}` : 'Kein API-Zugriff';
+                    if (avatarEl && userId) avatarEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
+                    if (profileBtn && userId) profileBtn.href = `https://www.roblox.com/users/${userId}/profile`;
+
+                    // Pre-fill username in calc tab
+                    const calcUser = document.getElementById('calc-username');
+                    if (calcUser) calcUser.value = username;
+
+                    // Pre-fill quick mod command targets
+                    const qmUser = document.getElementById('qm-username');
+                    if (qmUser) qmUser.value = username;
+                }
+            } catch(e) {
+                if (loading) loading.classList.add('hidden');
+                showToast('Spieler-Lookup fehlgeschlagen: ' + e.message, 'error');
+                console.error(e);
+            }
+        };
+
+        window.generateQuickCommand = function() {
+            const username  = document.getElementById('qm-username')?.value?.trim()  || '[Username]';
+            const offense   = document.getElementById('qm-offense')?.value;
+            const count     = document.getElementById('qm-count')?.value || '1';
+            const tridentEl = document.getElementById('qm-trident-output');
+            const sapphEl   = document.getElementById('qm-sapphire-output');
+            const cmdBoxEl  = document.getElementById('qm-command-box');
+
+            if (!offense) { showToast('Bitte Vergehen auswählen.', 'warn'); return; }
+
+            const entry = PUNISHMENT_DATA[offense];
+            if (!entry) return;
+            const countIndex = parseInt(count) - 1;
+            const punishment = entry.data[Math.min(countIndex, entry.data.length - 1)];
+            const countLbl   = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
+            const reason     = `${countLbl} – ${entry.label}`;
+
+            const trident  = `/moderate ${username} ${punishment} ${reason}`;
+
+            // Sapphire command mapping
+            let sapphCmd = '';
+            if (punishment.toLowerCase().includes('permanenter ban')) sapphCmd = `s!ban ${username} 0 ${reason}`;
+            else if (punishment.toLowerCase().includes('ban')) {
+                const days = punishment.match(/(\d+)/)?.[1] || '1';
+                sapphCmd = `s!ban ${username} ${days}d ${reason}`;
+            } else if (punishment.toLowerCase().includes('kick'))  sapphCmd = `s!kick ${username} ${reason}`;
+            else if (punishment.toLowerCase().includes('mute'))    sapphCmd = `s!mute ${username} 2h ${reason}`;
+            else                                                    sapphCmd = `s!warn ${username} ${reason}`;
+
+            if (tridentEl) tridentEl.value = trident;
+            if (sapphEl)   sapphEl.value   = sapphCmd;
+            if (cmdBoxEl)  cmdBoxEl.classList.remove('hidden');
+        };
+
+        window.copyQmCommand = function(type) {
+            const el = document.getElementById(type === 'trident' ? 'qm-trident-output' : 'qm-sapphire-output');
+            if (!el || !el.value) return;
+            navigator.clipboard.writeText(el.value)
+                .then(() => showToast(`${type === 'trident' ? 'Trident' : 'Sapphire'}-Befehl kopiert!`, 'success'))
+                .catch(() => showToast('Kopieren fehlgeschlagen.', 'error'));
+        };
+
+        window.toggleChecklist = function(cb) {
+            const fill = document.getElementById('checklist-fill');
+            if (!fill) return;
+            const total = document.querySelectorAll('.mod-check').length;
+            const checked = document.querySelectorAll('.mod-check:checked').length;
+            const pct = Math.round((checked / total) * 100);
+            fill.style.width = pct + '%';
+            fill.textContent = pct + '%';
+            fill.className = `h-full font-mono text-[10px] flex items-center justify-end pr-2 transition-all duration-500 ${pct === 100 ? 'bg-tac-green text-black' : pct > 50 ? 'bg-tac-amber text-black' : 'bg-tac-blue text-white'}`;
+        };
+
+        window.resetChecklist = function() {
+            document.querySelectorAll('.mod-check').forEach(cb => cb.checked = false);
+            toggleChecklist();
+        };
+
+        // ===================================================
+        // ANNOUNCEMENTS
+        // ===================================================
+        async function loadAnnouncements() {
+            const feed = document.getElementById('announcements-feed');
+            if (!feed) return;
+            try {
+                const res = await fetch(`assets/data/announcements.json?_t=${Date.now()}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!Array.isArray(data) || !data.length) return;
+                feed.innerHTML = '';
+                feed.classList.remove('hidden');
+                const colorMap = { 'KRITISCH': 'border-tac-red', 'UPDATE': 'border-tac-green', 'INFO': 'border-tac-amber' };
+                data.slice(0, 3).forEach(item => {
+                    const el = document.createElement('div');
+                    const borderClass = colorMap[item.badge] || 'border-tac-border';
+                    el.className = `border-l-2 ${borderClass} pl-4 py-2 bg-tac-card border border-l-2 ${borderClass} border-tac-border`;
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-mono text-[10px] font-bold text-tac-muted">${item.badge || 'INFO'}</span>
+                            <span class="font-mono text-[10px] text-tac-muted">${item.date}</span>
+                        </div>
+                        <p class="font-bold text-sm text-white">${item.title}</p>
+                        <p class="font-mono text-xs text-tac-muted mt-1">${item.content}</p>
+                    `;
+                    feed.appendChild(el);
+                });
+            } catch(e) { console.warn('Ankündigungen fehlgeschlagen:', e); }
+        }
+
+        // ===================================================
+        // INIT
+        // ===================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            checkOAuthCallback();
+            checkSession();
+        });
+
+        window.initDashboardListeners = function() {
+            ['shift-cases','shift-bans','shift-warns','shift-kicks'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', saveShiftState);
+            });
+            const notes = document.getElementById('shift-notes');
+            if (notes) notes.addEventListener('input', saveShiftState);
+            restoreShiftState();
+            // Initial checklist state
+            const fill = document.getElementById('checklist-fill');
+            if (fill) toggleChecklist();
+        };
+
+        // ===================================================
+        // ROBLOX OAUTH FLOW
+        // ===================================================
         function startRobloxOAuth() {
-            const clientId = '1185800266267472506';
-            const redirectUri = 'https://bwrp.net/team';
-            const authUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid profile`;
+            const CLIENT_ID = '1185800266267472506';
+            const authUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=openid profile`;
             window.location.href = authUrl;
         }
 
         async function checkOAuthCallback() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-
-            if (!code) return; // Not an OAuth callback
-
-            // Clean up URL
+            if (!code) return;
             window.history.replaceState({}, document.title, window.location.pathname);
 
-            // Show Verifying
             step1.classList.add('hidden');
             step2.classList.remove('hidden');
-            statusMsg.classList.add('hidden');
-            const verifyText = document.getElementById('verify-text');
-
-            showStatus("EXCHANGING SECURE TOKEN...", 'loading');
+            showStatus('TOKEN WIRD AUSGETAUSCHT...', 'loading');
 
             try {
-                // 1. Process OAuth code via Cloudflare Worker backend
-                // NOTE: Replace the URL below with your own deployed Cloudflare Worker URL
-                const redirectUri = 'https://bwrp.net/team';
-                const WORKER_URL = 'https://bwrpauth.thatzane.workers.dev/';
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code, redirect_uri: redirectUri })
+                    body: JSON.stringify({ code, redirect_uri: REDIRECT_URI }),
                 });
-
                 if (!res.ok) {
-                    const errPayload = await res.json().catch(() => ({}));
-                    console.error("OAuth Backend Error:", errPayload);
-                    throw new Error(errPayload.error || "OAuth handshake failed");
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error || 'OAuth-Handshake fehlgeschlagen');
                 }
-
                 const data = await res.json();
-                if (!data.success || !data.userId) {
-                    throw new Error("Invalid OAuth response");
-                }
+                if (!data.success || !data.userId) throw new Error('Ungültige OAuth-Antwort');
 
-                targetUserId = data.userId;
-                targetUsername = data.username || "Staff Member";
+                const targetUserId  = data.userId;
+                const targetUsername = data.username || 'Staff-Mitglied';
                 const avatarUrl = data.picture || `https://www.roblox.com/headshot-thumbnail/image?userId=${targetUserId}&width=150&height=150&format=png`;
 
-                if (verifyText) verifyText.textContent = "CHECKING CLEARANCE...";
-                showStatus("VERIFYING RANK...", 'loading');
+                document.getElementById('verify-text').textContent = 'BERECHTIGUNG WIRD GEPRÜFT...';
+                showStatus('RANG WIRD VERIFIZIERT...', 'loading');
 
-                // 2. Check Rank
                 const rolesData = await fetchProxy(`https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`);
-
-                if (!rolesData || !rolesData.data) {
-                    throw new Error("Invalid Roles API Response");
-                }
+                if (!rolesData?.data) throw new Error('Ungültige Rollen-API-Antwort');
 
                 const groupData = rolesData.data.find(g => g.group.id === GROUP_ID);
-
-                if (!groupData) {
-                    showStatus("ACCESS DENIED: NOT A GROUP MEMBER.", 'error');
-                    resetLoginDelay();
-                    return;
-                }
+                if (!groupData) { showStatus('ZUGRIFF VERWEIGERT: KEIN GRUPPEN-MITGLIED.', 'error'); resetLoginDelay(); return; }
 
                 const userRole = groupData.role.name;
-                console.log("Verifying User Role:", userRole);
-
                 if (ALLOWED_ROLES.includes(userRole)) {
-                    // SUCCESS
-                    showStatus("ACCESS GRANTED. WELCOME.", 'success');
-                    if (verifyText) verifyText.textContent = "ACCESS GRANTED";
-
-                    // Save Session
-                    saveSession({
-                        userId: targetUserId,
-                        username: targetUsername,
-                        rank: userRole.toUpperCase(),
-                        avatarUrl: avatarUrl
-                    });
-
-                    // Enter
-                    setTimeout(() => {
-                        enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl);
-                    }, 1000);
-
+                    showStatus('ZUGRIFF GEWÄHRT. WILLKOMMEN.', 'success');
+                    document.getElementById('verify-text').textContent = 'ZUGRIFF GEWÄHRT';
+                    saveSession({ userId: targetUserId, username: targetUsername, rank: userRole.toUpperCase(), avatarUrl });
+                    setTimeout(() => enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl), 1000);
                 } else {
-                    console.error(`Access Denied. Role '${userRole}' not in allowed list:`, ALLOWED_ROLES);
-                    showStatus(`ACCESS DENIED: INSUFFICIENT RANK (${userRole.toUpperCase()}).`, 'error');
+                    showStatus(`ZUGRIFF VERWEIGERT: RANG UNZUREICHEND (${userRole.toUpperCase()}).`, 'error');
                     resetLoginDelay();
                 }
-
-            } catch (err) {
-                console.error("OAuth/Verification Error:", err);
-                showStatus("LOGIN FAILED: " + (err.message || "Unknown error"), 'error');
+            } catch(err) {
+                console.error('OAuth-Fehler:', err);
+                showStatus('ANMELDUNG FEHLGESCHLAGEN: ' + (err.message || 'Unbekannter Fehler'), 'error');
                 resetLoginDelay();
             }
         }
@@ -573,301 +1004,9 @@
                 statusMsg.classList.add('hidden');
             }, 4000);
         }
-
-        // TABS
-        window.showTab = function (tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
-                btn.classList.add('text-gray-400', 'border-transparent');
-            });
-            const tab = document.getElementById(`tab-${tabId}`);
-            if (tab) tab.classList.remove('hidden');
-        }
-
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.remove('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
-                    b.classList.add('text-gray-400', 'border-transparent');
-                });
-                this.classList.remove('text-gray-400', 'border-transparent');
-                this.classList.add('bg-white/5', 'text-bw-gold', 'border-bw-gold/20');
-            });
-        });
-
-        // lucide.createIcons(); // Removed as per instructions, handled by enterDashboard
-
-        // --- SHIFT TIMER ---
-        let shiftInterval = null;
-        let shiftStartTime = null;
-        let shiftTimeElapsed = 0; // in seconds
-        let isShiftActive = false;
-
-        function toggleShift() {
-            const btn = document.getElementById('btn-shift-start');
-            const btnStop = document.getElementById('btn-shift-stop');
-
-            if (!isShiftActive) {
-                // START / RESUME
-                isShiftActive = true;
-                if (!shiftStartTime) {
-                    // New start or resume from 0
-                    shiftStartTime = Date.now() - (shiftTimeElapsed * 1000);
-                } else {
-                    // Resume: Recalculate start based on elapsed
-                    shiftStartTime = Date.now() - (shiftTimeElapsed * 1000);
-                }
-
-                shiftInterval = setInterval(updateTimerDisplay, 1000);
-
-                // UI Updates
-                btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause Shift';
-                btn.classList.add('bg-yellow-600', 'hover:bg-yellow-500');
-                btn.classList.remove('bg-green-600', 'hover:bg-green-500');
-                btnStop.disabled = false;
-
-            } else {
-                // PAUSE
-                isShiftActive = false;
-                clearInterval(shiftInterval);
-                shiftTimeElapsed = Math.floor((Date.now() - shiftStartTime) / 1000);
-
-                // UI Updates
-                btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Resume Shift';
-                btn.classList.add('bg-green-600', 'hover:bg-green-500');
-                btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500');
-            }
-
-            saveShiftState();
-            lucide.createIcons();
-        }
-
-        function stopShift() {
-            if (!confirm("Are you sure you want to END your shift? This will reset the timer.")) return;
-
-            isShiftActive = false;
-            clearInterval(shiftInterval);
-
-            // Reset
-            shiftStartTime = null;
-            shiftTimeElapsed = 0;
-            updateTimerDisplay(true); // Reset display to 00:00:00
-
-            // UI Reset
-            const btn = document.getElementById('btn-shift-start');
-            const btnStop = document.getElementById('btn-shift-stop');
-
-            btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Start Shift';
-            btn.classList.add('bg-green-600', 'hover:bg-green-500');
-            btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500');
-            btnStop.disabled = true;
-
-            document.getElementById('shift-cases').value = 0;
-            document.getElementById('shift-bans').value = 0;
-
-            localStorage.removeItem('atlantic_shift_state');
-            lucide.createIcons();
-        }
-
-        function updateTimerDisplay(reset = false) {
-            let seconds = 0;
-            if (!reset && isShiftActive) {
-                const diff = Date.now() - shiftStartTime;
-                seconds = Math.floor(diff / 1000);
-            } else if (!reset && !isShiftActive) {
-                seconds = shiftTimeElapsed;
-            }
-
-            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-
-            const displayEl = document.getElementById('shift-timer-display');
-            if (displayEl) displayEl.textContent = `${h}:${m}:${s}`;
-
-            // Update Circle Progress
-            const progress = document.getElementById('timer-progress');
-            if (progress) {
-                const percent = (seconds % 60) / 60;
-                const dashoffset = 283 - (283 * percent);
-                progress.style.strokeDashoffset = dashoffset;
-            }
-        }
-
-        function saveShiftState() {
-            const state = {
-                active: isShiftActive,
-                startTime: shiftStartTime,
-                elapsed: isShiftActive ? Math.floor((Date.now() - shiftStartTime) / 1000) : shiftTimeElapsed,
-                cases: document.getElementById('shift-cases').value,
-                bans: document.getElementById('shift-bans').value,
-                lastUpdated: Date.now()
-            };
-            localStorage.setItem('atlantic_shift_state', JSON.stringify(state));
-        }
-
-        function restoreShiftState() {
-            const raw = localStorage.getItem('atlantic_shift_state');
-            if (!raw) return;
-
-            try {
-                const state = JSON.parse(raw);
-                isShiftActive = state.active;
-                shiftTimeElapsed = state.elapsed || 0;
-
-                if (state.cases) document.getElementById('shift-cases').value = state.cases;
-                if (state.bans) document.getElementById('shift-bans').value = state.bans;
-
-                if (isShiftActive) {
-                    // Recalculate start time based on elapsed time if we want to trust elapsed
-                    // OR stick to original logic: start = now - elapsed
-                    shiftStartTime = Date.now() - (shiftTimeElapsed * 1000);
-
-                    shiftInterval = setInterval(updateTimerDisplay, 1000);
-
-                    const btn = document.getElementById('btn-shift-start');
-                    const btnStop = document.getElementById('btn-shift-stop');
-                    btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause Shift';
-                    btn.classList.add('bg-yellow-600', 'hover:bg-yellow-500');
-                    btn.classList.remove('bg-green-600', 'hover:bg-green-500');
-                    btnStop.disabled = false;
-                } else {
-                    updateTimerDisplay(); // Show saved time
-                    if (shiftTimeElapsed > 0) document.getElementById('btn-shift-stop').disabled = false;
-                }
-
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-
-            } catch (e) {
-                console.error("Shift State Restore Error:", e);
-            }
-        }
-
-        function copyShiftReport() {
-            const timeStr = document.getElementById('shift-timer-display').textContent;
-            const cases = document.getElementById('shift-cases').value;
-            const bans = document.getElementById('shift-bans').value;
-            const user = document.getElementById('user-name').textContent;
-
-            const report = `**👮 STAFF SHIFT REPORT**\n` +
-                `**User:** ${user}\n` +
-                `**Duration:** ${timeStr}\n` +
-                `**Cases Handled:** ${cases}\n` +
-                `**Bans Issued:** ${bans}`;
-
-            navigator.clipboard.writeText(report).then(() => {
-                alert("Shift report copied to clipboard!");
-            });
-        }
-
-        // Wraps init logic that depends on Dashboard HTML being present
-        function initDashboardListeners() {
-            // Shift inputs
-            const casesInput = document.getElementById('shift-cases');
-            const bansInput = document.getElementById('shift-bans');
-
-            if (casesInput) casesInput.addEventListener('change', saveShiftState);
-            if (bansInput) bansInput.addEventListener('change', saveShiftState);
-
-            // Restore previous state if any
-            restoreShiftState();
-        }
-        // --- PUNISHMENT CALCULATOR ---
-        const PUNISHMENT_DATA = {
-            "RDM": ["Warn / Kick", "Ban 3 Days", "Ban 7 Days"],
-            "VDM": ["Warn / Kick", "Ban 3 Days", "Ban 7 Days"],
-            "Spawnkill": ["Kick", "Ban 3 Days", "Ban 7 Days"],
-            "CombatLogging": ["Ban 2 Days", "Ban 5 Days", "Ban 14 Days"],
-            "FailRP": ["Warn", "Kick", "Ban 3 Days"],
-            "Metagaming": ["Kick", "Ban 3 Days", "Ban 7 Days"],
-            "Powergaming": ["Kick", "Ban 3 Days", "Ban 7 Days"],
-            "NLR": ["Warn", "Kick", "Ban 1 Day"],
-            "Toxicity": ["Mute / Warn", "Ban 1 Day", "Ban 7 Days"],
-            "Spam": ["Mute", "Kick", "Ban 1 Day"],
-            "Advertising": ["Ban Permanent", "Ban Permanent", "Ban Permanent"]
-        };
-
-        function runCalculation() {
-            const offense = document.getElementById('calc-offense').value;
-            const countRadio = document.querySelector('input[name="offense-count"]:checked');
-            const resultEl = document.getElementById('calc-result');
-            const durationEl = document.getElementById('calc-duration');
-
-            if (!offense || !countRadio) {
-                resultEl.textContent = "Select Offense";
-                resultEl.classList.remove('text-red-500');
-                resultEl.classList.add('text-white');
-                durationEl.textContent = "--";
-                return;
-            }
-
-            const countIndex = parseInt(countRadio.value) - 1; // 0, 1, 2
-            const data = PUNISHMENT_DATA[offense];
-
-            if (data && data[countIndex]) {
-                const punishment = data[countIndex];
-
-                // Visual feedback
-                resultEl.textContent = punishment;
-                resultEl.classList.remove('text-white');
-                resultEl.classList.add('text-red-500'); // Highlight punishment
-
-                // Extract duration part for the sub-label (if any 'Ban' logic exists)
-                if (punishment.includes("Ban")) {
-                    durationEl.textContent = "ACTION REQUIRED";
-                    durationEl.classList.add('text-red-400');
-                    durationEl.classList.remove('text-bw-gold');
-                } else {
-                    durationEl.textContent = "WARNING / KICK";
-                    durationEl.classList.add('text-bw-gold');
-                    durationEl.classList.remove('text-red-400');
-                }
-            } else {
-                resultEl.textContent = "Data Missing";
-                durationEl.textContent = "--";
-            }
-        }
-        // --- ANNOUNCEMENTS ---
-        async function loadAnnouncements() {
-            const feed = document.getElementById('announcements-feed');
-            if (!feed) return;
-
-            try {
-                // Use cache busting for announcements too
-                const res = await fetch(`assets/data/announcements.json?_t=${Date.now()}`);
-                if (!res.ok) return; // Silent fail if file missing
-
-                const data = await res.json();
-                if (!Array.isArray(data) || data.length === 0) return;
-
-                feed.innerHTML = '';
-                feed.classList.remove('hidden');
-
-                // Show top 3
-                data.slice(0, 3).forEach(item => {
-                    const el = document.createElement('div');
-                    el.className = 'bg-[#1a1a1a] border-l-4 border-bw-gold p-4 rounded shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between';
-
-                    el.innerHTML = `
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-1">
-                                <span class="${item.badgeColor || 'bg-gray-600 text-white'} text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">${item.badge}</span>
-                                <span class="text-xs text-gray-500 font-mono">${item.date}</span>
-                            </div>
-                            <h3 class="text-white font-bold text-lg leading-tight">${item.title}</h3>
-                            <p class="text-gray-400 text-sm mt-1">${item.content}</p>
-                        </div>
-                    `;
-                    feed.appendChild(el);
-                });
-
-            } catch (e) {
-                console.warn("Failed to load announcements", e);
-            }
-        }
     </script>
 
-    <!-- SCRIPTS -->
     <script src="assets/js/db.js"></script>
 </body>
+
+</html>
