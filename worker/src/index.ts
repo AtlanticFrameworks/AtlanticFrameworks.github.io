@@ -1,0 +1,110 @@
+/**
+ * BWRP Staff Panel – Cloudflare Worker Entry Point
+ * TypeScript | OOP | Cloudflare D1 | HttpOnly Cookies
+ */
+
+import type { Env, JWTPayload } from './types/index.js';
+import { handleOptions, requireAuth, corsHeaders, err } from './middleware/auth.js';
+import { AuthController }       from './controllers/AuthController.js';
+import { StaffController }      from './controllers/StaffController.js';
+import { ModerationController } from './controllers/ModerationController.js';
+import { ShiftController }      from './controllers/ShiftController.js';
+import { RobloxController }     from './controllers/RobloxController.js';
+
+// ─── Route Table ─────────────────────────────────────────────────────────────
+// Pattern → Handler (auth-protected routes also receive the JWTPayload)
+
+type Handler  = (req: Request, env: Env, user: JWTPayload, params: Record<string, string>) => Promise<Response>;
+type UserlessHandler = (req: Request, env: Env) => Promise<Response>;
+
+interface Route {
+  method:  string;
+  pattern: RegExp;
+  keys:    string[];
+  handler: Handler | UserlessHandler;
+  public:  boolean;    // true = no JWT required
+}
+
+function route(method: string, path: string, handler: Handler | UserlessHandler, isPublic = false): Route {
+  const keys: string[] = [];
+  const pattern = new RegExp(
+    '^' + path.replace(/:([^/]+)/g, (_: string, k: string) => { keys.push(k); return '([^/]+)'; }) + '$',
+  );
+  return { method, pattern, keys, handler, public: isPublic };
+}
+
+const ROUTES: Route[] = [
+  // ── Public ──────────────────────────────────────────────────────────────
+  route('POST', '/api/auth/login',   AuthController.login   as UserlessHandler, true),
+  route('POST', '/api/auth/refresh', AuthController.refresh as UserlessHandler, true),
+  route('POST', '/api/auth/logout',  AuthController.logout  as UserlessHandler, true),
+
+  // ── Staff ────────────────────────────────────────────────────────────────
+  route('GET',  '/api/staff/me',       StaffController.me       as Handler),
+  route('GET',  '/api/staff/sessions', StaffController.sessions as Handler),
+  route('GET',  '/api/staff/roster',   StaffController.roster   as Handler),
+  route('GET',  '/api/staff/status',   StaffController.status   as Handler),
+  route('GET',  '/api/staff/activity', StaffController.activity as Handler),
+
+  // ── Moderation ───────────────────────────────────────────────────────────
+  route('GET',   '/api/moderation/cases/:playerId', ModerationController.getCases    as Handler),
+  route('POST',  '/api/moderation/cases',           ModerationController.createCase  as Handler),
+  route('PATCH', '/api/moderation/cases/:caseId',   ModerationController.updateCase  as Handler),
+
+  // ── Shifts ───────────────────────────────────────────────────────────────
+  route('POST', '/api/shifts/start',     ShiftController.start     as Handler),
+  route('POST', '/api/shifts/end',       ShiftController.end       as Handler),
+  route('GET',  '/api/shifts/active',    ShiftController.active    as Handler),
+  route('GET',  '/api/shifts/analytics', ShiftController.analytics as Handler),
+
+  // ── Roblox Proxy ─────────────────────────────────────────────────────────
+  route('GET', '/api/roblox/player/:identifier',          RobloxController.getPlayer       as Handler),
+  route('GET', '/api/roblox/servers',                     RobloxController.getServers      as Handler),
+  route('GET', '/api/roblox/group/roles',                 RobloxController.getGroupRoles   as Handler),
+  route('GET', '/api/roblox/group/roles/:roleId/users',   RobloxController.getGroupRoleUsers as Handler),
+];
+
+// ─── Main Handler ─────────────────────────────────────────────────────────────
+
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const url    = new URL(request.url);
+
+    // CORS preflight
+    if (request.method === 'OPTIONS') return handleOptions(origin);
+
+    // Only handle /api/* routes
+    if (!url.pathname.startsWith('/api/')) {
+      return new Response('Not Found', { status: 404 });
+    }
+
+    // Match route
+    for (const r of ROUTES) {
+      if (r.method !== request.method) continue;
+      const match = url.pathname.match(r.pattern);
+      if (!match) continue;
+
+      const params: Record<string, string> = {};
+      r.keys.forEach((k, i) => { params[k] = match[i + 1]; });
+
+      // Public routes — no JWT check
+      if (r.public) {
+        return (r.handler as UserlessHandler)(request, env);
+      }
+
+      // Protected routes — verify cookie token
+      const auth = await requireAuth(request, env);
+      if (auth instanceof Response) return auth;
+
+      try {
+        return await (r.handler as Handler)(request, env, auth, params);
+      } catch (e) {
+        console.error('Route error:', e);
+        return err('Interner Server-Fehler: ' + (e as Error).message, 500, origin);
+      }
+    }
+
+    return err('Route nicht gefunden', 404, origin);
+  },
+};

@@ -1,0 +1,52 @@
+import type { Env, JWTPayload } from '../types/index.js';
+import { ShiftService } from '../services/ShiftService.js';
+import { requireRole, auditLog, getIP, json, err } from '../middleware/auth.js';
+
+export class ShiftController {
+  // POST /api/shifts/start
+  static async start(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const bad = requireRole(user, 'MOD');
+    if (bad) return bad;
+
+    const svc   = new ShiftService(env);
+    const shift = await svc.startShift(Number(user.sub));
+    await auditLog(env.DATABASE, Number(user.sub), 'SHIFT_START', 'shifts', String(shift.id), {}, getIP(request));
+    return json({ shift }, 201);
+  }
+
+  // POST /api/shifts/end
+  static async end(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const bad = requireRole(user, 'MOD');
+    if (bad) return bad;
+
+    let body: { cases_count?: number; bans_count?: number; warns_count?: number; kicks_count?: number; notes?: string };
+    try { body = await request.json(); } catch { body = {}; }
+
+    const svc   = new ShiftService(env);
+    const shift = await svc.endShift(Number(user.sub), {
+      cases_count: body.cases_count ?? 0,
+      bans_count:  body.bans_count  ?? 0,
+      warns_count: body.warns_count ?? 0,
+      kicks_count: body.kicks_count ?? 0,
+      notes:       body.notes       ?? null,
+    });
+    await auditLog(env.DATABASE, Number(user.sub), 'SHIFT_END', 'shifts', String(shift.id), { duration: shift.duration_seconds }, getIP(request));
+    return json({ shift });
+  }
+
+  // GET /api/shifts/active
+  static async active(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const svc   = new ShiftService(env);
+    const shift = await svc.getActiveShift(Number(user.sub));
+    return json({ shift });
+  }
+
+  // GET /api/shifts/analytics
+  static async analytics(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const bad = requireRole(user, 'ADMIN');
+    if (bad) return bad;
+    const svc    = new ShiftService(env);
+    const result = await svc.getAnalytics();
+    return json({ analytics: result });
+  }
+}

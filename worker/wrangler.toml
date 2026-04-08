@@ -1,0 +1,27 @@
+name = "bwrpauth"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding       = "DATABASE"
+database_name = "bwrp-staff"
+database_id   = "37a5af46-793a-40e1-a497-d338e92bdd5e"
+
+# Worker Route: handles /api/* on bwrp.net → enables HttpOnly cookies on same domain
+# Set this up in: Cloudflare Dashboard → Workers & Pages → bwrpauth → Settings → Triggers → Add Route
+# Pattern: bwrp.net/api/*  |  Zone: bwrp.net
+[[routes]]
+pattern = "bwrp.net/api/*"
+zone_name = "bwrp.net"
+
+[vars]
+ENVIRONMENT        = "production"
+ALLOWED_ORIGIN     = "https://bwrp.net"
+ROBLOX_GROUP_ID    = "34246821"
+ROBLOX_UNIVERSE_ID = "6003245325"
+
+# Secrets – deploy with: wrangler secret put <NAME>
+# JWT_SECRET           → random 64+ char string (e.g. openssl rand -hex 32)
+# ROBLOX_AUTH_SECRET   → Roblox OAuth client secret
+# DISCORD_WEBHOOK_URL  → your webhook URL

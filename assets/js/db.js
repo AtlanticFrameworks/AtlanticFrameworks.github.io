@@ -1,127 +1,67 @@
-// db.js - Backend Data Handler (Pure JS / PHP Migration)
-
-// --- MOCK OR BACKEND FETCHING ---
-
 /**
- * Fetches the latest server status.
- * Future: Update this to fetch from a local PHP endpoint (e.g. /api/status.php)
+ * db.js – Thin compatibility layer over the new api.js client
+ * Replaces the old mock/proxy approach with real D1-backed API calls.
+ * Called by team.html → enterDashboard → initDatabase()
  */
-async function fetchServerStatus() {
-    try {
-        // Uncomment below to fetch from PHP backend once implemented:
-        // const res = await fetch('/api/status.php');
-        // if(res.ok) return await res.json();
-    } catch(e) {
-        console.error("Status fetch logic not yet implemented or failed", e);
-    }
-    return getMockStatus();
-}
 
-/**
- * Fetches the latest activity logs.
- * Future: Update this to fetch from a local PHP endpoint (e.g. /api/activity.php)
- */
-async function fetchActivityLogs() {
-    try {
-        // Uncomment below to fetch from PHP backend once implemented:
-        // const res = await fetch('/api/activity.php');
-        // if(res.ok) return await res.json();
-    } catch(e) {
-        console.error("Activity fetch logic not yet implemented or failed", e);
-    }
-    return getMockActivity();
-}
-
-// --- MOCK DATA FALLBACKS ---
-function getMockStatus() {
-    return [
-        { service: 'Roblox API', status: 'OPERATIONAL' },
-        { service: 'Discord Bot', status: 'ONLINE' },
-        { service: 'Database', status: 'SYNCED (Local)' }
-    ];
-}
-
-function getMockActivity() {
-    return [
-        { user: 'System', action: 'System Init', details: 'Initialized PHP local mode', created_at: new Date().toISOString() }
-    ];
-}
-
-// --- INITIALIZATION ---
 let syncInterval = null;
 
 async function initDatabase() {
-    console.log("Initializing local data syncing...");
+    console.log('[DB] Initialisiere via Worker API...');
+    await refreshDashboardData();
 
-    // Initial Fetch
-    const statusData = await fetchServerStatus();
-    updateStatusUI(statusData);
-
-    const activityData = await fetchActivityLogs();
-    updateActivityUI(activityData);
-
-    // Simulated Realtime Polling (Replacing Supabase Websockets)
-    if(syncInterval) clearInterval(syncInterval);
-    syncInterval = setInterval(async () => {
-        updateStatusUI(await fetchServerStatus());
-        updateActivityUI(await fetchActivityLogs());
-    }, 15000); // Poll every 15 seconds
+    if (syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(refreshDashboardData, 30000);
 }
 
-// --- UI UPDATERS ---
+async function refreshDashboardData() {
+    try {
+        const [statusData, activityData] = await Promise.all([
+            window.api.getStatus(),
+            window.api.getActivity(),
+        ]);
+        updateStatusUI(statusData.status ?? []);
+        updateActivityUI(activityData.activity ?? []);
+    } catch (e) {
+        console.warn('[DB] Dashboard-Daten konnten nicht geladen werden:', e.message);
+    }
+}
+
 function updateStatusUI(data) {
-    if (!data) return;
-
+    if (!Array.isArray(data)) return;
     data.forEach(item => {
-        let elId = '';
-        if (item.service === 'Roblox API') elId = 'status-roblox';
-        if (item.service === 'Discord Bot') elId = 'status-discord';
-        if (item.service === 'Database') elId = 'status-db';
-
-        const el = document.getElementById(elId);
-        if (el) {
-            el.textContent = item.status;
-            // Update Color
-            el.className = 'font-bold';
-            if (item.status === 'OPERATIONAL' || item.status === 'ONLINE' || item.status.includes('SYNCED')) {
-                el.classList.add('text-tac-green');
-            } else if (item.status === 'OFFLINE') {
-                el.classList.add('text-tac-red');
-            } else {
-                el.classList.add('text-tac-amber');
-            }
-        }
+        const elMap = { 'Roblox API': 'status-roblox', 'Discord Bot': 'status-discord', 'Database': 'status-db' };
+        const el = document.getElementById(elMap[item.service]);
+        if (!el) return;
+        el.textContent = item.status;
+        el.className = 'font-bold';
+        const s = item.status.toUpperCase();
+        if (s === 'OPERATIONAL' || s === 'ONLINE' || s.includes('SYNCED')) el.classList.add('text-tac-green');
+        else if (s === 'OFFLINE' || s === 'DOWN') el.classList.add('text-tac-red');
+        else el.classList.add('text-tac-amber');
     });
 }
 
 function updateActivityUI(data) {
     const feed = document.getElementById('activity-feed');
-    if (!feed || !data) return;
-
+    if (!feed || !Array.isArray(data)) return;
     feed.innerHTML = '';
-
-    if (data.length === 0) {
+    if (!data.length) {
         feed.innerHTML = '<div class="text-tac-muted italic">Keine aktuellen Aktivitäten.</div>';
         return;
     }
-
     data.forEach(log => {
-        const time = new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
+        const time = log.created_at
+            ? new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+            : '--:--';
         const row = document.createElement('div');
         row.className = 'flex gap-2 animate-fade-in mb-1';
         row.innerHTML = `
-            <span class="text-tac-muted mt-0.5">[${time}]</span>
+            <span class="text-tac-muted mt-0.5 flex-shrink-0">[${time}]</span>
             <span class="text-white block">
-                <span class="text-tac-amber font-bold">${log.user}</span>: ${log.action} 
-                <span class="text-tac-muted text-[9px] ml-1 uppercase">(${log.details})</span>
-            </span>
-        `;
+                <span class="text-tac-amber font-bold">${log.username ?? 'System'}</span>: ${log.action}
+                ${log.resource_id ? `<span class="text-tac-muted text-[9px] ml-1 uppercase">(${log.resource} #${log.resource_id})</span>` : ''}
+            </span>`;
         feed.appendChild(row);
     });
 }
-
-// Auto-init if on dashboard
-document.addEventListener('DOMContentLoaded', () => {
-    // We can call initDatabase() here or from team.html
-});

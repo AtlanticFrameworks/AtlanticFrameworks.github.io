@@ -200,7 +200,6 @@
             "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
             "Head Game Moderator", "Game Moderator"
         ];
-        const WORKER_URL = 'https://bwrpauth.thatzane.workers.dev/';
         const REDIRECT_URI = 'https://bwrp.net/team';
 
         // ===================================================
@@ -270,20 +269,36 @@
             localStorage.setItem('atlantic_staff_session', JSON.stringify({ ...data, timestamp: Date.now() }));
         }
 
-        function checkSession() {
+        async function checkSession() {
             const raw = localStorage.getItem('atlantic_staff_session');
             if (!raw) return;
             try {
                 const session = JSON.parse(raw);
-                const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-                if (Date.now() - session.timestamp > ONE_WEEK) { logout(); return; }
-                enterDashboard(session.username, session.rank, session.avatarUrl);
+                // Validate cookie with server; auto-refreshes token if needed
+                let meData = null;
+                try {
+                    const res = await window.api.getMe();
+                    meData = res.user;
+                } catch(e) {
+                    if (e?.status === 401) return; // api client already called logout()
+                    // Network/server error – fall back to localStorage for offline resilience
+                    const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+                    if (Date.now() - session.timestamp > ONE_WEEK) { logout(); return; }
+                    enterDashboard(session.username, session.rank, session.avatarUrl);
+                    return;
+                }
+                enterDashboard(
+                    meData.username ?? session.username,
+                    (meData.role ?? session.rank).toUpperCase(),
+                    meData.avatar_url ?? session.avatarUrl,
+                );
             } catch(e) {
                 localStorage.removeItem('atlantic_staff_session');
             }
         }
 
         function logout() {
+            window.api?.logout?.().catch(() => {});
             localStorage.removeItem('atlantic_staff_session');
             if (isShiftActive) stopShift(true);
             dashboard.classList.add('hidden');
@@ -364,33 +379,9 @@
         }
 
         // ===================================================
-        // PROXY FETCH WITH FAILOVER
+        // DELAY HELPER (used by loadStaffHierarchy)
         // ===================================================
         const delay = ms => new Promise(r => setTimeout(r, ms));
-
-        async function fetchProxy(targetUrl) {
-            const proxies = [
-                { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl), type: 'direct' },
-                { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), type: 'json-wrapper' },
-                { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' },
-            ];
-            for (const proxy of proxies) {
-                try {
-                    const ctrl = new AbortController();
-                    const tid = setTimeout(() => ctrl.abort(), 15000);
-                    const res = await fetch(proxy.url, { signal: ctrl.signal });
-                    clearTimeout(tid);
-                    if (!res.ok) continue;
-                    if (proxy.type === 'json-wrapper') {
-                        const data = await res.json();
-                        if (!data.contents) continue;
-                        try { return JSON.parse(data.contents); } catch { return data.contents; }
-                    }
-                    return await res.json();
-                } catch(e) { console.warn('Proxy fehlgeschlagen:', proxy.url, e); }
-            }
-            throw new Error('Alle Proxies fehlgeschlagen.');
-        }
 
         // ===================================================
         // TAB NAVIGATION (global, wird auch im Fragment genutzt)
@@ -440,7 +431,7 @@
             if (search) search.classList.add('hidden');
 
             try {
-                const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles`);
+                const rolesData = await window.api.getGroupRoles();
                 if (!rolesData?.roles) throw new Error('Ungültige Rollen-Daten');
                 rolesData.roles.sort((a, b) => b.rank - a.rank);
 
@@ -453,7 +444,7 @@
                     for (const role of categoryRoles) {
                         try {
                             await delay(200);
-                            const membersData = await fetchProxy(`https://groups.roblox.com/v1/groups/${GROUP_ID}/roles/${role.id}/users?sortOrder=Asc&limit=100`);
+                            const membersData = await window.api.getGroupRoleUsers(role.id);
                             const members = membersData.data || [];
                             if (!members.length) continue;
 
@@ -597,6 +588,7 @@
                 shiftStartTime = Date.now() - (shiftTimeElap * 1000);
                 shiftInterval = setInterval(updateTimerDisplay, 1000);
                 updateShiftButtons('active');
+                window.api.startShift().catch(e => console.warn('[SHIFT] Start fehlgeschlagen:', e.message));
             } else {
                 isShiftActive = false;
                 clearInterval(shiftInterval);
@@ -610,6 +602,19 @@
 
         window.stopShift = function(force = false) {
             if (!force && !confirm('Schicht wirklich beenden? Die Zeit wird zurückgesetzt.')) return;
+
+            // Persist shift metrics to D1 before resetting
+            if (shiftStartTime) {
+                const metrics = {
+                    cases_count: parseInt(document.getElementById('shift-cases')?.value || 0),
+                    bans_count:  parseInt(document.getElementById('shift-bans')?.value  || 0),
+                    warns_count: parseInt(document.getElementById('shift-warns')?.value || 0),
+                    kicks_count: parseInt(document.getElementById('shift-kicks')?.value || 0),
+                    notes:       document.getElementById('shift-notes')?.value || null,
+                };
+                window.api.endShift(metrics).catch(e => console.warn('[SHIFT] End fehlgeschlagen:', e.message));
+            }
+
             isShiftActive = false;
             clearInterval(shiftInterval);
             shiftStartTime = null;
@@ -774,53 +779,50 @@
         // ===================================================
         // QUICK MODERATOR TAB LOGIC
         // ===================================================
+        let lookedUpPlayer = null; // { id, username } – set by lookupPlayer, used by generateQuickCommand
+
         window.lookupPlayer = async function() {
             const input = document.getElementById('lookup-input')?.value?.trim();
             if (!input) { showToast('Bitte Username oder ID eingeben.', 'warn'); return; }
 
-            const result = document.getElementById('lookup-result');
+            const result  = document.getElementById('lookup-result');
             const loading = document.getElementById('lookup-loading');
+            lookedUpPlayer = null;
             if (result)  result.classList.add('hidden');
             if (loading) loading.classList.remove('hidden');
+            document.getElementById('case-history-section')?.classList.add('hidden');
 
             try {
-                let userId, username;
-                if (/^\d+$/.test(input)) {
-                    userId = input;
-                    const userData = await fetchProxy(`https://users.roblox.com/v1/users/${userId}`);
-                    username = userData.name;
-                } else {
-                    const byName = await fetchProxy(`https://users.roblox.com/v1/usernames/users`);
-                    // fallback: just treat as username
-                    userId = null;
-                    username = input;
-                }
+                const player = await window.api.lookupPlayer(input);
 
                 if (loading) loading.classList.add('hidden');
+                if (result)  result.classList.remove('hidden');
 
-                if (result) {
-                    result.classList.remove('hidden');
-                    const nameEl   = document.getElementById('lookup-username');
-                    const rankEl   = document.getElementById('lookup-rank');
-                    const avatarEl = document.getElementById('lookup-avatar');
-                    const profileBtn = document.getElementById('lookup-profile-btn');
+                const nameEl     = document.getElementById('lookup-username');
+                const rankEl     = document.getElementById('lookup-rank');
+                const avatarEl   = document.getElementById('lookup-avatar');
+                const profileBtn = document.getElementById('lookup-profile-btn');
 
-                    if (nameEl)   nameEl.textContent = username;
-                    if (rankEl)   rankEl.textContent = userId ? `ID: ${userId}` : 'Kein API-Zugriff';
-                    if (avatarEl && userId) avatarEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=150&height=150&format=png`;
-                    if (profileBtn && userId) profileBtn.href = `https://www.roblox.com/users/${userId}/profile`;
+                if (nameEl)     nameEl.textContent = player.isBanned ? `${player.username} [GEBANNT]` : player.username;
+                if (rankEl)     rankEl.textContent = `ID: ${player.id}`;
+                if (avatarEl)   avatarEl.src = player.avatarUrl;
+                if (profileBtn) profileBtn.href = player.profileUrl;
 
-                    // Pre-fill username in calc tab
-                    const calcUser = document.getElementById('calc-username');
-                    if (calcUser) calcUser.value = username;
+                // Store for case creation
+                lookedUpPlayer = { id: String(player.id), username: player.username };
 
-                    // Pre-fill quick mod command targets
-                    const qmUser = document.getElementById('qm-username');
-                    if (qmUser) qmUser.value = username;
-                }
+                // Load case history from D1
+                renderCaseHistory(String(player.id));
+
+                // Pre-fill username fields in other tabs
+                const calcUser = document.getElementById('calc-username');
+                if (calcUser) calcUser.value = player.username;
+                const qmUser = document.getElementById('qm-username');
+                if (qmUser) qmUser.value = player.username;
+
             } catch(e) {
                 if (loading) loading.classList.add('hidden');
-                showToast('Spieler-Lookup fehlgeschlagen: ' + e.message, 'error');
+                showToast('Spieler-Lookup fehlgeschlagen: ' + (e.message || 'Unbekannter Fehler'), 'error');
                 console.error(e);
             }
         };
@@ -857,6 +859,28 @@
             if (tridentEl) tridentEl.value = trident;
             if (sapphEl)   sapphEl.value   = sapphCmd;
             if (cmdBoxEl)  cmdBoxEl.classList.remove('hidden');
+
+            // Persist moderation case to D1 if a player was looked up
+            if (lookedUpPlayer) {
+                let caseType = 'WARN';
+                let durationDays;
+                const p = punishment.toLowerCase();
+                if (p.includes('permanenter ban')) { caseType = 'PERMBAN'; }
+                else if (p.includes('ban')) {
+                    caseType = 'BAN';
+                    const m = punishment.match(/(\d+)/);
+                    if (m) durationDays = parseInt(m[1]);
+                } else if (p.includes('kick')) { caseType = 'KICK'; }
+
+                window.api.createCase({
+                    targetRobloxId: lookedUpPlayer.id,
+                    targetUsername:  lookedUpPlayer.username,
+                    type:            caseType,
+                    reason,
+                    ...(durationDays ? { durationDays } : {}),
+                }).then(() => showToast('Fall in Datenbank gespeichert.', 'success'))
+                  .catch(e => console.warn('[CASE] Speichern fehlgeschlagen:', e.message));
+            }
         };
 
         window.copyQmCommand = function(type) {
@@ -896,7 +920,14 @@
                 if (!Array.isArray(data) || !data.length) return;
                 feed.innerHTML = '';
                 feed.classList.remove('hidden');
-                const colorMap = { 'KRITISCH': 'border-tac-red', 'UPDATE': 'border-tac-green', 'INFO': 'border-tac-amber' };
+                const colorMap = {
+                    'KRITISCH': 'border-tac-red',
+                    'UPDATE':   'border-tac-green',
+                    'NEU':      'border-tac-green',
+                    'INFO':     'border-tac-amber',
+                    'WARN':     'border-yellow-500',
+                    'FIX':      'border-tac-blue',
+                };
                 data.slice(0, 3).forEach(item => {
                     const el = document.createElement('div');
                     const borderClass = colorMap[item.badge] || 'border-tac-border';
@@ -955,41 +986,17 @@
             showStatus('TOKEN WIRD AUSGETAUSCHT...', 'loading');
 
             try {
-                const res = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, redirect_uri: REDIRECT_URI }),
-                });
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    throw new Error(err.error || 'OAuth-Handshake fehlgeschlagen');
-                }
-                const data = await res.json();
-                if (!data.success || !data.userId) throw new Error('Ungültige OAuth-Antwort');
+                // Exchange OAuth code via Worker – role check & session creation happen server-side
+                const { ok, data } = await window.api.login(code, REDIRECT_URI);
+                if (!ok) throw new Error(data?.error || 'OAuth-Handshake fehlgeschlagen');
+                if (!data.success || !data.user) throw new Error('Ungültige OAuth-Antwort');
 
-                const targetUserId  = data.userId;
-                const targetUsername = data.username || 'Staff-Mitglied';
-                const avatarUrl = data.picture || `https://www.roblox.com/headshot-thumbnail/image?userId=${targetUserId}&width=150&height=150&format=png`;
+                const { id: targetUserId, username: targetUsername, role: userRole, avatarUrl } = data.user;
 
-                document.getElementById('verify-text').textContent = 'BERECHTIGUNG WIRD GEPRÜFT...';
-                showStatus('RANG WIRD VERIFIZIERT...', 'loading');
-
-                const rolesData = await fetchProxy(`https://groups.roblox.com/v2/users/${targetUserId}/groups/roles`);
-                if (!rolesData?.data) throw new Error('Ungültige Rollen-API-Antwort');
-
-                const groupData = rolesData.data.find(g => g.group.id === GROUP_ID);
-                if (!groupData) { showStatus('ZUGRIFF VERWEIGERT: KEIN GRUPPEN-MITGLIED.', 'error'); resetLoginDelay(); return; }
-
-                const userRole = groupData.role.name;
-                if (ALLOWED_ROLES.includes(userRole)) {
-                    showStatus('ZUGRIFF GEWÄHRT. WILLKOMMEN.', 'success');
-                    document.getElementById('verify-text').textContent = 'ZUGRIFF GEWÄHRT';
-                    saveSession({ userId: targetUserId, username: targetUsername, rank: userRole.toUpperCase(), avatarUrl });
-                    setTimeout(() => enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl), 1000);
-                } else {
-                    showStatus(`ZUGRIFF VERWEIGERT: RANG UNZUREICHEND (${userRole.toUpperCase()}).`, 'error');
-                    resetLoginDelay();
-                }
+                showStatus('ZUGRIFF GEWÄHRT. WILLKOMMEN.', 'success');
+                document.getElementById('verify-text').textContent = 'ZUGRIFF GEWÄHRT';
+                saveSession({ userId: targetUserId, username: targetUsername, rank: userRole.toUpperCase(), avatarUrl });
+                setTimeout(() => enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl), 1000);
             } catch(err) {
                 console.error('OAuth-Fehler:', err);
                 showStatus('ANMELDUNG FEHLGESCHLAGEN: ' + (err.message || 'Unbekannter Fehler'), 'error');
@@ -1006,7 +1013,284 @@
         }
     </script>
 
+    <script src="assets/js/api.js"></script>
     <script src="assets/js/db.js"></script>
+
+    <!-- ================================================
+         COMMAND PALETTE OVERLAY (Ctrl+K)
+    ================================================= -->
+    <div id="cmd-palette" class="fixed inset-0 z-[9000] hidden" aria-modal="true" role="dialog">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closePalette()"></div>
+
+        <!-- Panel -->
+        <div class="relative mx-auto mt-24 w-full max-w-lg px-4">
+            <div class="bg-tac-panel border border-tac-border shadow-2xl shadow-black/60 overflow-hidden">
+
+                <!-- Search input -->
+                <div class="flex items-center gap-3 px-4 py-3 border-b border-tac-border">
+                    <i data-lucide="search" class="w-4 h-4 text-tac-muted flex-shrink-0"></i>
+                    <input id="cmd-input" type="text" placeholder="Befehl oder Tab suchen..."
+                        class="flex-1 bg-transparent font-mono text-sm text-white placeholder:text-zinc-600 focus:outline-none"
+                        oninput="filterPalette()" onkeydown="paletteKeyNav(event)">
+                    <kbd class="font-mono text-[10px] text-tac-muted border border-tac-border px-1.5 py-0.5">ESC</kbd>
+                </div>
+
+                <!-- Results -->
+                <ul id="cmd-list" class="max-h-80 overflow-y-auto py-2" role="listbox"></ul>
+
+                <!-- Footer hint -->
+                <div class="px-4 py-2 border-t border-tac-border flex items-center gap-4 font-mono text-[9px] text-tac-muted">
+                    <span><kbd class="border border-tac-border px-1">↑↓</kbd> navigieren</span>
+                    <span><kbd class="border border-tac-border px-1">↵</kbd> ausführen</span>
+                    <span><kbd class="border border-tac-border px-1">ESC</kbd> schließen</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ====================================================
+    // COMMAND PALETTE
+    // ====================================================
+    const PALETTE_ACTIONS = [
+        { label: 'Übersicht',        icon: 'layout-dashboard', group: 'Navigation', action: () => showTab('home') },
+        { label: 'Dienst-Terminal',  icon: 'clock',            group: 'Navigation', action: () => showTab('shift') },
+        { label: 'Personalakte',     icon: 'users',            group: 'Navigation', action: () => showTab('roster') },
+        { label: 'Aktions-Matrix',   icon: 'gavel',            group: 'Navigation', action: () => showTab('calculator') },
+        { label: 'Schnellmoderator', icon: 'zap',              group: 'Navigation', action: () => showTab('quickmod') },
+        { label: 'Server Intel',     icon: 'radar',            group: 'Navigation', action: () => { showTab('radar'); loadServerIntel(); } },
+        { label: 'Richtlinien',      icon: 'book-open',        group: 'Navigation', action: () => showTab('rules') },
+        { label: 'Befehlsreferenz',  icon: 'terminal',         group: 'Navigation', action: () => showTab('commands') },
+        { label: 'Dienst starten',   icon: 'play',             group: 'Aktionen',   action: () => { showTab('shift'); if (!isShiftActive) toggleShift(); } },
+        { label: 'Dienst pausieren', icon: 'pause',            group: 'Aktionen',   action: () => { if (isShiftActive) toggleShift(); } },
+        { label: 'Dienst beenden',   icon: 'square',           group: 'Aktionen',   action: () => stopShift() },
+        { label: 'Abmelden',         icon: 'log-out',          group: 'Aktionen',   action: () => logout() },
+    ];
+
+    let paletteIndex = -1;
+
+    function openPalette() {
+        const overlay = document.getElementById('cmd-palette');
+        if (!overlay) return;
+        overlay.classList.remove('hidden');
+        const input = document.getElementById('cmd-input');
+        if (input) { input.value = ''; input.focus(); }
+        filterPalette();
+    }
+
+    function closePalette() {
+        document.getElementById('cmd-palette')?.classList.add('hidden');
+        paletteIndex = -1;
+    }
+
+    function filterPalette() {
+        const q    = (document.getElementById('cmd-input')?.value || '').toLowerCase();
+        const list = document.getElementById('cmd-list');
+        if (!list) return;
+
+        const filtered = PALETTE_ACTIONS.filter(a =>
+            a.label.toLowerCase().includes(q) || a.group.toLowerCase().includes(q)
+        );
+        paletteIndex = filtered.length ? 0 : -1;
+
+        // Group by category
+        const groups = {};
+        filtered.forEach(a => { (groups[a.group] = groups[a.group] || []).push(a); });
+
+        list.innerHTML = '';
+        let globalIdx = 0;
+        Object.entries(groups).forEach(([grp, items]) => {
+            const header = document.createElement('li');
+            header.className = 'px-4 pt-2 pb-1 font-mono text-[9px] text-tac-muted tracking-widest uppercase';
+            header.textContent = grp;
+            list.appendChild(header);
+
+            items.forEach(item => {
+                const idx = globalIdx++;
+                const li = document.createElement('li');
+                li.className = `cmd-item flex items-center gap-3 px-4 py-2.5 font-mono text-sm cursor-pointer transition-colors ${idx === 0 ? 'bg-tac-amber/10 text-tac-amber' : 'text-zinc-300 hover:bg-white/5 hover:text-white'}`;
+                li.setAttribute('data-idx', idx);
+                li.setAttribute('role', 'option');
+                li.innerHTML = `<i data-lucide="${item.icon}" class="w-4 h-4 flex-shrink-0 opacity-60"></i><span>${item.label}</span>`;
+                li.onclick = () => { item.action(); closePalette(); };
+                list.appendChild(li);
+            });
+        });
+
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [list] });
+    }
+
+    function paletteKeyNav(e) {
+        const items = document.querySelectorAll('.cmd-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') { e.preventDefault(); paletteIndex = Math.min(paletteIndex + 1, items.length - 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); paletteIndex = Math.max(paletteIndex - 1, 0); }
+        else if (e.key === 'Enter') { e.preventDefault(); items[paletteIndex]?.click(); return; }
+        else if (e.key === 'Escape') { closePalette(); return; }
+
+        items.forEach((el, i) => {
+            const active = i === paletteIndex;
+            el.classList.toggle('bg-tac-amber/10', active);
+            el.classList.toggle('text-tac-amber', active);
+            el.classList.toggle('text-zinc-300', !active);
+            if (active) el.scrollIntoView({ block: 'nearest' });
+        });
+    }
+
+    // Global Ctrl+K listener (active after dashboard loads)
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const palette = document.getElementById('cmd-palette');
+            if (!palette) return;
+            palette.classList.contains('hidden') ? openPalette() : closePalette();
+        }
+        if (e.key === 'Escape') closePalette();
+    });
+
+    // ====================================================
+    // CASE HISTORY (rendered inside lookupPlayer)
+    // ====================================================
+    const CASE_TYPE_STYLE = {
+        WARN:    { color: 'text-yellow-400', label: 'WARN' },
+        KICK:    { color: 'text-orange-400', label: 'KICK' },
+        BAN:     { color: 'text-red-400',    label: 'BAN'  },
+        PERMBAN: { color: 'text-red-600',    label: 'PERM' },
+    };
+
+    async function renderCaseHistory(robloxId) {
+        const section = document.getElementById('case-history-section');
+        const list    = document.getElementById('case-history-list');
+        const counter = document.getElementById('case-history-count');
+        if (!section || !list) return;
+
+        section.classList.remove('hidden');
+        list.innerHTML = '<div class="font-mono text-[10px] text-tac-muted py-2 italic">Lade Akten...</div>';
+
+        try {
+            const { cases } = await window.api.getPlayerCases(robloxId);
+            if (counter) counter.textContent = cases.length ? `${cases.length} Einträge` : '';
+
+            if (!cases.length) {
+                list.innerHTML = '<div class="font-mono text-[10px] text-tac-muted py-2 italic">Keine Einträge vorhanden.</div>';
+                return;
+            }
+
+            list.innerHTML = cases.slice(0, 15).map(c => {
+                const style = CASE_TYPE_STYLE[c.type] || { color: 'text-tac-muted', label: c.type };
+                const date  = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE') : '?';
+                const mod   = c.moderator_username ?? 'Unbekannt';
+                const dur   = c.duration_days ? ` (${c.duration_days}d)` : '';
+                return `
+                <div class="border border-tac-border/60 bg-black/30 px-3 py-2 flex gap-2 items-start">
+                    <span class="font-mono text-[9px] font-bold ${style.color} uppercase flex-shrink-0 mt-0.5 w-8">${style.label}${dur}</span>
+                    <div class="flex-1 overflow-hidden">
+                        <p class="font-mono text-[10px] text-zinc-200 truncate">${c.reason}</p>
+                        <p class="font-mono text-[9px] text-tac-muted mt-0.5">${date} · ${mod}${c.active ? ' · <span class="text-tac-red">AKTIV</span>' : ''}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch(e) {
+            list.innerHTML = `<div class="font-mono text-[10px] text-tac-red py-2">Fehler: ${e.message}</div>`;
+        }
+    }
+
+    // ====================================================
+    // SERVER INTEL (RADAR TAB)
+    // ====================================================
+    let radarInterval = null;
+
+    window.loadServerIntel = async function() {
+        const loading = document.getElementById('radar-loading');
+        const grid    = document.getElementById('radar-grid');
+        const errDiv  = document.getElementById('radar-error');
+        const emptyDiv = document.getElementById('radar-empty');
+        const summary = document.getElementById('radar-summary');
+        const refreshBtn = document.getElementById('radar-refresh-btn');
+
+        if (!loading) return; // tab not loaded yet
+
+        [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
+        loading.classList.remove('hidden');
+        if (refreshBtn) refreshBtn.disabled = true;
+
+        try {
+            const { servers, totalPlayers, serverCount } = await window.api.getServers();
+            loading.classList.add('hidden');
+
+            if (!servers.length) {
+                emptyDiv?.classList.remove('hidden');
+                return;
+            }
+
+            // Summary bar
+            const totalEl = document.getElementById('radar-total-players');
+            const countEl = document.getElementById('radar-server-count');
+            if (totalEl) totalEl.textContent = totalPlayers;
+            if (countEl) countEl.textContent = serverCount;
+            summary?.classList.remove('hidden');
+
+            // Render cards
+            if (grid) {
+                grid.innerHTML = servers.map(s => {
+                    const fillPct = Math.round((s.players / s.maxPlayers) * 100);
+                    const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
+                    const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
+                    const fpsColor  = s.fps  >= 55 ? 'text-tac-green' : s.fps  >= 30  ? 'text-tac-amber' : 'text-tac-red';
+                    return `
+                    <div class="bg-tac-panel border border-tac-border p-4 relative overflow-hidden group hover:border-tac-green/40 transition-colors">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <i data-lucide="server" class="w-12 h-12 text-tac-green"></i>
+                        </div>
+                        <p class="font-mono text-[9px] text-tac-muted tracking-widest mb-3">SERVER #${s.index}</p>
+
+                        <div class="flex items-end justify-between mb-3">
+                            <div>
+                                <p class="font-display text-2xl font-bold text-white">${s.players}<span class="text-tac-muted text-base">/${s.maxPlayers}</span></p>
+                                <p class="font-mono text-[9px] text-tac-muted uppercase">Spieler</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono text-sm font-bold ${pingColor}">${s.ping}ms</p>
+                                <p class="font-mono text-[9px] text-tac-muted">Ping</p>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-1 bg-tac-dark border border-tac-border/50 mb-3">
+                            <div class="h-full ${fillColor} transition-all" style="width:${fillPct}%"></div>
+                        </div>
+
+                        <div class="flex justify-between font-mono text-[9px] text-tac-muted">
+                            <span>FPS: <span class="${fpsColor} font-bold">${s.fps}</span></span>
+                            <span class="text-[8px] truncate max-w-[100px] opacity-50">${s.jobId.substring(0, 8)}…</span>
+                        </div>
+                    </div>`;
+                }).join('');
+                grid.classList.remove('hidden');
+                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
+            }
+
+            // Auto-refresh every 60s
+            clearInterval(radarInterval);
+            radarInterval = setInterval(() => {
+                if (document.getElementById('tab-radar')?.classList.contains('block')) {
+                    window.loadServerIntel();
+                } else {
+                    clearInterval(radarInterval);
+                }
+            }, 60000);
+
+        } catch(e) {
+            loading.classList.add('hidden');
+            const errMsg = document.getElementById('radar-error-msg');
+            if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
+            errDiv?.classList.remove('hidden');
+        } finally {
+            if (refreshBtn) refreshBtn.disabled = false;
+        }
+    };
+    </script>
 </body>
 
 </html>
