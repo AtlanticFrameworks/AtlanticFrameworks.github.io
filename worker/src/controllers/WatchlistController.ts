@@ -4,7 +4,7 @@ import { requireRole, auditLog, getIP, json, err } from '../middleware/auth.js';
 export class WatchlistController {
   // GET /api/watchlist
   static async getAll(_request: Request, env: Env, user: JWTPayload): Promise<Response> {
-    const bad = requireRole(user, 'MOD');
+    const bad = requireRole(user, 'TRAINEE');
     if (bad) return bad;
     const { results } = await env.DATABASE
       .prepare('SELECT * FROM watchlist ORDER BY created_at DESC')
@@ -14,7 +14,7 @@ export class WatchlistController {
 
   // GET /api/watchlist/check/:robloxId
   static async check(_request: Request, env: Env, user: JWTPayload, params: Record<string, string>): Promise<Response> {
-    const bad = requireRole(user, 'MOD');
+    const bad = requireRole(user, 'TRAINEE');
     if (bad) return bad;
     const entry = await env.DATABASE
       .prepare('SELECT * FROM watchlist WHERE player_roblox_id = ? ORDER BY id DESC LIMIT 1')

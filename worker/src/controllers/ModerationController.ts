@@ -6,7 +6,7 @@ import type { CaseType } from '../types/index.js';
 export class ModerationController {
   // GET /api/moderation/all?type=&search=&limit=50&offset=0
   static async getAllCases(request: Request, env: Env, user: JWTPayload): Promise<Response> {
-    const bad = requireRole(user, 'MOD');
+    const bad = requireRole(user, 'TRAINEE');
     if (bad) return bad;
 
     const url    = new URL(request.url);
@@ -38,7 +38,7 @@ export class ModerationController {
 
   // GET /api/moderation/cases/:playerId
   static async getCases(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
-    const bad = requireRole(user, 'MOD');
+    const bad = requireRole(user, 'TRAINEE');
     if (bad) return bad;
 
     const svc   = new ModerationService(env);

@@ -25,34 +25,55 @@ async function robloxFetch(url: string, init: RequestInit = {}): Promise<Respons
   return res;
 }
 
-// Username → numeric ID via the legacy api.roblox.com endpoint.
-// Falls back to the v1 POST endpoint if the legacy one fails.
-// api.roblox.com uses a different IP pool and is less aggressively filtered
-// than users.roblox.com from Cloudflare datacenter egress IPs.
-async function resolveUsername(username: string): Promise<string | null> {
-  // Primary: legacy endpoint (different CDN, usually reachable from Workers)
-  try {
-    const res = await robloxFetch(`https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
-    if (res.ok) {
-      const data = await res.json() as { Id?: number; errorMessage?: string };
-      if (data.Id) return String(data.Id);
-    }
-  } catch { /* fall through */ }
+// Three possible outcomes for a username lookup:
+//   found    → got a valid user ID from Roblox
+//   notFound → Roblox responded successfully but the username doesn't exist
+//   apiError → every endpoint returned non-2xx; likely an IP/rate-limit block
+type UsernameResult =
+  | { type: 'found';    userId: string }
+  | { type: 'notFound' }
+  | { type: 'apiError' };
 
-  // Fallback: v1 POST endpoint
+async function resolveUsername(username: string): Promise<UsernameResult> {
+  // ── Primary: legacy api.roblox.com ────────────────────────────────────────
+  // Uses a different CDN/IP pool than users.roblox.com — more reachable from
+  // Cloudflare Workers. Response: { Id: 12345, Username: "..." } or
+  // { success: false, message: "..." } when the user doesn't exist.
   try {
-    const res = await robloxFetch(`https://users.roblox.com/v1/usernames/users`, {
+    const res = await robloxFetch(
+      `https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`,
+    );
+    if (res.ok) {
+      const raw  = await res.text();
+      const data = JSON.parse(raw) as Record<string, unknown>;
+      console.log(`[Roblox] legacy lookup "${username}":`, raw.slice(0, 200));
+      const id = typeof data['Id'] === 'number' ? data['Id'] : 0;
+      if (id > 0) return { type: 'found', userId: String(id) };
+      // Id = 0 / missing = username not registered on Roblox
+      return { type: 'notFound' };
+    }
+  } catch (e) {
+    console.error('[Roblox] legacy lookup threw:', (e as Error).message);
+  }
+
+  // ── Fallback: v1 POST usernames/users ─────────────────────────────────────
+  try {
+    const res = await robloxFetch(`${ROBLOX_USERS_API}/usernames/users`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ usernames: [username], excludeBannedUsers: false }),
     });
     if (res.ok) {
       const data = await res.json() as { data: Array<{ id: number }> };
-      if (data.data.length) return String(data.data[0].id);
+      if (data.data?.length > 0) return { type: 'found', userId: String(data.data[0].id) };
+      return { type: 'notFound' };
     }
-  } catch { /* fall through */ }
+  } catch (e) {
+    console.error('[Roblox] v1 POST lookup threw:', (e as Error).message);
+  }
 
-  return null;
+  // Both endpoints failed with non-2xx — treat as API unreachable
+  return { type: 'apiError' };
 }
 
 export class RobloxController {
@@ -67,9 +88,10 @@ export class RobloxController {
       if (/^\d+$/.test(id)) {
         userId = id;
       } else {
-        const resolved = await resolveUsername(id);
-        if (!resolved) return err('Spieler nicht gefunden', 404);
-        userId = resolved;
+        const result = await resolveUsername(id);
+        if (result.type === 'notFound') return err('Spieler nicht gefunden', 404);
+        if (result.type === 'apiError') return err('Roblox-API nicht erreichbar', 502);
+        userId = result.userId;
       }
 
       // Fetch profile + thumbnail in parallel

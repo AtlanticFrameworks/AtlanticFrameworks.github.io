@@ -1,7 +1,7 @@
 import type { Env } from '../types/index.js';
 
 export function renderDocs(_env: Env): Response {
-  const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,7 @@ export function renderDocs(_env: Env): Response {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="https://media.discordapp.net/attachments/957378235891597365/1491540474031374426/BWRPNeuwebp.png?ex=69d810d0&is=69d6bf50&hm=9926d55732ec01e277859cf487aec47dfc08d1cfd0be6de0808c8eaecf339231&=&format=webp&quality=lossless">
     <script>
         tailwind.config = {
             theme: {
@@ -1360,7 +1361,7 @@ export function renderDocs(_env: Env): Response {
 </body>
 </html>`;
 
-  return new Response(html, {
-    headers: { 'Content-Type': 'text/html; charset=utf-8' },
-  });
+    return new Response(html, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    });
 }

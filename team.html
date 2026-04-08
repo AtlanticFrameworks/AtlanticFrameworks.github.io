@@ -236,11 +236,11 @@
             <i data-lucide="search"></i>
             <span>Lookup Player</span>
         </div>
-        <div class="cm-item" onclick="handleCmAction('kick')">
+        <div class="cm-item" onclick="handleCmAction('kick')" data-ingame-only>
             <i data-lucide="user-minus"></i>
             <span>Server Kick</span>
         </div>
-        <div class="cm-item" onclick="handleCmAction('ban')">
+        <div class="cm-item" onclick="handleCmAction('ban')" data-ingame-only>
             <i data-lucide="ban"></i>
             <span>Open Cloud Ban</span>
         </div>
@@ -386,6 +386,7 @@
         // ENTER DASHBOARD
         // ===================================================
         async function enterDashboard(username, rank, avatarUrl) {
+            window.currentRole = rank; // 'OWNER' | 'ADMIN' | 'MOD' | 'TRAINEE'
             try {
                 const res = await fetch('assets/fragments/dashboard.html');
                 if (!res.ok) throw new Error(`Fetch Error: ${res.status}`);
@@ -408,6 +409,9 @@
                 setTimeout(() => gate.classList.add('hidden'), 500);
                 dashboard.classList.remove('hidden');
                 dashboard.classList.add('animate-fade-in');
+
+                // Hide in-game action buttons for TRAINEE users
+                applyRoleVisibility();
 
                 // Init
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -1796,6 +1800,24 @@
     };
 
     // ====================================================
+    // ROLE HELPERS
+    // ====================================================
+
+    // Returns true for Game Moderator and above (MOD / ADMIN / OWNER).
+    // TRAINEE (Junior Administrator) is Discord/helper only — no in-game actions.
+    function canDoIngame() {
+        return ['MOD', 'ADMIN', 'OWNER'].includes(window.currentRole || '');
+    }
+
+    // Called once after the dashboard fragment loads to show/hide in-game buttons.
+    function applyRoleVisibility() {
+        const ingame = document.querySelectorAll('[data-ingame-only]');
+        ingame.forEach(el => {
+            el.style.display = canDoIngame() ? '' : 'none';
+        });
+    }
+
+    // ====================================================
     // TACTICAL CONTEXT MENU LOGIC
     // ====================================================
     let cmTarget = { id: '', username: '' };
@@ -1813,7 +1835,12 @@
         if (!menu || !title) return;
 
         title.textContent = `USER: ${username.toUpperCase()}`;
-        
+
+        // Show/hide in-game actions based on role
+        menu.querySelectorAll('[data-ingame-only]').forEach(el => {
+            el.style.display = canDoIngame() ? '' : 'none';
+        });
+
         // Position menu at cursor
         menu.style.display = 'block';
         

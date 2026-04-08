@@ -13,7 +13,7 @@ const ALLOWED_ROLES: Record<string, Role> = {
   'Teamverwaltung':       'ADMIN',
   'Head Administrator':   'ADMIN',
   'Administrator':        'ADMIN',
-  'Junior Administrator': 'MOD',
+  'Junior Administrator': 'TRAINEE',
   'Head Game Moderator':  'MOD',
   'Game Moderator':       'MOD',
 };
