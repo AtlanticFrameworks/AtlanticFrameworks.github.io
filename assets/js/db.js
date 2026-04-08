@@ -1,63 +1,35 @@
-// db.js - Supabase Database Handler
+// db.js - Backend Data Handler (Pure JS / PHP Migration)
 
-// --- CONFIGURATION ---
-// TODO: Replace these with your actual Supabase credentials
-const SUPABASE_URL = 'https://yhqfnjbukyosfhytsojo.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocWZuamJ1a3lvc2ZoeXRzb2pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyMjYzMzAsImV4cCI6MjA4MzgwMjMzMH0.OKBMh8sEn5IiLXkdD_PSTRDvgcEnbtJc8bsyaedFsqU';
-
-// Initialize Client
-let supabaseClient = null;
-
-if (typeof createClient !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
-    supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log("Supabase Client Initialized");
-} else if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function' && SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log("Supabase Client Initialized (via window.supabase)");
-} else {
-    console.warn("Supabase credentials missing or library not loaded.");
-}
-
-// --- FUNCTIONS ---
+// --- MOCK OR BACKEND FETCHING ---
 
 /**
- * Fetches the latest server status from the 'server_status' table.
- * If credentials are missing, returns mock data.
+ * Fetches the latest server status.
+ * Future: Update this to fetch from a local PHP endpoint (e.g. /api/status.php)
  */
 async function fetchServerStatus() {
-    if (!supabaseClient) return getMockStatus();
-
-    const { data, error } = await supabaseClient
-        .from('server_status')
-        .select('*')
-        .order('id', { ascending: true });
-
-    if (error) {
-        console.error("Error fetching status:", error);
-        return getMockStatus();
+    try {
+        // Uncomment below to fetch from PHP backend once implemented:
+        // const res = await fetch('/api/status.php');
+        // if(res.ok) return await res.json();
+    } catch(e) {
+        console.error("Status fetch logic not yet implemented or failed", e);
     }
-
-    return data;
+    return getMockStatus();
 }
 
 /**
- * Fetches the latest 5 activity logs.
+ * Fetches the latest activity logs.
+ * Future: Update this to fetch from a local PHP endpoint (e.g. /api/activity.php)
  */
 async function fetchActivityLogs() {
-    if (!supabaseClient) return getMockActivity();
-
-    const { data, error } = await supabaseClient
-        .from('activity_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-    if (error) {
-        console.error("Error fetching activity:", error);
-        return getMockActivity();
+    try {
+        // Uncomment below to fetch from PHP backend once implemented:
+        // const res = await fetch('/api/activity.php');
+        // if(res.ok) return await res.json();
+    } catch(e) {
+        console.error("Activity fetch logic not yet implemented or failed", e);
     }
-
-    return data;
+    return getMockActivity();
 }
 
 // --- MOCK DATA FALLBACKS ---
@@ -65,19 +37,21 @@ function getMockStatus() {
     return [
         { service: 'Roblox API', status: 'OPERATIONAL' },
         { service: 'Discord Bot', status: 'ONLINE' },
-        { service: 'Database', status: 'SYNCED (Mock)' }
+        { service: 'Database', status: 'SYNCED (Local)' }
     ];
 }
 
 function getMockActivity() {
     return [
-        { user: 'System', action: 'Database', details: 'Waiting for connection...', created_at: new Date().toISOString() }
+        { user: 'System', action: 'System Init', details: 'Initialized PHP local mode', created_at: new Date().toISOString() }
     ];
 }
 
 // --- INITIALIZATION ---
+let syncInterval = null;
+
 async function initDatabase() {
-    if (!supabaseClient) return;
+    console.log("Initializing local data syncing...");
 
     // Initial Fetch
     const statusData = await fetchServerStatus();
@@ -86,26 +60,15 @@ async function initDatabase() {
     const activityData = await fetchActivityLogs();
     updateActivityUI(activityData);
 
-    // Realtime Subscription
-    supabaseClient
-        .channel('public:server_status')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'server_status' }, payload => {
-            console.log('Status Update:', payload);
-            fetchServerStatus().then(updateStatusUI);
-        })
-        .subscribe();
-
-    supabaseClient
-        .channel('public:activity_logs')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, payload => {
-            console.log('New Activity:', payload);
-            fetchActivityLogs().then(updateActivityUI);
-        })
-        .subscribe();
+    // Simulated Realtime Polling (Replacing Supabase Websockets)
+    if(syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(async () => {
+        updateStatusUI(await fetchServerStatus());
+        updateActivityUI(await fetchActivityLogs());
+    }, 15000); // Poll every 15 seconds
 }
 
-// UI Updaters (To be implemented or hooked into dashboard.html)
-// UI Updaters
+// --- UI UPDATERS ---
 function updateStatusUI(data) {
     if (!data) return;
 
@@ -120,7 +83,7 @@ function updateStatusUI(data) {
             el.textContent = item.status;
             // Update Color
             el.className = 'font-bold';
-            if (item.status === 'OPERATIONAL' || item.status === 'ONLINE' || item.status === 'SYNCED') {
+            if (item.status === 'OPERATIONAL' || item.status === 'ONLINE' || item.status.includes('SYNCED')) {
                 el.classList.add('text-green-500');
             } else if (item.status === 'OFFLINE') {
                 el.classList.add('text-red-500');

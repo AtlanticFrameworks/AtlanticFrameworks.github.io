@@ -488,9 +488,9 @@
             showStatus("EXCHANGING SECURE TOKEN...", 'loading');
 
             try {
-                // 1. Process OAuth code via Supabase Edge Function
+                // 1. Process OAuth code via local PHP backend
                 const redirectUri = 'https://bwrp.net/team';
-                const res = await fetch('https://yhqfnjbukyosfhytsojo.supabase.co/functions/v1/roblox-oauth', {
+                const res = await fetch('/oauth.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code, redirect_uri: redirectUri })
