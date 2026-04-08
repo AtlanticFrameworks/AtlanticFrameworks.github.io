@@ -58,8 +58,7 @@
                         'glitch':     'glitch 1s linear infinite',
                     }
                 }
-            }
-        }
+        };
     </script>
 
     <style>
@@ -346,6 +345,13 @@
     <script src="assets/js/db.js"></script>
 
     <script>
+        // ===================================================
+        // DOM ELEMENTS & GLOBALS
+        // ===================================================
+        const gate      = document.getElementById('login-gate');
+        const dashboard = document.getElementById('dashboard');
+        const statusMsg = document.getElementById('status-msg');
+
         // ===================================================
         // INITIALIZATION
         // ===================================================
