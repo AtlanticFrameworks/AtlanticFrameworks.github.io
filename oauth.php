@@ -12,10 +12,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // ----------------------------------------------------
-// TODO: INSERT YOUR ROBLOX CLIENT SECRET HERE
+// FETCH ROBLOX CLIENT SECRET FROM ENVIRONMENT
 // ----------------------------------------------------
-$clientSecret = "ADD_YOUR_ROBLOX_CLIENT_SECRET_HERE"; 
-// ----------------------------------------------------
+$clientSecret = getenv('ROBLOX_AUTH_SECRET');
+if (!$clientSecret) {
+    $clientSecret = getenv('ROBLOX_CLIENT_SECRET'); // Fallback naming
+}
+
+if (!$clientSecret) {
+    http_response_code(500);
+    echo json_encode([
+        "error" => "Server missing configuration: ROBLOX_AUTH_SECRET is not set.",
+        "hint" => "Ensure the environment variable is configured on your server."
+    ]);
+    exit;
+}
 
 $inputSource = file_get_contents('php://input');
 $body = json_decode($inputSource, true);
@@ -29,18 +40,6 @@ if (!$body || !isset($body['code'])) {
 $client_id = isset($body['client_id']) ? $body['client_id'] : '1185800266267472506';
 $code = $body['code'];
 $redirect_uri = isset($body['redirect_uri']) ? $body['redirect_uri'] : 'https://bwrp.net/team';
-
-if ($clientSecret === "ADD_YOUR_ROBLOX_CLIENT_SECRET_HERE") {
-    // Attempt to read from env if available as a fallback
-    $envSecret = getenv('ROBLOX_AUTH_SECRET');
-    if ($envSecret) {
-        $clientSecret = $envSecret;
-    } else {
-        http_response_code(500);
-        echo json_encode(["error" => "Server missing Client Secret configuration. Please edit oauth.php"]);
-        exit;
-    }
-}
 
 // 1. Exchange Code for Access Token
 $tokenUrl = "https://apis.roblox.com/oauth/v1/token";

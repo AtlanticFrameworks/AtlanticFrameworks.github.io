@@ -1064,14 +1064,7 @@
             if (lastTab && document.getElementById(`tab-${lastTab}`)) showTab(lastTab);
         };
 
-        // ===================================================
-        // ROBLOX OAUTH FLOW
-        // ===================================================
-        function startRobloxOAuth() {
-            const CLIENT_ID = '1185800266267472506';
-            const authUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=openid profile`;
-            window.location.href = authUrl;
-        }
+    </script>
 
 
 
