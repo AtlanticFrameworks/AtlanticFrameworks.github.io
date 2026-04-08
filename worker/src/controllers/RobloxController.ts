@@ -5,14 +5,12 @@ const ROBLOX_USERS_API  = 'https://users.roblox.com/v1';
 const ROBLOX_GROUPS_API = 'https://groups.roblox.com/v1';
 const ROBLOX_GAMES_API  = 'https://games.roblox.com/v1';
 
-// Roblox's CDN/WAF blocks plain datacenter requests.
-// A browser-like User-Agent + Referer + Accept are required to pass their edge checks.
+// Neutral server-to-server headers — no Origin/Referer pointing to roblox.com,
+// as that triggers Roblox's CSRF check (they expect a .ROBLOSECURITY cookie with it).
 const ROBLOX_FETCH_HEADERS: Record<string, string> = {
   'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Accept':          'application/json, text/plain, */*',
   'Accept-Language': 'en-US,en;q=0.9',
-  'Referer':         'https://www.roblox.com/',
-  'Origin':          'https://www.roblox.com',
 };
 
 async function robloxFetch(url: string, init: RequestInit = {}): Promise<Response> {
@@ -27,6 +25,36 @@ async function robloxFetch(url: string, init: RequestInit = {}): Promise<Respons
   return res;
 }
 
+// Username → numeric ID via the legacy api.roblox.com endpoint.
+// Falls back to the v1 POST endpoint if the legacy one fails.
+// api.roblox.com uses a different IP pool and is less aggressively filtered
+// than users.roblox.com from Cloudflare datacenter egress IPs.
+async function resolveUsername(username: string): Promise<string | null> {
+  // Primary: legacy endpoint (different CDN, usually reachable from Workers)
+  try {
+    const res = await robloxFetch(`https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
+    if (res.ok) {
+      const data = await res.json() as { Id?: number; errorMessage?: string };
+      if (data.Id) return String(data.Id);
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: v1 POST endpoint
+  try {
+    const res = await robloxFetch(`https://users.roblox.com/v1/usernames/users`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ usernames: [username], excludeBannedUsers: false }),
+    });
+    if (res.ok) {
+      const data = await res.json() as { data: Array<{ id: number }> };
+      if (data.data.length) return String(data.data[0].id);
+    }
+  } catch { /* fall through */ }
+
+  return null;
+}
+
 export class RobloxController {
   // GET /api/roblox/player/:identifier  (username or numeric ID)
   static async getPlayer(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
@@ -37,19 +65,11 @@ export class RobloxController {
       let userId: string;
 
       if (/^\d+$/.test(id)) {
-        // Numeric ID
         userId = id;
       } else {
-        // Username → resolve to ID
-        const res  = await robloxFetch(`${ROBLOX_USERS_API}/usernames/users`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ usernames: [id], excludeBannedUsers: false }),
-        });
-        if (!res.ok) return err('Roblox-API nicht erreichbar', 502);
-        const data = await res.json() as { data: Array<{ id: number; name: string; displayName: string }> };
-        if (!data.data.length) return err('Spieler nicht gefunden', 404);
-        userId = String(data.data[0].id);
+        const resolved = await resolveUsername(id);
+        if (!resolved) return err('Spieler nicht gefunden', 404);
+        userId = resolved;
       }
 
       // Fetch profile + thumbnail in parallel
