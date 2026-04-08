@@ -76,7 +76,8 @@
                     <i data-lucide="gamepad-2" class="w-5 h-5"></i>
                     <span data-i18n="panel.login.btn_oauth">Log in with Roblox</span>
                 </button>
-                <p class="text-[10px] text-gray-600 mt-3"><span data-i18n="panel.login.rank_req">Requires Group Rank:</span> <span class="text-bw-gold">Game Mod+</span></p>
+                <p class="text-[10px] text-gray-600 mt-3"><span data-i18n="panel.login.rank_req">Requires Group
+                        Rank:</span> <span class="text-bw-gold">Game Mod+</span></p>
             </div>
 
             <!-- STEP 2: VERIFYING -->
@@ -465,7 +466,7 @@
 
         function startRobloxOAuth() {
             const clientId = '1185800266267472506';
-            const redirectUri = 'https://bwrp.net/team'; 
+            const redirectUri = 'https://bwrp.net/team';
             const authUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid profile`;
             window.location.href = authUrl;
         }
@@ -473,7 +474,7 @@
         async function checkOAuthCallback() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-            
+
             if (!code) return; // Not an OAuth callback
 
             // Clean up URL
@@ -484,14 +485,14 @@
             step2.classList.remove('hidden');
             statusMsg.classList.add('hidden');
             const verifyText = document.getElementById('verify-text');
-            
+
             showStatus("EXCHANGING SECURE TOKEN...", 'loading');
 
             try {
                 // 1. Process OAuth code via Cloudflare Worker backend
                 // NOTE: Replace the URL below with your own deployed Cloudflare Worker URL
                 const redirectUri = 'https://bwrp.net/team';
-                const WORKER_URL = 'https://bwrp-oauth.YOUR_SUBDOMAIN.workers.dev';
+                const WORKER_URL = 'https://bwrpauth.thatzane.workers.dev/';
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -499,7 +500,7 @@
                 });
 
                 if (!res.ok) {
-                    const errPayload = await res.json().catch(()=>({}));
+                    const errPayload = await res.json().catch(() => ({}));
                     console.error("OAuth Backend Error:", errPayload);
                     throw new Error(errPayload.error || "OAuth handshake failed");
                 }
