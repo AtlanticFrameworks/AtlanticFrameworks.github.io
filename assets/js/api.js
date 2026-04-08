@@ -95,10 +95,22 @@ class ApiClient {
     // ── Staff Endpoints ───────────────────────────────────────────────────────
 
     async getMe()       { return this.get('/staff/me'); }
+    async getStats()    { return this.get('/staff/stats'); }
     async getRoster()   { return this.get('/staff/roster'); }
     async getStatus()   { return this.get('/staff/status'); }
     async getActivity() { return this.get('/staff/activity'); }
     async getSessions() { return this.get('/staff/sessions'); }
+
+    // ── Watchlist Endpoints ───────────────────────────────────────────────────
+
+    async getWatchlist()              { return this.get('/watchlist'); }
+    async checkWatchlist(robloxId)    { return this.get(`/watchlist/check/${robloxId}`); }
+    async addToWatchlist(data)        { return this.post('/watchlist', data); }
+    async removeFromWatchlist(id)     {
+        const res = await this.fetch(`/watchlist/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await res.json(), res.status);
+        return res.json();
+    }
 
     // ── Shift Endpoints ───────────────────────────────────────────────────────
 
@@ -109,6 +121,10 @@ class ApiClient {
 
     // ── Moderation Endpoints ──────────────────────────────────────────────────
 
+    async getAllCases(params = {})     {
+        const q = new URLSearchParams(params).toString();
+        return this.get(`/moderation/all${q ? '?' + q : ''}`);
+    }
     async getPlayerCases(robloxId)    { return this.get(`/moderation/cases/${robloxId}`); }
     async createCase(data)            { return this.post('/moderation/cases', data); }
     async updateCase(caseId, patch)   { return this.patch(`/moderation/cases/${caseId}`, patch); }
@@ -119,6 +135,21 @@ class ApiClient {
     async getServers()                  { return this.get('/roblox/servers'); }
     async getGroupRoles()               { return this.get('/roblox/group/roles'); }
     async getGroupRoleUsers(roleId)     { return this.get(`/roblox/group/roles/${roleId}/users`); }
+
+    // ── Roblox Open Cloud ─────────────────────────────────────────────────────
+
+    async cloudKick(targetRobloxId, targetUsername, reason) {
+        return this.post('/cloud/kick', { targetRobloxId, targetUsername, reason });
+    }
+    async cloudBan(targetRobloxId, targetUsername, reason, displayReason, durationDays = null) {
+        return this.post('/cloud/ban', { targetRobloxId, targetUsername, reason, displayReason, durationDays });
+    }
+    async cloudUnban(targetRobloxId, targetUsername) {
+        return this.post('/cloud/unban', { targetRobloxId, targetUsername });
+    }
+    async getCloudRestriction(userId) {
+        return this.get(`/cloud/restriction/${userId}`);
+    }
 }
 
 class ApiError extends Error {

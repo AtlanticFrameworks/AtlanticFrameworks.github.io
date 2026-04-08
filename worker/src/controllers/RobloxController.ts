@@ -30,14 +30,20 @@ export class RobloxController {
         userId = String(data.data[0].id);
       }
 
-      // Fetch profile
-      const [profileRes, groupRes] = await Promise.all([
+      // Fetch profile + thumbnail in parallel
+      const [profileRes, thumbRes] = await Promise.all([
         fetch(`${ROBLOX_USERS_API}/users/${userId}`),
-        fetch(`${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles`).catch(() => null),
+        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`),
       ]);
 
       if (!profileRes.ok) return err('Spieler nicht gefunden', 404);
       const profile = await profileRes.json() as { id: number; name: string; displayName: string; description: string; created: string; isBanned: boolean };
+
+      let avatarUrl = '';
+      if (thumbRes.ok) {
+        const thumbData = await thumbRes.json() as { data: Array<{ targetId: number; imageUrl: string; state: string }> };
+        avatarUrl = thumbData.data?.[0]?.imageUrl ?? '';
+      }
 
       return json({
         id:          profile.id,
@@ -46,7 +52,7 @@ export class RobloxController {
         description: profile.description,
         created:     profile.created,
         isBanned:    profile.isBanned,
-        avatarUrl:   `https://www.roblox.com/headshot-thumbnail/image?userId=${profile.id}&width=150&height=150&format=png`,
+        avatarUrl,
         profileUrl:  `https://www.roblox.com/users/${profile.id}/profile`,
       });
     } catch (e) {
@@ -65,27 +71,47 @@ export class RobloxController {
     }
   }
 
-  // GET /api/roblox/group/roles/:roleId/users  – Members of a specific role
+  // GET /api/roblox/group/roles/:roleId/users  – Members of a specific role (with avatar URLs)
   static async getGroupRoleUsers(_request: Request, env: Env, _user: JWTPayload, params: Record<string, string>): Promise<Response> {
     try {
       const res = await fetch(
         `${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles/${params.roleId}/users?sortOrder=Asc&limit=100`,
       );
       if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502);
-      return json(await res.json());
+      const data = await res.json() as { data: Array<{ userId: number; username: string; displayName: string }> };
+      const members = data.data ?? [];
+
+      // Batch-resolve headshot thumbnails (single API call for all members)
+      const thumbnailMap: Record<number, string> = {};
+      if (members.length) {
+        try {
+          const ids = members.map(m => m.userId).join(',');
+          const thumbRes = await fetch(
+            `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${ids}&size=150x150&format=Png&isCircular=false`,
+          );
+          if (thumbRes.ok) {
+            const thumbData = await thumbRes.json() as { data: Array<{ targetId: number; imageUrl: string; state: string }> };
+            thumbData.data.forEach(t => { if (t.state === 'Completed') thumbnailMap[t.targetId] = t.imageUrl; });
+          }
+        } catch { /* thumbnails are optional */ }
+      }
+
+      return json({
+        data: members.map(m => ({ ...m, avatarUrl: thumbnailMap[m.userId] ?? null })),
+      });
     } catch (e) {
       return err('Mitglieder-API-Fehler: ' + (e as Error).message, 502);
     }
   }
 
-  // GET /api/roblox/servers  – Live server list for the configured universe
+  // GET /api/roblox/servers  – Live server list (uses Place ID, not Universe ID)
   static async getServers(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
-    const universeId = env.ROBLOX_UNIVERSE_ID;
-    if (!universeId) return err('ROBLOX_UNIVERSE_ID nicht konfiguriert', 503);
+    const placeId = env.ROBLOX_PLACE_ID;
+    if (!placeId) return err('ROBLOX_PLACE_ID nicht konfiguriert', 503);
 
     try {
       const res = await fetch(
-        `${ROBLOX_GAMES_API}/games/${universeId}/servers/Public?sortOrder=Desc&limit=25&excludeFullGames=false`,
+        `${ROBLOX_GAMES_API}/games/${placeId}/servers/Public?sortOrder=Desc&limit=25&excludeFullGames=false`,
         { headers: { Accept: 'application/json' } },
       );
       if (!res.ok) return err('Roblox-Server-API nicht erreichbar', 502);

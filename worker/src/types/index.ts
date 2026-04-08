@@ -21,7 +21,9 @@ export interface Env {
   DISCORD_WEBHOOK_URL: string;
   ALLOWED_ORIGIN:      string;
   ROBLOX_GROUP_ID:     string;
-  ROBLOX_UNIVERSE_ID:  string;   // Roblox Universe ID for server list
+  ROBLOX_UNIVERSE_ID:  string;   // Roblox Universe ID
+  ROBLOX_PLACE_ID:     string;   // Main place ID for server list
+  ROBLOX_CLOUD_KEY:    string;   // Roblox Open Cloud API Key
   ENVIRONMENT:         string;
 }
 

@@ -74,6 +74,52 @@
         .clip-br  { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
         .clip-both{ clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
 
+        /* Context Menu Styling */
+        #context-menu {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            min-width: 180px;
+            background: #111114;
+            border: 1px solid rgba(226, 168, 0, 0.4);
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            animation: cm-reveal 0.15s ease-out;
+        }
+        @keyframes cm-reveal {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .cm-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #d4d4d8;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .cm-item:hover {
+            background: rgba(226, 168, 0, 0.1);
+            color: #e2a800;
+            padding-left: 18px;
+        }
+        .cm-item i { width: 14px; height: 14px; opacity: 0.6; }
+        .cm-header {
+            padding: 8px 14px;
+            background: rgba(226, 168, 0, 0.05);
+            border-bottom: 1px solid rgba(226, 168, 0, 0.2);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            color: #e2a800;
+            letter-spacing: 0.1em;
+        }
+
         /* === HUD CORNERS === */
         .hud-corners { position: relative; }
         .hud-corners::before,
@@ -182,6 +228,111 @@
     </div>
 
     <!-- ================================================
+         TACTICAL CONTEXT MENU
+    ================================================= -->
+    <div id="context-menu" class="clip-both">
+        <div class="cm-header" id="cm-user-title">USER: UNKNOWN</div>
+        <div class="cm-item" onclick="handleCmAction('lookup')">
+            <i data-lucide="search"></i>
+            <span>Lookup Player</span>
+        </div>
+        <div class="cm-item" onclick="handleCmAction('kick')">
+            <i data-lucide="user-minus"></i>
+            <span>Server Kick</span>
+        </div>
+        <div class="cm-item" onclick="handleCmAction('ban')">
+            <i data-lucide="ban"></i>
+            <span>Open Cloud Ban</span>
+        </div>
+        <div class="cm-item" onclick="handleCmAction('warn')">
+            <i data-lucide="zap"></i>
+            <span>Trident Warn</span>
+        </div>
+        <div class="cm-item border-none text-tac-red hover:bg-tac-red/10" onclick="closeCm()">
+            <i data-lucide="x"></i>
+            <span>Schließen</span>
+        </div>
+    </div>
+
+    <!-- ================================================
+         BROADCAST MODAL
+    ================================================= -->
+    <div id="broadcast-modal" class="fixed inset-0 z-[9500] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-sm" onclick="closeBroadcastModal()"></div>
+        <div class="relative bg-tac-panel border border-tac-red/40 shadow-2xl w-full max-w-md mx-4 p-6">
+            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-red to-transparent opacity-50"></div>
+            <div class="flex items-center gap-3 mb-6 border-b border-tac-border pb-4">
+                <i data-lucide="radio" class="w-5 h-5 text-tac-red"></i>
+                <h3 class="font-display font-bold text-white uppercase tracking-wider">Globaler Broadcast</h3>
+                <span class="ml-auto font-mono text-[9px] text-tac-red border border-tac-red/30 px-2 py-0.5">ALLE SERVER</span>
+            </div>
+            <p class="font-mono text-xs text-tac-muted mb-4 uppercase">Nachricht wird an alle aktiven Spielserver gesendet und erscheint im Chat aller Spieler.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Nachricht</label>
+                    <textarea id="broadcast-msg" rows="4" placeholder="Systemnachricht eingeben..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors resize-none"></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeBroadcastModal()"
+                        class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white transition-colors">ABBRECHEN</button>
+                    <button onclick="sendBroadcast()"
+                        class="flex-1 font-mono text-xs py-2.5 bg-tac-red text-white font-bold hover:bg-red-400 transition-colors uppercase flex items-center justify-center gap-2">
+                        <i data-lucide="radio" class="w-3.5 h-3.5"></i> SENDEN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         CLOUD BAN MODAL
+    ================================================= -->
+    <div id="cloud-ban-modal" class="fixed inset-0 z-[9500] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-sm" onclick="closeCloudBanModal()"></div>
+        <div class="relative bg-tac-panel border border-tac-red/60 shadow-2xl w-full max-w-lg mx-4 p-6">
+            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-red to-transparent"></div>
+            <div class="flex items-center gap-3 mb-6 border-b border-tac-border pb-4">
+                <i data-lucide="ban" class="w-5 h-5 text-tac-red"></i>
+                <h3 class="font-display font-bold text-white uppercase tracking-wider">Ingame-Bann (Open Cloud)</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-tac-red/10 border border-tac-red/20 p-3 font-mono text-xs text-tac-red">
+                    ⚠ Dieser Bann sperrt den Spieler nativ auf Roblox-Ebene (kein Bypass möglich).
+                </div>
+                <div class="bg-tac-dark border border-tac-border p-3 flex items-center gap-3" id="cloud-ban-player-info">
+                    <i data-lucide="user" class="w-5 h-5 text-tac-muted"></i>
+                    <span class="font-mono text-sm text-white" id="cloud-ban-username">–</span>
+                    <span class="font-mono text-xs text-tac-muted ml-auto" id="cloud-ban-id">–</span>
+                </div>
+                <div>
+                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Interner Grund (für Logs)</label>
+                    <input type="text" id="cloud-ban-reason" placeholder="z.B. Exploiting, Cheating, RDM x3..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Angezeigte Begründung (sieht der Spieler)</label>
+                    <input type="text" id="cloud-ban-display-reason" placeholder="z.B. Verstoß gegen Community-Regeln"
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Dauer in Tagen (leer = Permanent)</label>
+                    <input type="number" id="cloud-ban-duration" placeholder="z.B. 7 (leer lassen für Permban)"
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeCloudBanModal()"
+                        class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white transition-colors">ABBRECHEN</button>
+                    <button onclick="executeCloudBan()"
+                        class="flex-1 font-mono text-xs py-2.5 bg-tac-red text-white font-bold hover:bg-red-400 transition-colors uppercase flex items-center justify-center gap-2">
+                        <i data-lucide="ban" class="w-3.5 h-3.5"></i> BANN DURCHFÜHREN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
          MAIN DASHBOARD (dynamisch geladen)
     ================================================= -->
     <div id="dashboard" class="hidden h-screen w-full flex"></div>
@@ -190,137 +341,39 @@
          SCRIPTS
     ================================================= -->
     <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/db.js"></script>
+
     <script>
         // ===================================================
-        // CONFIGURATION
-        // ===================================================
-        const GROUP_ID = 34246821;
-        const ALLOWED_ROLES = [
-            "Group Owner", "Ownership Team", "Projektleitung", "Projektverwaltung", "Management",
-            "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
-            "Head Game Moderator", "Game Moderator"
-        ];
-        const REDIRECT_URI = 'https://bwrp.net/team';
-
-        // ===================================================
-        // DOM ELEMENTS
-        // ===================================================
-        const gate      = document.getElementById('login-gate');
-        const step1     = document.getElementById('step-1');
-        const step2     = document.getElementById('step-2');
-        const statusMsg = document.getElementById('status-msg');
-        const dashboard = document.getElementById('dashboard');
-
-        // ===================================================
-        // TYPEWRITER ON LOAD
+        // INITIALIZATION
         // ===================================================
         (function() {
+            // Typewriter effect for login gate
             const text = 'SICHERER TERMINAL // ZUGANG BESCHRÄNKT';
             const el = document.getElementById('typewriter-el');
-            el.textContent = '';
-            let i = 0;
-            function type() {
-                if (i < text.length) { el.textContent += text[i++]; setTimeout(type, 45); }
+            if (el) {
+                el.textContent = '';
+                let i = 0;
+                function type() {
+                    if (i < text.length) { el.textContent += text[i++]; setTimeout(type, 45); }
+                }
+                setTimeout(type, 600);
             }
-            setTimeout(type, 600);
+            
+            // Initialization
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                if (typeof auth !== 'undefined') {
+                    auth.checkOAuthCallback();
+                    auth.checkSession();
+                }
+            });
         })();
 
-        // Initialize icons
-        lucide.createIcons();
+        // =/api.js already loaded above
 
-        // ===================================================
-        // TOAST NOTIFICATION SYSTEM
-        // ===================================================
-        function showToast(message, type = 'info', duration = 3500) {
-            const container = document.getElementById('toast-container');
-            const id = 'toast-' + Date.now();
-
-            const colorMap = {
-                success: 'border-tac-green text-tac-green bg-tac-card',
-                error:   'border-tac-red   text-tac-red   bg-tac-card',
-                info:    'border-tac-amber text-tac-amber bg-tac-card',
-                warn:    'border-yellow-500 text-yellow-400 bg-tac-card',
-            };
-            const iconMap = {
-                success: 'circle-check',
-                error:   'circle-x',
-                info:    'info',
-                warn:    'triangle-alert',
-            };
-
-            const toast = document.createElement('div');
-            toast.id = id;
-            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 border font-mono text-xs max-w-xs backdrop-blur-sm animate-slide-in-r ${colorMap[type] || colorMap.info}`;
-            toast.innerHTML = `<i data-lucide="${iconMap[type] || 'info'}" class="w-4 h-4 flex-shrink-0"></i><span>${message}</span>`;
-
-            container.appendChild(toast);
-            lucide.createIcons({ nodes: [toast] });
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOutR 0.3s ease-in forwards';
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-
-        // ===================================================
-        // SESSION MANAGEMENT
-        // ===================================================
-        function saveSession(data) {
-            localStorage.setItem('atlantic_staff_session', JSON.stringify({ ...data, timestamp: Date.now() }));
-        }
-
-        async function checkSession() {
-            const raw = localStorage.getItem('atlantic_staff_session');
-            if (!raw) return;
-            try {
-                const session = JSON.parse(raw);
-                // Validate cookie with server; auto-refreshes token if needed
-                let meData = null;
-                try {
-                    const res = await window.api.getMe();
-                    meData = res.user;
-                } catch(e) {
-                    if (e?.status === 401) return; // api client already called logout()
-                    // Network/server error – fall back to localStorage for offline resilience
-                    const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-                    if (Date.now() - session.timestamp > ONE_WEEK) { logout(); return; }
-                    enterDashboard(session.username, session.rank, session.avatarUrl);
-                    return;
-                }
-                enterDashboard(
-                    meData.username ?? session.username,
-                    (meData.role ?? session.rank).toUpperCase(),
-                    meData.avatar_url ?? session.avatarUrl,
-                );
-            } catch(e) {
-                localStorage.removeItem('atlantic_staff_session');
-            }
-        }
-
-        function logout() {
-            window.api?.logout?.().catch(() => {});
-            localStorage.removeItem('atlantic_staff_session');
-            if (isShiftActive) stopShift(true);
-            dashboard.classList.add('hidden');
-            dashboard.innerHTML = '';
-            gate.classList.remove('hidden');
-            gate.style.opacity = '1';
-            step1.classList.remove('hidden');
-            step2.classList.add('hidden');
-            statusMsg.classList.add('hidden');
-        }
-
-        // ===================================================
-        // UI HELPERS
-        // ===================================================
-        function showStatus(msg, type = 'neutral') {
-            statusMsg.textContent = msg;
-            statusMsg.classList.remove('hidden', 'text-tac-red', 'text-tac-green', 'text-tac-amber', 'text-zinc-400', 'animate-pulse');
-            const map = { error: 'text-tac-red', success: 'text-tac-green', loading: ['text-tac-amber', 'animate-pulse'] };
-            if (Array.isArray(map[type])) map[type].forEach(c => statusMsg.classList.add(c));
-            else if (map[type]) statusMsg.classList.add(map[type]);
-            else statusMsg.classList.add('text-zinc-400');
-        }
 
         // ===================================================
         // ENTER DASHBOARD
@@ -353,6 +406,8 @@
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 startClock();
                 if (typeof initDashboardListeners === 'function') initDashboardListeners();
+                if (typeof initDatabase === 'function') initDatabase().catch(e => console.error('DB Fehler:', e));
+                if (typeof loadMyStats === 'function') loadMyStats();
                 if (!staffLoaded && typeof loadStaffHierarchy === 'function') {
                     loadStaffHierarchy().catch(e => console.error('Staff Fehler:', e));
                     if (typeof loadAnnouncements === 'function') loadAnnouncements();
@@ -400,6 +455,12 @@
             const btn = document.querySelector(`.nav-btn[data-tab="${tabId}"]`);
             if (btn) { btn.classList.remove('text-zinc-500'); btn.classList.add('text-tac-amber', 'nav-active'); }
 
+            // Persist active tab
+            localStorage.setItem('bwrp_active_tab', tabId);
+
+            // Auto-focus quickmod search
+            if (tabId === 'quickmod') setTimeout(() => document.getElementById('lookup-input')?.focus(), 100);
+
             // Mobile: close sidebar
             const sidebar = document.getElementById('sidebar');
             if (sidebar && window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
@@ -414,8 +475,13 @@
         // STAFF HIERARCHY CONFIG
         // ===================================================
         const HIERARCHY_CONFIG = [
-            { containerId: 'container-pr', tierLabel: 'KOMMANDO', tierColor: '#ef4444', roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'] },
-            { containerId: 'container-hr', tierLabel: 'AUFSICHT', tierColor: '#e2a800', roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'] },
+            {
+                containerId: 'container-pr', tierLabel: 'KOMMANDO', tierColor: '#ef4444',
+                roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'],
+                // Merge these role names into one card block
+                combineGroups: [{ displayName: 'Ownership Team', roleNames: ['Group Owner', 'Ownership Team'] }],
+            },
+            { containerId: 'container-hr', tierLabel: 'AUFSICHT',  tierColor: '#e2a800', roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'] },
             { containerId: 'container-mr', tierLabel: 'FELD-TEAM', tierColor: '#10b981', roles: ['Head Game Moderator', 'Game Moderator'] },
         ];
         let staffLoaded = false;
@@ -430,6 +496,8 @@
             grid.classList.add('hidden');
             if (search) search.classList.add('hidden');
 
+            const AVATAR_FALLBACK = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4=';
+
             try {
                 const rolesData = await window.api.getGroupRoles();
                 if (!rolesData?.roles) throw new Error('Ungültige Rollen-Daten');
@@ -441,44 +509,67 @@
                     container.innerHTML = '';
                     const categoryRoles = rolesData.roles.filter(r => config.roles.includes(r.name));
 
+                    // Fetch all members first, then render (allows merging)
+                    const roleMembersMap = {};
                     for (const role of categoryRoles) {
+                        await delay(200);
                         try {
-                            await delay(200);
-                            const membersData = await window.api.getGroupRoleUsers(role.id);
-                            const members = membersData.data || [];
-                            if (!members.length) continue;
+                            const data = await window.api.getGroupRoleUsers(role.id);
+                            roleMembersMap[role.name] = data.data || [];
+                        } catch { roleMembersMap[role.name] = []; }
+                    }
 
-                            const block = document.createElement('div');
-                            block.className = 'mb-4';
-                            block.innerHTML = `
-                                <div class="bg-tac-dark border-l-2 border-[${config.tierColor}] px-3 py-2 mb-2 flex items-center justify-between">
-                                    <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">${role.name}</span>
-                                    <span class="font-mono text-[10px] text-tac-muted">${members.length} OPS</span>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                    ${members.map(m => `
-                                        <div class="user-card group flex items-center gap-2 bg-tac-dark border border-tac-border p-2 hover:border-[${config.tierColor}]/60 transition-all cursor-default relative">
-                                            <div class="w-9 h-9 bg-zinc-800 border border-tac-border overflow-hidden flex-shrink-0">
-                                                <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${m.userId}&width=150&height=150&format=png"
-                                                     class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 transition-all"
-                                                     loading="lazy"
-                                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4='">
-                                            </div>
-                                            <div class="overflow-hidden flex-1">
-                                                <p class="user-name font-mono text-[11px] font-bold text-zinc-200 truncate">${m.username}</p>
-                                                <p class="font-mono text-[9px] text-tac-muted">ID: ${m.userId}</p>
-                                            </div>
-                                            <a href="https://www.roblox.com/users/${m.userId}/profile" target="_blank"
-                                               class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-tac-muted hover:text-tac-amber"
-                                               title="Profil öffnen">
-                                                <i data-lucide="external-link" class="w-3 h-3"></i>
-                                            </a>
+                    // Render with optional group merging
+                    const rendered = new Set();
+                    for (const role of categoryRoles) {
+                        if (rendered.has(role.name)) continue;
+                        let members = roleMembersMap[role.name] || [];
+                        let displayName = role.name;
+
+                        if (config.combineGroups) {
+                            for (const grp of config.combineGroups) {
+                                if (grp.roleNames.includes(role.name)) {
+                                    members = grp.roleNames.flatMap(rn => roleMembersMap[rn] || []);
+                                    displayName = grp.displayName;
+                                    grp.roleNames.forEach(rn => rendered.add(rn));
+                                    break;
+                                }
+                            }
+                        }
+                        rendered.add(role.name);
+                        if (!members.length) continue;
+
+                        const block = document.createElement('div');
+                        block.className = 'mb-4';
+                        block.innerHTML = `
+                            <div class="bg-tac-dark border-l-2 border-[${config.tierColor}] px-3 py-2 mb-2 flex items-center justify-between">
+                                <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">${displayName}</span>
+                                <span class="font-mono text-[10px] text-tac-muted">${members.length} OPS</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                ${members.map(m => `
+                                    <div class="user-card group flex items-center gap-2 bg-tac-dark border border-tac-border p-2 hover:border-[${config.tierColor}]/60 transition-all cursor-default relative"
+                                         data-user-id="${m.userId}" data-username="${m.username}">
+                                        <div class="w-9 h-9 bg-zinc-800 border border-tac-border overflow-hidden flex-shrink-0">
+                                            <img src="${m.avatarUrl || AVATAR_FALLBACK}"
+                                                 class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 transition-all"
+                                                 loading="lazy"
+                                                 onerror="this.src='${AVATAR_FALLBACK}'">
                                         </div>
-                                    `).join('')}
-                                </div>
-                            `;
-                            container.appendChild(block);
-                        } catch(err) { console.warn('Mitglieder-Ladefehler:', role.name, err); }
+                                        <div class="overflow-hidden flex-1">
+                                            <p class="user-name font-mono text-[11px] font-bold text-zinc-200 truncate">${m.username}</p>
+                                            <p class="font-mono text-[9px] text-tac-muted">ID: ${m.userId}</p>
+                                        </div>
+                                        <a href="https://www.roblox.com/users/${m.userId}/profile" target="_blank"
+                                           class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-tac-muted hover:text-tac-amber"
+                                           title="Profil öffnen">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                        </a>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        container.appendChild(block);
                     }
                 }
                 staffLoaded = true;
@@ -601,7 +692,11 @@
         };
 
         window.stopShift = function(force = false) {
-            if (!force && !confirm('Schicht wirklich beenden? Die Zeit wird zurückgesetzt.')) return;
+            if (!force) { showConfirm('Schicht wirklich beenden?', 'Die Zeit und Metriken werden zurückgesetzt.', _doStopShift); return; }
+            _doStopShift();
+        };
+
+        function _doStopShift() {
 
             // Persist shift metrics to D1 before resetting
             if (shiftStartTime) {
@@ -964,6 +1059,9 @@
             // Initial checklist state
             const fill = document.getElementById('checklist-fill');
             if (fill) toggleChecklist();
+            // Restore last active tab
+            const lastTab = localStorage.getItem('bwrp_active_tab');
+            if (lastTab && document.getElementById(`tab-${lastTab}`)) showTab(lastTab);
         };
 
         // ===================================================
@@ -975,46 +1073,35 @@
             window.location.href = authUrl;
         }
 
-        async function checkOAuthCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            if (!code) return;
-            window.history.replaceState({}, document.title, window.location.pathname);
 
-            step1.classList.add('hidden');
-            step2.classList.remove('hidden');
-            showStatus('TOKEN WIRD AUSGETAUSCHT...', 'loading');
 
-            try {
-                // Exchange OAuth code via Worker – role check & session creation happen server-side
-                const { ok, data } = await window.api.login(code, REDIRECT_URI);
-                if (!ok) throw new Error(data?.error || 'OAuth-Handshake fehlgeschlagen');
-                if (!data.success || !data.user) throw new Error('Ungültige OAuth-Antwort');
-
-                const { id: targetUserId, username: targetUsername, role: userRole, avatarUrl } = data.user;
-
-                showStatus('ZUGRIFF GEWÄHRT. WILLKOMMEN.', 'success');
-                document.getElementById('verify-text').textContent = 'ZUGRIFF GEWÄHRT';
-                saveSession({ userId: targetUserId, username: targetUsername, rank: userRole.toUpperCase(), avatarUrl });
-                setTimeout(() => enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl), 1000);
-            } catch(err) {
-                console.error('OAuth-Fehler:', err);
-                showStatus('ANMELDUNG FEHLGESCHLAGEN: ' + (err.message || 'Unbekannter Fehler'), 'error');
-                resetLoginDelay();
-            }
-        }
-
-        function resetLoginDelay() {
-            setTimeout(() => {
-                step2.classList.add('hidden');
-                step1.classList.remove('hidden');
-                statusMsg.classList.add('hidden');
-            }, 4000);
-        }
-    </script>
-
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/db.js"></script>
+    <!-- ================================================
+         STYLED CONFIRM MODAL
+    ================================================= -->
+    <div id="confirm-modal" class="fixed inset-0 z-[9100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeConfirm()"></div>
+        <div class="relative bg-tac-panel border border-tac-border shadow-2xl w-full max-w-sm mx-4 p-6">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-10 h-10 border border-tac-red/40 bg-tac-red/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-tac-red"></i>
+                </div>
+                <div>
+                    <p id="confirm-title" class="font-display font-bold text-white uppercase tracking-wider"></p>
+                    <p id="confirm-body"  class="font-mono text-xs text-tac-muted mt-1"></p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeConfirm()"
+                    class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white hover:border-zinc-500 transition-colors">
+                    ABBRECHEN
+                </button>
+                <button id="confirm-ok"
+                    class="flex-1 font-mono text-xs py-2.5 border border-tac-red/60 bg-tac-red/10 text-tac-red hover:bg-tac-red hover:text-black transition-colors font-bold">
+                    BESTÄTIGEN
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ================================================
          COMMAND PALETTE OVERLAY (Ctrl+K)
@@ -1051,6 +1138,124 @@
 
     <script>
     // ====================================================
+    // STYLED CONFIRM MODAL
+    // ====================================================
+    function showConfirm(title, body, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        if (!modal) { onConfirm(); return; }
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-body').textContent  = body;
+        document.getElementById('confirm-ok').onclick = () => { closeConfirm(); onConfirm(); };
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
+    }
+
+    function closeConfirm() {
+        const modal = document.getElementById('confirm-modal');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+    }
+
+    // ====================================================
+    // CASE BROWSER (FALLAKTEN TAB)
+    // ====================================================
+    const CASE_BADGE = {
+        WARN:    'border-yellow-500/60 text-yellow-400 bg-yellow-500/10',
+        KICK:    'border-orange-400/60 text-orange-400 bg-orange-400/10',
+        BAN:     'border-tac-red/60    text-tac-red    bg-tac-red/10',
+        PERMBAN: 'border-red-900/60    text-red-500    bg-red-900/10',
+    };
+
+    let _caseFilter   = { type: '', search: '' };
+    let _caseOffset   = 0;
+    let _caseDebounce = null;
+
+    window.setCaseFilter = function(key, value) {
+        _caseFilter[key] = value;
+        _caseOffset      = 0;
+        // Update active filter button style
+        ['all','warn','kick','ban','perm'].forEach(k => {
+            const btn = document.getElementById(`cf-${k}`);
+            if (btn) btn.classList.remove('border-tac-red','text-tac-red','bg-tac-red/10');
+        });
+        const map = { '': 'all', WARN: 'warn', KICK: 'kick', BAN: 'ban', PERMBAN: 'perm' };
+        const activeId = `cf-${map[value] || 'all'}`;
+        const activeBtn = document.getElementById(activeId);
+        if (activeBtn) activeBtn.classList.add('border-tac-red','text-tac-red','bg-tac-red/10');
+        loadCaseBrowser(true);
+    };
+
+    window.debounceCaseSearch = function() {
+        clearTimeout(_caseDebounce);
+        _caseDebounce = setTimeout(() => {
+            _caseFilter.search = document.getElementById('cases-search')?.value || '';
+            _caseOffset = 0;
+            loadCaseBrowser(true);
+        }, 400);
+    };
+
+    window.loadCaseBrowser = async function(reset = true, append = false) {
+        const listEl    = document.getElementById('cases-list');
+        const loadingEl = document.getElementById('cases-loading');
+        const moreEl    = document.getElementById('cases-load-more');
+        const badgeEl   = document.getElementById('cases-total-badge');
+        if (!listEl) return;
+
+        if (reset) { _caseOffset = 0; listEl.innerHTML = ''; }
+        if (append) _caseOffset += 50;
+
+        loadingEl?.classList.remove('hidden');
+        moreEl?.classList.add('hidden');
+
+        try {
+            const params = { limit: 50, offset: _caseOffset };
+            if (_caseFilter.type)   params.type   = _caseFilter.type;
+            if (_caseFilter.search) params.search = _caseFilter.search;
+
+            const { cases, total } = await window.api.getAllCases(params);
+
+            loadingEl?.classList.add('hidden');
+
+            if (badgeEl) {
+                badgeEl.classList.remove('hidden');
+                document.getElementById('cases-total-count').textContent = total;
+            }
+
+            if (!cases.length && !append) {
+                listEl.innerHTML = '<div class="text-center py-12 font-mono text-sm text-tac-muted">KEINE EINTRÄGE GEFUNDEN</div>';
+                return;
+            }
+
+            cases.forEach(c => {
+                const badge   = CASE_BADGE[c.type] || 'border-tac-border text-tac-muted bg-transparent';
+                const date    = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '?';
+                const dur     = c.duration_days ? ` · ${c.duration_days}d` : '';
+                const row     = document.createElement('div');
+                row.className = 'flex items-start gap-3 bg-tac-panel border border-tac-border p-3 hover:border-zinc-600 transition-colors';
+                row.innerHTML = `
+                    <span class="font-mono text-[9px] font-bold px-2 py-1 border flex-shrink-0 uppercase mt-0.5 ${badge}">${c.type}${dur}</span>
+                    <div class="flex-1 overflow-hidden">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <span class="font-mono text-sm font-bold text-white">${c.target_username}</span>
+                            <span class="font-mono text-[10px] text-tac-muted">${c.incident_id}</span>
+                            ${c.active ? '<span class="font-mono text-[9px] text-tac-red border border-tac-red/30 px-1">AKTIV</span>' : ''}
+                        </div>
+                        <p class="font-mono text-xs text-zinc-400 mt-0.5 truncate">${c.reason}</p>
+                        <p class="font-mono text-[9px] text-tac-muted mt-1">${date} · ${c.moderator_username ?? 'Unbekannt'}</p>
+                    </div>`;
+                listEl.appendChild(row);
+            });
+
+            if (_caseOffset + 50 < total) moreEl?.classList.remove('hidden');
+
+        } catch(e) {
+            loadingEl?.classList.add('hidden');
+            listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red">FEHLER: ${e.message}</div>`;
+        }
+    };
+
+    // ====================================================
     // COMMAND PALETTE
     // ====================================================
     const PALETTE_ACTIONS = [
@@ -1059,6 +1264,7 @@
         { label: 'Personalakte',     icon: 'users',            group: 'Navigation', action: () => showTab('roster') },
         { label: 'Aktions-Matrix',   icon: 'gavel',            group: 'Navigation', action: () => showTab('calculator') },
         { label: 'Schnellmoderator', icon: 'zap',              group: 'Navigation', action: () => showTab('quickmod') },
+        { label: 'Fallakten',        icon: 'folder-open',      group: 'Navigation', action: () => { showTab('cases'); loadCaseBrowser(); } },
         { label: 'Server Intel',     icon: 'radar',            group: 'Navigation', action: () => { showTab('radar'); loadServerIntel(); } },
         { label: 'Richtlinien',      icon: 'book-open',        group: 'Navigation', action: () => showTab('rules') },
         { label: 'Befehlsreferenz',  icon: 'terminal',         group: 'Navigation', action: () => showTab('commands') },
@@ -1208,6 +1414,129 @@
         const errDiv  = document.getElementById('radar-error');
         const emptyDiv = document.getElementById('radar-empty');
         const summary = document.getElementById('radar-summary');
+    // ====================================================
+    // STAFF STATS (MY STATS WIDGET)
+    // ====================================================
+    async function loadMyStats() {
+        try {
+            const stats = await window.api.getStats();
+            document.getElementById('stat-total-shifts').textContent = stats.total_shifts;
+            document.getElementById('stat-total-hours').textContent  = (stats.total_seconds / 3600).toFixed(1);
+            document.getElementById('stat-week-cases').textContent   = stats.week_cases;
+            document.getElementById('stat-total-bans').textContent    = stats.total_bans;
+        } catch (e) {
+            console.warn('[STATS] Fehler beim Laden:', e.message);
+        }
+    }
+
+    // ====================================================
+    // WATCHLIST LOGIC
+    // ====================================================
+    window.openAddWatchlistModal = function() {
+        const modal = document.getElementById('watchlist-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('wl-input').value = '';
+            document.getElementById('wl-reason').value = '';
+            document.getElementById('wl-input').focus();
+        }
+    };
+
+    window.closeAddWatchlistModal = function() {
+        const modal = document.getElementById('watchlist-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    };
+
+    window.submitWatchlist = async function() {
+        const input  = document.getElementById('wl-input').value.trim();
+        const reason = document.getElementById('wl-reason').value.trim();
+        if (!input || !reason) { showToast('Bitte fülle alle Felder aus.', 'warn'); return; }
+
+        try {
+            // Lookup player first to get ID/Username
+            const player = await window.api.lookupPlayer(input);
+            await window.api.addToWatchlist({
+                robloxId:       String(player.id),
+                robloxUsername: player.username,
+                reason:         reason
+            });
+            showToast('Eintrag hinzugefügt.', 'success');
+            closeAddWatchlistModal();
+            loadWatchlist();
+        } catch (e) {
+            showToast('Fehler: ' + e.message, 'error');
+        }
+    };
+
+    window.loadWatchlist = async function() {
+        const listEl    = document.getElementById('watchlist-list');
+        const loadingEl = document.getElementById('watchlist-loading');
+        const emptyEl   = document.getElementById('watchlist-empty');
+        const badgeEl   = document.getElementById('watchlist-nav-badge');
+        if (!listEl) return;
+
+        listEl.innerHTML = '';
+        loadingEl.classList.remove('hidden');
+        emptyEl.classList.add('hidden');
+
+        try {
+            const { watchlist } = await window.api.getWatchlist();
+            loadingEl.classList.add('hidden');
+
+            if (badgeEl) badgeEl.textContent = watchlist.length > 0 ? `WATCHLIST (${watchlist.length})` : 'WATCHLIST';
+
+            if (!watchlist.length) {
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            watchlist.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-tac-panel border border-tac-border p-4 flex gap-4 items-start group hover:border-yellow-500/40 transition-colors';
+                card.innerHTML = `
+                    <div class="w-12 h-12 bg-tac-dark border border-tac-border overflow-hidden flex-shrink-0">
+                        <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${item.roblox_id}&width=150&height=150&format=png" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-display font-bold text-white truncate">${item.roblox_username}</h4>
+                            <button onclick="removeFromWatchlist(${item.id})" class="text-tac-muted hover:text-tac-red transition-colors p-1" title="Entfernen">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <p class="font-mono text-[10px] text-tac-muted uppercase mb-1">ID: ${item.roblox_id}</p>
+                        <p class="font-mono text-xs text-zinc-400 break-words">${item.reason}</p>
+                    </div>`;
+                listEl.appendChild(card);
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [listEl] });
+        } catch (e) {
+            loadingEl.classList.add('hidden');
+            listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red uppercase">FEHLER BEIM LADEN</div>`;
+        }
+    };
+
+    window.removeFromWatchlist = async function(id) {
+        if (!confirm('Eintrag wirklich löschen?')) return;
+        try {
+            await window.api.removeFromWatchlist(id);
+            showToast('Eintrag entfernt.', 'success');
+            loadWatchlist();
+        } catch (e) {
+            showToast('Löschen fehlgeschlagen: ' + e.message, 'error');
+        }
+    };
+
+    window.loadServerIntel = async function() {
+        const loading = document.getElementById('radar-loading');
+        const grid    = document.getElementById('radar-grid');
+        const errDiv  = document.getElementById('radar-error');
+        const emptyDiv = document.getElementById('radar-empty');
+        const summary = document.getElementById('radar-summary');
         const refreshBtn = document.getElementById('radar-refresh-btn');
 
         if (!loading) return; // tab not loaded yet
@@ -1290,6 +1619,191 @@
             if (refreshBtn) refreshBtn.disabled = false;
         }
     };
+
+    // ====================================================
+    // ROBLOX OPEN CLOUD INTEGRATION
+    // ====================================================
+
+    window.cloudKickPlayer = async function() {
+        if (!window.lookedUpPlayer) { showToast('Zuerst einen Spieler suchen.', 'warn'); return; }
+        const { id, username } = window.lookedUpPlayer;
+        showConfirm(
+            `Spieler ${username} kicken?`,
+            `Das Kick-Signal wird via Open Cloud an alle aktiven Server gesendet.\nDer Spieler wird sofort aus dem Spiel entfernt.`,
+            async () => {
+                try {
+                    await window.api.cloudKick(String(id), username, 'Gekickt vom Staff-Panel');
+                    showToast(`✓ Kick-Signal für ${username} gesendet.`, 'success');
+                } catch (e) {
+                    showToast('Kick fehlgeschlagen: ' + e.message, 'error');
+                }
+            }
+        );
+    };
+
+    window.cloudBanPlayer = function() {
+        if (!window.lookedUpPlayer) { showToast('Zuerst einen Spieler suchen.', 'warn'); return; }
+        const { id, username } = window.lookedUpPlayer;
+        const usernameEl = document.getElementById('cloud-ban-username');
+        const idEl       = document.getElementById('cloud-ban-id');
+        if (usernameEl) usernameEl.textContent = username;
+        if (idEl)       idEl.textContent       = `ID: ${id}`;
+        document.getElementById('cloud-ban-reason').value         = '';
+        document.getElementById('cloud-ban-display-reason').value = '';
+        document.getElementById('cloud-ban-duration').value       = '';
+        const modal = document.getElementById('cloud-ban-modal');
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
+    };
+
+    window.closeCloudBanModal = function() {
+        const modal = document.getElementById('cloud-ban-modal');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+    };
+
+    window.executeCloudBan = async function() {
+        if (!window.lookedUpPlayer) return;
+        const { id, username } = window.lookedUpPlayer;
+        const reason        = document.getElementById('cloud-ban-reason').value.trim();
+        const displayReason = document.getElementById('cloud-ban-display-reason').value.trim();
+        const durationVal   = document.getElementById('cloud-ban-duration').value.trim();
+        const durationDays  = durationVal ? parseInt(durationVal, 10) : null;
+        if (!reason) { showToast('Bitte einen Grund angeben.', 'warn'); return; }
+        try {
+            await window.api.cloudBan(String(id), username, reason, displayReason || reason, durationDays);
+            showToast(`✓ ${username} wurde gesperrt${durationDays ? ` (${durationDays}d)` : ' (permanent)'}.`, 'success');
+            closeCloudBanModal();
+        } catch (e) {
+            showToast('Bann fehlgeschlagen: ' + e.message, 'error');
+        }
+    };
+
+    window.openBroadcastModal = function() {
+        const modal = document.getElementById('broadcast-modal');
+        document.getElementById('broadcast-msg').value = '';
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
+        document.getElementById('broadcast-msg').focus();
+    };
+
+    window.closeBroadcastModal = function() {
+        const modal = document.getElementById('broadcast-modal');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+    };
+
+    window.sendBroadcast = async function() {
+        const msg = document.getElementById('broadcast-msg')?.value.trim();
+        if (!msg) { showToast('Bitte eine Nachricht eingeben.', 'warn'); return; }
+        showConfirm(
+            'Broadcast an alle Server?',
+            `"${msg.substring(0, 80)}${msg.length > 80 ? '...' : ''}"\n\nDiese Nachricht wird an alle aktiven Spielserver übertragen.`,
+            async () => {
+                try {
+                    await window.api.cloudBroadcast(msg);
+                    showToast('✓ Broadcast erfolgreich gesendet.', 'success');
+                    closeBroadcastModal();
+                } catch (e) {
+                    showToast('Broadcast fehlgeschlagen: ' + e.message, 'error');
+                }
+            }
+        );
+    };
+
+    // ====================================================
+    // TACTICAL CONTEXT MENU LOGIC
+    // ====================================================
+    let cmTarget = { id: '', username: '' };
+
+    function closeCm() {
+        const menu = document.getElementById('context-menu');
+        if (menu) menu.style.display = 'none';
+    }
+
+    function openCm(e, id, username) {
+        e.preventDefault();
+        cmTarget = { id, username };
+        const menu = document.getElementById('context-menu');
+        const title = document.getElementById('cm-user-title');
+        if (!menu || !title) return;
+
+        title.textContent = `USER: ${username.toUpperCase()}`;
+        
+        // Position menu at cursor
+        menu.style.display = 'block';
+        
+        // Adjust if it goes off screen
+        let x = e.clientX;
+        let y = e.clientY;
+        const menuWidth = 180;
+        const menuHeight = 220;
+        
+        if (x + menuWidth > window.innerWidth) x -= menuWidth;
+        if (y + menuHeight > window.innerHeight) y -= menuHeight;
+        
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [menu] });
+    }
+
+    window.handleCmAction = async function(action) {
+        closeCm();
+        if (!cmTarget.id) return;
+
+        switch (action) {
+            case 'lookup':
+                showTab('quickmod');
+                const lookupInput = document.getElementById('lookup-input');
+                if (lookupInput) {
+                    lookupInput.value = cmTarget.username;
+                    lookupPlayer();
+                }
+                break;
+                
+            case 'kick':
+                window.lookedUpPlayer = { id: cmTarget.id, username: cmTarget.username };
+                cloudKickPlayer();
+                break;
+                
+            case 'ban':
+                window.lookedUpPlayer = { id: cmTarget.id, username: cmTarget.username };
+                cloudBanPlayer();
+                break;
+                
+            case 'warn':
+                showTab('calculator');
+                const calcUser = document.getElementById('calc-username');
+                if (calcUser) {
+                    calcUser.value = cmTarget.username;
+                    // Trigger calc if offense is selected
+                    if (document.getElementById('calc-offense')?.value) runCalculation();
+                }
+                break;
+        }
+    };
+
+    // Global listeners for context menu
+    document.addEventListener('contextmenu', e => {
+        const card = e.target.closest('.user-card');
+        if (card) {
+            const id = card.getAttribute('data-user-id');
+            const name = card.getAttribute('data-username');
+            if (id && name) openCm(e, id, name);
+        } else {
+            closeCm();
+        }
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#context-menu')) closeCm();
+    });
+
+    window.closeCm = closeCm;
+
     </script>
 </body>
 

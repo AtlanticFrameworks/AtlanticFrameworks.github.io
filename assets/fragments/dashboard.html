@@ -58,6 +58,18 @@
             <i data-lucide="zap" class="w-4 h-4 group-hover:text-blue-400 transition-colors"></i>
             <span class="group-hover:text-blue-400 transition-colors">SCHNELLMODERATOR</span>
         </button>
+        <button onclick="showTab('watchlist'); loadWatchlist();" data-tab="watchlist"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <i data-lucide="alert-octagon" class="w-4 h-4 group-hover:text-yellow-400 transition-colors"></i>
+            <span id="watchlist-nav-badge" class="group-hover:text-yellow-400 transition-colors">WATCHLIST</span>
+        </button>
+        <button onclick="showTab('cases'); loadCaseBrowser();" data-tab="cases"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-tac-red/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <i data-lucide="folder-open" class="w-4 h-4 group-hover:text-tac-red transition-colors"></i>
+            <span class="group-hover:text-tac-red transition-colors">FALLAKTEN</span>
+        </button>
         <button onclick="showTab('radar'); loadServerIntel();" data-tab="radar"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
             <div class="absolute inset-0 bg-tac-green/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -173,8 +185,33 @@
                     </div>
                 </div>
 
-                <!-- Right Column (Quick Actions) -->
+                <!-- Right Column (Quick Actions + My Stats) -->
                 <div class="space-y-4">
+                    <!-- My Stats Widget -->
+                    <div class="bg-tac-panel border border-tac-border p-5">
+                        <h3 class="font-display font-bold text-white uppercase tracking-wider mb-4 text-sm flex items-center gap-2">
+                            <i data-lucide="bar-chart-2" class="w-4 h-4 text-tac-amber"></i> Meine Statistiken
+                        </h3>
+                        <div id="my-stats-grid" class="grid grid-cols-2 gap-3">
+                            <div class="bg-tac-dark border border-tac-border p-3 text-center">
+                                <p class="font-display text-xl font-bold text-white" id="stat-total-shifts">–</p>
+                                <p class="font-mono text-[9px] text-tac-muted mt-1 uppercase">Schichten</p>
+                            </div>
+                            <div class="bg-tac-dark border border-tac-border p-3 text-center">
+                                <p class="font-display text-xl font-bold text-tac-amber" id="stat-total-hours">–</p>
+                                <p class="font-mono text-[9px] text-tac-muted mt-1 uppercase">Stunden Ges.</p>
+                            </div>
+                            <div class="bg-tac-dark border border-tac-border p-3 text-center">
+                                <p class="font-display text-xl font-bold text-tac-green" id="stat-week-cases">–</p>
+                                <p class="font-mono text-[9px] text-tac-muted mt-1 uppercase">Fälle (7d)</p>
+                            </div>
+                            <div class="bg-tac-dark border border-tac-border p-3 text-center">
+                                <p class="font-display text-xl font-bold text-tac-red" id="stat-total-bans">–</p>
+                                <p class="font-mono text-[9px] text-tac-muted mt-1 uppercase">Bans Ges.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-tac-amber/5 border border-tac-amber/30 p-5 clip-tl">
                         <h3
                             class="font-display font-bold text-tac-amber uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -560,7 +597,8 @@
                             Spieler-Identifikation</h3>
                         <div class="flex gap-2">
                             <input type="text" id="lookup-input" placeholder="Roblox ID oder Username..."
-                                class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                                class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                                onkeydown="if(event.key==='Enter') lookupPlayer()">
                             <button onclick="lookupPlayer()"
                                 class="bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 hover:bg-blue-500 hover:text-black transition-colors tooltip"
                                 title="Suchen">
@@ -588,6 +626,16 @@
                                     title="Roblox Profil">
                                     <i data-lucide="external-link" class="w-4 h-4"></i>
                                 </a>
+                                <button onclick="cloudKickPlayer()"
+                                    class="p-2 border border-yellow-500/30 bg-yellow-500/5 hover:bg-yellow-500/20 text-yellow-400 transition-colors"
+                                    title="Ingame Kick (Open Cloud)">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="cloudBanPlayer()"
+                                    class="p-2 border border-tac-red/30 bg-tac-red/5 hover:bg-tac-red/20 text-tac-red transition-colors"
+                                    title="Ingame Ban (Open Cloud)">
+                                    <i data-lucide="ban" class="w-4 h-4"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -727,6 +775,57 @@
         </div>
 
         <!-- ==========================================
+             TAB: FALLAKTEN (CASE BROWSER)
+        =========================================== -->
+        <div id="tab-cases" class="tab-content hidden animate-fade-in text-gray-300">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-red/30 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-tac-red uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="folder-open" class="w-6 h-6"></i> Fallakten
+                    </h2>
+                    <p class="font-mono text-xs text-tac-red/60 mt-1">ALLE MODERATIVEN EINTRÄGE AUS DER DATENBANK</p>
+                </div>
+                <div id="cases-total-badge" class="hidden font-mono text-[10px] text-tac-muted border border-tac-border px-3 py-1.5 bg-tac-panel">
+                    <span id="cases-total-count" class="text-white font-bold">0</span> Gesamteinträge
+                </div>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="flex flex-wrap gap-3 mb-5">
+                <div class="flex gap-1">
+                    <button onclick="setCaseFilter('type','')"    id="cf-all"     class="case-filter-btn active font-mono text-[10px] px-3 py-1.5 border border-tac-border bg-tac-panel hover:border-zinc-500 transition-colors">ALLE</button>
+                    <button onclick="setCaseFilter('type','WARN')"  id="cf-warn"   class="case-filter-btn font-mono text-[10px] px-3 py-1.5 border border-tac-border bg-black hover:border-yellow-500 hover:text-yellow-400 transition-colors">WARN</button>
+                    <button onclick="setCaseFilter('type','KICK')"  id="cf-kick"   class="case-filter-btn font-mono text-[10px] px-3 py-1.5 border border-tac-border bg-black hover:border-orange-400 hover:text-orange-400 transition-colors">KICK</button>
+                    <button onclick="setCaseFilter('type','BAN')"   id="cf-ban"    class="case-filter-btn font-mono text-[10px] px-3 py-1.5 border border-tac-border bg-black hover:border-tac-red hover:text-tac-red transition-colors">BAN</button>
+                    <button onclick="setCaseFilter('type','PERMBAN')" id="cf-perm" class="case-filter-btn font-mono text-[10px] px-3 py-1.5 border border-tac-border bg-black hover:border-red-800 hover:text-red-600 transition-colors">PERMBAN</button>
+                </div>
+                <div class="flex-1 min-w-40 relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-tac-muted"></i>
+                    <input type="text" id="cases-search" placeholder="Username suchen..."
+                        class="w-full bg-tac-dark border border-tac-border pl-9 pr-3 py-1.5 font-mono text-xs text-white focus:outline-none focus:border-tac-red/50 transition-colors"
+                        oninput="debounceCaseSearch()" onkeydown="if(event.key==='Enter') loadCaseBrowser(true)">
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="cases-loading" class="flex flex-col items-center justify-center py-20 hidden">
+                <i data-lucide="loader-2" class="w-10 h-10 text-tac-muted animate-spin mb-3"></i>
+                <p class="font-mono text-xs text-tac-muted">LADE AKTEN...</p>
+            </div>
+
+            <!-- Case list -->
+            <div id="cases-list" class="space-y-2"></div>
+
+            <!-- Load more -->
+            <div id="cases-load-more" class="hidden mt-6 text-center">
+                <button onclick="loadCaseBrowser(false, true)"
+                    class="font-mono text-xs text-tac-muted border border-tac-border px-6 py-2 hover:text-white hover:border-zinc-500 transition-colors bg-tac-panel">
+                    WEITERE LADEN
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================
              TAB: SERVER INTEL (RADAR)
         =========================================== -->
         <div id="tab-radar" class="tab-content hidden animate-fade-in text-gray-300">
@@ -771,6 +870,67 @@
             <!-- Server Grid -->
             <div id="radar-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <!-- cards injected by loadServerIntel() -->
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB: WATCHLIST
+        =========================================== -->
+        <div id="tab-watchlist" class="tab-content hidden animate-fade-in text-gray-300">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-yellow-500/30 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="alert-octagon" class="w-6 h-6"></i> Watchlist
+                    </h2>
+                    <p class="font-mono text-xs text-yellow-500/60 mt-1">PERSONEN UNTER BESONDERER BEOBACHTUNG</p>
+                </div>
+                <button onclick="openAddWatchlistModal()"
+                    class="bg-yellow-500/10 border border-yellow-500/50 text-yellow-400 px-4 py-2 hover:bg-yellow-500 hover:text-black transition-colors font-mono text-xs flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> EINTRAG HINZUFÜGEN
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div id="watchlist-loading" class="flex flex-col items-center justify-center py-20 hidden">
+                <i data-lucide="loader-2" class="w-10 h-10 text-tac-muted animate-spin mb-3"></i>
+                <p class="font-mono text-xs text-tac-muted">LADE VERZEICHNIS...</p>
+            </div>
+
+            <!-- List -->
+            <div id="watchlist-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- injected by loadWatchlist() -->
+            </div>
+
+            <!-- Empty -->
+            <div id="watchlist-empty" class="hidden text-center py-12">
+                <i data-lucide="check-circle" class="w-10 h-10 text-tac-muted mx-auto mb-3"></i>
+                <p class="font-mono text-sm text-tac-muted">KEINE AKTIVEN EINTRÄGE</p>
+            </div>
+        </div>
+
+        <!-- Add Modal -->
+        <div id="watchlist-modal" class="fixed inset-0 z-[9200] hidden items-center justify-center">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAddWatchlistModal()"></div>
+            <div class="relative bg-tac-panel border border-tac-border shadow-2xl w-full max-w-md mx-4 p-6">
+                <h3 class="font-display font-bold text-white uppercase tracking-wider mb-6 border-b border-tac-border pb-3">Watchlist Eintrag</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Roblox Username / ID</label>
+                        <input type="text" id="wl-input" placeholder="Wird automatisch vervollständigt..."
+                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-yellow-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Grund / Beobachtung</label>
+                        <textarea id="wl-reason" rows="3" placeholder="Warum soll diese Person beobachtet werden?"
+                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-yellow-500 outline-none transition-colors resize-none"></textarea>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="closeAddWatchlistModal()"
+                            class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white transition-colors">ABBRECHEN</button>
+                        <button onclick="submitWatchlist()"
+                            class="flex-1 font-mono text-xs py-2.5 bg-yellow-500 text-black font-bold hover:bg-yellow-400 transition-colors uppercase">SPEICHERN</button>
+                    </div>
+                </div>
             </div>
         </div>
 

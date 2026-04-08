@@ -37,6 +37,38 @@ export class StaffController {
     return json({ status: results });
   }
 
+  // GET /api/staff/stats  (aggregated stats for the current user)
+  static async stats(_request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const userId = Number(user.sub);
+    const [shiftRow, weekRow, casesRow] = await Promise.all([
+      env.DATABASE
+        .prepare(`SELECT COUNT(*) as total_shifts,
+                         COALESCE(SUM(duration_seconds),0) as total_seconds,
+                         COALESCE(SUM(cases_count),0) as total_cases,
+                         COALESCE(SUM(bans_count),0)  as total_bans
+                  FROM shifts WHERE user_id = ? AND status = 'ENDED'`)
+        .bind(userId).first<{ total_shifts: number; total_seconds: number; total_cases: number; total_bans: number }>(),
+      env.DATABASE
+        .prepare(`SELECT COALESCE(SUM(duration_seconds),0) as week_seconds,
+                         COALESCE(SUM(cases_count),0) as week_cases
+                  FROM shifts WHERE user_id = ? AND status = 'ENDED'
+                    AND end_time >= datetime('now', '-7 days')`)
+        .bind(userId).first<{ week_seconds: number; week_cases: number }>(),
+      env.DATABASE
+        .prepare(`SELECT COUNT(*) as cases_filed FROM cases WHERE moderator_id = ?`)
+        .bind(userId).first<{ cases_filed: number }>(),
+    ]);
+    return json({
+      total_shifts:  shiftRow?.total_shifts  ?? 0,
+      total_seconds: shiftRow?.total_seconds ?? 0,
+      total_cases:   shiftRow?.total_cases   ?? 0,
+      total_bans:    shiftRow?.total_bans    ?? 0,
+      week_seconds:  weekRow?.week_seconds   ?? 0,
+      week_cases:    weekRow?.week_cases     ?? 0,
+      cases_filed:   casesRow?.cases_filed   ?? 0,
+    });
+  }
+
   // GET /api/staff/activity  (recent 20 audit logs)
   static async activity(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
     const { results } = await env.DATABASE

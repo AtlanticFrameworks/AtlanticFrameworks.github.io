@@ -20,8 +20,11 @@ ENVIRONMENT        = "production"
 ALLOWED_ORIGIN     = "https://bwrp.net"
 ROBLOX_GROUP_ID    = "34246821"
 ROBLOX_UNIVERSE_ID = "6003245325"
+ROBLOX_PLACE_ID    = "136750166564584"   # Main Game Place (for server list)
 
 # Secrets – deploy with: wrangler secret put <NAME>
 # JWT_SECRET           → random 64+ char string (e.g. openssl rand -hex 32)
 # ROBLOX_AUTH_SECRET   → Roblox OAuth client secret
 # DISCORD_WEBHOOK_URL  → your webhook URL
+# ROBLOX_CLOUD_KEY     → Roblox Open Cloud API Key (create at create.roblox.com/dashboard/credentials)
+#                         Required Scopes: universe-messaging-service:publish, universe.restrictions:write

@@ -10,6 +10,9 @@ import { StaffController }      from './controllers/StaffController.js';
 import { ModerationController } from './controllers/ModerationController.js';
 import { ShiftController }      from './controllers/ShiftController.js';
 import { RobloxController }     from './controllers/RobloxController.js';
+import { WatchlistController }  from './controllers/WatchlistController.js';
+import { CloudController }      from './controllers/CloudController.js';
+import { renderDocs }           from './utils/docs.js';
 
 // ─── Route Table ─────────────────────────────────────────────────────────────
 // Pattern → Handler (auth-protected routes also receive the JWTPayload)
@@ -35,6 +38,7 @@ function route(method: string, path: string, handler: Handler | UserlessHandler,
 
 const ROUTES: Route[] = [
   // ── Public ──────────────────────────────────────────────────────────────
+  route('GET',  '/api/docs',         ((_req, env) => renderDocs(env)) as UserlessHandler, true),
   route('POST', '/api/auth/login',   AuthController.login   as UserlessHandler, true),
   route('POST', '/api/auth/refresh', AuthController.refresh as UserlessHandler, true),
   route('POST', '/api/auth/logout',  AuthController.logout  as UserlessHandler, true),
@@ -45,8 +49,16 @@ const ROUTES: Route[] = [
   route('GET',  '/api/staff/roster',   StaffController.roster   as Handler),
   route('GET',  '/api/staff/status',   StaffController.status   as Handler),
   route('GET',  '/api/staff/activity', StaffController.activity as Handler),
+  route('GET',  '/api/staff/stats',    StaffController.stats    as Handler),
+
+  // ── Watchlist ────────────────────────────────────────────────────────────
+  route('GET',    '/api/watchlist',              WatchlistController.getAll as Handler),
+  route('GET',    '/api/watchlist/check/:robloxId', WatchlistController.check as Handler),
+  route('POST',   '/api/watchlist',              WatchlistController.add    as Handler),
+  route('DELETE', '/api/watchlist/:id',          WatchlistController.remove as Handler),
 
   // ── Moderation ───────────────────────────────────────────────────────────
+  route('GET',   '/api/moderation/all',             ModerationController.getAllCases as Handler),
   route('GET',   '/api/moderation/cases/:playerId', ModerationController.getCases    as Handler),
   route('POST',  '/api/moderation/cases',           ModerationController.createCase  as Handler),
   route('PATCH', '/api/moderation/cases/:caseId',   ModerationController.updateCase  as Handler),
@@ -58,10 +70,16 @@ const ROUTES: Route[] = [
   route('GET',  '/api/shifts/analytics', ShiftController.analytics as Handler),
 
   // ── Roblox Proxy ─────────────────────────────────────────────────────────
-  route('GET', '/api/roblox/player/:identifier',          RobloxController.getPlayer       as Handler),
-  route('GET', '/api/roblox/servers',                     RobloxController.getServers      as Handler),
-  route('GET', '/api/roblox/group/roles',                 RobloxController.getGroupRoles   as Handler),
+  route('GET', '/api/roblox/player/:identifier',          RobloxController.getPlayer        as Handler),
+  route('GET', '/api/roblox/servers',                     RobloxController.getServers       as Handler),
+  route('GET', '/api/roblox/group/roles',                 RobloxController.getGroupRoles    as Handler),
   route('GET', '/api/roblox/group/roles/:roleId/users',   RobloxController.getGroupRoleUsers as Handler),
+
+  // ── Roblox Open Cloud ─────────────────────────────────────────────────────
+  route('POST', '/api/cloud/kick',                        CloudController.kick           as Handler),
+  route('POST', '/api/cloud/ban',                         CloudController.ban            as Handler),
+  route('POST', '/api/cloud/unban',                       CloudController.unban          as Handler),
+  route('GET',  '/api/cloud/restriction/:userId',         CloudController.getRestriction as Handler),
 ];
 
 // ─── Main Handler ─────────────────────────────────────────────────────────────

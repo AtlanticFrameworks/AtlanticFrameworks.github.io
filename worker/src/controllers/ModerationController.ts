@@ -4,6 +4,38 @@ import { requireRole, auditLog, getIP, json, err } from '../middleware/auth.js';
 import type { CaseType } from '../types/index.js';
 
 export class ModerationController {
+  // GET /api/moderation/all?type=&search=&limit=50&offset=0
+  static async getAllCases(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const bad = requireRole(user, 'MOD');
+    if (bad) return bad;
+
+    const url    = new URL(request.url);
+    const type   = url.searchParams.get('type') ?? '';
+    const search = url.searchParams.get('search') ?? '';
+    const limit  = Math.min(parseInt(url.searchParams.get('limit') ?? '50'), 100);
+    const offset = parseInt(url.searchParams.get('offset') ?? '0');
+
+    const conditions: string[] = [];
+    const binds: unknown[] = [];
+    if (type)   { conditions.push('c.type = ?');                          binds.push(type); }
+    if (search) { conditions.push('c.target_username LIKE ?');            binds.push(`%${search}%`); }
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const { results } = await env.DATABASE
+      .prepare(`SELECT c.*, u.username as moderator_username
+                FROM cases c LEFT JOIN users u ON c.moderator_id = u.id
+                ${where} ORDER BY c.created_at DESC LIMIT ? OFFSET ?`)
+      .bind(...binds, limit, offset)
+      .all();
+
+    const countRow = await env.DATABASE
+      .prepare(`SELECT COUNT(*) as total FROM cases c ${where}`)
+      .bind(...binds)
+      .first<{ total: number }>();
+
+    return json({ cases: results, total: countRow?.total ?? 0, limit, offset });
+  }
+
   // GET /api/moderation/cases/:playerId
   static async getCases(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
     const bad = requireRole(user, 'MOD');
