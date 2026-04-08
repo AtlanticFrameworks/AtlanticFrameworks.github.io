@@ -488,9 +488,11 @@
             showStatus("EXCHANGING SECURE TOKEN...", 'loading');
 
             try {
-                // 1. Process OAuth code via local PHP backend
+                // 1. Process OAuth code via Cloudflare Worker backend
+                // NOTE: Replace the URL below with your own deployed Cloudflare Worker URL
                 const redirectUri = 'https://bwrp.net/team';
-                const res = await fetch('/oauth.php', {
+                const WORKER_URL = 'https://bwrp-oauth.YOUR_SUBDOMAIN.workers.dev';
+                const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code, redirect_uri: redirectUri })
@@ -866,6 +868,5 @@
     </script>
 
     <!-- SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/js/db.js"></script> <!-- Supabase Database Logic -->
+    <script src="assets/js/db.js"></script>
 </body>
