@@ -132,7 +132,7 @@ function resetLoginDelay() {
 
 // ─── OAuth Flow ────────────────────────────────────────────────────────────
 function startRobloxOAuth() {
-    const CLIENT_ID = '1185800266267472506';
+    const CLIENT_ID = '7548633832168341641';
     const SCOPES = 'openid profile';
     // Use state for CSRF protection in production
     const oauthUrl = `https://apis.roblox.com/oauth/v1/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_type=code`;

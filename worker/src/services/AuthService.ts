@@ -23,7 +23,7 @@ export class AuthService {
 
   async exchangeCode(code: string, redirectUri: string): Promise<{ robloxId: string; username: string; picture: string | null }> {
     const params = new URLSearchParams({
-      client_id: '1185800266267472506', client_secret: this.env.ROBLOX_AUTH_SECRET,
+      client_id: '7548633832168341641', client_secret: this.env.ROBLOX_AUTH_SECRET,
       grant_type: 'authorization_code', code, redirect_uri: redirectUri,
     });
     const tokenRes  = await fetch(ROBLOX_TOKEN_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });

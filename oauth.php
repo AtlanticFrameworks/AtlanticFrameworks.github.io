@@ -37,7 +37,7 @@ if (!$body || !isset($body['code'])) {
     exit;
 }
 
-$client_id = isset($body['client_id']) ? $body['client_id'] : '1185800266267472506';
+$client_id = isset($body['client_id']) ? $body['client_id'] : '7548633832168341641';
 $code = $body['code'];
 $redirect_uri = isset($body['redirect_uri']) ? $body['redirect_uri'] : 'https://bwrp.net/team';
 
