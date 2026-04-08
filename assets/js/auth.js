@@ -16,19 +16,19 @@ const REDIRECT_URI = window.location.origin + window.location.pathname;
 function showToast(message, type = 'info', duration = 3500) {
     const container = document.getElementById('toast-container');
     if (!container) return;
-    
+
     const id = 'toast-' + Date.now();
     const colorMap = {
         success: 'border-tac-green text-tac-green bg-tac-card',
-        error:   'border-tac-red   text-tac-red   bg-tac-card',
-        info:    'border-tac-amber text-tac-amber bg-tac-card',
-        warn:    'border-yellow-500 text-yellow-400 bg-tac-card',
+        error: 'border-tac-red   text-tac-red   bg-tac-card',
+        info: 'border-tac-amber text-tac-amber bg-tac-card',
+        warn: 'border-yellow-500 text-yellow-400 bg-tac-card',
     };
     const iconMap = {
         success: 'circle-check',
-        error:   'circle-x',
-        info:    'info',
-        warn:    'triangle-alert',
+        error: 'circle-x',
+        info: 'info',
+        warn: 'triangle-alert',
     };
 
     const toast = document.createElement('div');
@@ -59,7 +59,7 @@ async function checkSession() {
         try {
             const res = await window.api.getMe();
             meData = res.user;
-        } catch(e) {
+        } catch (e) {
             if (e?.status === 401) return;
             const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - session.timestamp > ONE_WEEK) { logout(); return; }
@@ -71,18 +71,18 @@ async function checkSession() {
             (meData.role ?? session.rank).toUpperCase(),
             meData.avatar_url ?? session.avatarUrl,
         );
-    } catch(e) {
+    } catch (e) {
         localStorage.removeItem('atlantic_staff_session');
     }
 }
 
 function logout() {
-    window.api?.logout?.().catch(() => {});
+    window.api?.logout?.().catch(() => { });
     localStorage.removeItem('atlantic_staff_session');
     if (typeof isShiftActive !== 'undefined' && isShiftActive) {
         if (typeof stopShift === 'function') stopShift(true);
     }
-    
+
     const dashboard = document.getElementById('dashboard');
     const gate = document.getElementById('login-gate');
     const step1 = document.getElementById('step-1');
@@ -108,10 +108,10 @@ function showStatus(msg, type = 'neutral') {
     if (!statusMsg) return;
     statusMsg.textContent = msg;
     statusMsg.classList.remove('hidden', 'text-tac-red', 'text-tac-green', 'text-tac-amber', 'text-zinc-400', 'animate-pulse');
-    const map = { 
-        error: 'text-tac-red', 
-        success: 'text-tac-green', 
-        loading: ['text-tac-amber', 'animate-pulse'] 
+    const map = {
+        error: 'text-tac-red',
+        success: 'text-tac-green',
+        loading: ['text-tac-amber', 'animate-pulse']
     };
     if (Array.isArray(map[type])) map[type].forEach(c => statusMsg.classList.add(c));
     else if (map[type]) statusMsg.classList.add(map[type]);
@@ -143,14 +143,14 @@ async function checkOAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     if (!code) return;
-    
+
     window.history.replaceState({}, document.title, window.location.pathname);
 
     const step1 = document.getElementById('step-1');
     const step2 = document.getElementById('step-2');
     if (step1) step1.classList.add('hidden');
     if (step2) step2.classList.remove('hidden');
-    
+
     showStatus('TOKEN WIRD AUSGETAUSCHT...', 'loading');
 
     try {
@@ -163,10 +163,10 @@ async function checkOAuthCallback() {
         showStatus('ZUGRIFF GEWÄHRT. WILLKOMMEN.', 'success');
         const verifyText = document.getElementById('verify-text');
         if (verifyText) verifyText.textContent = 'ZUGRIFF GEWÄHRT';
-        
+
         saveSession({ userId: targetUserId, username: targetUsername, rank: userRole.toUpperCase(), avatarUrl });
         setTimeout(() => enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl), 1000);
-    } catch(err) {
+    } catch (err) {
         console.error('OAuth-Fehler:', err);
         showStatus('ANMELDUNG FEHLGESCHLAGEN: ' + (err.message || 'Unbekannter Fehler'), 'error');
         resetLoginDelay();
