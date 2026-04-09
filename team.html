@@ -914,18 +914,18 @@
         // PUNISHMENT CALCULATOR
         // ===================================================
         const PUNISHMENT_DATA = {
-            "RDM": { label: "RDM (Zufälliger Angriff)", data: ["Verwarnung / Kick", "Ban 3 Tage", "Ban 7 Tage"] },
-            "VDM": { label: "VDM (Fahrzeug-Angriff)", data: ["Verwarnung / Kick", "Ban 3 Tage", "Ban 7 Tage"] },
-            "Spawnkill": { label: "Spawnkilling", data: ["Kick", "Ban 3 Tage", "Ban 7 Tage"] },
-            "CombatLog": { label: "Combat Logging", data: ["Ban 2 Tage", "Ban 5 Tage", "Ban 14 Tage"] },
-            "FailRP": { label: "FailRP", data: ["Verwarnung", "Kick", "Ban 3 Tage"] },
-            "Metagaming": { label: "Metagaming", data: ["Kick", "Ban 3 Tage", "Ban 7 Tage"] },
-            "Powergaming": { label: "Powergaming", data: ["Kick", "Ban 3 Tage", "Ban 7 Tage"] },
-            "NLR": { label: "New Life Rule (NLR)", data: ["Verwarnung", "Kick", "Ban 1 Tag"] },
-            "Toxicity": { label: "Toxizität / Beleidigungen", data: ["Mute / Verwarnung", "Ban 1 Tag", "Ban 7 Tage"] },
-            "Spam": { label: "Chat-Spam", data: ["Mute", "Kick", "Ban 1 Tag"] },
-            "Advertising": { label: "Werbung", data: ["Permanenter Ban", "Permanenter Ban", "Permanenter Ban"] },
-            "Exploiting": { label: "Exploiting / Cheating", data: ["Permanenter Ban", "Permanenter Ban", "Permanenter Ban"] },
+            "RDM":         { label: "RDM (Zufälliger Angriff)",  data: ["Verwarnung", "Kick",        "Ban 3 Tage"]    },
+            "VDM":         { label: "VDM (Fahrzeug-Angriff)",    data: ["Verwarnung", "Kick",        "Ban 3 Tage"]    },
+            "Spawnkill":   { label: "Spawnkilling",              data: ["Kick",       "Ban 3 Tage",  "Ban 7 Tage"]    },
+            "CombatLog":   { label: "Combat Logging",            data: ["Ban 2 Tage", "Ban 5 Tage",  "Ban 14 Tage"]   },
+            "FailRP":      { label: "FailRP",                    data: ["Verwarnung", "Kick",        "Ban 3 Tage"]    },
+            "Metagaming":  { label: "Metagaming",                data: ["Kick",       "Ban 3 Tage",  "Ban 7 Tage"]    },
+            "Powergaming": { label: "Powergaming",               data: ["Kick",       "Ban 3 Tage",  "Ban 7 Tage"]    },
+            "NLR":         { label: "New Life Rule (NLR)",       data: ["Verwarnung", "Kick",        "Ban 1 Tag"]     },
+            "Toxicity":    { label: "Toxizität / Beleidigungen", data: ["Verwarnung", "Kick",        "Ban 7 Tage"]    },
+            "Spam":        { label: "Chat-Spam",                 data: ["Verwarnung", "Kick",        "Ban 1 Tag"]     },
+            "Advertising": { label: "Werbung",                  data: ["Permanenter Ban", "Permanenter Ban", "Permanenter Ban"] },
+            "Exploiting":  { label: "Exploiting / Cheating",    data: ["Permanenter Ban", "Permanenter Ban", "Permanenter Ban"] },
         };
 
         window.runCalculation = function (offenseOverride) {
@@ -933,8 +933,6 @@
             const countRadio = document.querySelector('input[name="offense-count"]:checked');
             const resultEl = document.getElementById('calc-result');
             const subtextEl = document.getElementById('calc-subtext');
-            const cmdEl = document.getElementById('calc-command-output');
-            const cmdBox = document.getElementById('calc-command-box');
 
             if (!offense || !countRadio || !resultEl) return;
 
@@ -946,44 +944,50 @@
             resultEl.textContent = punishment.toUpperCase();
 
             // Color-coding
-            if (punishment.toLowerCase().includes('permanent')) {
+            const p = punishment.toLowerCase();
+            if (p.includes('permanenter ban')) {
                 resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-tac-red animate-glitch';
                 if (subtextEl) { subtextEl.textContent = 'KRITISCHE MASSNAHME ERFORDERLICH'; subtextEl.className = 'font-mono text-xs text-tac-red mt-1'; }
-            } else if (punishment.toLowerCase().includes('ban')) {
+            } else if (p.includes('ban')) {
                 resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-tac-amber';
                 if (subtextEl) { subtextEl.textContent = 'SUSPENDIERUNG PROTOKOLL'; subtextEl.className = 'font-mono text-xs text-tac-amber mt-1'; }
             } else {
                 resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-tac-green';
-                if (subtextEl) { subtextEl.textContent = 'STANDARD-WARNUNG ERTEILT'; subtextEl.className = 'font-mono text-xs text-tac-green mt-1'; }
+                if (subtextEl) { subtextEl.textContent = 'STANDARD-MASSNAHME ERTEILT'; subtextEl.className = 'font-mono text-xs text-tac-green mt-1'; }
             }
 
-            // Generate command
-            const username = document.getElementById('calc-username')?.value?.trim() || '[Username]';
+            // Sync to case builder
             const countLbl = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
             const reason = `${countLbl} – ${entry.label}`;
-            const cmd = `/moderate ${username} ${punishment} ${reason}`;
-            if (cmdEl) cmdEl.value = cmd;
-            if (cmdBox) cmdBox.classList.remove('hidden');
 
-            // Quick offense selector highlight
+            let caseType = 'WARN';
+            let durationDays;
+            if (p.includes('permanenter ban')) { caseType = 'PERMBAN'; }
+            else if (p.includes('ban')) {
+                caseType = 'BAN';
+                const m = punishment.match(/(\d+)/);
+                if (m) durationDays = parseInt(m[1]);
+            } else if (p.includes('kick')) { caseType = 'KICK'; }
+
+            const actionSel = document.getElementById('qm-action');
+            if (actionSel) { actionSel.value = caseType; onActionChange(); }
+            const durationInput = document.getElementById('qm-duration');
+            if (durationInput) durationInput.value = durationDays || '';
+            const reasonInput = document.getElementById('qm-reason');
+            if (reasonInput) reasonInput.value = reason;
+
             if (offenseOverride) {
                 const sel = document.getElementById('calc-offense');
                 if (sel) sel.value = offenseOverride;
             }
-        };
 
-        window.copyCalcCommand = function () {
-            const el = document.getElementById('calc-command-output');
-            if (!el || !el.value) return;
-            navigator.clipboard.writeText(el.value)
-                .then(() => showToast('Befehl kopiert!', 'success'))
-                .catch(() => showToast('Kopieren fehlgeschlagen.', 'error'));
+            generateCommand();
         };
 
         // ===================================================
         // QUICK MODERATOR TAB LOGIC
         // ===================================================
-        let lookedUpPlayer = null; // { id, username } – set by lookupPlayer, used by generateQuickCommand
+        let lookedUpPlayer = null; // { id, username } – set by lookupPlayer, used by logModCenterCase
         // Mirror on window so cloudKickPlayer / cloudBanPlayer can read it from any scope
         Object.defineProperty(window, 'lookedUpPlayer', {
             get() { return lookedUpPlayer; },
@@ -1024,11 +1028,9 @@
                 // Load case history from D1
                 renderCaseHistory(String(player.id));
 
-                // Pre-fill username fields in generator
-                const calcUser = document.getElementById('calc-username');
-                if (calcUser) calcUser.value = player.username;
+                // Pre-fill username in case builder
                 const qmUser = document.getElementById('qm-username');
-                if (qmUser) { qmUser.value = player.username; generateQuickCommand(); }
+                if (qmUser) { qmUser.value = player.username; generateCommand(); }
 
                 // Update Game Panel shortcut
                 const gpBtn = document.getElementById('lookup-gamepanel-btn');
@@ -1041,68 +1043,79 @@
             }
         };
 
-        window.generateQuickCommand = function () {
-            const username = document.getElementById('qm-username')?.value?.trim() || '[Username]';
-            const offense = document.getElementById('qm-offense')?.value;
-            const count = document.getElementById('qm-count')?.value || '1';
-            const tridentEl = document.getElementById('qm-trident-output');
-            const sapphEl = document.getElementById('qm-sapphire-output');
-            const cmdBoxEl = document.getElementById('qm-command-box');
-
-            if (!offense) { showToast('Bitte Vergehen auswählen.', 'warn'); return; }
-
-            const entry = PUNISHMENT_DATA[offense];
-            if (!entry) return;
-            const countIndex = parseInt(count) - 1;
-            const punishment = entry.data[Math.min(countIndex, entry.data.length - 1)];
-            const countLbl = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
-            const reason = `${countLbl} – ${entry.label}`;
-
-            const trident = `/moderate ${username} ${punishment} ${reason}`;
-
-            // Sapphire command mapping
-            let sapphCmd = '';
-            if (punishment.toLowerCase().includes('permanenter ban')) sapphCmd = `s!ban ${username} 0 ${reason}`;
-            else if (punishment.toLowerCase().includes('ban')) {
-                const days = punishment.match(/(\d+)/)?.[1] || '1';
-                sapphCmd = `s!ban ${username} ${days}d ${reason}`;
-            } else if (punishment.toLowerCase().includes('kick')) sapphCmd = `s!kick ${username} ${reason}`;
-            else if (punishment.toLowerCase().includes('mute')) sapphCmd = `s!mute ${username} 2h ${reason}`;
-            else sapphCmd = `s!warn ${username} ${reason}`;
-
-            if (tridentEl) tridentEl.value = trident;
-            if (sapphEl) sapphEl.value = sapphCmd;
-            if (cmdBoxEl) cmdBoxEl.classList.remove('hidden');
-
-            // Persist moderation case to D1 if a player was looked up
-            if (lookedUpPlayer) {
-                let caseType = 'WARN';
-                let durationDays;
-                const p = punishment.toLowerCase();
-                if (p.includes('permanenter ban')) { caseType = 'PERMBAN'; }
-                else if (p.includes('ban')) {
-                    caseType = 'BAN';
-                    const m = punishment.match(/(\d+)/);
-                    if (m) durationDays = parseInt(m[1]);
-                } else if (p.includes('kick')) { caseType = 'KICK'; }
-
-                window.api.createCase({
-                    targetRobloxId: lookedUpPlayer.id,
-                    targetUsername: lookedUpPlayer.username,
-                    type: caseType,
-                    reason,
-                    ...(durationDays ? { durationDays } : {}),
-                }).then(() => showToast('Fall in Datenbank gespeichert.', 'success'))
-                    .catch(e => console.warn('[CASE] Speichern fehlgeschlagen:', e.message));
+        window.onActionChange = function () {
+            const action = document.getElementById('qm-action')?.value;
+            const durRow = document.getElementById('qm-duration-row');
+            if (durRow) {
+                if (action === 'BAN') durRow.classList.remove('hidden');
+                else durRow.classList.add('hidden');
             }
+            generateCommand();
         };
 
-        window.copyQmCommand = function (type) {
-            const el = document.getElementById(type === 'trident' ? 'qm-trident-output' : 'qm-sapphire-output');
+        window.generateCommand = function () {
+            const username = document.getElementById('qm-username')?.value?.trim() || '[Username]';
+            const action = document.getElementById('qm-action')?.value || 'WARN';
+            const duration = document.getElementById('qm-duration')?.value?.trim();
+            const reason = document.getElementById('qm-reason')?.value?.trim();
+            const tridentEl = document.getElementById('qm-trident-output');
+            const cmdBoxEl = document.getElementById('qm-command-box');
+            const actionRowEl = document.getElementById('qm-action-row');
+            const hintEl = document.getElementById('qm-hint');
+
+            if (!reason) {
+                cmdBoxEl?.classList.add('hidden');
+                actionRowEl?.classList.add('hidden');
+                hintEl?.classList.remove('hidden');
+                return;
+            }
+
+            let punishment;
+            if (action === 'PERMBAN') punishment = 'PERMBAN';
+            else if (action === 'BAN') punishment = duration ? `BAN ${duration}d` : 'BAN';
+            else if (action === 'KICK') punishment = 'KICK';
+            else punishment = 'WARN';
+
+            const cmd = `/moderate ${username} ${punishment} ${reason}`;
+            if (tridentEl) tridentEl.value = cmd;
+
+            cmdBoxEl?.classList.remove('hidden');
+            actionRowEl?.classList.remove('hidden');
+            hintEl?.classList.add('hidden');
+        };
+
+        window.copyCommand = function () {
+            const el = document.getElementById('qm-trident-output');
             if (!el || !el.value) return;
             navigator.clipboard.writeText(el.value)
-                .then(() => showToast(`${type === 'trident' ? 'Trident' : 'Sapphire'}-Befehl kopiert!`, 'success'))
+                .then(() => showToast('Befehl kopiert!', 'success'))
                 .catch(() => showToast('Kopieren fehlgeschlagen.', 'error'));
+        };
+
+        window.logModCenterCase = async function () {
+            const username = document.getElementById('qm-username')?.value?.trim();
+            const action = document.getElementById('qm-action')?.value || 'WARN';
+            const durationRaw = document.getElementById('qm-duration')?.value?.trim();
+            const duration = durationRaw ? parseInt(durationRaw) : undefined;
+            const reason = document.getElementById('qm-reason')?.value?.trim();
+
+            if (!username) { showToast('Kein Spieler ausgewählt – bitte zuerst Spieler suchen.', 'warn'); return; }
+            if (!reason) { showToast('Bitte einen Grund eingeben.', 'warn'); return; }
+            if (!lookedUpPlayer?.id) { showToast('Roblox-ID nicht gefunden – Spieler erneut suchen.', 'warn'); return; }
+
+            try {
+                await window.api.createCase({
+                    targetRobloxId: lookedUpPlayer.id,
+                    targetUsername: username,
+                    type: action,
+                    reason,
+                    ...(action === 'BAN' && duration ? { durationDays: duration } : {}),
+                });
+                showToast('Case erfolgreich eingetragen!', 'success');
+                renderCaseHistory(lookedUpPlayer.id);
+            } catch (e) {
+                showToast('Fehler beim Eintragen: ' + (e.message || 'Unbekannt'), 'error');
+            }
         };
 
         window.toggleChecklist = function (cb) {
@@ -1121,15 +1134,9 @@
             toggleChecklist();
         };
 
-        // Sync Aktions-Matrix → Generator selects
+        // Sync Aktions-Matrix → Case-Builder
         window.syncOffenseToGenerator = function () {
-            const offense = document.getElementById('calc-offense')?.value;
-            const count = document.querySelector('input[name="offense-count"]:checked')?.value || '1';
-            const qmOffense = document.getElementById('qm-offense');
-            const qmCount = document.getElementById('qm-count');
-            if (qmOffense && offense) qmOffense.value = offense;
-            if (qmCount && count) qmCount.value = count;
-            generateQuickCommand();
+            runCalculation();
         };
 
         window.setOffenseAndCalc = function (offense) {
@@ -1141,16 +1148,27 @@
             const sel = document.getElementById('calc-offense');
             if (sel) sel.value = '';
             const r1 = document.querySelector('input[name="offense-count"][value="1"]');
-            if (r1) { r1.checked = true; runCalculation(); }
+            if (r1) r1.checked = true;
+            const resultEl = document.getElementById('calc-result');
+            if (resultEl) { resultEl.textContent = 'STANDBY'; resultEl.className = 'font-display text-3xl md:text-4xl font-bold tracking-widest text-white'; }
+            const subtextEl = document.getElementById('calc-subtext');
+            if (subtextEl) { subtextEl.textContent = 'WARTE AUF PARAMETER'; subtextEl.className = 'font-mono text-xs text-tac-muted'; }
             const qmUser = document.getElementById('qm-username');
             if (qmUser) qmUser.value = '';
-            const qmOff = document.getElementById('qm-offense');
-            if (qmOff) qmOff.value = '';
+            const qmReason = document.getElementById('qm-reason');
+            if (qmReason) qmReason.value = '';
+            const qmAction = document.getElementById('qm-action');
+            if (qmAction) qmAction.value = 'WARN';
+            const qmDuration = document.getElementById('qm-duration');
+            if (qmDuration) qmDuration.value = '';
             document.getElementById('qm-command-box')?.classList.add('hidden');
-            document.getElementById('calc-command-box')?.classList.add('hidden');
+            document.getElementById('qm-action-row')?.classList.add('hidden');
+            document.getElementById('qm-duration-row')?.classList.add('hidden');
+            document.getElementById('qm-hint')?.classList.remove('hidden');
             document.getElementById('lookup-input') && (document.getElementById('lookup-input').value = '');
             document.getElementById('lookup-result')?.classList.add('hidden');
             document.getElementById('case-history-section')?.classList.add('hidden');
+            lookedUpPlayer = null;
             resetChecklist();
         };
 
@@ -2100,10 +2118,8 @@
 
                 case 'warn':
                     showTab('modcenter');
-                    const calcUser = document.getElementById('calc-username');
                     const qmUser = document.getElementById('qm-username');
-                    if (calcUser) { calcUser.value = cmTarget.username; if (document.getElementById('calc-offense')?.value) runCalculation(); }
-                    if (qmUser) { qmUser.value = cmTarget.username; generateQuickCommand(); }
+                    if (qmUser) { qmUser.value = cmTarget.username; generateCommand(); }
                     break;
             }
         };

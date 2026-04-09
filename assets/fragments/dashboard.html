@@ -197,16 +197,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i
-                                data-lucide="bot" class="w-16 h-16 text-tac-blue"></i></div>
-                        <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-1">DISCORD CONNECTION</p>
-                        <p class="font-display text-3xl font-bold text-white">VERBUNDEN</p>
-                        <div class="mt-4 pt-4 border-t border-tac-border flex justify-between font-mono text-xs">
-                            <span class="text-tac-muted">DISCORD CONNECTION</span>
-                            <span id="status-discord" class="text-tac-green">READY</span>
-                        </div>
-                    </div>
 
                     <!-- Announcements -->
                     <div class="sm:col-span-2 bg-tac-panel border border-tac-border p-5 flex flex-col">
@@ -693,97 +683,82 @@
                     </div>
                 </div>
 
-                <!-- ── COL 3: Befehlsgenerator ─────────────────────────────────── -->
+                <!-- ── COL 3: Case-Builder ───────────────────────────────────────── -->
                 <div class="flex flex-col gap-4">
-                    <div class="bg-tac-panel border border-tac-border p-5 flex flex-col gap-4 flex-1">
-                        <p class="font-mono text-[10px] text-tac-amber tracking-widest">03 / BEFEHLSGENERATOR</p>
+                    <div class="bg-tac-panel border border-tac-border p-5 flex flex-col gap-4">
+                        <p class="font-mono text-[10px] text-tac-amber tracking-widest">03 / CASE-BUILDER</p>
 
-                        <!-- Target -->
+                        <!-- Target username -->
                         <div>
                             <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">ZIEL (vom
                                 Lookup übernommen)</label>
                             <input type="text" id="qm-username"
                                 class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors"
-                                placeholder="Username..." oninput="generateQuickCommand()">
+                                placeholder="Username..." oninput="generateCommand()">
                         </div>
 
-                        <!-- Offense mirror + count -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label
-                                    class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">VERGEHEN</label>
-                                <select id="qm-offense" onchange="generateQuickCommand()"
-                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2 focus:outline-none focus:border-tac-amber">
-                                    <option value="" disabled selected>-- Auswahl --</option>
-                                    <option value="RDM">RDM</option>
-                                    <option value="VDM">VDM</option>
-                                    <option value="FailRP">FailRP</option>
-                                    <option value="CombatLog">Combat Log</option>
-                                    <option value="Toxicity">Toxizität</option>
-                                    <option value="Spawnkill">Spawnkill</option>
-                                    <option value="NLR">NLR</option>
-                                    <option value="Exploiting">Exploiting</option>
+                        <!-- Aktion -->
+                        <div>
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">AKTION</label>
+                            <div class="relative">
+                                <select id="qm-action" onchange="onActionChange()"
+                                    class="w-full bg-tac-dark border border-tac-border text-white font-mono text-sm p-2.5 focus:outline-none focus:border-tac-amber appearance-none cursor-pointer">
+                                    <option value="WARN">WARN – Verwarnung</option>
+                                    <option value="KICK">KICK – Rauswurf</option>
+                                    <option value="BAN">BAN – Zeitlicher Bann</option>
+                                    <option value="PERMBAN">PERMBAN – Permanenter Bann</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label
-                                    class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">MAL</label>
-                                <select id="qm-count" onchange="generateQuickCommand()"
-                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2 focus:outline-none focus:border-tac-amber">
-                                    <option value="1">1. Mal</option>
-                                    <option value="2">2. Mal</option>
-                                    <option value="3">3.+ Mal</option>
-                                </select>
+                                <i data-lucide="chevron-down"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-tac-muted pointer-events-none"></i>
                             </div>
                         </div>
 
-                        <!-- Generated commands -->
-                        <div id="qm-command-box" class="space-y-3 hidden animate-fade-in">
-                            <div>
-                                <label
-                                    class="font-mono text-[9px] text-orange-400 font-bold tracking-widest block mb-1">TRIDENT
-                                    (INGAME)</label>
-                                <div class="flex items-stretch border border-orange-500/20 bg-black">
-                                    <input type="text" id="qm-trident-output"
-                                        class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
-                                        readonly>
-                                    <button onclick="copyQmCommand('trident')"
-                                        class="bg-orange-500/10 px-3 hover:bg-orange-500 hover:text-black transition-colors text-orange-400 border-l border-orange-500/20">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label
-                                    class="font-mono text-[9px] text-blue-400 font-bold tracking-widest block mb-1">SAPPHIRE
-                                    (DISCORD)</label>
-                                <div class="flex items-stretch border border-blue-500/20 bg-black">
-                                    <input type="text" id="qm-sapphire-output"
-                                        class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
-                                        readonly>
-                                    <button onclick="copyQmCommand('sapphire')"
-                                        class="bg-blue-500/10 px-3 hover:bg-blue-500 hover:text-black transition-colors text-blue-400 border-l border-blue-500/20">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                </div>
-                            </div>
+                        <!-- Ban duration (only visible for BAN) -->
+                        <div id="qm-duration-row" class="hidden">
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">BAN-DAUER
+                                (TAGE)</label>
+                            <input type="number" id="qm-duration" min="1" value="3"
+                                class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors"
+                                oninput="generateCommand()">
                         </div>
 
-                        <!-- Calc command (from matrix, shown when username set) -->
-                        <div id="calc-command-box" class="hidden">
+                        <!-- Custom reason (editable, auto-filled by matrix) -->
+                        <div>
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">GRUND
+                                <span class="text-zinc-600 font-sans normal-case">(editierbar)</span></label>
+                            <input type="text" id="qm-reason"
+                                class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors"
+                                placeholder="Verstoßbeschreibung eingeben..." oninput="generateCommand()">
+                        </div>
+
+                        <!-- Generated Trident command -->
+                        <div id="qm-command-box" class="hidden animate-fade-in">
                             <label
-                                class="font-mono text-[9px] text-tac-amber font-bold tracking-widest block mb-1">MATRIX-BEFEHL
-                                (TRIDENT)</label>
-                            <div class="flex items-stretch border border-tac-amber/20 bg-black">
-                                <input type="text" id="calc-command-output"
+                                class="font-mono text-[9px] text-orange-400 font-bold tracking-widest block mb-1">TRIDENT
+                                BEFEHL (INGAME)</label>
+                            <div class="flex items-stretch border border-orange-500/20 bg-black">
+                                <input type="text" id="qm-trident-output"
                                     class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
                                     readonly>
-                                <button onclick="copyCalcCommand()"
-                                    class="bg-tac-amber/10 px-3 hover:bg-tac-amber hover:text-black transition-colors text-tac-amber border-l border-tac-amber/20">
+                                <button onclick="copyCommand()"
+                                    class="bg-orange-500/10 px-3 hover:bg-orange-500 hover:text-black transition-colors text-orange-400 border-l border-orange-500/20">
                                     <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
                         </div>
+
+                        <!-- LOG CASE button (visible when command is ready) -->
+                        <div id="qm-action-row" class="hidden">
+                            <button onclick="logModCenterCase()"
+                                class="w-full bg-tac-green/10 border border-tac-green/30 text-tac-green hover:bg-tac-green hover:text-black font-mono text-[10px] py-2.5 transition-colors flex items-center justify-center gap-2">
+                                <i data-lucide="file-plus" class="w-3.5 h-3.5"></i> CASE IN DATENBANK EINTRAGEN
+                            </button>
+                        </div>
+
+                        <!-- Hint when nothing is filled -->
+                        <p id="qm-hint" class="font-mono text-[9px] text-tac-muted text-center py-1">
+                            Vergehen in der Aktions-Matrix wählen oder Grund direkt eingeben
+                        </p>
                     </div>
                 </div>
 
@@ -1127,26 +1102,6 @@
                 </div>
             </div>
 
-            <!-- Discord Rules -->
-            <div>
-                <div class="bg-tac-amber/10 border-l-4 border-tac-amber p-4 mb-6">
-                    <h3 class="font-bold text-tac-amber flex items-center gap-2 uppercase tracking-wide text-sm"><i
-                            data-lucide="message-square" class="w-4 h-4"></i> Support & Tickets</h3>
-                    <p class="text-xs text-tac-amber/70 font-mono mt-1">Gültig für Discord-Ticketbearbeitung.</p>
-                </div>
-
-                <div class="space-y-6">
-                    <section class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-tac-amber opacity-50"></div>
-                        <h4 class="font-display text-lg text-white mb-3">Ticketbearbeitung</h4>
-                        <ul class="list-disc pl-5 space-y-2 text-sm text-zinc-400">
-                            <li>Sachlich bleiben – keine Ironie, kein Sarkasmus.</li>
-                            <li>Nicht auf Provokationen eingehen. Im Zweifel pausieren oder an HR übergeben.</li>
-                            <li>Support erfolgt ausschließlich schriftlich (kein Voice-Support).</li>
-                        </ul>
-                    </section>
-                </div>
-            </div>
         </div>
 
         <!-- ==========================================
@@ -1157,85 +1112,85 @@
                 <div>
                     <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
                         Befehlsreferenz</h2>
-                    <p class="font-mono text-xs text-tac-muted mt-1">SYNTAX FÜR BOT- SYSTEME</p>
+                    <p class="font-mono text-xs text-tac-muted mt-1">INGAME-SYNTAX · TRIDENT MODERATIONSSYSTEM</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- TRIDENT -->
+                <!-- TRIDENT – Bestrafungen -->
                 <div class="bg-tac-panel border border-orange-500/30 overflow-hidden relative">
                     <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="shield"
                             class="w-24 h-24 text-orange-500"></i></div>
                     <div
                         class="bg-orange-500/10 p-4 border-b border-orange-500/30 flex justify-between items-center relative z-10">
                         <h3 class="font-bold text-orange-400 flex items-center gap-2 uppercase tracking-widest text-sm">
-                            <i data-lucide="shield" class="w-4 h-4"></i> TRIDENT (INGAME)
+                            <i data-lucide="shield" class="w-4 h-4"></i> TRIDENT – BESTRAFUNGEN
                         </h3>
                         <a href="https://trident.bot/dashboard/1436737649636409356/panel" target="_blank"
-                            class="text-[10px] bg-black border border-orange-500/20 text-orange-400 px-2 py-1 hover:bg-orange-500 hover:text-black transition-colors font-mono">DASHBOARD
-                            OPEN</a>
+                            class="text-[10px] bg-black border border-orange-500/20 text-orange-400 px-2 py-1 hover:bg-orange-500 hover:text-black transition-colors font-mono">DASHBOARD</a>
                     </div>
-                    <div class="p-6 space-y-5 relative z-10">
-                        <!-- Cmd 1 -->
+                    <div class="p-6 space-y-3 relative z-10">
                         <div class="group">
                             <div class="flex items-center bg-black border border-tac-border">
-                                <code
-                                    class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] [Bestrafung] [Grund]</code>
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] WARN [Grund]</code>
                             </div>
-                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Hauptbefehl Bestrafungen
-                            </p>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Verwarnung</p>
                         </div>
-                        <!-- Cmd 2 -->
                         <div class="group">
                             <div class="flex items-center bg-black border border-tac-border">
-                                <code
-                                    class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/editmoderation [ID]</code>
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] KICK [Grund]</code>
                             </div>
-                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Bestehende Mod
-                                bearbeiten</p>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Rauswurf</p>
                         </div>
-                        <!-- Cmd 3 -->
                         <div class="group">
                             <div class="flex items-center bg-black border border-tac-border">
-                                <code
-                                    class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderations [User]</code>
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] BAN [Tage]d [Grund]</code>
                             </div>
-                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Akte aufrufen</p>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Zeitlicher Bann (zB. 3d)</p>
+                        </div>
+                        <div class="group">
+                            <div class="flex items-center bg-black border border-tac-border">
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderate [User] PERMBAN [Grund]</code>
+                            </div>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Permanenter Bann</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- SAPPHIRE -->
-                <div class="bg-tac-panel border border-blue-500/30 overflow-hidden relative">
-                    <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="message-square"
-                            class="w-24 h-24 text-blue-500"></i></div>
+                <!-- TRIDENT – Verwaltung -->
+                <div class="bg-tac-panel border border-orange-500/30 overflow-hidden relative">
+                    <div class="absolute top-0 right-0 p-8 opacity-5"><i data-lucide="file-text"
+                            class="w-24 h-24 text-orange-500"></i></div>
                     <div
-                        class="bg-blue-500/10 p-4 border-b border-blue-500/30 flex justify-between items-center relative z-10">
-                        <h3 class="font-bold text-blue-400 flex items-center gap-2 uppercase tracking-widest text-sm"><i
-                                data-lucide="message-square" class="w-4 h-4"></i> SAPPHIRE (DISCORD)</h3>
+                        class="bg-orange-500/10 p-4 border-b border-orange-500/30 relative z-10">
+                        <h3 class="font-bold text-orange-400 flex items-center gap-2 uppercase tracking-widest text-sm">
+                            <i data-lucide="file-text" class="w-4 h-4"></i> TRIDENT – AKTEN & VERWALTUNG
+                        </h3>
                     </div>
-                    <div class="p-6 space-y-5 relative z-10">
-                        <div class="grid grid-cols-1 gap-3">
-                            <div class="bg-black border border-tac-border px-3 py-2 flex justify-between items-center">
-                                <code class="font-mono text-xs text-blue-300">s!warn [ID] [Grund]</code>
-                                <span class="text-[9px] text-tac-muted uppercase font-mono">Warnen</span>
+                    <div class="p-6 space-y-3 relative z-10">
+                        <div class="group">
+                            <div class="flex items-center bg-black border border-tac-border">
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/moderations [User]</code>
                             </div>
-                            <div class="bg-black border border-tac-border px-3 py-2 flex justify-between items-center">
-                                <code class="font-mono text-xs text-blue-300">s!ban [ID] [Zeit] [Grund]</code>
-                                <span class="text-[9px] text-tac-muted uppercase font-mono">Bannen (zB. 12d)</span>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Spielerakte aufrufen</p>
+                        </div>
+                        <div class="group">
+                            <div class="flex items-center bg-black border border-tac-border">
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/editmoderation [ID]</code>
                             </div>
-                            <div class="bg-black border border-tac-border px-3 py-2 flex justify-between items-center">
-                                <code class="font-mono text-xs text-blue-300">s!mute [ID] [Zeit] [Grund]</code>
-                                <span class="text-[9px] text-tac-muted uppercase font-mono">Timeout (zB. 2h)</span>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Bestehende Mod bearbeiten</p>
+                        </div>
+                        <div class="group">
+                            <div class="flex items-center bg-black border border-tac-border">
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/unban [User] [Grund]</code>
                             </div>
-                            <div class="bg-black border border-tac-border px-3 py-2 flex justify-between items-center">
-                                <code class="font-mono text-xs text-blue-300">s!cases [ID]</code>
-                                <span class="text-[9px] text-tac-muted uppercase font-mono">Akte prüfen</span>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Spieler entbannen</p>
+                        </div>
+                        <div class="group">
+                            <div class="flex items-center bg-black border border-tac-border">
+                                <code class="flex-1 font-mono text-xs text-orange-300 p-2 border-r border-tac-border select-all">/checkban [User]</code>
                             </div>
-                            <div class="bg-black border border-tac-border px-3 py-2 flex justify-between items-center">
-                                <code class="font-mono text-xs text-blue-300">s!purge [Zahl]</code>
-                                <span class="text-[9px] text-tac-muted uppercase font-mono">Chat leeren</span>
-                            </div>
+                            <p class="text-[10px] text-tac-muted font-mono mt-1 ml-1 uppercase">Bannstatus prüfen</p>
                         </div>
                     </div>
                 </div>
