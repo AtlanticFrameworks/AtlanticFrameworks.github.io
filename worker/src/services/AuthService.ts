@@ -56,14 +56,23 @@ export class AuthService {
     } catch { return null; }
   }
 
-  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role): Promise<UserRow> {
-    await this.env.DATABASE
-      .prepare(`INSERT INTO users (roblox_id, username, avatar_url, role, last_seen)
-                VALUES (?, ?, ?, ?, datetime('now'))
-                ON CONFLICT(roblox_id) DO UPDATE SET
-                  username=excluded.username, avatar_url=excluded.avatar_url,
-                  role=excluded.role, last_seen=datetime('now')`)
-      .bind(robloxId, username, avatarUrl, role).run();
+  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, hwid: string): Promise<UserRow> {
+    const existing = await this.env.DATABASE.prepare('SELECT id, hwid FROM users WHERE roblox_id = ?').bind(robloxId).first<{ id: number; hwid: string | null }>();
+
+    if (existing) {
+      if (existing.hwid && existing.hwid !== hwid) {
+        throw new Error('Login von einem anderen Gerät abgelehnt. HWID stimmt nicht überein.');
+      }
+      const newHwid = existing.hwid ? existing.hwid : hwid;
+      await this.env.DATABASE
+        .prepare(`UPDATE users SET username=?, avatar_url=?, role=?, hwid=?, last_seen=datetime('now') WHERE id=?`)
+        .bind(username, avatarUrl, role, newHwid, existing.id).run();
+    } else {
+      await this.env.DATABASE
+        .prepare(`INSERT INTO users (roblox_id, username, avatar_url, role, hwid, last_seen) VALUES (?, ?, ?, ?, ?, datetime('now'))`)
+        .bind(robloxId, username, avatarUrl, role, hwid).run();
+    }
+
     const user = await this.env.DATABASE.prepare('SELECT * FROM users WHERE roblox_id = ?').bind(robloxId).first<UserRow>();
     if (!user) throw new Error('Benutzer konnte nicht angelegt werden');
     return user;

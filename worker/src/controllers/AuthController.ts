@@ -4,11 +4,12 @@ import { json, err, getCookie, clearCookie, getIP, auditLog } from '../middlewar
 
 export class AuthController {
   static async login(request: Request, env: Env): Promise<Response> {
-    let body: { code?: string; redirect_uri?: string };
+    let body: { code?: string; redirect_uri?: string; hwid?: string };
     try { body = await request.json(); } catch { return err('Ungültiger JSON-Body'); }
 
-    const { code, redirect_uri } = body;
+    const { code, redirect_uri, hwid } = body;
     if (!code) return err('Fehlender OAuth-Code');
+    if (!hwid) return err('Fehlender Geräte-Fingerabdruck (HWID)');
 
     const svc = new AuthService(env);
     try {
@@ -16,7 +17,7 @@ export class AuthController {
       const role   = await svc.getRobloxRole(roblox.robloxId);
       if (!role)   return err('Zugriff verweigert: Rang unzureichend oder kein Gruppenmitglied', 403);
 
-      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role);
+      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, hwid);
       const cookies = await svc.createSession(user, request);
 
       await auditLog(env.DATABASE, user.id, 'LOGIN', 'sessions', undefined, { ip: getIP(request) }, getIP(request));

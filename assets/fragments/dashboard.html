@@ -48,15 +48,11 @@
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700">
             <i data-lucide="users" class="w-4 h-4"></i> PERSONAL
         </button>
-        <button onclick="showTab('calculator')" data-tab="calculator"
-            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700">
-            <i data-lucide="gavel" class="w-4 h-4"></i> AKTIONS-MATRIX
-        </button>
-        <button onclick="showTab('quickmod')" data-tab="quickmod"
+        <button onclick="showTab('modcenter')" data-tab="modcenter"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <i data-lucide="zap" class="w-4 h-4 group-hover:text-blue-400 transition-colors"></i>
-            <span class="group-hover:text-blue-400 transition-colors">SCHNELLMODERATOR</span>
+            <div class="absolute inset-0 bg-tac-amber/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            <span>MOD-ZENTRUM</span>
         </button>
         <button onclick="showTab('watchlist'); loadWatchlist();" data-tab="watchlist"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
@@ -77,19 +73,31 @@
             <span class="group-hover:text-tac-green transition-colors">SERVER INTEL</span>
         </button>
 
+        <button onclick="showTab('shiftlog'); loadShiftLog();" data-tab="shiftlog" id="nav-shiftlog" style="display:none"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <i data-lucide="bar-chart-2" class="w-4 h-4 group-hover:text-purple-400 transition-colors"></i>
+            <span class="group-hover:text-purple-400 transition-colors">SCHICHTLOG</span>
+        </button>
+
         <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-6 mb-3 px-3">IN-GAME</p>
 
-        <a href="/gamepanel" target="_blank"
+        <button onclick="showTab('gamepanel')" data-tab="gamepanel"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-tac-green/70 hover:text-tac-green border-l-2 border-transparent hover:border-tac-green relative overflow-hidden group"
             id="nav-gamepanel">
             <div class="absolute inset-0 bg-tac-green/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <i data-lucide="gamepad-2" class="w-4 h-4"></i>
             <span>GAME PANEL</span>
-            <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>
-        </a>
+        </button>
 
-        <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-6 mb-3 px-3" id="nav-section-owner"
-            style="display:none">SYSTEM</p>
+        <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-6 mb-3 px-3" id="nav-section-owner" style="display:none">SYSTEM</p>
+
+        <button onclick="showTab('management'); loadStaffManagement();" data-tab="management" id="nav-management" style="display:none"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-purple-400/70 hover:text-purple-400 border-l-2 border-transparent hover:border-purple-400 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <i data-lucide="users-cog" class="w-4 h-4"></i>
+            <span>TEAM-MANAGEMENT</span>
+        </button>
 
         <a href="/dbpanel.html" target="_blank" id="nav-dbpanel" style="display:none"
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-red-400/70 hover:text-red-400 border-l-2 border-transparent hover:border-red-400 relative overflow-hidden group">
@@ -466,335 +474,335 @@
         </div>
 
         <!-- ==========================================
-             TAB: AKTIONS-MATRIX
+             TAB: MOD-ZENTRUM (combined)
         =========================================== -->
-        <div id="tab-calculator" class="tab-content hidden animate-fade-in text-gray-300">
-            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-border pb-4 mb-6">
+        <!-- ─────────────────────────────────────────────────────────────────
+             MOD-ZENTRUM: 3-column layout
+             LEFT  – Player lookup + case history
+             MID   – Action matrix (offense + count + result display)
+             RIGHT – Command generator + checklist
+        ──────────────────────────────────────────────────────────────── -->
+        <div id="tab-modcenter" class="tab-content hidden animate-fade-in text-gray-300">
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-tac-border pb-4 mb-6 gap-2">
                 <div>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider">
-                        Aktions-Matrix</h2>
-                    <p class="font-mono text-xs text-tac-muted mt-1">BESTRAFUNGSRICHTLINIEN & RECHNER</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Eingabe -->
-                <div class="lg:col-span-5 bg-tac-panel border border-tac-border p-6 flex flex-col gap-6">
-                    <div>
-                        <label class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">VERGEHEN</label>
-                        <div class="relative">
-                            <select id="calc-offense" onchange="runCalculation()"
-                                class="w-full bg-tac-dark border border-tac-border text-white font-mono text-sm p-3 focus:outline-none focus:border-tac-amber appearance-none cursor-pointer">
-                                <option value="" disabled selected>[ VERGEHEN AUSWÄHLEN ]</option>
-                                <optgroup label="KAMPF-VERSTÖSSE">
-                                    <option value="RDM">Random Deathmatch (RDM)</option>
-                                    <option value="VDM">Vehicle Deathmatch (VDM)</option>
-                                    <option value="Spawnkill">Spawn Killing</option>
-                                    <option value="CombatLog">Combat Logging</option>
-                                </optgroup>
-                                <optgroup label="ROLEPLAY-VERSTÖSSE">
-                                    <option value="FailRP">Failure to Roleplay (FailRP)</option>
-                                    <option value="Metagaming">Metagaming</option>
-                                    <option value="Powergaming">Powergaming</option>
-                                    <option value="NLR">New Life Rule (NLR)</option>
-                                </optgroup>
-                                <optgroup label="VERHALTEN">
-                                    <option value="Toxicity">Toxizität / Beleidigung</option>
-                                    <option value="Spam">Chat Spam</option>
-                                    <option value="Advertising">Fremdwerbung</option>
-                                    <option value="Exploiting">Exploiting / Cheating</option>
-                                </optgroup>
-                            </select>
-                            <i data-lucide="chevron-down"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tac-muted pointer-events-none"></i>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label
-                            class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">VERSTOSS-ZÄHLER</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="offense-count" value="1" class="peer hidden" checked
-                                    onchange="runCalculation()">
-                                <div
-                                    class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">
-                                    1. MAL</div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="offense-count" value="2" class="peer hidden"
-                                    onchange="runCalculation()">
-                                <div
-                                    class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">
-                                    2. MAL</div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="offense-count" value="3" class="peer hidden"
-                                    onchange="runCalculation()">
-                                <div
-                                    class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-xs text-tac-muted peer-checked:bg-tac-red/20 peer-checked:text-tac-red peer-checked:border-tac-red transition-all">
-                                    3. MAL+</div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Generator Zusatz -->
-                    <div class="pt-4 border-t border-tac-border">
-                        <label
-                            class="font-mono text-[10px] text-tac-muted tracking-widest block mb-2">ZIEL-IDENTIFIKATION
-                            (OPTIONAL)</label>
-                        <input type="text" id="calc-username" onkeyup="runCalculation()"
-                            placeholder="Username eingeben..."
-                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors">
-                        <p class="text-[9px] text-zinc-500 font-mono mt-2">Dient zur automatischen Befehlsgenerierung.
-                        </p>
-                    </div>
-
-                    <!-- Offense Quick Actions -->
-                    <div class="grid grid-cols-2 gap-2 mt-auto">
-                        <button onclick="runCalculation('RDM')"
-                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">RDM</button>
-                        <button onclick="runCalculation('FailRP')"
-                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">FAILRP</button>
-                        <button onclick="runCalculation('Toxicity')"
-                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">TOXIZITÄT</button>
-                        <button onclick="runCalculation('NLR')"
-                            class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">NLR</button>
-                    </div>
-                </div>
-
-                <!-- Ergebnis -->
-                <div
-                    class="lg:col-span-7 bg-[#0a0a0c] border border-tac-border p-8 relative overflow-hidden flex flex-col justify-center items-center text-center min-h-[350px]">
-                    <div class="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none"></div>
-
-                    <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-4 relative z-10">EMPFOHLENE
-                        MASSNAHME</p>
-
-                    <div class="relative z-10 w-full mb-8">
-                        <h3 id="calc-result"
-                            class="font-display text-4xl md:text-5xl font-bold text-white tracking-widest mb-2 transition-colors">
-                            STANDBY</h3>
-                        <p id="calc-subtext" class="font-mono text-sm text-tac-muted">WARTE AUF PARAMETER</p>
-                    </div>
-
-                    <!-- Generierter Befehl -->
-                    <div id="calc-command-box" class="w-full relative z-10 hidden animate-slide-up">
-                        <p class="font-mono text-[9px] text-tac-muted tracking-widest mb-2 text-left">TRIDENT BEFEHL</p>
-                        <div class="flex items-stretch border border-tac-border bg-black">
-                            <input type="text" id="calc-command-output"
-                                class="flex-1 bg-transparent px-3 font-mono text-xs text-white focus:outline-none"
-                                readonly>
-                            <button onclick="copyCalcCommand()"
-                                class="bg-tac-dark border-l border-tac-border px-4 py-2 text-tac-amber hover:bg-tac-amber hover:text-black transition-colors"
-                                title="Kopieren">
-                                <i data-lucide="copy" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==========================================
-             TAB: SCHNELL-MODERATOR (NEU)
-        =========================================== -->
-        <div id="tab-quickmod" class="tab-content hidden animate-fade-in text-gray-300">
-            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-blue-500/30 pb-4 mb-6">
-                <div>
-                    <h2
-                        class="font-display text-2xl md:text-3xl font-bold text-blue-400 uppercase tracking-wider flex items-center gap-3">
-                        <i data-lucide="zap" class="w-6 h-6"></i> Schnellmoderator
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="zap" class="w-6 h-6 text-tac-amber"></i> Mod-Zentrum
                     </h2>
-                    <p class="font-mono text-xs text-blue-500/70 mt-1">ALL-IN-ONE WORKFLOW FÜR SCHNELLE MASSNAHMEN</p>
+                    <p class="font-mono text-xs text-tac-muted mt-1">SPIELER-LOOKUP · AKTIONS-MATRIX · BEFEHLSGENERATOR</p>
                 </div>
+                <button onclick="resetModCenter()" class="font-mono text-[10px] text-tac-muted hover:text-white border border-tac-border px-3 py-1.5 transition-colors self-start sm:self-auto">
+                    RESET
+                </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Sektion A & C: Lookup + Checkliste -->
-                <div class="flex flex-col gap-6">
+            <!-- 3-column grid on large screens; stacks on mobile -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-                    <!-- Sektion A -->
-                    <div class="bg-tac-panel border border-blue-500/30 p-6">
-                        <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 mb-4 uppercase">1.
-                            Spieler-Identifikation</h3>
+                <!-- ── COL 1: Spieler-Lookup ──────────────────────────────────── -->
+                <div class="flex flex-col gap-4">
+                    <div class="bg-tac-panel border border-tac-border p-5">
+                        <p class="font-mono text-[10px] text-tac-amber tracking-widest mb-3">01 / IDENTIFIKATION</p>
                         <div class="flex gap-2">
-                            <input type="text" id="lookup-input" placeholder="Roblox ID oder Username..."
-                                class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                            <input type="text" id="lookup-input"
+                                placeholder="Roblox ID oder Username..."
+                                class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors"
                                 onkeydown="if(event.key==='Enter') lookupPlayer()">
                             <button onclick="lookupPlayer()"
-                                class="bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 hover:bg-blue-500 hover:text-black transition-colors tooltip"
+                                class="bg-tac-amber/10 border border-tac-amber/50 text-tac-amber px-3 hover:bg-tac-amber hover:text-black transition-colors"
                                 title="Suchen">
                                 <i data-lucide="search" class="w-4 h-4"></i>
                             </button>
                         </div>
-
-                        <!-- Ladeanzeige -->
-                        <div id="lookup-loading" class="hidden mt-4 py-4 text-center">
-                            <i data-lucide="loader-2" class="w-6 h-6 text-blue-400 animate-spin mx-auto"></i>
+                        <div id="lookup-loading" class="hidden mt-4 py-3 text-center">
+                            <i data-lucide="loader-2" class="w-5 h-5 text-tac-amber animate-spin mx-auto"></i>
                         </div>
-
-                        <!-- Ergebnis -->
-                        <div id="lookup-result"
-                            class="hidden mt-6 bg-black/40 border border-tac-border p-4 flex items-center gap-4 animate-fade-in">
-                            <img id="lookup-avatar" src="" alt="Avatar" class="w-12 h-12 border border-tac-border">
-                            <div class="flex-1 overflow-hidden">
-                                <p id="lookup-username" class="font-mono text-sm font-bold text-white truncate">Username
-                                </p>
-                                <p id="lookup-rank" class="font-mono text-[10px] text-tac-muted">ID: 0000</p>
-                            </div>
-                            <div class="flex gap-2">
+                        <!-- Player card -->
+                        <div id="lookup-result" class="hidden mt-4 bg-black/40 border border-tac-border p-3 animate-fade-in">
+                            <div class="flex items-center gap-3">
+                                <img id="lookup-avatar" src="" alt="" class="w-10 h-10 border border-tac-border grayscale">
+                                <div class="flex-1 min-w-0">
+                                    <p id="lookup-username" class="font-mono text-sm font-bold text-white truncate"></p>
+                                    <p id="lookup-rank" class="font-mono text-[10px] text-tac-muted"></p>
+                                </div>
                                 <a id="lookup-profile-btn" href="#" target="_blank"
-                                    class="p-2 border border-tac-border bg-tac-dark hover:text-blue-400 hover:border-blue-400 transition-colors"
+                                    class="p-1.5 border border-tac-border hover:text-tac-amber hover:border-tac-amber transition-colors"
                                     title="Roblox Profil">
-                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                                 </a>
-                                <button onclick="cloudKickPlayer()"
-                                    class="p-2 border border-yellow-500/30 bg-yellow-500/5 hover:bg-yellow-500/20 text-yellow-400 transition-colors"
-                                    title="Ingame Kick (Open Cloud)" data-ingame-only>
-                                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="cloudBanPlayer()"
-                                    class="p-2 border border-tac-red/30 bg-tac-red/5 hover:bg-tac-red/20 text-tac-red transition-colors"
-                                    title="Ingame Ban (Open Cloud)" data-ingame-only>
-                                    <i data-lucide="ban" class="w-4 h-4"></i>
-                                </button>
                             </div>
+                            <!-- Game Panel shortcut -->
+                            <a id="lookup-gamepanel-btn" href="#" target="_blank"
+                                class="mt-3 flex items-center justify-center gap-2 w-full py-1.5 border border-tac-green/30 text-tac-green/70 hover:text-tac-green hover:border-tac-green font-mono text-[10px] transition-colors">
+                                <i data-lucide="gamepad-2" class="w-3 h-3"></i> GAME PANEL ÖFFNEN
+                            </a>
                         </div>
                     </div>
 
-                    <!-- Sektion B2: Fall-Historie -->
-                    <div id="case-history-section" class="hidden bg-tac-panel border border-blue-500/20 p-5">
+                    <!-- Fall-Historie -->
+                    <div id="case-history-section" class="hidden bg-tac-panel border border-tac-border p-4 flex-1">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 uppercase">Akte //
-                                Fall-Historie</h3>
+                            <p class="font-mono text-[10px] text-tac-amber tracking-widest">FALL-HISTORIE</p>
                             <span id="case-history-count" class="font-mono text-[9px] text-tac-muted"></span>
                         </div>
-                        <div id="case-history-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                            <!-- injected by lookupPlayer() -->
-                        </div>
+                        <div id="case-history-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
                     </div>
 
-                    <!-- Sektion C: Checkliste -->
-                    <div class="bg-tac-panel border border-blue-500/30 p-6 flex-1 flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 uppercase">3.
-                                Protokollierung</h3>
-                            <button onclick="resetChecklist()"
-                                class="text-[9px] text-tac-muted hover:text-white uppercase font-mono">Reset</button>
+                    <!-- Protokoll-Checkliste -->
+                    <div class="bg-tac-panel border border-tac-border p-5">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="font-mono text-[10px] text-tac-amber tracking-widest">04 / PROTOKOLLIERUNG</p>
+                            <button onclick="resetChecklist()" class="text-[9px] text-tac-muted hover:text-white font-mono">RESET</button>
                         </div>
-
-                        <div class="w-full h-1 bg-tac-dark border border-tac-border mb-4">
-                            <div id="checklist-fill" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
+                        <div class="w-full h-0.5 bg-tac-dark mb-4">
+                            <div id="checklist-fill" class="h-full bg-tac-amber w-0 transition-all duration-500"></div>
                         </div>
-
-                        <div class="space-y-3 font-mono text-xs">
+                        <div class="space-y-2.5 font-mono text-xs">
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox"
-                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
-                                    onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">Spielerakte in
-                                    Trident geprüft</span>
+                                <input type="checkbox" class="mod-check appearance-none w-3.5 h-3.5 border border-tac-border checked:bg-tac-amber checked:border-tac-amber transition-colors" onchange="toggleChecklist()">
+                                <span class="text-zinc-500 group-hover:text-white transition-colors">Spielerakte in Trident geprüft</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox"
-                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
-                                    onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">Richtiger
-                                    Verstoß-Zähler ausgewählt</span>
+                                <input type="checkbox" class="mod-check appearance-none w-3.5 h-3.5 border border-tac-border checked:bg-tac-amber checked:border-tac-amber transition-colors" onchange="toggleChecklist()">
+                                <span class="text-zinc-500 group-hover:text-white transition-colors">Richtiger Verstoß-Zähler gewählt</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox"
-                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
-                                    onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">Befehl ausgeführt &
-                                    bestraft</span>
+                                <input type="checkbox" class="mod-check appearance-none w-3.5 h-3.5 border border-tac-border checked:bg-tac-amber checked:border-tac-amber transition-colors" onchange="toggleChecklist()">
+                                <span class="text-zinc-500 group-hover:text-white transition-colors">Befehl ausgeführt & bestraft</span>
                             </label>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox"
-                                    class="mod-check appearance-none w-4 h-4 border border-tac-border checked:bg-blue-500 checked:border-blue-500 transition-colors"
-                                    onchange="toggleChecklist()">
-                                <span class="text-gray-400 group-hover:text-white transition-colors">In Schichtbericht
-                                    vermerkt (+1)</span>
+                                <input type="checkbox" class="mod-check appearance-none w-3.5 h-3.5 border border-tac-border checked:bg-tac-amber checked:border-tac-amber transition-colors" onchange="toggleChecklist()">
+                                <span class="text-zinc-500 group-hover:text-white transition-colors">Schichtbericht aktualisiert (+1)</span>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sektion B: Generator -->
-                <div class="bg-tac-panel border border-blue-500/30 p-6 flex flex-col">
-                    <h3 class="font-mono font-bold text-[10px] tracking-widest text-blue-400 mb-6 uppercase">2.
-                        Massnahmen-Generator</h3>
+                <!-- ── COL 2: Aktions-Matrix ───────────────────────────────────── -->
+                <div class="flex flex-col gap-4">
+                    <div class="bg-tac-panel border border-tac-border p-5 flex flex-col gap-4">
+                        <p class="font-mono text-[10px] text-tac-amber tracking-widest">02 / AKTIONS-MATRIX</p>
 
-                    <div class="space-y-4 mb-8">
+                        <!-- Vergehen -->
                         <div>
-                            <label class="font-mono text-[9px] text-tac-muted block mb-1">ZIEL (AUTOMATISCH
-                                ÜBERNOMMEN)</label>
-                            <input type="text" id="qm-username"
-                                class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none"
-                                readonly>
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">VERGEHEN</label>
+                            <div class="relative">
+                                <select id="calc-offense" onchange="runCalculation(); syncOffenseToGenerator();"
+                                    class="w-full bg-tac-dark border border-tac-border text-white font-mono text-sm p-2.5 focus:outline-none focus:border-tac-amber appearance-none cursor-pointer">
+                                    <option value="" disabled selected>[ VERGEHEN AUSWÄHLEN ]</option>
+                                    <optgroup label="KAMPF-VERSTÖSSE">
+                                        <option value="RDM">Random Deathmatch (RDM)</option>
+                                        <option value="VDM">Vehicle Deathmatch (VDM)</option>
+                                        <option value="Spawnkill">Spawn Killing</option>
+                                        <option value="CombatLog">Combat Logging</option>
+                                    </optgroup>
+                                    <optgroup label="ROLEPLAY-VERSTÖSSE">
+                                        <option value="FailRP">Failure to Roleplay (FailRP)</option>
+                                        <option value="Metagaming">Metagaming</option>
+                                        <option value="Powergaming">Powergaming</option>
+                                        <option value="NLR">New Life Rule (NLR)</option>
+                                    </optgroup>
+                                    <optgroup label="VERHALTEN">
+                                        <option value="Toxicity">Toxizität / Beleidigung</option>
+                                        <option value="Spam">Chat Spam</option>
+                                        <option value="Advertising">Fremdwerbung</option>
+                                        <option value="Exploiting">Exploiting / Cheating</option>
+                                    </optgroup>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-tac-muted pointer-events-none"></i>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+
+                        <!-- Verstoss-Zähler -->
+                        <div>
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">VERSTOSSKONTO</label>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="offense-count" value="1" class="peer hidden" checked onchange="runCalculation(); syncOffenseToGenerator();">
+                                    <div class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-[10px] text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">1. MAL</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="offense-count" value="2" class="peer hidden" onchange="runCalculation(); syncOffenseToGenerator();">
+                                    <div class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-[10px] text-tac-muted peer-checked:bg-tac-amber/20 peer-checked:text-tac-amber peer-checked:border-tac-amber transition-all">2. MAL</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="offense-count" value="3" class="peer hidden" onchange="runCalculation(); syncOffenseToGenerator();">
+                                    <div class="bg-tac-dark border border-tac-border text-center py-2 font-mono text-[10px] text-tac-muted peer-checked:bg-tac-red/20 peer-checked:text-tac-red peer-checked:border-tac-red transition-all">3.+ MAL</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Quick offense buttons -->
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="setOffenseAndCalc('RDM')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">RDM</button>
+                            <button onclick="setOffenseAndCalc('FailRP')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">FAILRP</button>
+                            <button onclick="setOffenseAndCalc('Toxicity')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">TOXIZITÄT</button>
+                            <button onclick="setOffenseAndCalc('NLR')" class="border border-tac-border bg-black hover:border-tac-amber hover:text-tac-amber text-tac-muted font-mono text-[10px] py-1.5 transition-colors">NLR</button>
+                        </div>
+                    </div>
+
+                    <!-- Empfehlung Display -->
+                    <div class="bg-[#0a0a0c] border border-tac-border p-6 flex-1 relative overflow-hidden flex flex-col justify-center items-center text-center min-h-[180px]">
+                        <div class="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none"></div>
+                        <p class="font-mono text-[9px] text-tac-muted tracking-widest mb-3 relative z-10">EMPFOHLENE MASSNAHME</p>
+                        <h3 id="calc-result" class="font-display text-3xl md:text-4xl font-bold text-white tracking-widest mb-1 relative z-10 transition-colors">STANDBY</h3>
+                        <p id="calc-subtext" class="font-mono text-xs text-tac-muted relative z-10">WARTE AUF PARAMETER</p>
+                    </div>
+                </div>
+
+                <!-- ── COL 3: Befehlsgenerator ─────────────────────────────────── -->
+                <div class="flex flex-col gap-4">
+                    <div class="bg-tac-panel border border-tac-border p-5 flex flex-col gap-4 flex-1">
+                        <p class="font-mono text-[10px] text-tac-amber tracking-widest">03 / BEFEHLSGENERATOR</p>
+
+                        <!-- Target -->
+                        <div>
+                            <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">ZIEL (vom Lookup übernommen)</label>
+                            <input type="text" id="qm-username"
+                                class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-tac-amber transition-colors"
+                                placeholder="Username..."
+                                oninput="generateQuickCommand()">
+                        </div>
+
+                        <!-- Offense mirror + count -->
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="font-mono text-[9px] text-tac-muted block mb-1">VERGEHEN</label>
+                                <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">VERGEHEN</label>
                                 <select id="qm-offense" onchange="generateQuickCommand()"
-                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2.5 focus:outline-none focus:border-blue-500">
+                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2 focus:outline-none focus:border-tac-amber">
                                     <option value="" disabled selected>-- Auswahl --</option>
                                     <option value="RDM">RDM</option>
                                     <option value="VDM">VDM</option>
                                     <option value="FailRP">FailRP</option>
                                     <option value="CombatLog">Combat Log</option>
                                     <option value="Toxicity">Toxizität</option>
+                                    <option value="Spawnkill">Spawnkill</option>
+                                    <option value="NLR">NLR</option>
+                                    <option value="Exploiting">Exploiting</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="font-mono text-[9px] text-tac-muted block mb-1">MAL</label>
+                                <label class="font-mono text-[9px] text-tac-muted block mb-1.5 tracking-widest">MAL</label>
                                 <select id="qm-count" onchange="generateQuickCommand()"
-                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2.5 focus:outline-none focus:border-blue-500">
+                                    class="w-full bg-black border border-tac-border text-white font-mono text-xs p-2 focus:outline-none focus:border-tac-amber">
                                     <option value="1">1. Mal</option>
                                     <option value="2">2. Mal</option>
                                     <option value="3">3.+ Mal</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
 
-                    <div id="qm-command-box" class="space-y-4 mt-auto hidden animate-slide-up">
-                        <!-- Trident String -->
-                        <div>
-                            <div class="flex justify-between items-end mb-1">
-                                <label class="font-mono text-[9px] text-orange-400 font-bold uppercase">Trident
-                                    (Ingame)</label>
+                        <!-- Generated commands -->
+                        <div id="qm-command-box" class="space-y-3 hidden animate-fade-in">
+                            <div>
+                                <label class="font-mono text-[9px] text-orange-400 font-bold tracking-widest block mb-1">TRIDENT (INGAME)</label>
+                                <div class="flex items-stretch border border-orange-500/20 bg-black">
+                                    <input type="text" id="qm-trident-output" class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none" readonly>
+                                    <button onclick="copyQmCommand('trident')" class="bg-orange-500/10 px-3 hover:bg-orange-500 hover:text-black transition-colors text-orange-400 border-l border-orange-500/20">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="flex items-stretch border border-orange-500/30 bg-black">
-                                <input type="text" id="qm-trident-output"
-                                    class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
-                                    readonly>
-                                <button onclick="copyQmCommand('trident')"
-                                    class="bg-orange-500/10 px-4 hover:bg-orange-500 hover:text-black transition-colors text-orange-400 border-l border-orange-500/30">
-                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                </button>
+                            <div>
+                                <label class="font-mono text-[9px] text-blue-400 font-bold tracking-widest block mb-1">SAPPHIRE (DISCORD)</label>
+                                <div class="flex items-stretch border border-blue-500/20 bg-black">
+                                    <input type="text" id="qm-sapphire-output" class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none" readonly>
+                                    <button onclick="copyQmCommand('sapphire')" class="bg-blue-500/10 px-3 hover:bg-blue-500 hover:text-black transition-colors text-blue-400 border-l border-blue-500/20">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <!-- Sapphire String -->
-                        <div>
-                            <div class="flex justify-between items-end mb-1">
-                                <label class="font-mono text-[9px] text-blue-400 font-bold uppercase">Sapphire
-                                    (Discord)</label>
-                            </div>
-                            <div class="flex items-stretch border border-blue-500/30 bg-black">
-                                <input type="text" id="qm-sapphire-output"
-                                    class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none"
-                                    readonly>
-                                <button onclick="copyQmCommand('sapphire')"
-                                    class="bg-blue-500/10 px-4 hover:bg-blue-500 hover:text-black transition-colors text-blue-400 border-l border-blue-500/30">
+
+                        <!-- Calc command (from matrix, shown when username set) -->
+                        <div id="calc-command-box" class="hidden">
+                            <label class="font-mono text-[9px] text-tac-amber font-bold tracking-widest block mb-1">MATRIX-BEFEHL (TRIDENT)</label>
+                            <div class="flex items-stretch border border-tac-amber/20 bg-black">
+                                <input type="text" id="calc-command-output" class="flex-1 bg-transparent px-3 py-2 font-mono text-[10px] text-white focus:outline-none" readonly>
+                                <button onclick="copyCalcCommand()" class="bg-tac-amber/10 px-3 hover:bg-tac-amber hover:text-black transition-colors text-tac-amber border-l border-tac-amber/20">
                                     <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-
                 </div>
+
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB: SCHICHTLOG (ADMIN+)
+        =========================================== -->
+        <div id="tab-shiftlog" class="tab-content hidden animate-fade-in text-gray-300">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-purple-500/30 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-purple-400 uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="bar-chart-2" class="w-6 h-6"></i> Schichtlog
+                    </h2>
+                    <p class="font-mono text-xs text-purple-500/60 mt-1">SCHICHTÜBERSICHT DES GESAMTEN TEAMS · MANAGEMENT+</p>
+                </div>
+                <div class="flex gap-2 items-center flex-wrap">
+                    <select id="sl-mode" onchange="loadShiftLog()" class="bg-tac-panel border border-tac-border text-white font-mono text-xs px-3 py-2 focus:outline-none focus:border-purple-500">
+                        <option value="summary">ZUSAMMENFASSUNG</option>
+                        <option value="log">EINZELNE SCHICHTEN</option>
+                    </select>
+                    <select id="sl-sort" onchange="loadShiftLog()" class="bg-tac-panel border border-tac-border text-white font-mono text-xs px-3 py-2 focus:outline-none focus:border-purple-500">
+                        <option value="total_seconds">NACH AKTIVZEIT</option>
+                        <option value="total_shifts">NACH SCHICHTANZAHL</option>
+                        <option value="total_cases">NACH FÄLLEN</option>
+                        <option value="total_bans">NACH BANS</option>
+                    </select>
+                    <button onclick="loadShiftLog()" class="bg-tac-panel border border-tac-border px-3 py-2 text-tac-muted hover:text-purple-400 hover:border-purple-500/50 transition-colors font-mono text-[10px] flex items-center gap-1">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary mode -->
+            <div id="sl-summary" class="hidden">
+                <div id="sl-summary-grid" class="space-y-2"></div>
+            </div>
+
+            <!-- Log mode -->
+            <div id="sl-log" class="hidden">
+                <div class="bg-tac-card border border-tac-border overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full font-mono text-[11px]">
+                            <thead>
+                                <tr class="border-b border-tac-border">
+                                    <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest">MITARBEITER</th>
+                                    <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest">ROLLE</th>
+                                    <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest">START</th>
+                                    <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest">DAUER</th>
+                                    <th class="text-center px-4 py-3 text-tac-muted font-medium tracking-widest">FÄLLE</th>
+                                    <th class="text-center px-4 py-3 text-tac-muted font-medium tracking-widest">BANS</th>
+                                    <th class="text-center px-4 py-3 text-tac-muted font-medium tracking-widest">WARNS</th>
+                                    <th class="text-center px-4 py-3 text-tac-muted font-medium tracking-widest">KICKS</th>
+                                    <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest">STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sl-log-tbody">
+                                <tr><td colspan="9" class="text-center text-tac-muted py-10">Lade...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <button id="sl-prev" onclick="slPage(-1)" class="font-mono text-[10px] text-tac-muted border border-tac-border px-3 py-1.5 hover:text-white hover:border-zinc-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">← ZURÜCK</button>
+                    <span id="sl-page-info" class="font-mono text-[10px] text-tac-muted"></span>
+                    <button id="sl-next" onclick="slPage(1)" class="font-mono text-[10px] text-tac-muted border border-tac-border px-3 py-1.5 hover:text-white hover:border-zinc-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">WEITER →</button>
+                </div>
+            </div>
+
+            <!-- Loading / empty states -->
+            <div id="sl-loading" class="flex flex-col items-center justify-center py-16 hidden">
+                <i data-lucide="loader-2" class="w-8 h-8 text-purple-400 animate-spin mb-3"></i>
+                <p class="font-mono text-xs text-tac-muted">LADE SCHICHTDATEN...</p>
+            </div>
+            <div id="sl-empty" class="hidden text-center py-12">
+                <i data-lucide="clock" class="w-10 h-10 text-tac-muted mx-auto mb-3"></i>
+                <p class="font-mono text-sm text-tac-muted">KEINE SCHICHTEN GEFUNDEN</p>
             </div>
         </div>
 
@@ -1154,5 +1162,185 @@
             </div>
         </div>
 
+        <!-- ==========================================
+             TAB: TEAM MANAGEMENT (ADMIN+)
+        =========================================== -->
+        <div id="tab-management" class="tab-content hidden animate-fade-in text-gray-300">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-purple-500/30 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-purple-400 uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="users-cog" class="w-6 h-6"></i> Team-Management
+                    </h2>
+                    <p class="font-mono text-xs text-purple-500/60 mt-1">PERSONALVERWALTUNG UND GERÄTE-SICHERHEIT</p>
+                </div>
+                <button onclick="loadStaffManagement()" class="bg-tac-panel border border-tac-border px-3 py-2 text-tac-muted hover:text-purple-400 hover:border-purple-500/50 transition-colors font-mono text-[10px] flex items-center gap-1">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> NEU LADEN
+                </button>
+            </div>
+
+            <div class="bg-tac-card border border-tac-border overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full font-mono text-[11px]">
+                        <thead>
+                            <tr class="border-b border-tac-border bg-black/40">
+                                <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest pointer-events-none">MITARBEITER</th>
+                                <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest pointer-events-none">ROLLE</th>
+                                <th class="text-left px-4 py-3 text-tac-muted font-medium tracking-widest pointer-events-none">ZULETZT GESEHEN</th>
+                                <th class="text-center px-4 py-3 text-tac-muted font-medium tracking-widest pointer-events-none">HWID STATUS</th>
+                                <th class="text-right px-4 py-3 text-tac-muted font-medium tracking-widest pointer-events-none">AKTIONEN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mgmt-table-body">
+                            <tr><td colspan="5" class="text-center text-tac-muted py-10">Lade...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB: GAME PANEL (MOD+)
+        =========================================== -->
+        <div id="tab-gamepanel" class="tab-content hidden animate-fade-in text-gray-300">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-tac-green/30 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-tac-green uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="gamepad-2" class="w-6 h-6"></i> Game Panel
+                    </h2>
+                    <p class="font-mono text-xs text-tac-green/60 mt-1">IN-GAME MODERATION UND SERVER-ZUGRIFFE</p>
+                </div>
+            </div>
+            
+            <div id="gp-perm-denied" class="hidden mb-6">
+                <div class="border border-tac-red/50 bg-tac-red/5 p-6 clip-tl text-center">
+                    <i data-lucide="shield-off" class="w-10 h-10 text-tac-red mx-auto mb-3"></i>
+                    <div class="font-display text-xl text-tac-red mb-1">ZUGRIFF VERWEIGERT</div>
+                    <div class="font-mono text-xs text-tac-muted">Nur Game Moderator+ kann das Game Panel verwenden.</div>
+                </div>
+            </div>
+            
+            <div id="gp-main-content" class="space-y-6 hidden">
+                <section class="hud-corners bg-tac-card border border-tac-border clip-tl p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i data-lucide="search" class="w-4 h-4 text-tac-amber"></i>
+                        <span class="font-display text-base font-semibold tracking-widest text-zinc-200">SPIELER SUCHEN</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <input id="gp-search-input" type="text" placeholder="Benutzername oder Roblox-ID..."
+                            class="flex-1 bg-tac-panel border border-tac-border text-sm font-mono text-zinc-200 px-4 py-2.5 placeholder-tac-muted focus:border-tac-amber focus:outline-none" onkeydown="if(event.key==='Enter') gpLookupPlayer()" />
+                        <button onclick="gpLookupPlayer()"
+                            class="btn-action bg-tac-amber text-black font-mono text-xs font-bold uppercase tracking-widest px-5 py-2.5 clip-br hover:bg-yellow-400">
+                            SUCHEN
+                        </button>
+                    </div>
+                    <div id="gp-search-hint" class="mt-2 font-mono text-[10px] text-tac-muted">Drücke Enter oder klicke Suchen</div>
+                </section>
+                
+                <div id="gp-player-section" class="hidden space-y-6 animate-fade-in">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <section class="hud-corners bg-tac-card border border-tac-border clip-tl p-5">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i data-lucide="user" class="w-4 h-4 text-tac-amber"></i>
+                                <span class="font-display text-sm font-semibold tracking-widest text-zinc-200">PROFIL</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <img id="gp-player-avatar" src="" alt="" class="w-16 h-16 border border-tac-border object-cover grayscale" />
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-display text-lg font-bold text-zinc-100" id="gp-player-display-name"></div>
+                                    <div class="font-mono text-xs text-tac-muted" id="gp-player-username"></div>
+                                    <div class="font-mono text-[10px] text-tac-muted mt-1">ID: <span id="gp-player-id" class="text-zinc-400"></span></div>
+                                    <a id="gp-player-profile-link" href="#" target="_blank" class="font-mono text-[10px] text-tac-blue hover:underline mt-1 inline-block">Roblox-Profil öffnen →</a>
+                                </div>
+                            </div>
+                            <div id="gp-player-banned-badge" class="hidden mt-3 flex items-center gap-2 bg-tac-red/10 border border-tac-red/40 px-3 py-1.5 font-mono text-xs text-tac-red">
+                                <i data-lucide="ban" class="w-3.5 h-3.5"></i> Von Roblox gesperrt
+                            </div>
+                        </section>
+                        
+                        <section class="hud-corners bg-tac-card border border-tac-border clip-br p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="shield-alert" class="w-4 h-4 text-tac-amber"></i>
+                                    <span class="font-display text-sm font-semibold tracking-widest text-zinc-200">BAN-STATUS (UNIVERSE)</span>
+                                </div>
+                                <button onclick="gpRefreshRestriction()" class="font-mono text-[10px] text-tac-muted hover:text-tac-amber transition-colors flex items-center gap-1">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Aktualisieren
+                                </button>
+                            </div>
+                            <div id="gp-restriction-loading" class="text-center py-6 font-mono text-[10px] text-tac-muted">
+                                <div class="animate-spin w-5 h-5 border-2 border-tac-border border-t-tac-amber rounded-full mx-auto mb-2"></div>
+                                Lade Ban-Status...
+                            </div>
+                            <div id="gp-restriction-content" class="hidden"></div>
+                        </section>
+                    </div>
+
+                    <section class="bg-tac-card border border-tac-border p-5">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="zap" class="w-4 h-4 text-tac-amber"></i>
+                            <span class="font-display text-sm font-semibold tracking-widest text-zinc-200">AKTIONEN</span>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button id="gp-btn-kick" onclick="openGpModal('modal-gp-kick')" class="btn-action data-mod flex items-center gap-2 bg-tac-blue/10 border border-tac-blue/40 text-tac-blue font-mono text-xs uppercase tracking-widest px-4 py-2.5 clip-tl hover:bg-tac-blue/20"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Kick</button>
+                            <button id="gp-btn-ban" onclick="openGpModal('modal-gp-ban')" class="btn-action data-mod flex items-center gap-2 bg-tac-red/10 border border-tac-red/40 text-tac-red font-mono text-xs uppercase tracking-widest px-4 py-2.5 clip-tl hover:bg-tac-red/20"><i data-lucide="hammer" class="w-3.5 h-3.5"></i> Sperren</button>
+                            <button id="gp-btn-unban" onclick="openGpModal('modal-gp-unban')" class="btn-action data-admin flex items-center gap-2 bg-tac-green/10 border border-tac-green/40 text-tac-green font-mono text-xs uppercase tracking-widest px-4 py-2.5 clip-br hover:bg-tac-green/20"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Entsperren</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
+
+<!-- ── Game Panel Modals ─────────────────────────────────────────────────────────── -->
+<div id="modal-gp-kick" class="modal-backdrop hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;display:flex;align-items:center;justify-content:center;">
+    <div class="modal-box clip-tl" style="background:#111114;border:1px solid rgba(226,168,0,0.3);max-width:480px;width:90%;padding:0;">
+        <div class="bg-tac-blue/10 border-b border-tac-blue/30 px-5 py-3 flex items-center gap-2">
+            <i data-lucide="log-out" class="w-4 h-4 text-tac-blue"></i>
+            <span class="font-display text-sm font-bold tracking-widest text-tac-blue">SPIELER KICKEN</span>
+        </div>
+        <div class="p-5 space-y-4">
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Ziel</label><div id="gp-kick-target" class="font-mono text-sm text-zinc-200 bg-tac-panel border border-tac-border px-3 py-2"></div></div>
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Begründung *</label><input id="gp-kick-reason" type="text" placeholder="Begründung eingeben..." class="w-full bg-tac-panel border border-tac-border text-sm font-mono text-zinc-200 px-3 py-2 placeholder-tac-muted focus:border-tac-amber focus:outline-none" /></div>
+        </div>
+        <div class="px-5 pb-5 flex gap-3 justify-end">
+            <button onclick="closeGpModal('modal-gp-kick')" class="font-mono text-xs text-tac-muted hover:text-zinc-200 px-4 py-2 border border-tac-border uppercase tracking-wider">Abbrechen</button>
+            <button onclick="executeGpKick()" id="gp-kick-submit" class="btn-action bg-tac-blue font-mono text-xs font-bold text-white uppercase tracking-widest px-5 py-2 clip-br hover:bg-blue-600 transition">KICK SENDEN</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-gp-ban" class="modal-backdrop hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;display:flex;align-items:center;justify-content:center;">
+    <div class="modal-box clip-tl" style="background:#111114;border:1px solid rgba(226,168,0,0.3);max-width:480px;width:90%;padding:0;">
+        <div class="bg-tac-red/10 border-b border-tac-red/30 px-5 py-3 flex items-center gap-2">
+            <i data-lucide="hammer" class="w-4 h-4 text-tac-red"></i>
+            <span class="font-display text-sm font-bold tracking-widest text-tac-red">SPIELER SPERREN</span>
+        </div>
+        <div class="p-5 space-y-4">
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Ziel</label><div id="gp-ban-target" class="font-mono text-sm text-zinc-200 bg-tac-panel border border-tac-border px-3 py-2"></div></div>
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Interne Begründung *</label><input id="gp-ban-reason" type="text" placeholder="Interne Begründung..." class="w-full bg-tac-panel border border-tac-border text-sm font-mono text-zinc-200 px-3 py-2 placeholder-tac-muted focus:border-tac-amber focus:outline-none" /></div>
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Öffentliche Begründung</label><input id="gp-ban-display-reason" type="text" class="w-full bg-tac-panel border border-tac-border text-sm font-mono text-zinc-200 px-3 py-2 placeholder-tac-muted focus:border-tac-amber focus:outline-none" /></div>
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Dauer (Tage)</label><input id="gp-ban-duration" type="number" min="1" placeholder="leer für Permaban" class="w-full bg-tac-panel border border-tac-border text-sm font-mono text-zinc-200 px-3 py-2 placeholder-tac-muted focus:border-tac-amber focus:outline-none" /></div>
+        </div>
+        <div class="px-5 pb-5 flex gap-3 justify-end">
+            <button onclick="closeGpModal('modal-gp-ban')" class="font-mono text-xs text-tac-muted hover:text-zinc-200 px-4 py-2 border border-tac-border uppercase tracking-wider">Abbrechen</button>
+            <button onclick="executeGpBan()" id="gp-ban-submit" class="btn-action bg-tac-red font-mono text-xs font-bold text-white uppercase tracking-widest px-5 py-2 clip-br hover:bg-red-600 transition">SPERREN</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-gp-unban" class="modal-backdrop hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;display:flex;align-items:center;justify-content:center;">
+    <div class="modal-box clip-tl" style="background:#111114;border:1px solid rgba(226,168,0,0.3);max-width:480px;width:90%;padding:0;">
+        <div class="bg-tac-green/10 border-b border-tac-green/30 px-5 py-3 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-tac-green"></i>
+            <span class="font-display text-sm font-bold tracking-widest text-tac-green">BAN AUFHEBEN</span>
+        </div>
+        <div class="p-5 space-y-4">
+            <div><label class="block font-mono text-[10px] text-tac-muted uppercase tracking-widest mb-1.5">Ziel</label><div id="gp-unban-target" class="font-mono text-sm text-zinc-200 bg-tac-panel border border-tac-border px-3 py-2"></div></div>
+        </div>
+        <div class="px-5 pb-5 flex gap-3 justify-end">
+            <button onclick="closeGpModal('modal-gp-unban')" class="font-mono text-xs text-tac-muted hover:text-zinc-200 px-4 py-2 border border-tac-border uppercase tracking-wider">Abbrechen</button>
+            <button onclick="executeGpUnban()" id="gp-unban-submit" class="btn-action bg-tac-green font-mono text-xs font-bold text-black uppercase tracking-widest px-5 py-2 clip-br hover:bg-green-500 transition">BAN AUFHEBEN</button>
+        </div>
+    </div>
+</div>

@@ -87,10 +87,10 @@ class ApiClient {
 
     // ── Auth Endpoints ────────────────────────────────────────────────────────
 
-    async login(code, redirectUri) {
+    async login(code, redirectUri, hwid) {
         const res = await this._request('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ code, redirect_uri: redirectUri }),
+            body: JSON.stringify({ code, redirect_uri: redirectUri, hwid }),
         });
         return { ok: res.ok, data: await res.json() };
     }
@@ -125,6 +125,10 @@ class ApiClient {
     async getActiveShift()      { return this.get('/shifts/active'); }
     async endShift(metrics)     { return this.post('/shifts/end', metrics); }
     async getAnalytics()        { return this.get('/shifts/analytics'); }
+    async getAllShifts(params = {}) {
+        const q = new URLSearchParams(params).toString();
+        return this.get(`/shifts/all${q ? '?' + q : ''}`);
+    }
 
     // ── Moderation Endpoints ──────────────────────────────────────────────────
 
@@ -157,6 +161,12 @@ class ApiClient {
     async getCloudRestriction(userId) {
         return this.get(`/cloud/restriction/${userId}`);
     }
+
+    // ── Management Endpoints ──────────────────────────────────────────────────
+
+    async getStaffManagement() { return this.get('/mgmt/users'); }
+    async resetStaffHwid(id) { return this.patch(`/mgmt/users/${id}/hwid-reset`, {}); }
+    async updateStaffRole(id, role) { return this.patch(`/mgmt/users/${id}/role`, { role }); }
 }
 
 class ApiError extends Error {

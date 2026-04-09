@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   username     TEXT    NOT NULL,
   avatar_url   TEXT,
   role         TEXT    NOT NULL DEFAULT 'MOD',
+  hwid         TEXT,
   -- OWNER | ADMIN | MOD | TRAINEE
   last_seen    TEXT,
   created_at   TEXT    NOT NULL DEFAULT (datetime('now'))

@@ -5,7 +5,8 @@
       "Bash(npx wrangler:*)",
       "Bash(ls /c/Users/batua/Documents/Projekte/BWRPWebsite/*.html)",
       "Bash(ls:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(grep -n \"function runCalculation\\\\|function generateQuickCommand\\\\|function lookupPlayer\\\\|function resetChecklist\\\\|function copyQmCommand\\\\|function copyCalcCommand\\\\|function toggleChecklist\" assets/js/*.js)"
     ]
   }
 }

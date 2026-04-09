@@ -501,7 +501,14 @@
                 dashboard.classList.add('animate-fade-in');
 
                 // Hide in-game action buttons for TRAINEE users
-                applyRoleVisibility();
+                if(typeof applyRoleVisibility === 'function') applyRoleVisibility();
+                if(window.currentRole === 'TRAINEE') {
+                    document.getElementById('nav-gamepanel')?.classList.add('hidden');
+                }
+                const pAdmin = ['ADMIN', 'OWNER'].includes(window.currentRole);
+                if(pAdmin) {
+                    document.getElementById('nav-management').style.display = 'flex';
+                }
 
                 // Init
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -559,8 +566,8 @@
             // Persist active tab
             localStorage.setItem('bwrp_active_tab', tabId);
 
-            // Auto-focus quickmod search
-            if (tabId === 'quickmod') setTimeout(() => document.getElementById('lookup-input')?.focus(), 100);
+            // Auto-focus modcenter search
+            if (tabId === 'modcenter') setTimeout(() => document.getElementById('lookup-input')?.focus(), 100);
 
             // Mobile: close sidebar
             const sidebar = document.getElementById('sidebar');
@@ -1016,11 +1023,15 @@
                 // Load case history from D1
                 renderCaseHistory(String(player.id));
 
-                // Pre-fill username fields in other tabs
+                // Pre-fill username fields in generator
                 const calcUser = document.getElementById('calc-username');
                 if (calcUser) calcUser.value = player.username;
                 const qmUser = document.getElementById('qm-username');
-                if (qmUser) qmUser.value = player.username;
+                if (qmUser) { qmUser.value = player.username; generateQuickCommand(); }
+
+                // Update Game Panel shortcut
+                const gpBtn = document.getElementById('lookup-gamepanel-btn');
+                if (gpBtn) gpBtn.href = `/gamepanel.html?player=${encodeURIComponent(String(player.id))}`;
 
             } catch (e) {
                 if (loading) loading.classList.add('hidden');
@@ -1108,6 +1119,158 @@
             document.querySelectorAll('.mod-check').forEach(cb => cb.checked = false);
             toggleChecklist();
         };
+
+        // Sync Aktions-Matrix → Generator selects
+        window.syncOffenseToGenerator = function () {
+            const offense = document.getElementById('calc-offense')?.value;
+            const count   = document.querySelector('input[name="offense-count"]:checked')?.value || '1';
+            const qmOffense = document.getElementById('qm-offense');
+            const qmCount   = document.getElementById('qm-count');
+            if (qmOffense && offense) qmOffense.value = offense;
+            if (qmCount && count)     qmCount.value   = count;
+            generateQuickCommand();
+        };
+
+        window.setOffenseAndCalc = function (offense) {
+            const sel = document.getElementById('calc-offense');
+            if (sel) { sel.value = offense; runCalculation(); syncOffenseToGenerator(); }
+        };
+
+        window.resetModCenter = function () {
+            const sel = document.getElementById('calc-offense');
+            if (sel) sel.value = '';
+            const r1 = document.querySelector('input[name="offense-count"][value="1"]');
+            if (r1) { r1.checked = true; runCalculation(); }
+            const qmUser = document.getElementById('qm-username');
+            if (qmUser) qmUser.value = '';
+            const qmOff = document.getElementById('qm-offense');
+            if (qmOff) qmOff.value = '';
+            document.getElementById('qm-command-box')?.classList.add('hidden');
+            document.getElementById('calc-command-box')?.classList.add('hidden');
+            document.getElementById('lookup-input') && (document.getElementById('lookup-input').value = '');
+            document.getElementById('lookup-result')?.classList.add('hidden');
+            document.getElementById('case-history-section')?.classList.add('hidden');
+            resetChecklist();
+        };
+
+        // ===================================================
+        // SCHICHTLOG (ADMIN+)
+        // ===================================================
+        let slOffset = 0, slTotal = 0;
+        const SL_PAGE = 25;
+
+        window.loadShiftLog = async function () {
+            slOffset = 0;
+            await _fetchShiftLog();
+        };
+
+        window.slPage = async function (dir) {
+            const next = slOffset + dir * SL_PAGE;
+            if (next < 0 || next >= slTotal) return;
+            slOffset = next;
+            await _fetchShiftLog();
+        };
+
+        async function _fetchShiftLog() {
+            const mode   = document.getElementById('sl-mode')?.value   || 'summary';
+            const sortBy = document.getElementById('sl-sort')?.value   || 'total_seconds';
+
+            document.getElementById('sl-summary')?.classList.add('hidden');
+            document.getElementById('sl-log')?.classList.add('hidden');
+            document.getElementById('sl-empty')?.classList.add('hidden');
+            document.getElementById('sl-loading')?.classList.remove('hidden');
+
+            try {
+                const data = await window.api.getAllShifts({ mode, sortBy, limit: SL_PAGE, offset: slOffset });
+                slTotal = data.total ?? 0;
+                document.getElementById('sl-loading')?.classList.add('hidden');
+
+                if (!data.shifts || data.shifts.length === 0) {
+                    document.getElementById('sl-empty')?.classList.remove('hidden');
+                    return;
+                }
+
+                if (mode === 'summary') {
+                    _renderSummary(data.shifts);
+                } else {
+                    _renderLog(data.shifts, slOffset, slTotal);
+                }
+            } catch (e) {
+                document.getElementById('sl-loading')?.classList.add('hidden');
+                showToast('Schichtlog-Ladefehler: ' + (e.message || 'Unbekannt'), 'error');
+            }
+        }
+
+        function _fmtDuration(secs) {
+            if (!secs) return '—';
+            const h = Math.floor(secs / 3600);
+            const m = Math.floor((secs % 3600) / 60);
+            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        }
+
+        function _fmtDate(s) {
+            if (!s) return '—';
+            return new Date(s.includes('T') ? s : s + 'Z').toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function _esc(s) {
+            return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function _renderSummary(rows) {
+            const grid = document.getElementById('sl-summary-grid');
+            if (!grid) return;
+            const roleColors = { OWNER: 'text-red-400', ADMIN: 'text-orange-400', MOD: 'text-blue-400', TRAINEE: 'text-zinc-500' };
+            grid.innerHTML = rows.map((r, i) => `
+                <div class="bg-tac-panel border border-tac-border p-4 flex items-center gap-5">
+                    <div class="w-8 h-8 flex items-center justify-center font-display font-bold text-sm ${i === 0 ? 'text-tac-amber' : i === 1 ? 'text-zinc-400' : i === 2 ? 'text-orange-700' : 'text-tac-muted'} border border-current opacity-70 flex-shrink-0">${i + 1}</div>
+                    <div class="flex-1 min-w-0">
+                        <span class="font-mono font-bold text-sm text-white">${_esc(r.username)}</span>
+                        <span class="ml-2 font-mono text-[10px] ${roleColors[r.role] ?? 'text-zinc-500'}">${_esc(r.role)}</span>
+                    </div>
+                    <div class="hidden sm:grid grid-cols-4 gap-6 text-center font-mono text-xs">
+                        <div><p class="text-white font-bold">${r.total_shifts ?? 0}</p><p class="text-tac-muted text-[9px]">SCHICHTEN</p></div>
+                        <div><p class="text-tac-amber font-bold">${_fmtDuration(r.total_seconds)}</p><p class="text-tac-muted text-[9px]">AKTIVZEIT</p></div>
+                        <div><p class="text-tac-green font-bold">${r.total_cases ?? 0}</p><p class="text-tac-muted text-[9px]">FÄLLE</p></div>
+                        <div><p class="text-tac-red font-bold">${r.total_bans ?? 0}</p><p class="text-tac-muted text-[9px]">BANS</p></div>
+                    </div>
+                    <p class="font-mono text-[9px] text-tac-muted hidden lg:block">${r.last_shift ? 'LETZTE: ' + _fmtDate(r.last_shift) : 'NOCH KEINE SCHICHT'}</p>
+                </div>
+            `).join('');
+            document.getElementById('sl-summary')?.classList.remove('hidden');
+        }
+
+        function _renderLog(rows, offset, total) {
+            const tbody = document.getElementById('sl-log-tbody');
+            if (!tbody) return;
+            const roleC = { OWNER: 'text-red-400', ADMIN: 'text-orange-400', MOD: 'text-blue-400', TRAINEE: 'text-zinc-500' };
+            const statusC = { ENDED: 'text-tac-muted', ACTIVE: 'text-tac-green' };
+            tbody.innerHTML = rows.map(s => `
+                <tr class="border-b border-tac-border/50 hover:bg-tac-panel/40 transition-colors">
+                    <td class="px-4 py-2.5 text-white font-semibold">${_esc(s.username)}</td>
+                    <td class="px-4 py-2.5 ${roleC[s.role] ?? 'text-zinc-500'}">${_esc(s.role)}</td>
+                    <td class="px-4 py-2.5 text-tac-muted">${_fmtDate(s.start_time)}</td>
+                    <td class="px-4 py-2.5 text-tac-amber">${_fmtDuration(s.duration_seconds)}</td>
+                    <td class="px-4 py-2.5 text-center text-tac-green">${s.cases_count ?? 0}</td>
+                    <td class="px-4 py-2.5 text-center text-tac-red">${s.bans_count ?? 0}</td>
+                    <td class="px-4 py-2.5 text-center text-yellow-400">${s.warns_count ?? 0}</td>
+                    <td class="px-4 py-2.5 text-center text-orange-400">${s.kicks_count ?? 0}</td>
+                    <td class="px-4 py-2.5 ${statusC[s.status] ?? 'text-tac-muted'} text-[10px]">${_esc(s.status)}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="9" class="text-center text-tac-muted py-8">Keine Einträge</td></tr>';
+
+            const page  = Math.floor(offset / SL_PAGE) + 1;
+            const pages = Math.max(1, Math.ceil(total / SL_PAGE));
+            const info  = document.getElementById('sl-page-info');
+            const prev  = document.getElementById('sl-prev');
+            const next  = document.getElementById('sl-next');
+            if (info) info.textContent = `SEITE ${page} / ${pages} (${total} GESAMT)`;
+            if (prev) prev.disabled = offset <= 0;
+            if (next) next.disabled = offset + SL_PAGE >= total;
+
+            document.getElementById('sl-log')?.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [tbody] });
+        }
 
         // ===================================================
         // ANNOUNCEMENTS
@@ -1364,8 +1527,7 @@
             { label: 'Übersicht', icon: 'layout-dashboard', group: 'Navigation', action: () => showTab('home') },
             { label: 'Dienst-Terminal', icon: 'clock', group: 'Navigation', action: () => showTab('shift') },
             { label: 'Personalakte', icon: 'users', group: 'Navigation', action: () => showTab('roster') },
-            { label: 'Aktions-Matrix', icon: 'gavel', group: 'Navigation', action: () => showTab('calculator') },
-            { label: 'Schnellmoderator', icon: 'zap', group: 'Navigation', action: () => showTab('quickmod') },
+            { label: 'Mod-Zentrum', icon: 'zap', group: 'Navigation', action: () => showTab('modcenter') },
             { label: 'Fallakten', icon: 'folder-open', group: 'Navigation', action: () => { showTab('cases'); loadCaseBrowser(); } },
             { label: 'Server Intel', icon: 'radar', group: 'Navigation', action: () => { showTab('radar'); loadServerIntel(); } },
             { label: 'Richtlinien', icon: 'book-open', group: 'Navigation', action: () => showTab('rules') },
@@ -1866,6 +2028,11 @@
             const sysLabel = document.getElementById('nav-section-owner');
             if (dbLink) dbLink.style.display = isOwner ? '' : 'none';
             if (sysLabel) sysLabel.style.display = isOwner ? '' : 'none';
+
+            // Schichtlog — ADMIN+
+            const isAdminPlus = ['ADMIN', 'OWNER'].includes(window.currentRole || '');
+            const slLink = document.getElementById('nav-shiftlog');
+            if (slLink) slLink.style.display = isAdminPlus ? '' : 'none';
         }
 
         // ====================================================
@@ -1916,7 +2083,7 @@
 
             switch (action) {
                 case 'lookup':
-                    showTab('quickmod');
+                    showTab('modcenter');
                     const lookupInput = document.getElementById('lookup-input');
                     if (lookupInput) {
                         lookupInput.value = cmTarget.username;
@@ -1925,17 +2092,17 @@
                     break;
 
                 case 'gamepanel':
-                    window.open(`/gamepanel?player=${encodeURIComponent(cmTarget.id)}`, '_blank');
+                    showTab('gamepanel');
+                    const gpInput = document.getElementById('gp-search-input');
+                    if (gpInput) { gpInput.value = cmTarget.username; if(typeof gpLookupPlayer === 'function') gpLookupPlayer(); }
                     break;
 
                 case 'warn':
-                    showTab('calculator');
+                    showTab('modcenter');
                     const calcUser = document.getElementById('calc-username');
-                    if (calcUser) {
-                        calcUser.value = cmTarget.username;
-                        // Trigger calc if offense is selected
-                        if (document.getElementById('calc-offense')?.value) runCalculation();
-                    }
+                    const qmUser = document.getElementById('qm-username');
+                    if (calcUser) { calcUser.value = cmTarget.username; if (document.getElementById('calc-offense')?.value) runCalculation(); }
+                    if (qmUser) { qmUser.value = cmTarget.username; generateQuickCommand(); }
                     break;
             }
         };
@@ -1959,6 +2126,8 @@
         window.closeCm = closeCm;
 
     </script>
+    <script src="assets/js/management.js"></script>
+    <script src="assets/js/gamepanel.js"></script>
 </body>
 
 </html>

@@ -131,6 +131,39 @@ function resetLoginDelay() {
 }
 
 // ─── OAuth Flow ────────────────────────────────────────────────────────────
+async function generateHWID() {
+    const components = [
+        navigator.userAgent,
+        window.screen.width + 'x' + window.screen.height,
+        window.screen.colorDepth,
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+        navigator.hardwareConcurrency || 'unknown',
+        navigator.deviceMemory || 'unknown',
+        navigator.language
+    ];
+    
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = "top";
+        ctx.font = "14px 'Arial'";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(125,1,62,20);
+        ctx.fillStyle = "#069";
+        ctx.fillText("Atlantic Staff", 2, 15);
+        ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+        ctx.fillText("Atlantic Staff", 4, 17);
+        components.push(canvas.toDataURL());
+    } catch(e) {}
+    
+    const raw = components.join('|');
+    const msgBuffer = new TextEncoder().encode(raw);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 function startRobloxOAuth() {
     const CLIENT_ID = '1185800266267472506';
     const SCOPES = 'openid profile';
@@ -151,10 +184,13 @@ async function checkOAuthCallback() {
     if (step1) step1.classList.add('hidden');
     if (step2) step2.classList.remove('hidden');
 
+    showStatus('GERÄTE-VERIFIKATION...', 'loading');
+    const hwid = await generateHWID();
+    
     showStatus('TOKEN WIRD AUSGETAUSCHT...', 'loading');
 
     try {
-        const { ok, data } = await window.api.login(code, REDIRECT_URI);
+        const { ok, data } = await window.api.login(code, REDIRECT_URI, hwid);
         if (!ok) throw new Error(data?.error || 'OAuth-Handshake fehlgeschlagen');
         if (!data.success || !data.user) throw new Error('Ungültige OAuth-Antwort');
 
