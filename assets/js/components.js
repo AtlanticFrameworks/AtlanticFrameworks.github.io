@@ -20,7 +20,7 @@ async function loadComponent(elementId, filePath) {
             }
 
             // Highlight active link
-            const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+            const currentPath = window.location.pathname.split('/').pop() || 'index';
             const navLinks = element.querySelectorAll('nav a');
             navLinks.forEach(link => {
                 if (link.getAttribute('href') === currentPath) {
@@ -40,6 +40,6 @@ async function loadComponent(elementId, filePath) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadComponent('navbar-container', 'assets/components/header.html');
-    loadComponent('footer-container', 'assets/components/footer.html');
+    loadComponent('navbar-container', 'assets/components/header');
+    loadComponent('footer-container', 'assets/components/footer');
 });

@@ -7,7 +7,9 @@
     <title>DB Panel | BWRP SYSTEM</title>
     <meta name="robots" content="noindex, nofollow">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/images/logo.png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,23 +18,23 @@
             theme: {
                 extend: {
                     colors: {
-                        'tac-dark':   '#08080a',
-                        'tac-panel':  '#111114',
-                        'tac-card':   '#16161a',
+                        'tac-dark': '#08080a',
+                        'tac-panel': '#111114',
+                        'tac-card': '#16161a',
                         'tac-border': '#252529',
-                        'tac-amber':  '#e2a800',
-                        'tac-green':  '#10b981',
-                        'tac-red':    '#ef4444',
-                        'tac-blue':   '#3b82f6',
-                        'tac-muted':  '#71717a',
+                        'tac-amber': '#e2a800',
+                        'tac-green': '#10b981',
+                        'tac-red': '#ef4444',
+                        'tac-blue': '#3b82f6',
+                        'tac-muted': '#71717a',
                     },
                     fontFamily: {
-                        sans:    ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                         display: ['Oswald', 'sans-serif'],
-                        mono:    ['JetBrains Mono', 'monospace'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     keyframes: {
-                        fadeIn:  { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out',
@@ -43,484 +45,749 @@
     </script>
 
     <style>
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #08080a; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 0; }
-        ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
 
-        .clip-tl  { clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px); }
-        .clip-br  { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
-        .clip-both{ clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+        ::-webkit-scrollbar-track {
+            background: #08080a;
+        }
 
-        .hud-corners { position: relative; }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 0;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ef4444;
+        }
+
+        .clip-tl {
+            clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+        }
+
+        .clip-br {
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+        }
+
+        .clip-both {
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
+
+        .hud-corners {
+            position: relative;
+        }
+
         .hud-corners::before,
-        .hud-corners::after { content: ''; position: absolute; width: 14px; height: 14px; border-color: #ef4444; border-style: solid; opacity: 0.35; pointer-events: none; }
-        .hud-corners::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
-        .hud-corners::after  { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+        .hud-corners::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-color: #ef4444;
+            border-style: solid;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .hud-corners::before {
+            top: 0;
+            left: 0;
+            border-width: 2px 0 0 2px;
+        }
+
+        .hud-corners::after {
+            bottom: 0;
+            right: 0;
+            border-width: 0 2px 2px 0;
+        }
 
         .crt-overlay::after {
             content: '';
             position: fixed;
             inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.04) 2px, rgba(0, 0, 0, 0.04) 4px);
             pointer-events: none;
             z-index: 9999;
         }
 
-        .input-red:focus { outline: none; border-color: #ef4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.15); }
+        .input-red:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+        }
 
-        #toast-container { position: fixed; top: 1.25rem; right: 1.25rem; z-index: 9998; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
-        .toast { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; min-width: 280px; max-width: 420px; font-family: 'JetBrains Mono', monospace; font-size: 11px; border-left: 3px solid; animation: fadeIn 0.25s ease-out; pointer-events: auto; }
-        .toast-success { background: #0d1f1a; border-color: #10b981; color: #6ee7b7; }
-        .toast-error   { background: #1f0d0d; border-color: #ef4444; color: #fca5a5; }
-        .toast-info    { background: #111114; border-color: #e2a800; color: #fcd34d; }
+        #toast-container {
+            position: fixed;
+            top: 1.25rem;
+            right: 1.25rem;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
 
-        .tab-btn { cursor: pointer; padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em; border-bottom: 2px solid transparent; color: #71717a; transition: all 0.15s; white-space: nowrap; }
-        .tab-btn:hover { color: #fff; }
-        .tab-btn.active { color: #ef4444; border-bottom-color: #ef4444; }
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            min-width: 280px;
+            max-width: 420px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            border-left: 3px solid;
+            animation: fadeIn 0.25s ease-out;
+            pointer-events: auto;
+        }
 
-        .db-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
-        .db-table th { text-align: left; padding: 8px 12px; color: #71717a; border-bottom: 1px solid #252529; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
-        .db-table td { padding: 8px 12px; border-bottom: 1px solid #1c1c1f; color: #d4d4d8; vertical-align: middle; }
-        .db-table tr:hover td { background: rgba(239,68,68,0.03); }
-        .db-table tr:last-child td { border-bottom: none; }
+        .toast-success {
+            background: #0d1f1a;
+            border-color: #10b981;
+            color: #6ee7b7;
+        }
 
-        .badge { display: inline-block; padding: 1px 7px; font-size: 9px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; font-weight: 700; clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%); }
+        .toast-error {
+            background: #1f0d0d;
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
 
-        .btn-action { padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.05em; border: 1px solid; cursor: pointer; transition: all 0.15s; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); }
-        .btn-danger { color: #ef4444; border-color: #ef444440; background: transparent; }
-        .btn-danger:hover { background: #ef444415; border-color: #ef4444; }
-        .btn-primary { color: #3b82f6; border-color: #3b82f640; background: transparent; }
-        .btn-primary:hover { background: #3b82f615; border-color: #3b82f6; }
-        .btn-success { color: #10b981; border-color: #10b98140; background: transparent; }
-        .btn-success:hover { background: #10b98115; border-color: #10b981; }
+        .toast-info {
+            background: #111114;
+            border-color: #e2a800;
+            color: #fcd34d;
+        }
 
-        .select-role { background: #111114; border: 1px solid #252529; color: #d4d4d8; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 6px; }
-        .select-role:focus { outline: none; border-color: #ef4444; }
+        .tab-btn {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid transparent;
+            color: #71717a;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
 
-        .stat-card { background: #111114; border: 1px solid #252529; padding: 1.25rem; position: relative; overflow: hidden; }
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ef4444, transparent); }
+        .tab-btn:hover {
+            color: #fff;
+        }
 
-        .pager-btn { padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; border: 1px solid #252529; color: #71717a; background: transparent; cursor: pointer; transition: all 0.15s; }
-        .pager-btn:hover:not(:disabled) { border-color: #ef4444; color: #ef4444; }
-        .pager-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .tab-btn.active {
+            color: #ef4444;
+            border-bottom-color: #ef4444;
+        }
 
-        .search-input { background: #111114; border: 1px solid #252529; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 10px; width: 220px; }
-        .search-input:focus { outline: none; border-color: #ef4444; }
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        .db-table th {
+            text-align: left;
+            padding: 8px 12px;
+            color: #71717a;
+            border-bottom: 1px solid #252529;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .db-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1c1c1f;
+            color: #d4d4d8;
+            vertical-align: middle;
+        }
+
+        .db-table tr:hover td {
+            background: rgba(239, 68, 68, 0.03);
+        }
+
+        .db-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 7px;
+            font-size: 9px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+        }
+
+        .btn-action {
+            padding: 3px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all 0.15s;
+            clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+        }
+
+        .btn-danger {
+            color: #ef4444;
+            border-color: #ef444440;
+            background: transparent;
+        }
+
+        .btn-danger:hover {
+            background: #ef444415;
+            border-color: #ef4444;
+        }
+
+        .btn-primary {
+            color: #3b82f6;
+            border-color: #3b82f640;
+            background: transparent;
+        }
+
+        .btn-primary:hover {
+            background: #3b82f615;
+            border-color: #3b82f6;
+        }
+
+        .btn-success {
+            color: #10b981;
+            border-color: #10b98140;
+            background: transparent;
+        }
+
+        .btn-success:hover {
+            background: #10b98115;
+            border-color: #10b981;
+        }
+
+        .select-role {
+            background: #111114;
+            border: 1px solid #252529;
+            color: #d4d4d8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 2px 6px;
+        }
+
+        .select-role:focus {
+            outline: none;
+            border-color: #ef4444;
+        }
+
+        .stat-card {
+            background: #111114;
+            border: 1px solid #252529;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ef4444, transparent);
+        }
+
+        .pager-btn {
+            padding: 3px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            border: 1px solid #252529;
+            color: #71717a;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .pager-btn:hover:not(:disabled) {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .pager-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .search-input {
+            background: #111114;
+            border: 1px solid #252529;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 6px 10px;
+            width: 220px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ef4444;
+        }
 
         /* Modal */
-        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .modal-box { background: #111114; border: 1px solid #ef444440; min-width: 360px; max-width: 480px; width: 100%; padding: 1.5rem; clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: #111114;
+            border: 1px solid #ef444440;
+            min-width: 360px;
+            max-width: 480px;
+            width: 100%;
+            padding: 1.5rem;
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
     </style>
 </head>
 
 <body class="bg-tac-dark text-white min-h-screen font-sans crt-overlay">
 
-<!-- ── Toast container ─────────────────────────────────────────────────────── -->
-<div id="toast-container"></div>
+    <!-- ── Toast container ─────────────────────────────────────────────────────── -->
+    <div id="toast-container"></div>
 
-<!-- ── Auth gate ──────────────────────────────────────────────────────────── -->
-<div id="auth-gate" class="min-h-screen flex items-center justify-center">
-    <div class="text-center font-mono text-tac-muted text-sm">
-        <div class="w-6 h-6 border-2 border-tac-red/40 border-t-tac-red animate-spin rounded-full mx-auto mb-4"></div>
-        AUTHENTIFIZIERUNG...
-    </div>
-</div>
-
-<!-- ── Permission denied ───────────────────────────────────────────────────── -->
-<div id="perm-denied" class="hidden min-h-screen flex items-center justify-center">
-    <div class="text-center hud-corners p-10 bg-tac-panel border border-tac-red/30">
-        <i data-lucide="shield-x" class="w-16 h-16 text-tac-red/50 mx-auto mb-4"></i>
-        <p class="font-display text-2xl font-bold text-tac-red tracking-widest mb-2">ZUGANG VERWEIGERT</p>
-        <p class="font-mono text-xs text-tac-muted mb-6">Nur OWNER kann das Datenbankpanel verwenden.</p>
-        <a href="/team.html" class="font-mono text-xs text-tac-muted hover:text-white transition-colors">← Zurück zum Panel</a>
-    </div>
-</div>
-
-<!-- ── Main panel ─────────────────────────────────────────────────────────── -->
-<div id="main-panel" class="hidden min-h-screen flex flex-col">
-
-    <!-- Header -->
-    <header class="h-14 bg-tac-panel border-b border-tac-red/20 flex items-center px-6 gap-4 shrink-0">
-        <div class="w-1 self-stretch bg-tac-red mr-2"></div>
-        <i data-lucide="database" class="w-5 h-5 text-tac-red"></i>
-        <h1 class="font-display text-lg font-bold tracking-widest text-white uppercase">DB PANEL</h1>
-        <span class="font-mono text-[10px] text-tac-red/60 tracking-widest border border-tac-red/20 px-2 py-0.5">SYSTEM ACCESS</span>
-        <div class="ml-auto flex items-center gap-4">
-            <span id="hdr-user" class="font-mono text-[10px] text-tac-muted"></span>
-            <a href="/team.html" class="font-mono text-[10px] text-tac-muted hover:text-white transition-colors flex items-center gap-1">
-                <i data-lucide="arrow-left" class="w-3 h-3"></i> PANEL
-            </a>
-        </div>
-    </header>
-
-    <!-- Tab bar -->
-    <div class="bg-tac-panel border-b border-tac-border flex overflow-x-auto shrink-0 px-4">
-        <button class="tab-btn active" onclick="switchTab('overview')">ÜBERSICHT</button>
-        <button class="tab-btn" onclick="switchTab('users')">USERS</button>
-        <button class="tab-btn" onclick="switchTab('cases')">CASES</button>
-        <button class="tab-btn" onclick="switchTab('sessions')">SESSIONS</button>
-        <button class="tab-btn" onclick="switchTab('audit')">AUDIT LOGS</button>
-        <button class="tab-btn" onclick="switchTab('status')">SERVER STATUS</button>
-        <button class="tab-btn" onclick="switchTab('ratelimits')">RATE LIMITS</button>
-    </div>
-
-    <!-- Content -->
-    <div class="flex-1 overflow-auto p-6">
-
-        <!-- ── OVERVIEW ─────────────────────────────────────────────────── -->
-        <section id="tab-overview" class="animate-fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-6 h-0.5 bg-tac-red"></div>
-                <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Datenbankübersicht</h2>
+    <!-- ── Auth gate ──────────────────────────────────────────────────────────── -->
+    <div id="auth-gate" class="min-h-screen flex items-center justify-center">
+        <div class="text-center font-mono text-tac-muted text-sm">
+            <div class="w-6 h-6 border-2 border-tac-red/40 border-t-tac-red animate-spin rounded-full mx-auto mb-4">
             </div>
-            <div id="stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="stat-card col-span-full flex items-center gap-3 text-tac-muted font-mono text-xs">
-                    <div class="w-4 h-4 border-2 border-tac-red/30 border-t-tac-red animate-spin rounded-full"></div>
-                    Lade Statistiken...
-                </div>
-            </div>
-            <div class="bg-tac-panel border border-tac-border p-4 font-mono text-[10px] text-tac-muted clip-tl">
-                <p class="text-tac-red/60 mb-1">[ SYSTEM WARNING ]</p>
-                <p>Dieses Panel erlaubt direkte Datenbankoperationen. Alle Aktionen werden in den Audit Logs protokolliert.</p>
-                <p class="mt-1">Destructive Operationen können nicht rückgängig gemacht werden.</p>
-            </div>
-        </section>
-
-        <!-- ── USERS ────────────────────────────────────────────────────── -->
-        <section id="tab-users" class="hidden animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-0.5 bg-tac-red"></div>
-                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">User-Verwaltung</h2>
-                    <span id="users-total" class="font-mono text-[10px] text-tac-muted"></span>
-                </div>
-                <input id="users-search" type="text" placeholder="Suche Username / Roblox-ID..."
-                    class="search-input input-red" onkeydown="if(event.key==='Enter')loadUsers(0)">
-            </div>
-            <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
-                <div class="overflow-x-auto">
-                    <table class="db-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Roblox ID</th>
-                                <th>Rolle</th>
-                                <th>Zuletzt gesehen</th>
-                                <th>Erstellt</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-tbody">
-                            <tr><td colspan="7" class="text-center text-tac-muted py-8">Lade...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="flex items-center justify-between mt-3">
-                <button class="pager-btn" id="users-prev" onclick="usersPage(-1)">← ZURÜCK</button>
-                <span id="users-page-info" class="font-mono text-[10px] text-tac-muted"></span>
-                <button class="pager-btn" id="users-next" onclick="usersPage(1)">WEITER →</button>
-            </div>
-        </section>
-
-        <!-- ── CASES ────────────────────────────────────────────────────── -->
-        <section id="tab-cases" class="hidden animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-0.5 bg-tac-red"></div>
-                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Case-Verwaltung</h2>
-                    <span id="cases-total" class="font-mono text-[10px] text-tac-muted"></span>
-                </div>
-                <input id="cases-search" type="text" placeholder="Suche Username / Incident ID..."
-                    class="search-input input-red" onkeydown="if(event.key==='Enter')loadCases(0)">
-            </div>
-            <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
-                <div class="overflow-x-auto">
-                    <table class="db-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Incident</th>
-                                <th>Typ</th>
-                                <th>Ziel</th>
-                                <th>Moderator</th>
-                                <th>Grund</th>
-                                <th>Status</th>
-                                <th>Datum</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cases-tbody">
-                            <tr><td colspan="9" class="text-center text-tac-muted py-8">Lade...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="flex items-center justify-between mt-3">
-                <button class="pager-btn" id="cases-prev" onclick="casesPage(-1)">← ZURÜCK</button>
-                <span id="cases-page-info" class="font-mono text-[10px] text-tac-muted"></span>
-                <button class="pager-btn" id="cases-next" onclick="casesPage(1)">WEITER →</button>
-            </div>
-        </section>
-
-        <!-- ── SESSIONS ──────────────────────────────────────────────────── -->
-        <section id="tab-sessions" class="hidden animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-0.5 bg-tac-red"></div>
-                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Aktive Sessions</h2>
-                    <span id="sessions-total" class="font-mono text-[10px] text-tac-muted"></span>
-                </div>
-                <button class="btn-action btn-danger" onclick="loadSessions(0)">
-                    <i data-lucide="refresh-cw" class="w-3 h-3 inline-block mr-1"></i> REFRESH
-                </button>
-            </div>
-            <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
-                <div class="overflow-x-auto">
-                    <table class="db-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Rolle</th>
-                                <th>IP</th>
-                                <th>User Agent</th>
-                                <th>Erstellt</th>
-                                <th>Läuft ab</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sessions-tbody">
-                            <tr><td colspan="8" class="text-center text-tac-muted py-8">Lade...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="flex items-center justify-between mt-3">
-                <button class="pager-btn" id="sessions-prev" onclick="sessionsPage(-1)">← ZURÜCK</button>
-                <span id="sessions-page-info" class="font-mono text-[10px] text-tac-muted"></span>
-                <button class="pager-btn" id="sessions-next" onclick="sessionsPage(1)">WEITER →</button>
-            </div>
-        </section>
-
-        <!-- ── AUDIT LOGS ─────────────────────────────────────────────────── -->
-        <section id="tab-audit" class="hidden animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-0.5 bg-tac-red"></div>
-                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Audit Logs</h2>
-                    <span id="audit-total" class="font-mono text-[10px] text-tac-muted"></span>
-                </div>
-                <input id="audit-search" type="text" placeholder="Filter nach Action..."
-                    class="search-input input-red" onkeydown="if(event.key==='Enter')loadAudit(0)">
-            </div>
-            <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
-                <div class="overflow-x-auto">
-                    <table class="db-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Actor</th>
-                                <th>Rolle</th>
-                                <th>Action</th>
-                                <th>Resource</th>
-                                <th>Ressource-ID</th>
-                                <th>IP</th>
-                                <th>Datum</th>
-                            </tr>
-                        </thead>
-                        <tbody id="audit-tbody">
-                            <tr><td colspan="8" class="text-center text-tac-muted py-8">Lade...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="flex items-center justify-between mt-3">
-                <button class="pager-btn" id="audit-prev" onclick="auditPage(-1)">← ZURÜCK</button>
-                <span id="audit-page-info" class="font-mono text-[10px] text-tac-muted"></span>
-                <button class="pager-btn" id="audit-next" onclick="auditPage(1)">WEITER →</button>
-            </div>
-        </section>
-
-        <!-- ── SERVER STATUS ──────────────────────────────────────────────── -->
-        <section id="tab-status" class="hidden animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-0.5 bg-tac-red"></div>
-                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Server Status</h2>
-                </div>
-                <button class="btn-action btn-success" onclick="loadStatus()">
-                    <i data-lucide="refresh-cw" class="w-3 h-3 inline-block mr-1"></i> REFRESH
-                </button>
-            </div>
-            <div id="status-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="stat-card text-tac-muted font-mono text-xs">Lade...</div>
-            </div>
-        </section>
-
-        <!-- ── RATE LIMITS ────────────────────────────────────────────────── -->
-        <section id="tab-ratelimits" class="hidden animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-0.5 bg-tac-red"></div>
-                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Rate Limits</h2>
-                </div>
-                <button class="btn-action btn-danger" onclick="clearRateLimits()">
-                    <i data-lucide="trash-2" class="w-3 h-3 inline-block mr-1"></i> ALLE LÖSCHEN
-                </button>
-            </div>
-            <div id="rl-count" class="stat-card mb-4 max-w-xs">
-                <p class="font-mono text-[10px] text-tac-muted mb-1">EINTRÄGE IN RATE_LIMITS</p>
-                <p id="rl-number" class="font-display text-3xl font-bold text-tac-red">—</p>
-            </div>
-            <p class="font-mono text-[10px] text-tac-muted">
-                Rate-Limit-Einträge laufen automatisch nach dem Zeitfenster ab. "Alle löschen" setzt alle aktiven Limits sofort zurück.
-            </p>
-        </section>
-
-    </div>
-</div>
-
-<!-- ── Confirm modal ──────────────────────────────────────────────────────── -->
-<div id="confirm-modal" class="modal-bg hidden">
-    <div class="modal-box">
-        <p class="font-mono text-[10px] text-tac-red/60 tracking-widest mb-1">[ DESTRUCTIVE ACTION ]</p>
-        <p id="confirm-msg" class="font-mono text-sm text-white mb-6">Bist du sicher?</p>
-        <div class="flex gap-3 justify-end">
-            <button class="btn-action btn-primary" onclick="cancelConfirm()">ABBRECHEN</button>
-            <button class="btn-action btn-danger" id="confirm-ok" onclick="doConfirm()">BESTÄTIGEN</button>
+            AUTHENTIFIZIERUNG...
         </div>
     </div>
-</div>
 
-<!-- ── Edit case modal ────────────────────────────────────────────────────── -->
-<div id="edit-case-modal" class="modal-bg hidden">
-    <div class="modal-box">
-        <p class="font-mono text-[10px] text-tac-red/60 tracking-widest mb-3">CASE BEARBEITEN</p>
-        <input type="hidden" id="ec-id">
-        <div class="mb-3">
-            <label class="font-mono text-[10px] text-tac-muted block mb-1">GRUND</label>
-            <input id="ec-reason" type="text" class="search-input input-red w-full">
-        </div>
-        <div class="mb-3">
-            <label class="font-mono text-[10px] text-tac-muted block mb-1">NOTIZEN</label>
-            <textarea id="ec-notes" rows="3" class="search-input input-red w-full resize-none" style="height:auto;"></textarea>
-        </div>
-        <div class="mb-5 flex items-center gap-3">
-            <label class="font-mono text-[10px] text-tac-muted">AKTIV</label>
-            <input id="ec-active" type="checkbox" class="accent-red-500">
-        </div>
-        <div class="flex gap-3 justify-end">
-            <button class="btn-action btn-primary" onclick="closeEditCase()">ABBRECHEN</button>
-            <button class="btn-action btn-success" onclick="saveEditCase()">SPEICHERN</button>
+    <!-- ── Permission denied ───────────────────────────────────────────────────── -->
+    <div id="perm-denied" class="hidden min-h-screen flex items-center justify-center">
+        <div class="text-center hud-corners p-10 bg-tac-panel border border-tac-red/30">
+            <i data-lucide="shield-x" class="w-16 h-16 text-tac-red/50 mx-auto mb-4"></i>
+            <p class="font-display text-2xl font-bold text-tac-red tracking-widest mb-2">ZUGANG VERWEIGERT</p>
+            <p class="font-mono text-xs text-tac-muted mb-6">Nur OWNER kann das Datenbankpanel verwenden.</p>
+            <a href="/team" class="font-mono text-xs text-tac-muted hover:text-white transition-colors">← Zurück zum
+                Panel</a>
         </div>
     </div>
-</div>
 
-<script>
-'use strict';
+    <!-- ── Main panel ─────────────────────────────────────────────────────────── -->
+    <div id="main-panel" class="hidden min-h-screen flex flex-col">
 
-const API = 'https://bwrp.net/api';
-const PAGE_SIZE = 25;
+        <!-- Header -->
+        <header class="h-14 bg-tac-panel border-b border-tac-red/20 flex items-center px-6 gap-4 shrink-0">
+            <div class="w-1 self-stretch bg-tac-red mr-2"></div>
+            <i data-lucide="database" class="w-5 h-5 text-tac-red"></i>
+            <h1 class="font-display text-lg font-bold tracking-widest text-white uppercase">DB PANEL</h1>
+            <span
+                class="font-mono text-[10px] text-tac-red/60 tracking-widest border border-tac-red/20 px-2 py-0.5">SYSTEM
+                ACCESS</span>
+            <div class="ml-auto flex items-center gap-4">
+                <span id="hdr-user" class="font-mono text-[10px] text-tac-muted"></span>
+                <a href="/team"
+                    class="font-mono text-[10px] text-tac-muted hover:text-white transition-colors flex items-center gap-1">
+                    <i data-lucide="arrow-left" class="w-3 h-3"></i> PANEL
+                </a>
+            </div>
+        </header>
 
-// ── State ──────────────────────────────────────────────────────────────────
-let currentUser = null;
-let usersOffset = 0, usersTotal = 0;
-let casesOffset = 0, casesTotal = 0;
-let sessionsOffset = 0, sessionsTotal = 0;
-let auditOffset = 0, auditTotal = 0;
+        <!-- Tab bar -->
+        <div class="bg-tac-panel border-b border-tac-border flex overflow-x-auto shrink-0 px-4">
+            <button class="tab-btn active" onclick="switchTab('overview')">ÜBERSICHT</button>
+            <button class="tab-btn" onclick="switchTab('users')">USERS</button>
+            <button class="tab-btn" onclick="switchTab('cases')">CASES</button>
+            <button class="tab-btn" onclick="switchTab('sessions')">SESSIONS</button>
+            <button class="tab-btn" onclick="switchTab('audit')">AUDIT LOGS</button>
+            <button class="tab-btn" onclick="switchTab('status')">SERVER STATUS</button>
+            <button class="tab-btn" onclick="switchTab('ratelimits')">RATE LIMITS</button>
+        </div>
 
-// ── Auth ───────────────────────────────────────────────────────────────────
-async function init() {
-    try {
-        const res = await fetch(`${API}/staff/me`, { credentials: 'include' });
-        if (!res.ok) { window.location.href = '/team.html'; return; }
-        const data = await res.json();
-        currentUser = data;
+        <!-- Content -->
+        <div class="flex-1 overflow-auto p-6">
 
-        if (data.role !== 'OWNER') {
-            document.getElementById('auth-gate').classList.add('hidden');
-            document.getElementById('perm-denied').classList.remove('hidden');
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-            return;
+            <!-- ── OVERVIEW ─────────────────────────────────────────────────── -->
+            <section id="tab-overview" class="animate-fade-in">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-6 h-0.5 bg-tac-red"></div>
+                    <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Datenbankübersicht
+                    </h2>
+                </div>
+                <div id="stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card col-span-full flex items-center gap-3 text-tac-muted font-mono text-xs">
+                        <div class="w-4 h-4 border-2 border-tac-red/30 border-t-tac-red animate-spin rounded-full">
+                        </div>
+                        Lade Statistiken...
+                    </div>
+                </div>
+                <div class="bg-tac-panel border border-tac-border p-4 font-mono text-[10px] text-tac-muted clip-tl">
+                    <p class="text-tac-red/60 mb-1">[ SYSTEM WARNING ]</p>
+                    <p>Dieses Panel erlaubt direkte Datenbankoperationen. Alle Aktionen werden in den Audit Logs
+                        protokolliert.</p>
+                    <p class="mt-1">Destructive Operationen können nicht rückgängig gemacht werden.</p>
+                </div>
+            </section>
+
+            <!-- ── USERS ────────────────────────────────────────────────────── -->
+            <section id="tab-users" class="hidden animate-fade-in">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-0.5 bg-tac-red"></div>
+                        <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">User-Verwaltung
+                        </h2>
+                        <span id="users-total" class="font-mono text-[10px] text-tac-muted"></span>
+                    </div>
+                    <input id="users-search" type="text" placeholder="Suche Username / Roblox-ID..."
+                        class="search-input input-red" onkeydown="if(event.key==='Enter')loadUsers(0)">
+                </div>
+                <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
+                    <div class="overflow-x-auto">
+                        <table class="db-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Roblox ID</th>
+                                    <th>Rolle</th>
+                                    <th>Zuletzt gesehen</th>
+                                    <th>Erstellt</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-tac-muted py-8">Lade...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <button class="pager-btn" id="users-prev" onclick="usersPage(-1)">← ZURÜCK</button>
+                    <span id="users-page-info" class="font-mono text-[10px] text-tac-muted"></span>
+                    <button class="pager-btn" id="users-next" onclick="usersPage(1)">WEITER →</button>
+                </div>
+            </section>
+
+            <!-- ── CASES ────────────────────────────────────────────────────── -->
+            <section id="tab-cases" class="hidden animate-fade-in">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-0.5 bg-tac-red"></div>
+                        <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Case-Verwaltung
+                        </h2>
+                        <span id="cases-total" class="font-mono text-[10px] text-tac-muted"></span>
+                    </div>
+                    <input id="cases-search" type="text" placeholder="Suche Username / Incident ID..."
+                        class="search-input input-red" onkeydown="if(event.key==='Enter')loadCases(0)">
+                </div>
+                <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
+                    <div class="overflow-x-auto">
+                        <table class="db-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Incident</th>
+                                    <th>Typ</th>
+                                    <th>Ziel</th>
+                                    <th>Moderator</th>
+                                    <th>Grund</th>
+                                    <th>Status</th>
+                                    <th>Datum</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cases-tbody">
+                                <tr>
+                                    <td colspan="9" class="text-center text-tac-muted py-8">Lade...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <button class="pager-btn" id="cases-prev" onclick="casesPage(-1)">← ZURÜCK</button>
+                    <span id="cases-page-info" class="font-mono text-[10px] text-tac-muted"></span>
+                    <button class="pager-btn" id="cases-next" onclick="casesPage(1)">WEITER →</button>
+                </div>
+            </section>
+
+            <!-- ── SESSIONS ──────────────────────────────────────────────────── -->
+            <section id="tab-sessions" class="hidden animate-fade-in">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-0.5 bg-tac-red"></div>
+                        <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Aktive Sessions
+                        </h2>
+                        <span id="sessions-total" class="font-mono text-[10px] text-tac-muted"></span>
+                    </div>
+                    <button class="btn-action btn-danger" onclick="loadSessions(0)">
+                        <i data-lucide="refresh-cw" class="w-3 h-3 inline-block mr-1"></i> REFRESH
+                    </button>
+                </div>
+                <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
+                    <div class="overflow-x-auto">
+                        <table class="db-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Rolle</th>
+                                    <th>IP</th>
+                                    <th>User Agent</th>
+                                    <th>Erstellt</th>
+                                    <th>Läuft ab</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessions-tbody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-tac-muted py-8">Lade...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <button class="pager-btn" id="sessions-prev" onclick="sessionsPage(-1)">← ZURÜCK</button>
+                    <span id="sessions-page-info" class="font-mono text-[10px] text-tac-muted"></span>
+                    <button class="pager-btn" id="sessions-next" onclick="sessionsPage(1)">WEITER →</button>
+                </div>
+            </section>
+
+            <!-- ── AUDIT LOGS ─────────────────────────────────────────────────── -->
+            <section id="tab-audit" class="hidden animate-fade-in">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-0.5 bg-tac-red"></div>
+                        <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Audit Logs</h2>
+                        <span id="audit-total" class="font-mono text-[10px] text-tac-muted"></span>
+                    </div>
+                    <input id="audit-search" type="text" placeholder="Filter nach Action..."
+                        class="search-input input-red" onkeydown="if(event.key==='Enter')loadAudit(0)">
+                </div>
+                <div class="bg-tac-card border border-tac-border overflow-hidden clip-tl">
+                    <div class="overflow-x-auto">
+                        <table class="db-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Actor</th>
+                                    <th>Rolle</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                    <th>Ressource-ID</th>
+                                    <th>IP</th>
+                                    <th>Datum</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-tbody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-tac-muted py-8">Lade...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <button class="pager-btn" id="audit-prev" onclick="auditPage(-1)">← ZURÜCK</button>
+                    <span id="audit-page-info" class="font-mono text-[10px] text-tac-muted"></span>
+                    <button class="pager-btn" id="audit-next" onclick="auditPage(1)">WEITER →</button>
+                </div>
+            </section>
+
+            <!-- ── SERVER STATUS ──────────────────────────────────────────────── -->
+            <section id="tab-status" class="hidden animate-fade-in">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-0.5 bg-tac-red"></div>
+                        <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Server Status
+                        </h2>
+                    </div>
+                    <button class="btn-action btn-success" onclick="loadStatus()">
+                        <i data-lucide="refresh-cw" class="w-3 h-3 inline-block mr-1"></i> REFRESH
+                    </button>
+                </div>
+                <div id="status-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="stat-card text-tac-muted font-mono text-xs">Lade...</div>
+                </div>
+            </section>
+
+            <!-- ── RATE LIMITS ────────────────────────────────────────────────── -->
+            <section id="tab-ratelimits" class="hidden animate-fade-in">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-0.5 bg-tac-red"></div>
+                        <h2 class="font-display text-lg font-bold tracking-widest text-white uppercase">Rate Limits</h2>
+                    </div>
+                    <button class="btn-action btn-danger" onclick="clearRateLimits()">
+                        <i data-lucide="trash-2" class="w-3 h-3 inline-block mr-1"></i> ALLE LÖSCHEN
+                    </button>
+                </div>
+                <div id="rl-count" class="stat-card mb-4 max-w-xs">
+                    <p class="font-mono text-[10px] text-tac-muted mb-1">EINTRÄGE IN RATE_LIMITS</p>
+                    <p id="rl-number" class="font-display text-3xl font-bold text-tac-red">—</p>
+                </div>
+                <p class="font-mono text-[10px] text-tac-muted">
+                    Rate-Limit-Einträge laufen automatisch nach dem Zeitfenster ab. "Alle löschen" setzt alle aktiven
+                    Limits sofort zurück.
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ── Confirm modal ──────────────────────────────────────────────────────── -->
+    <div id="confirm-modal" class="modal-bg hidden">
+        <div class="modal-box">
+            <p class="font-mono text-[10px] text-tac-red/60 tracking-widest mb-1">[ DESTRUCTIVE ACTION ]</p>
+            <p id="confirm-msg" class="font-mono text-sm text-white mb-6">Bist du sicher?</p>
+            <div class="flex gap-3 justify-end">
+                <button class="btn-action btn-primary" onclick="cancelConfirm()">ABBRECHEN</button>
+                <button class="btn-action btn-danger" id="confirm-ok" onclick="doConfirm()">BESTÄTIGEN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Edit case modal ────────────────────────────────────────────────────── -->
+    <div id="edit-case-modal" class="modal-bg hidden">
+        <div class="modal-box">
+            <p class="font-mono text-[10px] text-tac-red/60 tracking-widest mb-3">CASE BEARBEITEN</p>
+            <input type="hidden" id="ec-id">
+            <div class="mb-3">
+                <label class="font-mono text-[10px] text-tac-muted block mb-1">GRUND</label>
+                <input id="ec-reason" type="text" class="search-input input-red w-full">
+            </div>
+            <div class="mb-3">
+                <label class="font-mono text-[10px] text-tac-muted block mb-1">NOTIZEN</label>
+                <textarea id="ec-notes" rows="3" class="search-input input-red w-full resize-none"
+                    style="height:auto;"></textarea>
+            </div>
+            <div class="mb-5 flex items-center gap-3">
+                <label class="font-mono text-[10px] text-tac-muted">AKTIV</label>
+                <input id="ec-active" type="checkbox" class="accent-red-500">
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button class="btn-action btn-primary" onclick="closeEditCase()">ABBRECHEN</button>
+                <button class="btn-action btn-success" onclick="saveEditCase()">SPEICHERN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+
+        const API = 'https://bwrp.net/api';
+        const PAGE_SIZE = 25;
+
+        // ── State ──────────────────────────────────────────────────────────────────
+        let currentUser = null;
+        let usersOffset = 0, usersTotal = 0;
+        let casesOffset = 0, casesTotal = 0;
+        let sessionsOffset = 0, sessionsTotal = 0;
+        let auditOffset = 0, auditTotal = 0;
+
+        // ── Auth ───────────────────────────────────────────────────────────────────
+        async function init() {
+            try {
+                const res = await fetch(`${API}/staff/me`, { credentials: 'include' });
+                if (!res.ok) { window.location.href = '/team'; return; }
+                const data = await res.json();
+                currentUser = data.user;
+
+                if (data.user.role !== 'OWNER') {
+                    document.getElementById('auth-gate').classList.add('hidden');
+                    document.getElementById('perm-denied').classList.remove('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
+                document.getElementById('auth-gate').classList.add('hidden');
+                document.getElementById('main-panel').classList.remove('hidden');
+                document.getElementById('hdr-user').textContent = `${data.user.username} // OWNER`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                loadStats();
+            } catch (e) {
+                window.location.href = '/team';
+            }
         }
 
-        document.getElementById('auth-gate').classList.add('hidden');
-        document.getElementById('main-panel').classList.remove('hidden');
-        document.getElementById('hdr-user').textContent = `${data.username} // OWNER`;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        // ── Toasts ─────────────────────────────────────────────────────────────────
+        function toast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            const icon = { success: 'check-circle', error: 'x-circle', info: 'info' }[type] || 'info';
+            const ic = document.createElement('i');
+            ic.setAttribute('data-lucide', icon);
+            ic.className = 'w-4 h-4 shrink-0';
+            const txt = document.createElement('span');
+            txt.textContent = msg;
+            t.appendChild(ic); t.appendChild(txt);
+            c.appendChild(t);
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [ic] });
+            setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 4000);
+        }
 
-        loadStats();
-    } catch (e) {
-        window.location.href = '/team.html';
-    }
-}
+        // ── API helper ─────────────────────────────────────────────────────────────
+        async function apiFetch(method, path, body) {
+            const opts = { method, credentials: 'include', headers: {} };
+            if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+            const res = await fetch(`${API}${path}`, opts);
+            const ct = res.headers.get('content-type') ?? '';
+            const data = ct.includes('application/json') ? await res.json() : { error: await res.text() || `HTTP ${res.status}` };
+            return { ok: res.ok, status: res.status, data };
+        }
 
-// ── Toasts ─────────────────────────────────────────────────────────────────
-function toast(msg, type = 'info') {
-    const c = document.getElementById('toast-container');
-    const t = document.createElement('div');
-    t.className = `toast toast-${type}`;
-    const icon = { success: 'check-circle', error: 'x-circle', info: 'info' }[type] || 'info';
-    const ic = document.createElement('i');
-    ic.setAttribute('data-lucide', icon);
-    ic.className = 'w-4 h-4 shrink-0';
-    const txt = document.createElement('span');
-    txt.textContent = msg;
-    t.appendChild(ic); t.appendChild(txt);
-    c.appendChild(t);
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [ic] });
-    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 4000);
-}
+        // ── Escape HTML ────────────────────────────────────────────────────────────
+        function esc(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
 
-// ── API helper ─────────────────────────────────────────────────────────────
-async function apiFetch(method, path, body) {
-    const opts = { method, credentials: 'include', headers: {} };
-    if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-    const res = await fetch(`${API}${path}`, opts);
-    const ct = res.headers.get('content-type') ?? '';
-    const data = ct.includes('application/json') ? await res.json() : { error: await res.text() || `HTTP ${res.status}` };
-    return { ok: res.ok, status: res.status, data };
-}
+        function fmtDate(s) {
+            if (!s) return '—';
+            return new Date(s.includes('T') ? s : s + 'Z').toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
 
-// ── Escape HTML ────────────────────────────────────────────────────────────
-function esc(s) {
-    if (s == null) return '';
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+        // ── Tabs ───────────────────────────────────────────────────────────────────
+        function switchTab(name) {
+            document.querySelectorAll('[id^="tab-"]').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${name}`).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
 
-function fmtDate(s) {
-    if (!s) return '—';
-    return new Date(s.includes('T') ? s : s + 'Z').toLocaleString('de-DE', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
-}
+            if (name === 'users') { usersOffset = 0; loadUsers(0); }
+            if (name === 'cases') { casesOffset = 0; loadCases(0); }
+            if (name === 'sessions') { sessionsOffset = 0; loadSessions(0); }
+            if (name === 'audit') { auditOffset = 0; loadAudit(0); }
+            if (name === 'status') loadStatus();
+            if (name === 'ratelimits') loadRateLimitCount();
+        }
 
-// ── Tabs ───────────────────────────────────────────────────────────────────
-function switchTab(name) {
-    document.querySelectorAll('[id^="tab-"]').forEach(s => s.classList.add('hidden'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`tab-${name}`).classList.remove('hidden');
-    event.currentTarget.classList.add('active');
+        // ── Stats ──────────────────────────────────────────────────────────────────
+        async function loadStats() {
+            const { ok, data } = await apiFetch('GET', '/db/stats');
+            const grid = document.getElementById('stats-grid');
+            if (!ok) { grid.innerHTML = `<div class="col-span-full font-mono text-xs text-tac-red">${esc(data.error)}</div>`; return; }
 
-    if (name === 'users')      { usersOffset = 0; loadUsers(0); }
-    if (name === 'cases')      { casesOffset = 0; loadCases(0); }
-    if (name === 'sessions')   { sessionsOffset = 0; loadSessions(0); }
-    if (name === 'audit')      { auditOffset = 0; loadAudit(0); }
-    if (name === 'status')     loadStatus();
-    if (name === 'ratelimits') loadRateLimitCount();
-}
+            const labels = { users: 'USERS', sessions: 'SESSIONS', cases: 'CASES', shifts: 'SHIFTS', audit_logs: 'AUDIT LOGS', watchlist: 'WATCHLIST', rate_limits: 'RATE LIMITS' };
+            const colors = { users: '#3b82f6', sessions: '#10b981', cases: '#ef4444', shifts: '#e2a800', audit_logs: '#a855f7', watchlist: '#f97316', rate_limits: '#71717a' };
 
-// ── Stats ──────────────────────────────────────────────────────────────────
-async function loadStats() {
-    const { ok, data } = await apiFetch('GET', '/db/stats');
-    const grid = document.getElementById('stats-grid');
-    if (!ok) { grid.innerHTML = `<div class="col-span-full font-mono text-xs text-tac-red">${esc(data.error)}</div>`; return; }
-
-    const labels = { users: 'USERS', sessions: 'SESSIONS', cases: 'CASES', shifts: 'SHIFTS', audit_logs: 'AUDIT LOGS', watchlist: 'WATCHLIST', rate_limits: 'RATE LIMITS' };
-    const colors = { users: '#3b82f6', sessions: '#10b981', cases: '#ef4444', shifts: '#e2a800', audit_logs: '#a855f7', watchlist: '#f97316', rate_limits: '#71717a' };
-
-    grid.innerHTML = Object.entries(data.tables).map(([k, v]) => `
+            grid.innerHTML = Object.entries(data.tables).map(([k, v]) => `
         <div class="stat-card clip-both" style="--stat-color:${colors[k] ?? '#ef4444'}; --tw-before-bg:${colors[k] ?? '#ef4444'}">
             <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${colors[k] ?? '#ef4444'}"></div>
             <p class="font-mono text-[10px] tracking-widest mb-2" style="color:${colors[k] ?? '#71717a'}">${labels[k] ?? k.toUpperCase()}</p>
@@ -528,28 +795,28 @@ async function loadStats() {
             <p class="font-mono text-[9px] text-tac-muted mt-1">ROWS</p>
         </div>
     `).join('');
-}
+        }
 
-// ── USERS ──────────────────────────────────────────────────────────────────
-async function loadUsers(offset) {
-    usersOffset = offset ?? usersOffset;
-    const q = document.getElementById('users-search')?.value?.trim() ?? '';
-    const { ok, data } = await apiFetch('GET', `/db/users?limit=${PAGE_SIZE}&offset=${usersOffset}${q ? '&search=' + encodeURIComponent(q) : ''}`);
-    const tbody = document.getElementById('users-tbody');
-    if (!ok) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
+        // ── USERS ──────────────────────────────────────────────────────────────────
+        async function loadUsers(offset) {
+            usersOffset = offset ?? usersOffset;
+            const q = document.getElementById('users-search')?.value?.trim() ?? '';
+            const { ok, data } = await apiFetch('GET', `/db/users?limit=${PAGE_SIZE}&offset=${usersOffset}${q ? '&search=' + encodeURIComponent(q) : ''}`);
+            const tbody = document.getElementById('users-tbody');
+            if (!ok) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
 
-    usersTotal = data.total;
-    document.getElementById('users-total').textContent = `(${data.total} gesamt)`;
+            usersTotal = data.total;
+            document.getElementById('users-total').textContent = `(${data.total} gesamt)`;
 
-    const roleColors = { OWNER: '#ef4444', ADMIN: '#f97316', MOD: '#3b82f6', TRAINEE: '#71717a' };
-    tbody.innerHTML = data.users.map(u => `
+            const roleColors = { OWNER: '#ef4444', ADMIN: '#f97316', MOD: '#3b82f6', TRAINEE: '#71717a' };
+            tbody.innerHTML = data.users.map(u => `
         <tr>
             <td class="text-tac-muted">${esc(u.id)}</td>
             <td class="font-semibold">${esc(u.username)}</td>
             <td class="text-tac-muted">${esc(u.roblox_id)}</td>
             <td>
                 <select class="select-role" id="role-sel-${u.id}" onchange="changeRole(${u.id})">
-                    ${['OWNER','ADMIN','MOD','TRAINEE'].map(r => `<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+                    ${['OWNER', 'ADMIN', 'MOD', 'TRAINEE'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${r}</option>`).join('')}
                 </select>
             </td>
             <td class="text-tac-muted">${fmtDate(u.last_seen)}</td>
@@ -562,52 +829,52 @@ async function loadUsers(offset) {
         </tr>
     `).join('') || `<tr><td colspan="7" class="text-center text-tac-muted py-8 font-mono text-xs">Keine Ergebnisse</td></tr>`;
 
-    updatePager('users', usersOffset, usersTotal);
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('users-tbody')] });
-}
+            updatePager('users', usersOffset, usersTotal);
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('users-tbody')] });
+        }
 
-function usersPage(dir) {
-    const next = usersOffset + dir * PAGE_SIZE;
-    if (next < 0 || next >= usersTotal) return;
-    loadUsers(next);
-}
+        function usersPage(dir) {
+            const next = usersOffset + dir * PAGE_SIZE;
+            if (next < 0 || next >= usersTotal) return;
+            loadUsers(next);
+        }
 
-async function changeRole(userId) {
-    const sel = document.getElementById(`role-sel-${userId}`);
-    const role = sel.value;
-    const { ok, data } = await apiFetch('PATCH', `/db/users/${userId}`, { role });
-    if (ok) toast(`Rolle auf ${role} gesetzt.`, 'success');
-    else { toast(data.error || 'Fehler beim Aktualisieren', 'error'); loadUsers(); }
-}
+        async function changeRole(userId) {
+            const sel = document.getElementById(`role-sel-${userId}`);
+            const role = sel.value;
+            const { ok, data } = await apiFetch('PATCH', `/db/users/${userId}`, { role });
+            if (ok) toast(`Rolle auf ${role} gesetzt.`, 'success');
+            else { toast(data.error || 'Fehler beim Aktualisieren', 'error'); loadUsers(); }
+        }
 
-let pendingAction = null;
-function confirmDeleteUser(id, name) {
-    document.getElementById('confirm-msg').textContent = `User "${name}" (ID ${id}) wirklich löschen? Alle verknüpften Sessions werden ebenfalls gelöscht.`;
-    pendingAction = async () => {
-        const { ok, data } = await apiFetch('DELETE', `/db/users/${id}`);
-        if (ok) { toast(data.message || 'Gelöscht.', 'success'); loadUsers(); }
-        else toast(data.error || 'Fehler', 'error');
-    };
-    document.getElementById('confirm-modal').classList.remove('hidden');
-}
+        let pendingAction = null;
+        function confirmDeleteUser(id, name) {
+            document.getElementById('confirm-msg').textContent = `User "${name}" (ID ${id}) wirklich löschen? Alle verknüpften Sessions werden ebenfalls gelöscht.`;
+            pendingAction = async () => {
+                const { ok, data } = await apiFetch('DELETE', `/db/users/${id}`);
+                if (ok) { toast(data.message || 'Gelöscht.', 'success'); loadUsers(); }
+                else toast(data.error || 'Fehler', 'error');
+            };
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
 
-// ── CASES ──────────────────────────────────────────────────────────────────
-async function loadCases(offset) {
-    casesOffset = offset ?? casesOffset;
-    const q = document.getElementById('cases-search')?.value?.trim() ?? '';
-    const { ok, data } = await apiFetch('GET', `/db/cases?limit=${PAGE_SIZE}&offset=${casesOffset}${q ? '&search=' + encodeURIComponent(q) : ''}`);
-    const tbody = document.getElementById('cases-tbody');
-    if (!ok) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
+        // ── CASES ──────────────────────────────────────────────────────────────────
+        async function loadCases(offset) {
+            casesOffset = offset ?? casesOffset;
+            const q = document.getElementById('cases-search')?.value?.trim() ?? '';
+            const { ok, data } = await apiFetch('GET', `/db/cases?limit=${PAGE_SIZE}&offset=${casesOffset}${q ? '&search=' + encodeURIComponent(q) : ''}`);
+            const tbody = document.getElementById('cases-tbody');
+            if (!ok) { tbody.innerHTML = `<tr><td colspan="9" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
 
-    casesTotal = data.total;
-    document.getElementById('cases-total').textContent = `(${data.total} gesamt)`;
+            casesTotal = data.total;
+            document.getElementById('cases-total').textContent = `(${data.total} gesamt)`;
 
-    const typeColors = { WARN: '#e2a800', KICK: '#f97316', BAN: '#ef4444', PERMBAN: '#7f1d1d' };
-    tbody.innerHTML = data.cases.map(c => `
+            const typeColors = { WARN: '#e2a800', KICK: '#f97316', BAN: '#ef4444', PERMBAN: '#7f1d1d' };
+            tbody.innerHTML = data.cases.map(c => `
         <tr>
             <td class="text-tac-muted">${esc(c.id)}</td>
             <td class="font-mono text-[10px] text-tac-muted">${esc(c.incident_id)}</td>
-            <td><span class="badge" style="background:${typeColors[c.type]??'#555'}20;color:${typeColors[c.type]??'#aaa'}">${esc(c.type)}</span></td>
+            <td><span class="badge" style="background:${typeColors[c.type] ?? '#555'}20;color:${typeColors[c.type] ?? '#aaa'}">${esc(c.type)}</span></td>
             <td>${esc(c.target_username)}<br><span class="text-tac-muted text-[10px]">${esc(c.target_roblox_id)}</span></td>
             <td>${esc(c.moderator_username ?? c.moderator_id)}</td>
             <td class="max-w-[160px] truncate" title="${esc(c.reason)}">${esc(c.reason)}</td>
@@ -624,58 +891,58 @@ async function loadCases(offset) {
         </tr>
     `).join('') || `<tr><td colspan="9" class="text-center text-tac-muted py-8 font-mono text-xs">Keine Ergebnisse</td></tr>`;
 
-    updatePager('cases', casesOffset, casesTotal);
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('cases-tbody')] });
-}
+            updatePager('cases', casesOffset, casesTotal);
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('cases-tbody')] });
+        }
 
-function casesPage(dir) {
-    const next = casesOffset + dir * PAGE_SIZE;
-    if (next < 0 || next >= casesTotal) return;
-    loadCases(next);
-}
+        function casesPage(dir) {
+            const next = casesOffset + dir * PAGE_SIZE;
+            if (next < 0 || next >= casesTotal) return;
+            loadCases(next);
+        }
 
-function openEditCase(id, reason, notes, active) {
-    document.getElementById('ec-id').value = id;
-    document.getElementById('ec-reason').value = reason ?? '';
-    document.getElementById('ec-notes').value = notes ?? '';
-    document.getElementById('ec-active').checked = !!active;
-    document.getElementById('edit-case-modal').classList.remove('hidden');
-}
+        function openEditCase(id, reason, notes, active) {
+            document.getElementById('ec-id').value = id;
+            document.getElementById('ec-reason').value = reason ?? '';
+            document.getElementById('ec-notes').value = notes ?? '';
+            document.getElementById('ec-active').checked = !!active;
+            document.getElementById('edit-case-modal').classList.remove('hidden');
+        }
 
-function closeEditCase() { document.getElementById('edit-case-modal').classList.add('hidden'); }
+        function closeEditCase() { document.getElementById('edit-case-modal').classList.add('hidden'); }
 
-async function saveEditCase() {
-    const id     = document.getElementById('ec-id').value;
-    const reason = document.getElementById('ec-reason').value.trim();
-    const notes  = document.getElementById('ec-notes').value.trim() || null;
-    const active = document.getElementById('ec-active').checked;
-    const { ok, data } = await apiFetch('PATCH', `/db/cases/${id}`, { reason, notes, active });
-    if (ok) { toast('Case aktualisiert.', 'success'); closeEditCase(); loadCases(); }
-    else toast(data.error || 'Fehler', 'error');
-}
+        async function saveEditCase() {
+            const id = document.getElementById('ec-id').value;
+            const reason = document.getElementById('ec-reason').value.trim();
+            const notes = document.getElementById('ec-notes').value.trim() || null;
+            const active = document.getElementById('ec-active').checked;
+            const { ok, data } = await apiFetch('PATCH', `/db/cases/${id}`, { reason, notes, active });
+            if (ok) { toast('Case aktualisiert.', 'success'); closeEditCase(); loadCases(); }
+            else toast(data.error || 'Fehler', 'error');
+        }
 
-function confirmDeleteCase(id, incident) {
-    document.getElementById('confirm-msg').textContent = `Case #${id} (${incident}) wirklich dauerhaft löschen?`;
-    pendingAction = async () => {
-        const { ok, data } = await apiFetch('DELETE', `/db/cases/${id}`);
-        if (ok) { toast(data.message || 'Gelöscht.', 'success'); loadCases(); }
-        else toast(data.error || 'Fehler', 'error');
-    };
-    document.getElementById('confirm-modal').classList.remove('hidden');
-}
+        function confirmDeleteCase(id, incident) {
+            document.getElementById('confirm-msg').textContent = `Case #${id} (${incident}) wirklich dauerhaft löschen?`;
+            pendingAction = async () => {
+                const { ok, data } = await apiFetch('DELETE', `/db/cases/${id}`);
+                if (ok) { toast(data.message || 'Gelöscht.', 'success'); loadCases(); }
+                else toast(data.error || 'Fehler', 'error');
+            };
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
 
-// ── SESSIONS ───────────────────────────────────────────────────────────────
-async function loadSessions(offset) {
-    sessionsOffset = offset ?? sessionsOffset;
-    const { ok, data } = await apiFetch('GET', `/db/sessions?limit=${PAGE_SIZE}&offset=${sessionsOffset}`);
-    const tbody = document.getElementById('sessions-tbody');
-    if (!ok) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
+        // ── SESSIONS ───────────────────────────────────────────────────────────────
+        async function loadSessions(offset) {
+            sessionsOffset = offset ?? sessionsOffset;
+            const { ok, data } = await apiFetch('GET', `/db/sessions?limit=${PAGE_SIZE}&offset=${sessionsOffset}`);
+            const tbody = document.getElementById('sessions-tbody');
+            if (!ok) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
 
-    sessionsTotal = data.total;
-    document.getElementById('sessions-total').textContent = `(${data.total} aktiv)`;
+            sessionsTotal = data.total;
+            document.getElementById('sessions-total').textContent = `(${data.total} aktiv)`;
 
-    const roleColors = { OWNER: 'text-red-400', ADMIN: 'text-orange-400', MOD: 'text-blue-400', TRAINEE: 'text-zinc-500' };
-    tbody.innerHTML = data.sessions.map(s => `
+            const roleColors = { OWNER: 'text-red-400', ADMIN: 'text-orange-400', MOD: 'text-blue-400', TRAINEE: 'text-zinc-500' };
+            tbody.innerHTML = data.sessions.map(s => `
         <tr>
             <td class="text-tac-muted">${esc(s.id)}</td>
             <td class="font-semibold">${esc(s.username ?? `User #${s.user_id}`)}</td>
@@ -692,38 +959,38 @@ async function loadSessions(offset) {
         </tr>
     `).join('') || `<tr><td colspan="8" class="text-center text-tac-muted py-8 font-mono text-xs">Keine aktiven Sessions</td></tr>`;
 
-    updatePager('sessions', sessionsOffset, sessionsTotal);
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('sessions-tbody')] });
-}
+            updatePager('sessions', sessionsOffset, sessionsTotal);
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('sessions-tbody')] });
+        }
 
-function sessionsPage(dir) {
-    const next = sessionsOffset + dir * PAGE_SIZE;
-    if (next < 0 || next >= sessionsTotal) return;
-    loadSessions(next);
-}
+        function sessionsPage(dir) {
+            const next = sessionsOffset + dir * PAGE_SIZE;
+            if (next < 0 || next >= sessionsTotal) return;
+            loadSessions(next);
+        }
 
-function confirmRevokeSession(id, username) {
-    document.getElementById('confirm-msg').textContent = `Session #${id} von "${username}" widerrufen? Der User wird beim nächsten Request ausgeloggt.`;
-    pendingAction = async () => {
-        const { ok, data } = await apiFetch('DELETE', `/db/sessions/${id}`);
-        if (ok) { toast(data.message || 'Session widerrufen.', 'success'); loadSessions(); }
-        else toast(data.error || 'Fehler', 'error');
-    };
-    document.getElementById('confirm-modal').classList.remove('hidden');
-}
+        function confirmRevokeSession(id, username) {
+            document.getElementById('confirm-msg').textContent = `Session #${id} von "${username}" widerrufen? Der User wird beim nächsten Request ausgeloggt.`;
+            pendingAction = async () => {
+                const { ok, data } = await apiFetch('DELETE', `/db/sessions/${id}`);
+                if (ok) { toast(data.message || 'Session widerrufen.', 'success'); loadSessions(); }
+                else toast(data.error || 'Fehler', 'error');
+            };
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
 
-// ── AUDIT LOGS ─────────────────────────────────────────────────────────────
-async function loadAudit(offset) {
-    auditOffset = offset ?? auditOffset;
-    const q = document.getElementById('audit-search')?.value?.trim() ?? '';
-    const { ok, data } = await apiFetch('GET', `/db/audit-logs?limit=${PAGE_SIZE}&offset=${auditOffset}${q ? '&action=' + encodeURIComponent(q) : ''}`);
-    const tbody = document.getElementById('audit-tbody');
-    if (!ok) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
+        // ── AUDIT LOGS ─────────────────────────────────────────────────────────────
+        async function loadAudit(offset) {
+            auditOffset = offset ?? auditOffset;
+            const q = document.getElementById('audit-search')?.value?.trim() ?? '';
+            const { ok, data } = await apiFetch('GET', `/db/audit-logs?limit=${PAGE_SIZE}&offset=${auditOffset}${q ? '&action=' + encodeURIComponent(q) : ''}`);
+            const tbody = document.getElementById('audit-tbody');
+            if (!ok) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-tac-red py-6 font-mono text-xs">${esc(data.error)}</td></tr>`; return; }
 
-    auditTotal = data.total;
-    document.getElementById('audit-total').textContent = `(${data.total} gesamt)`;
+            auditTotal = data.total;
+            document.getElementById('audit-total').textContent = `(${data.total} gesamt)`;
 
-    tbody.innerHTML = data.logs.map(l => `
+            tbody.innerHTML = data.logs.map(l => `
         <tr>
             <td class="text-tac-muted">${esc(l.id)}</td>
             <td>${esc(l.actor_username ?? `#${l.user_id}`)}</td>
@@ -736,31 +1003,31 @@ async function loadAudit(offset) {
         </tr>
     `).join('') || `<tr><td colspan="8" class="text-center text-tac-muted py-8 font-mono text-xs">Keine Einträge</td></tr>`;
 
-    updatePager('audit', auditOffset, auditTotal);
-}
+            updatePager('audit', auditOffset, auditTotal);
+        }
 
-function auditPage(dir) {
-    const next = auditOffset + dir * PAGE_SIZE;
-    if (next < 0 || next >= auditTotal) return;
-    loadAudit(next);
-}
+        function auditPage(dir) {
+            const next = auditOffset + dir * PAGE_SIZE;
+            if (next < 0 || next >= auditTotal) return;
+            loadAudit(next);
+        }
 
-// ── SERVER STATUS ──────────────────────────────────────────────────────────
-async function loadStatus() {
-    const { ok, data } = await apiFetch('GET', '/db/server-status');
-    const grid = document.getElementById('status-grid');
-    if (!ok) { grid.innerHTML = `<div class="font-mono text-xs text-tac-red">${esc(data.error)}</div>`; return; }
+        // ── SERVER STATUS ──────────────────────────────────────────────────────────
+        async function loadStatus() {
+            const { ok, data } = await apiFetch('GET', '/db/server-status');
+            const grid = document.getElementById('status-grid');
+            if (!ok) { grid.innerHTML = `<div class="font-mono text-xs text-tac-red">${esc(data.error)}</div>`; return; }
 
-    const statusColors = {
-        OPERATIONAL: '#10b981', ONLINE: '#10b981', SYNCED: '#10b981',
-        DEGRADED: '#e2a800', MAINTENANCE: '#e2a800',
-        OUTAGE: '#ef4444', OFFLINE: '#ef4444', ERROR: '#ef4444',
-        UNKNOWN: '#71717a',
-    };
+            const statusColors = {
+                OPERATIONAL: '#10b981', ONLINE: '#10b981', SYNCED: '#10b981',
+                DEGRADED: '#e2a800', MAINTENANCE: '#e2a800',
+                OUTAGE: '#ef4444', OFFLINE: '#ef4444', ERROR: '#ef4444',
+                UNKNOWN: '#71717a',
+            };
 
-    grid.innerHTML = data.services.map(s => {
-        const color = statusColors[s.status] ?? '#71717a';
-        return `
+            grid.innerHTML = data.services.map(s => {
+                const color = statusColors[s.status] ?? '#71717a';
+                return `
             <div class="stat-card clip-both hud-corners" style="--tw-ring-color:${color}">
                 <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${color}"></div>
                 <p class="font-mono text-[10px] text-tac-muted mb-2">${esc(s.service)}</p>
@@ -770,58 +1037,59 @@ async function loadStatus() {
                 </div>
                 <p class="font-mono text-[9px] text-tac-muted mb-3">${fmtDate(s.updated_at)}</p>
                 <select class="select-role w-full" onchange="updateStatus('${esc(s.service)}', this.value)">
-                    ${['OPERATIONAL','DEGRADED','OUTAGE','MAINTENANCE','ONLINE','OFFLINE','SYNCED','ERROR','UNKNOWN'].map(v =>
-                        `<option value="${v}" ${s.status===v?'selected':''}>${v}</option>`
-                    ).join('')}
+                    ${['OPERATIONAL', 'DEGRADED', 'OUTAGE', 'MAINTENANCE', 'ONLINE', 'OFFLINE', 'SYNCED', 'ERROR', 'UNKNOWN'].map(v =>
+                    `<option value="${v}" ${s.status === v ? 'selected' : ''}>${v}</option>`
+                ).join('')}
                 </select>
             </div>
         `;
-    }).join('') || `<div class="font-mono text-xs text-tac-muted">Keine Services gefunden.</div>`;
-}
+            }).join('') || `<div class="font-mono text-xs text-tac-muted">Keine Services gefunden.</div>`;
+        }
 
-async function updateStatus(service, status) {
-    const { ok, data } = await apiFetch('PATCH', `/db/server-status/${encodeURIComponent(service)}`, { status });
-    if (ok) { toast(`${service}: ${status}`, 'success'); loadStatus(); }
-    else toast(data.error || 'Fehler', 'error');
-}
+        async function updateStatus(service, status) {
+            const { ok, data } = await apiFetch('PATCH', `/db/server-status/${encodeURIComponent(service)}`, { status });
+            if (ok) { toast(`${service}: ${status}`, 'success'); loadStatus(); }
+            else toast(data.error || 'Fehler', 'error');
+        }
 
-// ── RATE LIMITS ────────────────────────────────────────────────────────────
-async function loadRateLimitCount() {
-    const { ok, data } = await apiFetch('GET', '/db/stats');
-    if (ok) document.getElementById('rl-number').textContent = (data.tables?.rate_limits ?? '—').toLocaleString();
-}
+        // ── RATE LIMITS ────────────────────────────────────────────────────────────
+        async function loadRateLimitCount() {
+            const { ok, data } = await apiFetch('GET', '/db/stats');
+            if (ok) document.getElementById('rl-number').textContent = (data.tables?.rate_limits ?? '—').toLocaleString();
+        }
 
-async function clearRateLimits() {
-    document.getElementById('confirm-msg').textContent = 'Alle Rate-Limit-Einträge löschen? Alle aktuellen Limits werden sofort zurückgesetzt.';
-    pendingAction = async () => {
-        const { ok, data } = await apiFetch('DELETE', '/db/rate-limits');
-        if (ok) { toast(`${data.rowsDeleted ?? 0} Einträge gelöscht.`, 'success'); loadRateLimitCount(); }
-        else toast(data.error || 'Fehler', 'error');
-    };
-    document.getElementById('confirm-modal').classList.remove('hidden');
-}
+        async function clearRateLimits() {
+            document.getElementById('confirm-msg').textContent = 'Alle Rate-Limit-Einträge löschen? Alle aktuellen Limits werden sofort zurückgesetzt.';
+            pendingAction = async () => {
+                const { ok, data } = await apiFetch('DELETE', '/db/rate-limits');
+                if (ok) { toast(`${data.rowsDeleted ?? 0} Einträge gelöscht.`, 'success'); loadRateLimitCount(); }
+                else toast(data.error || 'Fehler', 'error');
+            };
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
 
-// ── Confirm modal ──────────────────────────────────────────────────────────
-function cancelConfirm() { document.getElementById('confirm-modal').classList.add('hidden'); pendingAction = null; }
-async function doConfirm() {
-    document.getElementById('confirm-modal').classList.add('hidden');
-    if (pendingAction) { await pendingAction(); pendingAction = null; }
-}
+        // ── Confirm modal ──────────────────────────────────────────────────────────
+        function cancelConfirm() { document.getElementById('confirm-modal').classList.add('hidden'); pendingAction = null; }
+        async function doConfirm() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            if (pendingAction) { await pendingAction(); pendingAction = null; }
+        }
 
-// ── Pager helper ───────────────────────────────────────────────────────────
-function updatePager(name, offset, total) {
-    const page = Math.floor(offset / PAGE_SIZE) + 1;
-    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const info = document.getElementById(`${name}-page-info`);
-    const prev = document.getElementById(`${name}-prev`);
-    const next = document.getElementById(`${name}-next`);
-    if (info) info.textContent = `SEITE ${page} / ${pages} (${total} GESAMT)`;
-    if (prev) prev.disabled = offset <= 0;
-    if (next) next.disabled = offset + PAGE_SIZE >= total;
-}
+        // ── Pager helper ───────────────────────────────────────────────────────────
+        function updatePager(name, offset, total) {
+            const page = Math.floor(offset / PAGE_SIZE) + 1;
+            const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            const info = document.getElementById(`${name}-page-info`);
+            const prev = document.getElementById(`${name}-prev`);
+            const next = document.getElementById(`${name}-next`);
+            if (info) info.textContent = `SEITE ${page} / ${pages} (${total} GESAMT)`;
+            if (prev) prev.disabled = offset <= 0;
+            if (next) next.disabled = offset + PAGE_SIZE >= total;
+        }
 
-// ── Boot ───────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', init);
-</script>
+        // ── Boot ───────────────────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
+
 </html>

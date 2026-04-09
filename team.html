@@ -430,10 +430,10 @@
     <!-- ================================================
          SCRIPTS
     ================================================= -->
-    <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/db.js"></script>
+    <script src="assets/js/i18n.js?v=2"></script>
+    <script src="assets/js/api.js?v=2"></script>
+    <script src="assets/js/auth.js?v=2"></script>
+    <script src="assets/js/db.js?v=2"></script>
 
     <script>
         // ===================================================
@@ -478,7 +478,7 @@
         async function enterDashboard(username, rank, avatarUrl) {
             window.currentRole = rank; // 'OWNER' | 'ADMIN' | 'MOD' | 'TRAINEE'
             try {
-                const res = await fetch('assets/fragments/dashboard.html');
+                const res = await fetch('assets/fragments/dashboard?v=3');
                 if (!res.ok) throw new Error(`Fetch Error: ${res.status}`);
                 const html = await res.text();
                 if (!html) throw new Error('Dashboard-Fragment leer');
@@ -501,12 +501,12 @@
                 dashboard.classList.add('animate-fade-in');
 
                 // Hide in-game action buttons for TRAINEE users
-                if(typeof applyRoleVisibility === 'function') applyRoleVisibility();
-                if(window.currentRole === 'TRAINEE') {
+                if (typeof applyRoleVisibility === 'function') applyRoleVisibility();
+                if (window.currentRole === 'TRAINEE') {
                     document.getElementById('nav-gamepanel')?.classList.add('hidden');
                 }
                 const pAdmin = ['ADMIN', 'OWNER'].includes(window.currentRole);
-                if(pAdmin) {
+                if (pAdmin) {
                     document.getElementById('nav-management').style.display = 'flex';
                 }
 
@@ -1031,7 +1031,7 @@
 
                 // Update Game Panel shortcut
                 const gpBtn = document.getElementById('lookup-gamepanel-btn');
-                if (gpBtn) gpBtn.href = `/gamepanel.html?player=${encodeURIComponent(String(player.id))}`;
+                if (gpBtn) gpBtn.href = `/gamepanel?player=${encodeURIComponent(String(player.id))}`;
 
             } catch (e) {
                 if (loading) loading.classList.add('hidden');
@@ -1123,11 +1123,11 @@
         // Sync Aktions-Matrix → Generator selects
         window.syncOffenseToGenerator = function () {
             const offense = document.getElementById('calc-offense')?.value;
-            const count   = document.querySelector('input[name="offense-count"]:checked')?.value || '1';
+            const count = document.querySelector('input[name="offense-count"]:checked')?.value || '1';
             const qmOffense = document.getElementById('qm-offense');
-            const qmCount   = document.getElementById('qm-count');
+            const qmCount = document.getElementById('qm-count');
             if (qmOffense && offense) qmOffense.value = offense;
-            if (qmCount && count)     qmCount.value   = count;
+            if (qmCount && count) qmCount.value = count;
             generateQuickCommand();
         };
 
@@ -1172,8 +1172,8 @@
         };
 
         async function _fetchShiftLog() {
-            const mode   = document.getElementById('sl-mode')?.value   || 'summary';
-            const sortBy = document.getElementById('sl-sort')?.value   || 'total_seconds';
+            const mode = document.getElementById('sl-mode')?.value || 'summary';
+            const sortBy = document.getElementById('sl-sort')?.value || 'total_seconds';
 
             document.getElementById('sl-summary')?.classList.add('hidden');
             document.getElementById('sl-log')?.classList.add('hidden');
@@ -1214,7 +1214,7 @@
         }
 
         function _esc(s) {
-            return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
         function _renderSummary(rows) {
@@ -1259,11 +1259,11 @@
                 </tr>
             `).join('') || '<tr><td colspan="9" class="text-center text-tac-muted py-8">Keine Einträge</td></tr>';
 
-            const page  = Math.floor(offset / SL_PAGE) + 1;
+            const page = Math.floor(offset / SL_PAGE) + 1;
             const pages = Math.max(1, Math.ceil(total / SL_PAGE));
-            const info  = document.getElementById('sl-page-info');
-            const prev  = document.getElementById('sl-prev');
-            const next  = document.getElementById('sl-next');
+            const info = document.getElementById('sl-page-info');
+            const prev = document.getElementById('sl-prev');
+            const next = document.getElementById('sl-next');
             if (info) info.textContent = `SEITE ${page} / ${pages} (${total} GESAMT)`;
             if (prev) prev.disabled = offset <= 0;
             if (next) next.disabled = offset + SL_PAGE >= total;
@@ -2094,7 +2094,7 @@
                 case 'gamepanel':
                     showTab('gamepanel');
                     const gpInput = document.getElementById('gp-search-input');
-                    if (gpInput) { gpInput.value = cmTarget.username; if(typeof gpLookupPlayer === 'function') gpLookupPlayer(); }
+                    if (gpInput) { gpInput.value = cmTarget.username; if (typeof gpLookupPlayer === 'function') gpLookupPlayer(); }
                     break;
 
                 case 'warn':
@@ -2126,8 +2126,8 @@
         window.closeCm = closeCm;
 
     </script>
-    <script src="assets/js/management.js"></script>
-    <script src="assets/js/gamepanel.js"></script>
+    <script src="assets/js/management.js?v=2"></script>
+    <script src="assets/js/gamepanel.js?v=2"></script>
 </body>
 
 </html>
