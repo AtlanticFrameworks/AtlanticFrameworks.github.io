@@ -7,9 +7,7 @@ async function loadStaffManagement() {
     tbody.innerHTML = '<tr><td colspan="5" class="text-center text-tac-muted py-10"><div class="animate-spin w-5 h-5 border-2 border-tac-border border-t-purple-400 rounded-full mx-auto mb-2"></div> Lade Daten...</td></tr>';
 
     try {
-        const { ok, data, status } = await window.api.getStaffManagement();
-        if (!ok) throw new Error(data?.error || `HTTP ${status}`);
-        
+        const data = await window.api.getStaffManagement();
         renderStaffManagement(data.staff);
     } catch (e) {
         tbody.innerHTML = `<tr><td colspan="5" class="text-center text-tac-red py-10 font-mono text-xs">Fehler beim Laden: ${e.message}</td></tr>`;
