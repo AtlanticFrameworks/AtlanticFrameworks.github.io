@@ -4,7 +4,7 @@
  */
 
 import type { Env, JWTPayload } from './types/index.js';
-import { handleOptions, requireAuth, corsHeaders, err, getIP } from './middleware/auth.js';
+import { handleOptions, requireAuth, corsHeaders, err, getIP, getCookie } from './middleware/auth.js';
 import { checkRateLimit } from './middleware/rateLimit.js';
 import { AuthController }       from './controllers/AuthController.js';
 import { StaffController }      from './controllers/StaffController.js';
@@ -16,25 +16,114 @@ import { CloudController }      from './controllers/CloudController.js';
 import { DatabaseController }   from './controllers/DatabaseController.js';
 import { ManagementController } from './controllers/ManagementController.js';
 import { renderDocs }           from './utils/docs.js';
+import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
-// ─── Docs Access Control ──────────────────────────────────────────────────────
-// Only these IPs and HWID may access /api/docs. Returns 404 to all others.
+// ─── Docs TOTP Gate ───────────────────────────────────────────────────────────
 
-const DOCS_ALLOWED_IPS = new Set([
-  '92.208.101.178',
-  '2a02:908:1f1:c9a0:8ac:4b91:64f0:97c7',
-]);
+function docsGateHTML(error?: string): Response {
+  const errorBanner = error
+    ? `<p style="color:#ef4444;font-family:monospace;font-size:11px;letter-spacing:.05em;margin-bottom:16px;text-align:center">${error}</p>`
+    : '';
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>API DOCS // BWRP</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#08080a;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'JetBrains Mono',monospace}
+    .wrap{background:#111114;border:1px solid #252529;padding:40px 36px;width:300px}
+    .eyebrow{font-size:9px;color:#71717a;letter-spacing:.15em;margin-bottom:10px}
+    .title{font-size:16px;color:#fff;font-weight:700;letter-spacing:.08em;margin-bottom:6px}
+    .sub{font-size:10px;color:#52525b;letter-spacing:.05em;margin-bottom:28px}
+    input{width:100%;background:#08080a;border:1px solid #252529;color:#fff;font-family:inherit;font-size:22px;letter-spacing:.35em;padding:11px 14px;text-align:center;outline:none;margin-bottom:14px;transition:border-color .15s}
+    input:focus{border-color:#e2a800}
+    input::placeholder{color:#3f3f46;letter-spacing:.2em;font-size:16px}
+    button{width:100%;background:rgba(226,168,0,.08);border:1px solid rgba(226,168,0,.35);color:#e2a800;font-family:inherit;font-size:10px;letter-spacing:.12em;padding:11px;cursor:pointer;transition:all .15s}
+    button:hover{background:#e2a800;color:#000}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">BWRP · STAFF SYSTEM</p>
+    <p class="title">API REFERENZ</p>
+    <p class="sub">ZUGANG GESICHERT</p>
+    ${errorBanner}
+    <form method="POST" action="/api/docs">
+      <input type="text" name="code" maxlength="6" placeholder="000000"
+             autocomplete="one-time-code" inputmode="numeric" autofocus pattern="\\d{6}">
+      <button type="submit">AUTHENTIFIZIEREN</button>
+    </form>
+  </div>
+</body>
+</html>`;
+  return new Response(html, {
+    status:  error ? 401 : 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+}
 
-const DOCS_ALLOWED_HWIDS = new Set([
-  '8A46EEE8-867E-11E9-A784-98FA9B2C39D9',
-]);
+/** Inject a live countdown banner into the docs HTML and return the response. */
+async function renderDocsWithTimer(env: Env, expiresUnix: number): Promise<Response> {
+  const docsHtml = await renderDocs(env).text();
+  const remaining = expiresUnix - Math.floor(Date.now() / 1000);
+  const totalSec  = 300; // 5 minutes
 
-function canAccessDocs(request: Request): boolean {
-  const ip   = request.headers.get('CF-Connecting-IP') ?? '';
-  if (DOCS_ALLOWED_IPS.has(ip)) return true;
-  const hwid = (request.headers.get('X-HWID') ?? '').toUpperCase();
-  if (hwid && DOCS_ALLOWED_HWIDS.has(hwid)) return true;
-  return false;
+  const banner = `
+<style>
+  body { padding-top: 36px !important; }
+  #docs-timer-banner {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+    background: #0a0a0a; border-bottom: 1px solid #252529;
+    display: flex; align-items: center; gap: 12px;
+    padding: 7px 20px; font-family: 'JetBrains Mono', monospace;
+  }
+  #docs-timer-label { font-size: 9px; color: #71717a; letter-spacing: .12em; white-space: nowrap; }
+  #docs-timer-track { flex: 1; background: #18181b; height: 3px; overflow: hidden; }
+  #docs-timer-bar   { height: 100%; width: 100%; background: #e2a800; transition: width 1s linear, background .5s; }
+  #docs-timer-text  { font-size: 11px; color: #e2a800; letter-spacing: .06em; min-width: 38px; text-align: right; }
+</style>
+<div id="docs-timer-banner">
+  <span id="docs-timer-label">SESSION</span>
+  <div id="docs-timer-track"><div id="docs-timer-bar"></div></div>
+  <span id="docs-timer-text">5:00</span>
+</div>
+<script>
+(function () {
+  const EXPIRES = ${expiresUnix};
+  const TOTAL   = ${totalSec};
+  function tick() {
+    const left = Math.max(0, EXPIRES - Math.floor(Date.now() / 1000));
+    const m = Math.floor(left / 60);
+    const s = left % 60;
+    const txt = document.getElementById('docs-timer-text');
+    const bar = document.getElementById('docs-timer-bar');
+    if (txt) txt.textContent = m + ':' + String(s).padStart(2, '0');
+    if (bar) {
+      bar.style.width = (left / TOTAL * 100) + '%';
+      bar.style.background = left < 60 ? '#ef4444' : left < 120 ? '#f97316' : '#e2a800';
+      if (txt) txt.style.color = left < 60 ? '#ef4444' : left < 120 ? '#f97316' : '#e2a800';
+    }
+    if (left <= 0) {
+      document.body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#08080a;gap:16px">'
+        + '<p style="font-family:monospace;font-size:11px;color:#71717a;letter-spacing:.12em">SESSION ABGELAUFEN</p>'
+        + '<a href="/api/docs" style="font-family:monospace;font-size:10px;color:#e2a800;letter-spacing:.1em;text-decoration:none;border:1px solid rgba(226,168,0,.3);padding:8px 20px">NEU ANMELDEN</a>'
+        + '</div>';
+      return;
+    }
+    setTimeout(tick, 1000);
+  }
+  tick();
+})();
+</script>`;
+
+  // Inject banner right after <body> tag
+  const injected = docsHtml.replace(/(<body[^>]*>)/i, `$1${banner}`);
+  return new Response(injected, {
+    status:  200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
 }
 
 // ─── Route Table ─────────────────────────────────────────────────────────────
@@ -61,7 +150,27 @@ function route(method: string, path: string, handler: Handler | UserlessHandler,
 
 const ROUTES: Route[] = [
   // ── Public ──────────────────────────────────────────────────────────────
-  route('GET',  '/api/docs',         ((req, env) => canAccessDocs(req) ? renderDocs(env) : Promise.resolve(new Response('Not Found', { status: 404 }))) as UserlessHandler, true),
+  route('GET',  '/api/docs', (async (req, env) => {
+    const cookie = getCookie(req, 'bwrp_docs_session');
+    if (cookie && env.DOCS_TOTP_SECRET) {
+      const expires = await verifySession(env.DOCS_TOTP_SECRET, cookie);
+      if (expires) return renderDocsWithTimer(env, expires);
+    }
+    return docsGateHTML();
+  }) as UserlessHandler, true),
+  route('POST', '/api/docs', (async (req, env) => {
+    const body = await req.text().catch(() => '');
+    const code = new URLSearchParams(body).get('code') ?? '';
+    if (!env.DOCS_TOTP_SECRET) return docsGateHTML('Server-Konfigurationsfehler.');
+    const valid = await verifyTOTP(env.DOCS_TOTP_SECRET, code);
+    if (!valid) return docsGateHTML('Falscher Code – bitte erneut versuchen.');
+    const sessionVal = await signSession(env.DOCS_TOTP_SECRET, 300);
+    const expiresUnix = Math.floor(Date.now() / 1000) + 300;
+    const docsResp = await renderDocsWithTimer(env, expiresUnix);
+    const headers = new Headers(docsResp.headers);
+    headers.set('Set-Cookie', `bwrp_docs_session=${sessionVal}; HttpOnly; Secure; SameSite=Strict; Path=/api/docs; Max-Age=300`);
+    return new Response(docsResp.body, { status: 200, headers });
+  }) as UserlessHandler, true),
   route('POST', '/api/auth/login',   AuthController.login   as UserlessHandler, true),
   route('POST', '/api/auth/refresh', AuthController.refresh as UserlessHandler, true),
   route('POST', '/api/auth/logout',  AuthController.logout  as UserlessHandler, true),
