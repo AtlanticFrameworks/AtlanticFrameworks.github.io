@@ -81,3 +81,22 @@ INSERT OR IGNORE INTO server_status (service, status) VALUES
   ('Roblox API',  'OPERATIONAL'),
   ('Discord Bot', 'ONLINE'),
   ('Database',    'SYNCED');
+
+-- Watchlist for monitored players
+CREATE TABLE IF NOT EXISTS watchlist (
+  id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_roblox_id    TEXT    NOT NULL,
+  player_username     TEXT    NOT NULL,
+  reason              TEXT    NOT NULL,
+  added_by_id         INTEGER REFERENCES users(id),
+  added_by_username   TEXT,
+  created_at          TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Rate limiting (sliding window per IP)
+CREATE TABLE IF NOT EXISTS rate_limits (
+  key          TEXT    NOT NULL PRIMARY KEY,
+  count        INTEGER NOT NULL DEFAULT 1,
+  window_start INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_window ON rate_limits(window_start);

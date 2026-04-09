@@ -79,6 +79,60 @@ export class DiscordService {
     });
   }
 
+  // ── Cloud Kick ────────────────────────────────────────────────────────────
+
+  async sendCloudKick(opts: {
+    issuedBy: string; targetUsername: string; targetId: string | number; reason: string;
+  }): Promise<void> {
+    await this.send({ embeds: [{
+      title:  '🦵  Player Kicked (Open Cloud)',
+      color:  0xF59E0B,
+      fields: [
+        { name: 'Player',    value: `**${opts.targetUsername}** · \`${opts.targetId}\``, inline: true },
+        { name: 'Issued by', value: `\`${opts.issuedBy}\``,  inline: true },
+        { name: 'Reason',    value: opts.reason },
+      ],
+      footer: { text: 'BWRP Game Panel' }, timestamp: new Date().toISOString(),
+    }] });
+  }
+
+  // ── Cloud Ban ─────────────────────────────────────────────────────────────
+
+  async sendCloudBan(opts: {
+    issuedBy: string; targetUsername: string; targetId: string | number;
+    reason: string; displayReason: string; durationDays: number | null;
+  }): Promise<void> {
+    const duration = opts.durationDays ? `${opts.durationDays} Tag(e)` : '**Permanent**';
+    await this.send({ embeds: [{
+      title:  '🔨  Player Banned (Open Cloud)',
+      color:  0xEF4444,
+      fields: [
+        { name: 'Player',             value: `**${opts.targetUsername}** · \`${opts.targetId}\``, inline: true },
+        { name: 'Duration',           value: duration,           inline: true },
+        { name: 'Issued by',          value: `\`${opts.issuedBy}\``,      inline: true },
+        { name: 'Internal Reason',    value: opts.reason },
+        { name: 'Display Reason',     value: opts.displayReason },
+      ],
+      footer: { text: 'BWRP Game Panel' }, timestamp: new Date().toISOString(),
+    }] });
+  }
+
+  // ── Cloud Unban ───────────────────────────────────────────────────────────
+
+  async sendCloudUnban(opts: {
+    issuedBy: string; targetUsername: string; targetId: string | number;
+  }): Promise<void> {
+    await this.send({ embeds: [{
+      title:  '✅  Player Unbanned (Open Cloud)',
+      color:  0x10B981,
+      fields: [
+        { name: 'Player',    value: `**${opts.targetUsername}** · \`${opts.targetId}\``, inline: true },
+        { name: 'Issued by', value: `\`${opts.issuedBy}\``, inline: true },
+      ],
+      footer: { text: 'BWRP Game Panel' }, timestamp: new Date().toISOString(),
+    }] });
+  }
+
   // ── Generic Alert ─────────────────────────────────────────────────────────
 
   async sendAlert(title: string, description: string, color = 0xE2A800): Promise<void> {

@@ -4,7 +4,8 @@
  */
 
 import type { Env, JWTPayload } from './types/index.js';
-import { handleOptions, requireAuth, corsHeaders, err } from './middleware/auth.js';
+import { handleOptions, requireAuth, corsHeaders, err, getIP } from './middleware/auth.js';
+import { checkRateLimit } from './middleware/rateLimit.js';
 import { AuthController }       from './controllers/AuthController.js';
 import { StaffController }      from './controllers/StaffController.js';
 import { ModerationController } from './controllers/ModerationController.js';
@@ -95,6 +96,25 @@ export default {
     // Only handle /api/* routes
     if (!url.pathname.startsWith('/api/')) {
       return new Response('Not Found', { status: 404 });
+    }
+
+    const ip = getIP(request);
+
+    // ── Rate Limiting ───────────────────────────────────────────────────────────
+    // Auth endpoints: 10 req / 60 s per IP (brute-force protection)
+    if (url.pathname === '/api/auth/login' || url.pathname === '/api/auth/refresh') {
+      const limited = await checkRateLimit(env, ip, 'auth', 10, 60);
+      if (limited) return limited;
+    }
+    // Open Cloud action endpoints: 30 req / 60 s per IP
+    if (url.pathname.startsWith('/api/cloud/') && request.method !== 'GET') {
+      const limited = await checkRateLimit(env, ip, 'cloud', 30, 60);
+      if (limited) return limited;
+    }
+    // Roblox proxy endpoints: 60 req / 60 s per IP (avoid hammering Roblox API)
+    if (url.pathname.startsWith('/api/roblox/')) {
+      const limited = await checkRateLimit(env, ip, 'roblox', 60, 60);
+      if (limited) return limited;
     }
 
     // Match route

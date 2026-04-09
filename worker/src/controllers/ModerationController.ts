@@ -6,14 +6,15 @@ import type { CaseType } from '../types/index.js';
 export class ModerationController {
   // GET /api/moderation/all?type=&search=&limit=50&offset=0
   static async getAllCases(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const bad = requireRole(user, 'TRAINEE');
     if (bad) return bad;
 
     const url    = new URL(request.url);
     const type   = url.searchParams.get('type') ?? '';
     const search = url.searchParams.get('search') ?? '';
-    const limit  = Math.min(parseInt(url.searchParams.get('limit') ?? '50'), 100);
-    const offset = parseInt(url.searchParams.get('offset') ?? '0');
+    const limit  = Math.min(Math.max(1, parseInt(url.searchParams.get('limit') ?? '50')), 100);
+    const offset = Math.max(0, parseInt(url.searchParams.get('offset') ?? '0'));
 
     const conditions: string[] = [];
     const binds: unknown[] = [];
@@ -33,32 +34,34 @@ export class ModerationController {
       .bind(...binds)
       .first<{ total: number }>();
 
-    return json({ cases: results, total: countRow?.total ?? 0, limit, offset });
+    return json({ cases: results, total: countRow?.total ?? 0, limit, offset }, 200, origin);
   }
 
   // GET /api/moderation/cases/:playerId
   static async getCases(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const bad = requireRole(user, 'TRAINEE');
     if (bad) return bad;
 
     const svc   = new ModerationService(env);
     const cases = await svc.getCasesByPlayer(params.playerId);
-    return json({ cases });
+    return json({ cases }, 200, origin);
   }
 
   // POST /api/moderation/cases
   static async createCase(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const bad = requireRole(user, 'MOD');
     if (bad) return bad;
 
     let body: { targetRobloxId?: string; targetUsername?: string; type?: CaseType; reason?: string; evidence?: string[]; notes?: string; durationDays?: number };
-    try { body = await request.json(); } catch { return err('Ungültiger JSON-Body'); }
+    try { body = await request.json(); } catch { return err('Ungültiger JSON-Body', 400, origin); }
 
     const { targetRobloxId, targetUsername, type, reason } = body;
-    if (!targetRobloxId || !targetUsername || !type || !reason) return err('Pflichtfelder: targetRobloxId, targetUsername, type, reason');
+    if (!targetRobloxId || !targetUsername || !type || !reason) return err('Pflichtfelder: targetRobloxId, targetUsername, type, reason', 400, origin);
 
     const VALID_TYPES: CaseType[] = ['WARN', 'KICK', 'BAN', 'PERMBAN'];
-    if (!VALID_TYPES.includes(type)) return err(`Ungültiger Typ. Erlaubt: ${VALID_TYPES.join(', ')}`);
+    if (!VALID_TYPES.includes(type)) return err(`Ungültiger Typ. Erlaubt: ${VALID_TYPES.join(', ')}`, 400, origin);
 
     const svc  = new ModerationService(env);
     const newCase = await svc.createCase({
@@ -72,20 +75,21 @@ export class ModerationController {
     });
 
     await auditLog(env.DATABASE, Number(user.sub), 'CASE_CREATE', 'cases', newCase.incident_id, { type, targetRobloxId }, getIP(request));
-    return json({ case: newCase }, 201);
+    return json({ case: newCase }, 201, origin);
   }
 
   // PATCH /api/moderation/cases/:caseId
   static async updateCase(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const bad = requireRole(user, 'MOD');
     if (bad) return bad;
 
     let body: { notes?: string; evidence?: string[] };
-    try { body = await request.json(); } catch { return err('Ungültiger JSON-Body'); }
+    try { body = await request.json(); } catch { return err('Ungültiger JSON-Body', 400, origin); }
 
     const svc = new ModerationService(env);
     await svc.updateCase(Number(params.caseId), body);
     await auditLog(env.DATABASE, Number(user.sub), 'CASE_UPDATE', 'cases', params.caseId, {}, getIP(request));
-    return json({ success: true });
+    return json({ success: true }, 200, origin);
   }
 }

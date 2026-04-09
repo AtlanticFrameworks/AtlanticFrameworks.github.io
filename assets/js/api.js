@@ -60,22 +60,29 @@ class ApiClient {
 
     // ── JSON Shorthand ────────────────────────────────────────────────────────
 
+    async _parseJson(res) {
+        const ct = res.headers.get('content-type') ?? '';
+        if (ct.includes('application/json')) return res.json();
+        const text = await res.text();
+        try { return JSON.parse(text); } catch { return { error: text || `HTTP ${res.status}` }; }
+    }
+
     async get(path) {
         const res = await this.fetch(path, { method: 'GET' });
-        if (!res.ok) throw new ApiError(await res.json(), res.status);
-        return res.json();
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
     }
 
     async post(path, body) {
         const res = await this.fetch(path, { method: 'POST', body: JSON.stringify(body) });
-        if (!res.ok) throw new ApiError(await res.json(), res.status);
-        return res.json();
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
     }
 
     async patch(path, body) {
         const res = await this.fetch(path, { method: 'PATCH', body: JSON.stringify(body) });
-        if (!res.ok) throw new ApiError(await res.json(), res.status);
-        return res.json();
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
     }
 
     // ── Auth Endpoints ────────────────────────────────────────────────────────
@@ -108,8 +115,8 @@ class ApiClient {
     async addToWatchlist(data)        { return this.post('/watchlist', data); }
     async removeFromWatchlist(id)     {
         const res = await this.fetch(`/watchlist/${id}`, { method: 'DELETE' });
-        if (!res.ok) throw new ApiError(await res.json(), res.status);
-        return res.json();
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
     }
 
     // ── Shift Endpoints ───────────────────────────────────────────────────────

@@ -33,7 +33,7 @@ export class AuthController {
         user: { id: user.id, username: user.username, role: user.role, avatarUrl: user.avatar_url },
       }), { status: 200, headers: loginHeaders });
     } catch (e) {
-      return err((e as Error).message, 500);
+      return err((e as Error).message, 500, env.ALLOWED_ORIGIN ?? 'https://bwrp.net');
     }
   }
 

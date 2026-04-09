@@ -79,8 +79,9 @@ async function resolveUsername(username: string): Promise<UsernameResult> {
 export class RobloxController {
   // GET /api/roblox/player/:identifier  (username or numeric ID)
   static async getPlayer(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const id = params.identifier;
-    if (!id) return err('Kein Identifier angegeben');
+    if (!id) return err('Kein Identifier angegeben', 400, origin);
 
     try {
       let userId: string;
@@ -89,8 +90,8 @@ export class RobloxController {
         userId = id;
       } else {
         const result = await resolveUsername(id);
-        if (result.type === 'notFound') return err('Spieler nicht gefunden', 404);
-        if (result.type === 'apiError') return err('Roblox-API nicht erreichbar', 502);
+        if (result.type === 'notFound') return err('Spieler nicht gefunden', 404, origin);
+        if (result.type === 'apiError') return err('Roblox-API nicht erreichbar', 502, origin);
         userId = result.userId;
       }
 
@@ -100,7 +101,7 @@ export class RobloxController {
         robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`),
       ]);
 
-      if (!profileRes.ok) return err('Spieler nicht gefunden', 404);
+      if (!profileRes.ok) return err('Spieler nicht gefunden', 404, origin);
       const profile = await profileRes.json() as { id: number; name: string; displayName: string; description: string; created: string; isBanned: boolean };
 
       let avatarUrl = '';
@@ -118,30 +119,33 @@ export class RobloxController {
         isBanned:    profile.isBanned,
         avatarUrl,
         profileUrl:  `https://www.roblox.com/users/${profile.id}/profile`,
-      });
+      }, 200, origin);
     } catch (e) {
-      return err('Roblox-API-Fehler: ' + (e as Error).message, 502);
+      return err('Roblox-API-Fehler: ' + (e as Error).message, 502, origin);
     }
   }
 
   // GET /api/roblox/group/roles  – All roles in the configured Roblox group
   static async getGroupRoles(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     try {
       const res = await robloxFetch(`${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles`);
-      if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502);
-      return json(await res.json());
+      if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502, origin);
+      return json(await res.json(), 200, origin);
     } catch (e) {
-      return err('Gruppen-API-Fehler: ' + (e as Error).message, 502);
+      return err('Gruppen-API-Fehler: ' + (e as Error).message, 502, origin);
     }
   }
 
   // GET /api/roblox/group/roles/:roleId/users  – Members of a specific role (with avatar URLs)
   static async getGroupRoleUsers(_request: Request, env: Env, _user: JWTPayload, params: Record<string, string>): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    if (!params.roleId || !/^\d+$/.test(params.roleId)) return err('Ungültige roleId', 400, origin);
     try {
       const res = await robloxFetch(
         `${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles/${params.roleId}/users?sortOrder=Asc&limit=100`,
       );
-      if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502);
+      if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502, origin);
       const data = await res.json() as { data: Array<{ userId: number; username: string; displayName: string }> };
       const members = data.data ?? [];
 
@@ -162,22 +166,23 @@ export class RobloxController {
 
       return json({
         data: members.map(m => ({ ...m, avatarUrl: thumbnailMap[m.userId] ?? null })),
-      });
+      }, 200, origin);
     } catch (e) {
-      return err('Mitglieder-API-Fehler: ' + (e as Error).message, 502);
+      return err('Mitglieder-API-Fehler: ' + (e as Error).message, 502, origin);
     }
   }
 
   // GET /api/roblox/servers  – Live server list (uses Place ID, not Universe ID)
   static async getServers(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const placeId = env.ROBLOX_PLACE_ID;
-    if (!placeId) return err('ROBLOX_PLACE_ID nicht konfiguriert', 503);
+    if (!placeId) return err('ROBLOX_PLACE_ID nicht konfiguriert', 503, origin);
 
     try {
       const res = await robloxFetch(
         `${ROBLOX_GAMES_API}/games/${placeId}/servers/Public?sortOrder=Desc&limit=25&excludeFullGames=false`,
       );
-      if (!res.ok) return err('Roblox-Server-API nicht erreichbar', 502);
+      if (!res.ok) return err('Roblox-Server-API nicht erreichbar', 502, origin);
 
       const data = await res.json() as {
         data: Array<{ id: string; maxPlayers: number; playing: number; ping: number; fps: number }>;
@@ -193,9 +198,9 @@ export class RobloxController {
       }));
 
       const totalPlayers = servers.reduce((sum, s) => sum + s.players, 0);
-      return json({ servers, totalPlayers, serverCount: servers.length });
+      return json({ servers, totalPlayers, serverCount: servers.length }, 200, origin);
     } catch (e) {
-      return err('Server-Abfrage fehlgeschlagen: ' + (e as Error).message, 502);
+      return err('Server-Abfrage fehlgeschlagen: ' + (e as Error).message, 502, origin);
     }
   }
 }

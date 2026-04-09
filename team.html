@@ -236,13 +236,9 @@
             <i data-lucide="search"></i>
             <span>Lookup Player</span>
         </div>
-        <div class="cm-item" onclick="handleCmAction('kick')" data-ingame-only>
-            <i data-lucide="user-minus"></i>
-            <span>Server Kick</span>
-        </div>
-        <div class="cm-item" onclick="handleCmAction('ban')" data-ingame-only>
-            <i data-lucide="ban"></i>
-            <span>Open Cloud Ban</span>
+        <div class="cm-item" onclick="handleCmAction('gamepanel')" data-ingame-only>
+            <i data-lucide="gamepad-2"></i>
+            <span>Game Panel öffnen</span>
         </div>
         <div class="cm-item" onclick="handleCmAction('warn')">
             <i data-lucide="zap"></i>
@@ -279,53 +275,6 @@
                     <button onclick="sendBroadcast()"
                         class="flex-1 font-mono text-xs py-2.5 bg-tac-red text-white font-bold hover:bg-red-400 transition-colors uppercase flex items-center justify-center gap-2">
                         <i data-lucide="radio" class="w-3.5 h-3.5"></i> SENDEN
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================================================
-         CLOUD BAN MODAL
-    ================================================= -->
-    <div id="cloud-ban-modal" class="fixed inset-0 z-[9500] hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black/85 backdrop-blur-sm" onclick="closeCloudBanModal()"></div>
-        <div class="relative bg-tac-panel border border-tac-red/60 shadow-2xl w-full max-w-lg mx-4 p-6">
-            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-red to-transparent"></div>
-            <div class="flex items-center gap-3 mb-6 border-b border-tac-border pb-4">
-                <i data-lucide="ban" class="w-5 h-5 text-tac-red"></i>
-                <h3 class="font-display font-bold text-white uppercase tracking-wider">Ingame-Bann (Open Cloud)</h3>
-            </div>
-            <div class="space-y-4">
-                <div class="bg-tac-red/10 border border-tac-red/20 p-3 font-mono text-xs text-tac-red">
-                    ⚠ Dieser Bann sperrt den Spieler nativ auf Roblox-Ebene (kein Bypass möglich).
-                </div>
-                <div class="bg-tac-dark border border-tac-border p-3 flex items-center gap-3" id="cloud-ban-player-info">
-                    <i data-lucide="user" class="w-5 h-5 text-tac-muted"></i>
-                    <span class="font-mono text-sm text-white" id="cloud-ban-username">–</span>
-                    <span class="font-mono text-xs text-tac-muted ml-auto" id="cloud-ban-id">–</span>
-                </div>
-                <div>
-                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Interner Grund (für Logs)</label>
-                    <input type="text" id="cloud-ban-reason" placeholder="z.B. Exploiting, Cheating, RDM x3..."
-                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors">
-                </div>
-                <div>
-                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Angezeigte Begründung (sieht der Spieler)</label>
-                    <input type="text" id="cloud-ban-display-reason" placeholder="z.B. Verstoß gegen Community-Regeln"
-                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors">
-                </div>
-                <div>
-                    <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Dauer in Tagen (leer = Permanent)</label>
-                    <input type="number" id="cloud-ban-duration" placeholder="z.B. 7 (leer lassen für Permban)"
-                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 text-white font-mono text-sm focus:border-tac-red outline-none transition-colors">
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeCloudBanModal()"
-                        class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white transition-colors">ABBRECHEN</button>
-                    <button onclick="executeCloudBan()"
-                        class="flex-1 font-mono text-xs py-2.5 bg-tac-red text-white font-bold hover:bg-red-400 transition-colors uppercase flex items-center justify-center gap-2">
-                        <i data-lucide="ban" class="w-3.5 h-3.5"></i> BANN DURCHFÜHREN
                     </button>
                 </div>
             </div>
@@ -1713,64 +1662,10 @@
     };
 
     // ====================================================
-    // ROBLOX OPEN CLOUD INTEGRATION
+    // ROBLOX OPEN CLOUD INTEGRATION → redirected to Game Panel
     // ====================================================
-
-    window.cloudKickPlayer = async function() {
-        if (!window.lookedUpPlayer) { showToast('Zuerst einen Spieler suchen.', 'warn'); return; }
-        const { id, username } = window.lookedUpPlayer;
-        showConfirm(
-            `Spieler ${username} kicken?`,
-            `Das Kick-Signal wird via Open Cloud an alle aktiven Server gesendet.\nDer Spieler wird sofort aus dem Spiel entfernt.`,
-            async () => {
-                try {
-                    await window.api.cloudKick(String(id), username, 'Gekickt vom Staff-Panel');
-                    showToast(`✓ Kick-Signal für ${username} gesendet.`, 'success');
-                } catch (e) {
-                    showToast('Kick fehlgeschlagen: ' + e.message, 'error');
-                }
-            }
-        );
-    };
-
-    window.cloudBanPlayer = function() {
-        if (!window.lookedUpPlayer) { showToast('Zuerst einen Spieler suchen.', 'warn'); return; }
-        const { id, username } = window.lookedUpPlayer;
-        const usernameEl = document.getElementById('cloud-ban-username');
-        const idEl       = document.getElementById('cloud-ban-id');
-        if (usernameEl) usernameEl.textContent = username;
-        if (idEl)       idEl.textContent       = `ID: ${id}`;
-        document.getElementById('cloud-ban-reason').value         = '';
-        document.getElementById('cloud-ban-display-reason').value = '';
-        document.getElementById('cloud-ban-duration').value       = '';
-        const modal = document.getElementById('cloud-ban-modal');
-        modal?.classList.remove('hidden');
-        modal?.classList.add('flex');
-        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
-    };
-
-    window.closeCloudBanModal = function() {
-        const modal = document.getElementById('cloud-ban-modal');
-        modal?.classList.add('hidden');
-        modal?.classList.remove('flex');
-    };
-
-    window.executeCloudBan = async function() {
-        if (!window.lookedUpPlayer) return;
-        const { id, username } = window.lookedUpPlayer;
-        const reason        = document.getElementById('cloud-ban-reason').value.trim();
-        const displayReason = document.getElementById('cloud-ban-display-reason').value.trim();
-        const durationVal   = document.getElementById('cloud-ban-duration').value.trim();
-        const durationDays  = durationVal ? parseInt(durationVal, 10) : null;
-        if (!reason) { showToast('Bitte einen Grund angeben.', 'warn'); return; }
-        try {
-            await window.api.cloudBan(String(id), username, reason, displayReason || reason, durationDays);
-            showToast(`✓ ${username} wurde gesperrt${durationDays ? ` (${durationDays}d)` : ' (permanent)'}.`, 'success');
-            closeCloudBanModal();
-        } catch (e) {
-            showToast('Bann fehlgeschlagen: ' + e.message, 'error');
-        }
-    };
+    // All in-game actions (kick, ban, unban) are handled in /gamepanel.html.
+    // The context menu "Game Panel öffnen" opens it with the player pre-filled.
 
     window.openBroadcastModal = function() {
         const modal = document.getElementById('broadcast-modal');
@@ -1879,14 +1774,8 @@
                 }
                 break;
                 
-            case 'kick':
-                window.lookedUpPlayer = { id: cmTarget.id, username: cmTarget.username };
-                cloudKickPlayer();
-                break;
-                
-            case 'ban':
-                window.lookedUpPlayer = { id: cmTarget.id, username: cmTarget.username };
-                cloudBanPlayer();
+            case 'gamepanel':
+                window.open(`/gamepanel.html?player=${encodeURIComponent(cmTarget.id)}`, '_blank');
                 break;
                 
             case 'warn':

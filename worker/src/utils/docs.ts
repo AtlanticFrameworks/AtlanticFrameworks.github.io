@@ -94,6 +94,20 @@ export function renderDocs(_env: Env): Response {
         ::-webkit-scrollbar { width:3px; height:3px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:#1c1c1c; }
+
+        /* Try-it panels */
+        .try-panel { margin-top:1rem; border:1px solid rgba(16,185,129,.2); background:rgba(16,185,129,.03); }
+        .try-panel-header { display:flex; align-items:center; gap:.75rem; padding:.6rem .85rem; border-bottom:1px solid rgba(16,185,129,.15); }
+        .try-panel-header span { font-family:'JetBrains Mono',monospace; font-size:.65rem; color:#10b981; text-transform:uppercase; letter-spacing:.1em; font-weight:700; }
+        .try-input { background:#000; border:1px solid rgba(255,255,255,.08); color:#e4e4e7; font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.4rem .6rem; outline:none; min-width:180px; flex:1; }
+        .try-input:focus { border-color:rgba(16,185,129,.5); }
+        .try-run { background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:#10b981; font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:.35rem .9rem; cursor:pointer; transition:all .15s; white-space:nowrap; }
+        .try-run:hover { background:rgba(16,185,129,.25); }
+        .try-run:disabled { opacity:.4; cursor:not-allowed; }
+        .try-output { display:none; padding:.75rem .85rem; border-top:1px solid rgba(255,255,255,.04); }
+        .try-output pre { margin:0; background:#000; border:none; font-size:.68rem; max-height:220px; overflow-y:auto; }
+        .try-status-ok { color:#10b981; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; }
+        .try-status-err { color:#ef4444; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; }
     </style>
 </head>
 <body class="flex min-h-screen font-sans">
@@ -230,6 +244,7 @@ export function renderDocs(_env: Env): Response {
                         <tr><td class="text-tac-amber">401</td><td class="param-desc">Missing or expired access token</td><td class="text-zinc-500">{ "error": "Kein Authentifizierungs-Token" }</td></tr>
                         <tr><td class="text-tac-amber">403</td><td class="param-desc">Authenticated but insufficient role</td><td class="text-zinc-500">{ "error": "Zugriff verweigert. Mindestrang: ..." }</td></tr>
                         <tr><td class="text-tac-amber">404</td><td class="param-desc">Resource not found</td><td class="text-zinc-500">{ "error": "..." }</td></tr>
+                        <tr><td class="text-tac-red font-bold">429</td><td class="param-desc">Rate limit exceeded — check <code>Retry-After</code> header</td><td class="text-zinc-500">{ "error": "Zu viele Anfragen..." }</td></tr>
                         <tr><td class="text-tac-amber">500</td><td class="param-desc">Internal worker error</td><td class="text-zinc-500">{ "error": "Interner Server-Fehler: ..." }</td></tr>
                         <tr><td class="text-tac-amber">502</td><td class="param-desc">Upstream Roblox API unreachable</td><td class="text-zinc-500">{ "error": "Roblox-API nicht erreichbar" }</td></tr>
                         <tr><td class="text-tac-amber">503</td><td class="param-desc">Open Cloud action failed</td><td class="text-zinc-500">{ "error": "..." }</td></tr>
@@ -380,6 +395,14 @@ export function renderDocs(_env: Env): Response {
     "created_at": "2026-01-01T00:00:00.000Z"
   }
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/staff/me" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1026,6 +1049,15 @@ export function renderDocs(_env: Env): Response {
 }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Username or Roblox ID..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/roblox/player/{v}" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1123,6 +1155,14 @@ export function renderDocs(_env: Env): Response {
   "totalPlayers": 12,
   "serverCount": 1
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/roblox/servers" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1285,6 +1325,15 @@ export function renderDocs(_env: Env): Response {
 }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Roblox User ID (numeric)..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/cloud/restriction/{v}" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1343,6 +1392,59 @@ export function renderDocs(_env: Env): Response {
         a.addEventListener('click', () => {
             if (window.innerWidth < 768) document.getElementById('sidebar')?.classList.add('-translate-x-full');
         });
+    });
+
+    // ── Try-it panel logic ────────────────────────────────────────────────────
+    const API = 'https://bwrp.net/api';
+
+    async function tryIt(btn) {
+        const panel     = btn.closest('.try-panel');
+        const output    = panel.querySelector('.try-output');
+        const statusEl  = panel.querySelector('.try-label');
+        const pathInput = panel.querySelector('.try-input');
+        const template  = btn.dataset.path;   // e.g. '/staff/me' or '/roblox/player/{v}'
+        const method    = btn.dataset.method || 'GET';
+        const val       = pathInput ? pathInput.value.trim() : '';
+
+        if (pathInput && !val) {
+            showTryResult(output, statusEl, 0, { error: 'Pflichtfeld fehlt' });
+            return;
+        }
+
+        const path = template.includes('{v}') ? template.replace('{v}', encodeURIComponent(val)) : template;
+
+        btn.disabled = true;
+        btn.textContent = '...';
+        try {
+            const res = await fetch(API + path, { method, credentials: 'include', headers: { 'Content-Type': 'application/json' } });
+            let body;
+            try { body = await res.json(); } catch { body = { raw: await res.text() }; }
+            showTryResult(output, statusEl, res.status, body);
+        } catch (e) {
+            showTryResult(output, statusEl, 0, { error: 'Netzwerkfehler: ' + e.message });
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Run';
+        }
+    }
+
+    function showTryResult(output, statusEl, status, body) {
+        if (statusEl) {
+            statusEl.textContent = status ? 'HTTP ' + status : 'ERROR';
+            statusEl.className = (status >= 200 && status < 300) ? 'try-status-ok try-label' : 'try-status-err try-label';
+        }
+        output.style.display = 'block';
+        const pre = output.querySelector('pre');
+        if (pre) pre.textContent = JSON.stringify(body, null, 2);
+    }
+
+    // Enter key in try-it inputs
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const input = e.target.closest('.try-input');
+        if (!input) return;
+        const btn = input.closest('.try-panel-header')?.querySelector('.try-run');
+        if (btn) btn.click();
     });
 
     // Scroll spy

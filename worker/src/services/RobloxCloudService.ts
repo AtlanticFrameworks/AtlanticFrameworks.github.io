@@ -8,13 +8,13 @@ const CLOUD_BASE = 'https://apis.roblox.com';
  */
 export class RobloxCloudService {
   private universeId: string;
-  private apiKey:     string;
-  private origin:     string;
+  private apiKey: string;
+  private origin: string;
 
   constructor(env: Env) {
     this.universeId = env.ROBLOX_UNIVERSE_ID;
-    this.apiKey     = env.ROBLOX_CLOUD_KEY ?? '';
-    this.origin     = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    this.apiKey = env.ROBLOX_CLOUD_KEY ?? '';
+    this.origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
   }
 
   private requireKey(): void {
@@ -36,7 +36,7 @@ export class RobloxCloudService {
     const res = await fetch(url, {
       method: 'POST',
       headers: {
-        'x-api-key':    this.apiKey,
+        'x-api-key': this.apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ message: JSON.stringify(data) }),
@@ -58,10 +58,10 @@ export class RobloxCloudService {
    * @param duration   ISO 8601 duration string e.g. "P7D" (7 days), null = permanent
    */
   async banUser(params: {
-    userId:        number;
-    reason:        string;
+    userId: number;
+    reason: string;
     displayReason: string;
-    duration:      string | null;
+    duration: string | null;
   }): Promise<void> {
     this.requireKey();
 
@@ -70,11 +70,11 @@ export class RobloxCloudService {
 
     const body: Record<string, unknown> = {
       gameJoinRestriction: {
-        active:             true,
-        privateReason:      reason,
-        displayReason:      displayReason,
-        excludeAltAccounts: true,
-        inherited:          true,
+        active: true,
+        privateReason: reason,
+        displayReason: displayReason,
+        excludeAltAccounts: false,
+        inherited: true,
       },
     };
     if (duration) (body.gameJoinRestriction as any).duration = duration;
@@ -82,7 +82,7 @@ export class RobloxCloudService {
     const res = await fetch(url, {
       method: 'PATCH',
       headers: {
-        'x-api-key':    this.apiKey,
+        'x-api-key': this.apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -104,7 +104,7 @@ export class RobloxCloudService {
     const res = await fetch(url, {
       method: 'PATCH',
       headers: {
-        'x-api-key':    this.apiKey,
+        'x-api-key': this.apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
