@@ -128,7 +128,7 @@ async function executeGpKick() {
     btn.textContent = 'SENDET...'; btn.disabled = true;
 
     try {
-        await window.api.cloudKick(gpCurrentPlayer.id, reason);
+        await window.api.cloudKick(gpCurrentPlayer.id, gpCurrentPlayer.username, reason);
         showStatus('Kick-Signal gesendet', 'success');
         closeGpModal('modal-gp-kick');
         document.getElementById('gp-kick-reason').value = '';
@@ -157,7 +157,7 @@ async function executeGpBan() {
     btn.textContent = 'SPERRT...'; btn.disabled = true;
 
     try {
-        await window.api.cloudBan(gpCurrentPlayer.id, privateR, displayR, durationIso);
+        await window.api.cloudBan(gpCurrentPlayer.id, gpCurrentPlayer.username, privateR, displayR, durationIso);
         showStatus('Spieler gesperrt', 'success');
         closeGpModal('modal-gp-ban');
         document.getElementById('gp-ban-reason').value = '';
@@ -179,7 +179,7 @@ async function executeGpUnban() {
     btn.textContent = 'HEBT AUF...'; btn.disabled = true;
 
     try {
-        await window.api.cloudUnban(gpCurrentPlayer.id);
+        await window.api.cloudUnban(gpCurrentPlayer.id, gpCurrentPlayer.username);
         showStatus('Ban aufgehoben', 'success');
         closeGpModal('modal-gp-unban');
         gpRefreshRestriction();
