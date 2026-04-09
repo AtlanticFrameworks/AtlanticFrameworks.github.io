@@ -13,6 +13,7 @@ import { ShiftController }      from './controllers/ShiftController.js';
 import { RobloxController }     from './controllers/RobloxController.js';
 import { WatchlistController }  from './controllers/WatchlistController.js';
 import { CloudController }      from './controllers/CloudController.js';
+import { DatabaseController }   from './controllers/DatabaseController.js';
 import { renderDocs }           from './utils/docs.js';
 
 // ─── Route Table ─────────────────────────────────────────────────────────────
@@ -81,6 +82,21 @@ const ROUTES: Route[] = [
   route('POST', '/api/cloud/ban',                         CloudController.ban            as Handler),
   route('POST', '/api/cloud/unban',                       CloudController.unban          as Handler),
   route('GET',  '/api/cloud/restriction/:userId',         CloudController.getRestriction as Handler),
+
+  // ── Database Management (OWNER only) ──────────────────────────────────────
+  route('GET',    '/api/db/stats',                        DatabaseController.stats             as Handler),
+  route('GET',    '/api/db/users',                        DatabaseController.listUsers         as Handler),
+  route('PATCH',  '/api/db/users/:id',                    DatabaseController.updateUser        as Handler),
+  route('DELETE', '/api/db/users/:id',                    DatabaseController.deleteUser        as Handler),
+  route('GET',    '/api/db/cases',                        DatabaseController.listCases         as Handler),
+  route('PATCH',  '/api/db/cases/:id',                    DatabaseController.updateCase        as Handler),
+  route('DELETE', '/api/db/cases/:id',                    DatabaseController.deleteCase        as Handler),
+  route('GET',    '/api/db/sessions',                     DatabaseController.listSessions      as Handler),
+  route('DELETE', '/api/db/sessions/:id',                 DatabaseController.deleteSession     as Handler),
+  route('GET',    '/api/db/audit-logs',                   DatabaseController.listAuditLogs     as Handler),
+  route('GET',    '/api/db/server-status',                DatabaseController.listServerStatus  as Handler),
+  route('PATCH',  '/api/db/server-status/:service',       DatabaseController.updateServerStatus as Handler),
+  route('DELETE', '/api/db/rate-limits',                  DatabaseController.clearRateLimits   as Handler),
 ];
 
 // ─── Main Handler ─────────────────────────────────────────────────────────────

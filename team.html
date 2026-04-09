@@ -5,11 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Panel | ATLANTIC Studios</title>
-    <meta name="description" content="Internes Staff-Panel für ATLANTIC Studios Moderation und Teamverwaltung. Nur für autorisierte Mitarbeiter.">
+    <meta name="description"
+        content="Internes Staff-Panel für ATLANTIC Studios Moderation und Teamverwaltung. Nur für autorisierte Mitarbeiter.">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/images/logo.png">
 
     <!-- Icons -->
@@ -22,40 +25,40 @@
             theme: {
                 extend: {
                     colors: {
-                        'tac-dark':   '#08080a',
-                        'tac-panel':  '#111114',
-                        'tac-card':   '#16161a',
+                        'tac-dark': '#08080a',
+                        'tac-panel': '#111114',
+                        'tac-card': '#16161a',
                         'tac-border': '#252529',
-                        'tac-amber':  '#e2a800',
-                        'tac-green':  '#10b981',
-                        'tac-red':    '#ef4444',
-                        'tac-blue':   '#3b82f6',
+                        'tac-amber': '#e2a800',
+                        'tac-green': '#10b981',
+                        'tac-red': '#ef4444',
+                        'tac-blue': '#3b82f6',
                         'tac-purple': '#a855f7',
-                        'tac-muted':  '#71717a',
-                        'bw-gold':    '#e2a800',
+                        'tac-muted': '#71717a',
+                        'bw-gold': '#e2a800',
                     },
                     fontFamily: {
-                        sans:    ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                         display: ['Oswald', 'sans-serif'],
-                        mono:    ['JetBrains Mono', 'monospace'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     backgroundImage: {
                         'grid-pattern': "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAyNSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')",
                     },
                     keyframes: {
-                        fadeIn:    { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        slideUp:   { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        slideInR:  { '0%': { opacity: '0', transform: 'translateX(100%)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
-                        slideOutR: { '0%': { opacity: '1', transform: 'translateX(0)' },   '100%': { opacity: '0', transform: 'translateX(100%)' } },
-                        glitch:    { '0%,100%': { transform: 'translate(0)' }, '20%': { transform: 'translate(-2px,2px)' }, '40%': { transform: 'translate(2px,-2px)' }, '60%': { transform: 'translate(-1px,1px)' }, '80%': { transform: 'translate(1px,-1px)' } },
-                        scanline:  { '0%': { backgroundPosition: '0 0' }, '100%': { backgroundPosition: '0 100%' } },
+                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideInR: { '0%': { opacity: '0', transform: 'translateX(100%)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+                        slideOutR: { '0%': { opacity: '1', transform: 'translateX(0)' }, '100%': { opacity: '0', transform: 'translateX(100%)' } },
+                        glitch: { '0%,100%': { transform: 'translate(0)' }, '20%': { transform: 'translate(-2px,2px)' }, '40%': { transform: 'translate(2px,-2px)' }, '60%': { transform: 'translate(-1px,1px)' }, '80%': { transform: 'translate(1px,-1px)' } },
+                        scanline: { '0%': { backgroundPosition: '0 0' }, '100%': { backgroundPosition: '0 100%' } },
                     },
                     animation: {
-                        'fade-in':    'fadeIn 0.3s ease-out',
-                        'slide-up':   'slideUp 0.4s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
                         'slide-in-r': 'slideInR 0.3s ease-out',
-                        'slide-out-r':'slideOutR 0.3s ease-in forwards',
-                        'glitch':     'glitch 1s linear infinite',
+                        'slide-out-r': 'slideOutR 0.3s ease-in forwards',
+                        'glitch': 'glitch 1s linear infinite',
                     }
                 }
             }
@@ -64,15 +67,36 @@
 
     <style>
         /* === SCROLLBAR === */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #08080a; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 0; }
-        ::-webkit-scrollbar-thumb:hover { background: #e2a800; }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #08080a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 0;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e2a800;
+        }
 
         /* === CLIP PATHS === */
-        .clip-tl  { clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px); }
-        .clip-br  { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
-        .clip-both{ clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+        .clip-tl {
+            clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+        }
+
+        .clip-br {
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+        }
+
+        .clip-both {
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
 
         /* Context Menu Styling */
         #context-menu {
@@ -82,13 +106,22 @@
             min-width: 180px;
             background: #111114;
             border: 1px solid rgba(226, 168, 0, 0.4);
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.5);
             animation: cm-reveal 0.15s ease-out;
         }
+
         @keyframes cm-reveal {
-            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
+
         .cm-item {
             display: flex;
             align-items: center;
@@ -99,16 +132,23 @@
             color: #d4d4d8;
             cursor: pointer;
             transition: all 0.2s;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
         .cm-item:hover {
             background: rgba(226, 168, 0, 0.1);
             color: #e2a800;
             padding-left: 18px;
         }
-        .cm-item i { width: 14px; height: 14px; opacity: 0.6; }
+
+        .cm-item i {
+            width: 14px;
+            height: 14px;
+            opacity: 0.6;
+        }
+
         .cm-header {
             padding: 8px 14px;
             background: rgba(226, 168, 0, 0.05);
@@ -121,46 +161,139 @@
         }
 
         /* === HUD CORNERS === */
-        .hud-corners { position: relative; }
+        .hud-corners {
+            position: relative;
+        }
+
         .hud-corners::before,
-        .hud-corners::after { content: ''; position: absolute; width: 14px; height: 14px; border-color: #e2a800; border-style: solid; opacity: 0.5; }
-        .hud-corners::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
-        .hud-corners::after  { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+        .hud-corners::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-color: #e2a800;
+            border-style: solid;
+            opacity: 0.5;
+        }
+
+        .hud-corners::before {
+            top: 0;
+            left: 0;
+            border-width: 2px 0 0 2px;
+        }
+
+        .hud-corners::after {
+            bottom: 0;
+            right: 0;
+            border-width: 0 2px 2px 0;
+        }
 
         /* === CRT SUBTLE === */
         .crt-overlay::after {
             content: '';
             position: fixed;
             inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
             pointer-events: none;
             z-index: 9999;
         }
 
         /* === BRACKET HOVER EFFECT === */
-        .bracket-hover { position: relative; transition: all 0.2s; }
-        .bracket-hover::before { content: '['; position: absolute; left: 0; color: #e2a800; opacity: 0; transform: translateX(4px); transition: all 0.2s; }
-        .bracket-hover::after  { content: ']'; position: absolute; right: 0; color: #e2a800; opacity: 0; transform: translateX(-4px); transition: all 0.2s; }
-        .bracket-hover:hover::before { opacity: 1; transform: translateX(-10px); }
-        .bracket-hover:hover::after  { opacity: 1; transform: translateX(10px); }
+        .bracket-hover {
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .bracket-hover::before {
+            content: '[';
+            position: absolute;
+            left: 0;
+            color: #e2a800;
+            opacity: 0;
+            transform: translateX(4px);
+            transition: all 0.2s;
+        }
+
+        .bracket-hover::after {
+            content: ']';
+            position: absolute;
+            right: 0;
+            color: #e2a800;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.2s;
+        }
+
+        .bracket-hover:hover::before {
+            opacity: 1;
+            transform: translateX(-10px);
+        }
+
+        .bracket-hover:hover::after {
+            opacity: 1;
+            transform: translateX(10px);
+        }
 
         /* === CURSOR BLINK === */
-        .cursor-blink::after { content: '█'; color: #e2a800; animation: blink 1s step-start infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .cursor-blink::after {
+            content: '█';
+            color: #e2a800;
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
 
         /* === Selection === */
-        ::selection { background: #e2a800; color: black; }
+        ::selection {
+            background: #e2a800;
+            color: black;
+        }
 
         /* === NAV ACTIVE GLOW === */
-        .nav-active { box-shadow: inset 3px 0 0 #e2a800, inset 0 0 20px rgba(226,168,0,0.07); }
+        .nav-active {
+            box-shadow: inset 3px 0 0 #e2a800, inset 0 0 20px rgba(226, 168, 0, 0.07);
+        }
 
         /* === TOAST === */
-        #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9998; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
 
         /* === PULSE DOT === */
-        .pulse-dot { position: relative; display: inline-flex; }
-        .pulse-dot::before { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; opacity: 0.4; animation: ping 1s cubic-bezier(0,0,0.2,1) infinite; }
-        @keyframes ping { 75%,100% { transform: scale(2); opacity: 0; } }
+        .pulse-dot {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .pulse-dot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            background: currentColor;
+            opacity: 0.4;
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes ping {
+
+            75%,
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -177,7 +310,9 @@
     <div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-tac-dark bg-grid-pattern">
         <!-- Ambient glow -->
         <div class="absolute inset-0 pointer-events-none">
-            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-tac-amber/5 rounded-full blur-3xl"></div>
+            <div
+                class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-tac-amber/5 rounded-full blur-3xl">
+            </div>
         </div>
 
         <div class="relative w-full max-w-md px-6 py-10 hud-corners">
@@ -187,14 +322,16 @@
 
             <!-- Header -->
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full border border-tac-border bg-tac-panel mb-5 relative">
+                <div
+                    class="inline-flex items-center justify-center w-20 h-20 rounded-full border border-tac-border bg-tac-panel mb-5 relative">
                     <i data-lucide="shield-alert" class="w-9 h-9 text-tac-amber"></i>
                     <div class="absolute inset-0 rounded-full border border-tac-amber/20 animate-ping opacity-30"></div>
                 </div>
                 <h1 class="font-display text-3xl font-bold uppercase tracking-[0.2em] text-white">
                     ATLANTIC <span class="text-tac-amber">STUDIOS</span>
                 </h1>
-                <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-1 cursor-blink" id="typewriter-el"></p>
+                <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-1 cursor-blink" id="typewriter-el">
+                </p>
             </div>
 
             <!-- Terminal Status Block -->
@@ -256,13 +393,17 @@
     <div id="broadcast-modal" class="fixed inset-0 z-[9500] hidden items-center justify-center">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-sm" onclick="closeBroadcastModal()"></div>
         <div class="relative bg-tac-panel border border-tac-red/40 shadow-2xl w-full max-w-md mx-4 p-6">
-            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-red to-transparent opacity-50"></div>
+            <div
+                class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-red to-transparent opacity-50">
+            </div>
             <div class="flex items-center gap-3 mb-6 border-b border-tac-border pb-4">
                 <i data-lucide="radio" class="w-5 h-5 text-tac-red"></i>
                 <h3 class="font-display font-bold text-white uppercase tracking-wider">Globaler Broadcast</h3>
-                <span class="ml-auto font-mono text-[9px] text-tac-red border border-tac-red/30 px-2 py-0.5">ALLE SERVER</span>
+                <span class="ml-auto font-mono text-[9px] text-tac-red border border-tac-red/30 px-2 py-0.5">ALLE
+                    SERVER</span>
             </div>
-            <p class="font-mono text-xs text-tac-muted mb-4 uppercase">Nachricht wird an alle aktiven Spielserver gesendet und erscheint im Chat aller Spieler.</p>
+            <p class="font-mono text-xs text-tac-muted mb-4 uppercase">Nachricht wird an alle aktiven Spielserver
+                gesendet und erscheint im Chat aller Spieler.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block font-mono text-[10px] text-tac-muted uppercase mb-1">Nachricht</label>
@@ -298,14 +439,14 @@
         // ===================================================
         // DOM ELEMENTS & GLOBALS
         // ===================================================
-        const gate      = document.getElementById('login-gate');
+        const gate = document.getElementById('login-gate');
         const dashboard = document.getElementById('dashboard');
         const statusMsg = document.getElementById('status-msg');
 
         // ===================================================
         // INITIALIZATION
         // ===================================================
-        (function() {
+        (function () {
             // Typewriter effect for login gate
             const text = 'SICHERER TERMINAL // ZUGANG BESCHRÄNKT';
             const el = document.getElementById('typewriter-el');
@@ -317,7 +458,7 @@
                 }
                 setTimeout(type, 600);
             }
-            
+
             // Initialization
             document.addEventListener('DOMContentLoaded', () => {
                 if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -346,11 +487,11 @@
 
                 // Inject user data
                 const avatarEl = document.getElementById('user-avatar');
-                const nameEl   = document.getElementById('user-name');
-                const rankEl   = document.getElementById('user-rank');
+                const nameEl = document.getElementById('user-name');
+                const rankEl = document.getElementById('user-rank');
                 if (avatarEl) avatarEl.src = avatarUrl;
-                if (nameEl)   nameEl.textContent = username;
-                if (rankEl)   rankEl.textContent = rank;
+                if (nameEl) nameEl.textContent = username;
+                if (rankEl) rankEl.textContent = rank;
 
                 // Reveal
                 gate.style.transition = 'opacity 0.5s ease';
@@ -374,7 +515,7 @@
                 }
                 if (typeof initDatabase === 'function') initDatabase().catch(e => console.error('DB Fehler:', e));
 
-            } catch(e) {
+            } catch (e) {
                 console.error('Dashboard-Ladefehler:', e);
                 showStatus('DASHBOARD LADEFEHLER: ' + e.message, 'error');
             }
@@ -401,7 +542,7 @@
         // ===================================================
         // TAB NAVIGATION (global, wird auch im Fragment genutzt)
         // ===================================================
-        window.showTab = function(tabId) {
+        window.showTab = function (tabId) {
             document.querySelectorAll('.tab-content').forEach(el => {
                 el.classList.add('hidden');
                 el.classList.remove('block', 'animate-fade-in');
@@ -426,7 +567,7 @@
             if (sidebar && window.innerWidth < 768) sidebar.classList.add('-translate-x-full');
         };
 
-        window.toggleSidebar = function() {
+        window.toggleSidebar = function () {
             const sidebar = document.getElementById('sidebar');
             if (sidebar) sidebar.classList.toggle('-translate-x-full');
         };
@@ -441,15 +582,15 @@
                 // Merge these role names into one card block
                 combineGroups: [{ displayName: 'Ownership Team', roleNames: ['Group Owner', 'Ownership Team'] }],
             },
-            { containerId: 'container-hr', tierLabel: 'AUFSICHT',  tierColor: '#e2a800', roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'] },
+            { containerId: 'container-hr', tierLabel: 'AUFSICHT', tierColor: '#e2a800', roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'] },
             { containerId: 'container-mr', tierLabel: 'FELD-TEAM', tierColor: '#10b981', roles: ['Head Game Moderator', 'Game Moderator'] },
         ];
         let staffLoaded = false;
 
         async function loadStaffHierarchy() {
             const loading = document.getElementById('staff-loading');
-            const grid    = document.getElementById('staff-hierarchy-grid');
-            const search  = document.getElementById('staff-search-container');
+            const grid = document.getElementById('staff-hierarchy-grid');
+            const search = document.getElementById('staff-search-container');
             if (!loading || !grid) return;
 
             loading.classList.remove('hidden');
@@ -534,7 +675,7 @@
                 }
                 staffLoaded = true;
                 lucide.createIcons({ nodes: [grid] });
-            } catch(err) {
+            } catch (err) {
                 console.error('Hierarchie-Ladefehler:', err);
                 if (grid) grid.insertAdjacentHTML('beforeend', `
                     <div class="col-span-full text-center text-tac-red font-mono text-xs p-4 border border-tac-red/20 bg-tac-red/5">
@@ -542,12 +683,12 @@
                     </div>`);
             } finally {
                 if (loading) loading.classList.add('hidden');
-                if (grid)    grid.classList.remove('hidden');
-                if (search)  search.classList.remove('hidden');
+                if (grid) grid.classList.remove('hidden');
+                if (search) search.classList.remove('hidden');
             }
         }
 
-        window.filterStaff = function() {
+        window.filterStaff = function () {
             const filter = (document.getElementById('staff-search-input')?.value || '').toUpperCase();
             document.querySelectorAll('.user-card').forEach(card => {
                 const name = card.querySelector('.user-name')?.textContent?.toUpperCase() || '';
@@ -558,10 +699,10 @@
         // ===================================================
         // SHIFT TIMER
         // ===================================================
-        let shiftInterval  = null;
+        let shiftInterval = null;
         let shiftStartTime = null;
-        let shiftTimeElap  = 0;
-        let isShiftActive  = false;
+        let shiftTimeElap = 0;
+        let isShiftActive = false;
 
         function updateTimerDisplay(reset = false) {
             let secs = reset ? 0 : isShiftActive
@@ -598,11 +739,11 @@
                 active: isShiftActive,
                 startTime: shiftStartTime,
                 elapsed: isShiftActive ? Math.floor((Date.now() - shiftStartTime) / 1000) : shiftTimeElap,
-                cases:   document.getElementById('shift-cases')?.value   || 0,
-                bans:    document.getElementById('shift-bans')?.value    || 0,
-                warns:   document.getElementById('shift-warns')?.value   || 0,
-                kicks:   document.getElementById('shift-kicks')?.value   || 0,
-                notes:   document.getElementById('shift-notes')?.value   || '',
+                cases: document.getElementById('shift-cases')?.value || 0,
+                bans: document.getElementById('shift-bans')?.value || 0,
+                warns: document.getElementById('shift-warns')?.value || 0,
+                kicks: document.getElementById('shift-kicks')?.value || 0,
+                notes: document.getElementById('shift-notes')?.value || '',
             };
             localStorage.setItem('atlantic_shift_state', JSON.stringify(state));
         }
@@ -612,11 +753,11 @@
             if (!raw) return;
             try {
                 const state = JSON.parse(raw);
-                isShiftActive  = state.active;
-                shiftTimeElap  = state.elapsed || 0;
+                isShiftActive = state.active;
+                shiftTimeElap = state.elapsed || 0;
 
                 if (document.getElementById('shift-cases')) document.getElementById('shift-cases').value = state.cases || 0;
-                if (document.getElementById('shift-bans'))  document.getElementById('shift-bans').value  = state.bans  || 0;
+                if (document.getElementById('shift-bans')) document.getElementById('shift-bans').value = state.bans || 0;
                 if (document.getElementById('shift-warns')) document.getElementById('shift-warns').value = state.warns || 0;
                 if (document.getElementById('shift-kicks')) document.getElementById('shift-kicks').value = state.kicks || 0;
                 if (document.getElementById('shift-notes')) document.getElementById('shift-notes').value = state.notes || '';
@@ -630,10 +771,10 @@
                     updateTimerDisplay();
                 }
                 if (typeof lucide !== 'undefined') lucide.createIcons();
-            } catch(e) { console.error('Shift-Status-Fehler:', e); }
+            } catch (e) { console.error('Shift-Status-Fehler:', e); }
         }
 
-        window.toggleShift = function() {
+        window.toggleShift = function () {
             if (!isShiftActive) {
                 isShiftActive = true;
                 shiftStartTime = Date.now() - (shiftTimeElap * 1000);
@@ -651,7 +792,7 @@
             lucide.createIcons();
         };
 
-        window.stopShift = function(force = false) {
+        window.stopShift = function (force = false) {
             if (!force) { showConfirm('Schicht wirklich beenden?', 'Die Zeit und Metriken werden zurückgesetzt.', _doStopShift); return; }
             _doStopShift();
         };
@@ -662,10 +803,10 @@
             if (shiftStartTime) {
                 const metrics = {
                     cases_count: parseInt(document.getElementById('shift-cases')?.value || 0),
-                    bans_count:  parseInt(document.getElementById('shift-bans')?.value  || 0),
+                    bans_count: parseInt(document.getElementById('shift-bans')?.value || 0),
                     warns_count: parseInt(document.getElementById('shift-warns')?.value || 0),
                     kicks_count: parseInt(document.getElementById('shift-kicks')?.value || 0),
-                    notes:       document.getElementById('shift-notes')?.value || null,
+                    notes: document.getElementById('shift-notes')?.value || null,
                 };
                 window.api.endShift(metrics).catch(e => console.warn('[SHIFT] End fehlgeschlagen:', e.message));
             }
@@ -673,10 +814,10 @@
             isShiftActive = false;
             clearInterval(shiftInterval);
             shiftStartTime = null;
-            shiftTimeElap  = 0;
+            shiftTimeElap = 0;
             updateTimerDisplay(true);
             updateShiftButtons('stopped');
-            ['shift-cases','shift-bans','shift-warns','shift-kicks'].forEach(id => {
+            ['shift-cases', 'shift-bans', 'shift-warns', 'shift-kicks'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = 0;
             });
@@ -688,7 +829,7 @@
 
         function updateShiftButtons(state) {
             const btnToggle = document.getElementById('btn-shift-start');
-            const btnStop   = document.getElementById('btn-shift-stop');
+            const btnStop = document.getElementById('btn-shift-stop');
             const statusInd = document.getElementById('shift-status-indicator');
             const statusTxt = document.getElementById('shift-status-text');
 
@@ -697,33 +838,33 @@
             if (state === 'active') {
                 btnToggle.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
                 btnToggle.className = 'flex-1 bg-tac-amber/10 border border-tac-amber text-tac-amber font-mono font-bold py-3 hover:bg-tac-amber hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2';
-                if (btnStop)   btnStop.disabled = false;
+                if (btnStop) btnStop.disabled = false;
                 if (statusInd) { statusInd.className = 'pulse-dot w-2.5 h-2.5 rounded-full bg-tac-green text-tac-green flex-shrink-0'; }
                 if (statusTxt) { statusTxt.textContent = 'IM DIENST'; statusTxt.className = 'font-mono text-xs text-tac-green'; }
             } else if (state === 'paused') {
                 btnToggle.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Fortsetzen';
                 btnToggle.className = 'flex-1 bg-tac-green/10 border border-tac-green text-tac-green font-mono font-bold py-3 hover:bg-tac-green hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2';
-                if (btnStop)   btnStop.disabled = false;
+                if (btnStop) btnStop.disabled = false;
                 if (statusInd) { statusInd.className = 'w-2.5 h-2.5 rounded-full bg-tac-amber flex-shrink-0'; }
                 if (statusTxt) { statusTxt.textContent = 'PAUSIERT'; statusTxt.className = 'font-mono text-xs text-tac-amber'; }
             } else {
                 btnToggle.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Starten';
                 btnToggle.className = 'flex-1 bg-tac-green/10 border border-tac-green text-tac-green font-mono font-bold py-3 hover:bg-tac-green hover:text-black transition-all clip-both text-sm flex justify-center items-center gap-2';
-                if (btnStop)   { btnStop.disabled = true; }
+                if (btnStop) { btnStop.disabled = true; }
                 if (statusInd) { statusInd.className = 'w-2.5 h-2.5 rounded-full bg-zinc-600 flex-shrink-0'; }
                 if (statusTxt) { statusTxt.textContent = 'AUS DIENST'; statusTxt.className = 'font-mono text-xs text-tac-muted'; }
             }
         }
 
-        window.copyShiftReport = function() {
-            const time  = document.getElementById('shift-timer-display')?.textContent || '00:00:00';
-            const cases = document.getElementById('shift-cases')?.value  || 0;
-            const bans  = document.getElementById('shift-bans')?.value   || 0;
-            const warns = document.getElementById('shift-warns')?.value  || 0;
-            const kicks = document.getElementById('shift-kicks')?.value  || 0;
-            const notes = document.getElementById('shift-notes')?.value  || '-';
-            const user  = document.getElementById('user-name')?.textContent || 'Unbekannt';
-            const rank  = document.getElementById('user-rank')?.textContent || '-';
+        window.copyShiftReport = function () {
+            const time = document.getElementById('shift-timer-display')?.textContent || '00:00:00';
+            const cases = document.getElementById('shift-cases')?.value || 0;
+            const bans = document.getElementById('shift-bans')?.value || 0;
+            const warns = document.getElementById('shift-warns')?.value || 0;
+            const kicks = document.getElementById('shift-kicks')?.value || 0;
+            const notes = document.getElementById('shift-notes')?.value || '-';
+            const user = document.getElementById('user-name')?.textContent || 'Unbekannt';
+            const rank = document.getElementById('user-rank')?.textContent || '-';
 
             const report =
                 `**👮 SCHICHT-BERICHT**\n` +
@@ -752,7 +893,7 @@
         // ===================================================
         // METRIC ADJUSTMENT
         // ===================================================
-        window.adjustMetric = function(id, delta) {
+        window.adjustMetric = function (id, delta) {
             const el = document.getElementById(id);
             if (!el) return;
             let val = parseInt(el.value || 0) + delta;
@@ -765,27 +906,27 @@
         // PUNISHMENT CALCULATOR
         // ===================================================
         const PUNISHMENT_DATA = {
-            "RDM":         { label: "RDM (Zufälliger Angriff)",           data: ["Verwarnung / Kick", "Ban 3 Tage",       "Ban 7 Tage"       ] },
-            "VDM":         { label: "VDM (Fahrzeug-Angriff)",             data: ["Verwarnung / Kick", "Ban 3 Tage",       "Ban 7 Tage"       ] },
-            "Spawnkill":   { label: "Spawnkilling",                        data: ["Kick",              "Ban 3 Tage",       "Ban 7 Tage"       ] },
-            "CombatLog":   { label: "Combat Logging",                      data: ["Ban 2 Tage",        "Ban 5 Tage",       "Ban 14 Tage"      ] },
-            "FailRP":      { label: "FailRP",                              data: ["Verwarnung",        "Kick",             "Ban 3 Tage"       ] },
-            "Metagaming":  { label: "Metagaming",                         data: ["Kick",              "Ban 3 Tage",       "Ban 7 Tage"       ] },
-            "Powergaming": { label: "Powergaming",                        data: ["Kick",              "Ban 3 Tage",       "Ban 7 Tage"       ] },
-            "NLR":         { label: "New Life Rule (NLR)",                data: ["Verwarnung",        "Kick",             "Ban 1 Tag"        ] },
-            "Toxicity":    { label: "Toxizität / Beleidigungen",          data: ["Mute / Verwarnung", "Ban 1 Tag",        "Ban 7 Tage"       ] },
-            "Spam":        { label: "Chat-Spam",                          data: ["Mute",              "Kick",             "Ban 1 Tag"        ] },
-            "Advertising": { label: "Werbung",                            data: ["Permanenter Ban",   "Permanenter Ban",  "Permanenter Ban"  ] },
-            "Exploiting":  { label: "Exploiting / Cheating",             data: ["Permanenter Ban",   "Permanenter Ban",  "Permanenter Ban"  ] },
+            "RDM": { label: "RDM (Zufälliger Angriff)", data: ["Verwarnung / Kick", "Ban 3 Tage", "Ban 7 Tage"] },
+            "VDM": { label: "VDM (Fahrzeug-Angriff)", data: ["Verwarnung / Kick", "Ban 3 Tage", "Ban 7 Tage"] },
+            "Spawnkill": { label: "Spawnkilling", data: ["Kick", "Ban 3 Tage", "Ban 7 Tage"] },
+            "CombatLog": { label: "Combat Logging", data: ["Ban 2 Tage", "Ban 5 Tage", "Ban 14 Tage"] },
+            "FailRP": { label: "FailRP", data: ["Verwarnung", "Kick", "Ban 3 Tage"] },
+            "Metagaming": { label: "Metagaming", data: ["Kick", "Ban 3 Tage", "Ban 7 Tage"] },
+            "Powergaming": { label: "Powergaming", data: ["Kick", "Ban 3 Tage", "Ban 7 Tage"] },
+            "NLR": { label: "New Life Rule (NLR)", data: ["Verwarnung", "Kick", "Ban 1 Tag"] },
+            "Toxicity": { label: "Toxizität / Beleidigungen", data: ["Mute / Verwarnung", "Ban 1 Tag", "Ban 7 Tage"] },
+            "Spam": { label: "Chat-Spam", data: ["Mute", "Kick", "Ban 1 Tag"] },
+            "Advertising": { label: "Werbung", data: ["Permanenter Ban", "Permanenter Ban", "Permanenter Ban"] },
+            "Exploiting": { label: "Exploiting / Cheating", data: ["Permanenter Ban", "Permanenter Ban", "Permanenter Ban"] },
         };
 
-        window.runCalculation = function(offenseOverride) {
+        window.runCalculation = function (offenseOverride) {
             const offense = offenseOverride || document.getElementById('calc-offense')?.value;
             const countRadio = document.querySelector('input[name="offense-count"]:checked');
-            const resultEl   = document.getElementById('calc-result');
-            const subtextEl  = document.getElementById('calc-subtext');
-            const cmdEl      = document.getElementById('calc-command-output');
-            const cmdBox     = document.getElementById('calc-command-box');
+            const resultEl = document.getElementById('calc-result');
+            const subtextEl = document.getElementById('calc-subtext');
+            const cmdEl = document.getElementById('calc-command-output');
+            const cmdBox = document.getElementById('calc-command-box');
 
             if (!offense || !countRadio || !resultEl) return;
 
@@ -809,10 +950,10 @@
             }
 
             // Generate command
-            const username  = document.getElementById('calc-username')?.value?.trim() || '[Username]';
-            const countLbl  = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
-            const reason    = `${countLbl} – ${entry.label}`;
-            const cmd       = `/moderate ${username} ${punishment} ${reason}`;
+            const username = document.getElementById('calc-username')?.value?.trim() || '[Username]';
+            const countLbl = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
+            const reason = `${countLbl} – ${entry.label}`;
+            const cmd = `/moderate ${username} ${punishment} ${reason}`;
             if (cmdEl) cmdEl.value = cmd;
             if (cmdBox) cmdBox.classList.remove('hidden');
 
@@ -823,7 +964,7 @@
             }
         };
 
-        window.copyCalcCommand = function() {
+        window.copyCalcCommand = function () {
             const el = document.getElementById('calc-command-output');
             if (!el || !el.value) return;
             navigator.clipboard.writeText(el.value)
@@ -842,14 +983,14 @@
             configurable: true,
         });
 
-        window.lookupPlayer = async function() {
+        window.lookupPlayer = async function () {
             const input = document.getElementById('lookup-input')?.value?.trim();
             if (!input) { showToast('Bitte Username oder ID eingeben.', 'warn'); return; }
 
-            const result  = document.getElementById('lookup-result');
+            const result = document.getElementById('lookup-result');
             const loading = document.getElementById('lookup-loading');
             lookedUpPlayer = null;
-            if (result)  result.classList.add('hidden');
+            if (result) result.classList.add('hidden');
             if (loading) loading.classList.remove('hidden');
             document.getElementById('case-history-section')?.classList.add('hidden');
 
@@ -857,16 +998,16 @@
                 const player = await window.api.lookupPlayer(input);
 
                 if (loading) loading.classList.add('hidden');
-                if (result)  result.classList.remove('hidden');
+                if (result) result.classList.remove('hidden');
 
-                const nameEl     = document.getElementById('lookup-username');
-                const rankEl     = document.getElementById('lookup-rank');
-                const avatarEl   = document.getElementById('lookup-avatar');
+                const nameEl = document.getElementById('lookup-username');
+                const rankEl = document.getElementById('lookup-rank');
+                const avatarEl = document.getElementById('lookup-avatar');
                 const profileBtn = document.getElementById('lookup-profile-btn');
 
-                if (nameEl)     nameEl.textContent = player.isBanned ? `${player.username} [GEBANNT]` : player.username;
-                if (rankEl)     rankEl.textContent = `ID: ${player.id}`;
-                if (avatarEl)   avatarEl.src = player.avatarUrl;
+                if (nameEl) nameEl.textContent = player.isBanned ? `${player.username} [GEBANNT]` : player.username;
+                if (rankEl) rankEl.textContent = `ID: ${player.id}`;
+                if (avatarEl) avatarEl.src = player.avatarUrl;
                 if (profileBtn) profileBtn.href = player.profileUrl;
 
                 // Store for case creation
@@ -881,20 +1022,20 @@
                 const qmUser = document.getElementById('qm-username');
                 if (qmUser) qmUser.value = player.username;
 
-            } catch(e) {
+            } catch (e) {
                 if (loading) loading.classList.add('hidden');
                 showToast('Spieler-Lookup fehlgeschlagen: ' + (e.message || 'Unbekannter Fehler'), 'error');
                 console.error(e);
             }
         };
 
-        window.generateQuickCommand = function() {
-            const username  = document.getElementById('qm-username')?.value?.trim()  || '[Username]';
-            const offense   = document.getElementById('qm-offense')?.value;
-            const count     = document.getElementById('qm-count')?.value || '1';
+        window.generateQuickCommand = function () {
+            const username = document.getElementById('qm-username')?.value?.trim() || '[Username]';
+            const offense = document.getElementById('qm-offense')?.value;
+            const count = document.getElementById('qm-count')?.value || '1';
             const tridentEl = document.getElementById('qm-trident-output');
-            const sapphEl   = document.getElementById('qm-sapphire-output');
-            const cmdBoxEl  = document.getElementById('qm-command-box');
+            const sapphEl = document.getElementById('qm-sapphire-output');
+            const cmdBoxEl = document.getElementById('qm-command-box');
 
             if (!offense) { showToast('Bitte Vergehen auswählen.', 'warn'); return; }
 
@@ -902,10 +1043,10 @@
             if (!entry) return;
             const countIndex = parseInt(count) - 1;
             const punishment = entry.data[Math.min(countIndex, entry.data.length - 1)];
-            const countLbl   = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
-            const reason     = `${countLbl} – ${entry.label}`;
+            const countLbl = ['1. Verstoß', '2. Verstoß', '3.+ Verstoß'][countIndex];
+            const reason = `${countLbl} – ${entry.label}`;
 
-            const trident  = `/moderate ${username} ${punishment} ${reason}`;
+            const trident = `/moderate ${username} ${punishment} ${reason}`;
 
             // Sapphire command mapping
             let sapphCmd = '';
@@ -913,13 +1054,13 @@
             else if (punishment.toLowerCase().includes('ban')) {
                 const days = punishment.match(/(\d+)/)?.[1] || '1';
                 sapphCmd = `s!ban ${username} ${days}d ${reason}`;
-            } else if (punishment.toLowerCase().includes('kick'))  sapphCmd = `s!kick ${username} ${reason}`;
-            else if (punishment.toLowerCase().includes('mute'))    sapphCmd = `s!mute ${username} 2h ${reason}`;
-            else                                                    sapphCmd = `s!warn ${username} ${reason}`;
+            } else if (punishment.toLowerCase().includes('kick')) sapphCmd = `s!kick ${username} ${reason}`;
+            else if (punishment.toLowerCase().includes('mute')) sapphCmd = `s!mute ${username} 2h ${reason}`;
+            else sapphCmd = `s!warn ${username} ${reason}`;
 
             if (tridentEl) tridentEl.value = trident;
-            if (sapphEl)   sapphEl.value   = sapphCmd;
-            if (cmdBoxEl)  cmdBoxEl.classList.remove('hidden');
+            if (sapphEl) sapphEl.value = sapphCmd;
+            if (cmdBoxEl) cmdBoxEl.classList.remove('hidden');
 
             // Persist moderation case to D1 if a player was looked up
             if (lookedUpPlayer) {
@@ -935,16 +1076,16 @@
 
                 window.api.createCase({
                     targetRobloxId: lookedUpPlayer.id,
-                    targetUsername:  lookedUpPlayer.username,
-                    type:            caseType,
+                    targetUsername: lookedUpPlayer.username,
+                    type: caseType,
                     reason,
                     ...(durationDays ? { durationDays } : {}),
                 }).then(() => showToast('Fall in Datenbank gespeichert.', 'success'))
-                  .catch(e => console.warn('[CASE] Speichern fehlgeschlagen:', e.message));
+                    .catch(e => console.warn('[CASE] Speichern fehlgeschlagen:', e.message));
             }
         };
 
-        window.copyQmCommand = function(type) {
+        window.copyQmCommand = function (type) {
             const el = document.getElementById(type === 'trident' ? 'qm-trident-output' : 'qm-sapphire-output');
             if (!el || !el.value) return;
             navigator.clipboard.writeText(el.value)
@@ -952,7 +1093,7 @@
                 .catch(() => showToast('Kopieren fehlgeschlagen.', 'error'));
         };
 
-        window.toggleChecklist = function(cb) {
+        window.toggleChecklist = function (cb) {
             const fill = document.getElementById('checklist-fill');
             if (!fill) return;
             const total = document.querySelectorAll('.mod-check').length;
@@ -963,7 +1104,7 @@
             fill.className = `h-full font-mono text-[10px] flex items-center justify-end pr-2 transition-all duration-500 ${pct === 100 ? 'bg-tac-green text-black' : pct > 50 ? 'bg-tac-amber text-black' : 'bg-tac-blue text-white'}`;
         };
 
-        window.resetChecklist = function() {
+        window.resetChecklist = function () {
             document.querySelectorAll('.mod-check').forEach(cb => cb.checked = false);
             toggleChecklist();
         };
@@ -983,11 +1124,11 @@
                 feed.classList.remove('hidden');
                 const colorMap = {
                     'KRITISCH': 'border-tac-red',
-                    'UPDATE':   'border-tac-green',
-                    'NEU':      'border-tac-green',
-                    'INFO':     'border-tac-amber',
-                    'WARN':     'border-yellow-500',
-                    'FIX':      'border-tac-blue',
+                    'UPDATE': 'border-tac-green',
+                    'NEU': 'border-tac-green',
+                    'INFO': 'border-tac-amber',
+                    'WARN': 'border-yellow-500',
+                    'FIX': 'border-tac-blue',
                 };
                 data.slice(0, 3).forEach(item => {
                     const el = document.createElement('div');
@@ -1003,7 +1144,7 @@
                     `;
                     feed.appendChild(el);
                 });
-            } catch(e) { console.warn('Ankündigungen fehlgeschlagen:', e); }
+            } catch (e) { console.warn('Ankündigungen fehlgeschlagen:', e); }
         }
 
         // ===================================================
@@ -1014,8 +1155,8 @@
             checkSession();
         });
 
-        window.initDashboardListeners = function() {
-            ['shift-cases','shift-bans','shift-warns','shift-kicks'].forEach(id => {
+        window.initDashboardListeners = function () {
+            ['shift-cases', 'shift-bans', 'shift-warns', 'shift-kicks'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('input', saveShiftState);
             });
@@ -1041,12 +1182,13 @@
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeConfirm()"></div>
         <div class="relative bg-tac-panel border border-tac-border shadow-2xl w-full max-w-sm mx-4 p-6">
             <div class="flex items-start gap-4 mb-6">
-                <div class="w-10 h-10 border border-tac-red/40 bg-tac-red/10 flex items-center justify-center flex-shrink-0">
+                <div
+                    class="w-10 h-10 border border-tac-red/40 bg-tac-red/10 flex items-center justify-center flex-shrink-0">
                     <i data-lucide="alert-triangle" class="w-5 h-5 text-tac-red"></i>
                 </div>
                 <div>
                     <p id="confirm-title" class="font-display font-bold text-white uppercase tracking-wider"></p>
-                    <p id="confirm-body"  class="font-mono text-xs text-tac-muted mt-1"></p>
+                    <p id="confirm-body" class="font-mono text-xs text-tac-muted mt-1"></p>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -1086,7 +1228,8 @@
                 <ul id="cmd-list" class="max-h-80 overflow-y-auto py-2" role="listbox"></ul>
 
                 <!-- Footer hint -->
-                <div class="px-4 py-2 border-t border-tac-border flex items-center gap-4 font-mono text-[9px] text-tac-muted">
+                <div
+                    class="px-4 py-2 border-t border-tac-border flex items-center gap-4 font-mono text-[9px] text-tac-muted">
                     <span><kbd class="border border-tac-border px-1">↑↓</kbd> navigieren</span>
                     <span><kbd class="border border-tac-border px-1">↵</kbd> ausführen</span>
                     <span><kbd class="border border-tac-border px-1">ESC</kbd> schließen</span>
@@ -1096,103 +1239,103 @@
     </div>
 
     <script>
-    // ====================================================
-    // STYLED CONFIRM MODAL
-    // ====================================================
-    function showConfirm(title, body, onConfirm) {
-        const modal = document.getElementById('confirm-modal');
-        if (!modal) { onConfirm(); return; }
-        document.getElementById('confirm-title').textContent = title;
-        document.getElementById('confirm-body').textContent  = body;
-        document.getElementById('confirm-ok').onclick = () => { closeConfirm(); onConfirm(); };
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
-    }
+        // ====================================================
+        // STYLED CONFIRM MODAL
+        // ====================================================
+        function showConfirm(title, body, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            if (!modal) { onConfirm(); return; }
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-body').textContent = body;
+            document.getElementById('confirm-ok').onclick = () => { closeConfirm(); onConfirm(); };
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
+        }
 
-    function closeConfirm() {
-        const modal = document.getElementById('confirm-modal');
-        modal?.classList.add('hidden');
-        modal?.classList.remove('flex');
-    }
+        function closeConfirm() {
+            const modal = document.getElementById('confirm-modal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        }
 
-    // ====================================================
-    // CASE BROWSER (FALLAKTEN TAB)
-    // ====================================================
-    const CASE_BADGE = {
-        WARN:    'border-yellow-500/60 text-yellow-400 bg-yellow-500/10',
-        KICK:    'border-orange-400/60 text-orange-400 bg-orange-400/10',
-        BAN:     'border-tac-red/60    text-tac-red    bg-tac-red/10',
-        PERMBAN: 'border-red-900/60    text-red-500    bg-red-900/10',
-    };
+        // ====================================================
+        // CASE BROWSER (FALLAKTEN TAB)
+        // ====================================================
+        const CASE_BADGE = {
+            WARN: 'border-yellow-500/60 text-yellow-400 bg-yellow-500/10',
+            KICK: 'border-orange-400/60 text-orange-400 bg-orange-400/10',
+            BAN: 'border-tac-red/60    text-tac-red    bg-tac-red/10',
+            PERMBAN: 'border-red-900/60    text-red-500    bg-red-900/10',
+        };
 
-    let _caseFilter   = { type: '', search: '' };
-    let _caseOffset   = 0;
-    let _caseDebounce = null;
+        let _caseFilter = { type: '', search: '' };
+        let _caseOffset = 0;
+        let _caseDebounce = null;
 
-    window.setCaseFilter = function(key, value) {
-        _caseFilter[key] = value;
-        _caseOffset      = 0;
-        // Update active filter button style
-        ['all','warn','kick','ban','perm'].forEach(k => {
-            const btn = document.getElementById(`cf-${k}`);
-            if (btn) btn.classList.remove('border-tac-red','text-tac-red','bg-tac-red/10');
-        });
-        const map = { '': 'all', WARN: 'warn', KICK: 'kick', BAN: 'ban', PERMBAN: 'perm' };
-        const activeId = `cf-${map[value] || 'all'}`;
-        const activeBtn = document.getElementById(activeId);
-        if (activeBtn) activeBtn.classList.add('border-tac-red','text-tac-red','bg-tac-red/10');
-        loadCaseBrowser(true);
-    };
-
-    window.debounceCaseSearch = function() {
-        clearTimeout(_caseDebounce);
-        _caseDebounce = setTimeout(() => {
-            _caseFilter.search = document.getElementById('cases-search')?.value || '';
+        window.setCaseFilter = function (key, value) {
+            _caseFilter[key] = value;
             _caseOffset = 0;
+            // Update active filter button style
+            ['all', 'warn', 'kick', 'ban', 'perm'].forEach(k => {
+                const btn = document.getElementById(`cf-${k}`);
+                if (btn) btn.classList.remove('border-tac-red', 'text-tac-red', 'bg-tac-red/10');
+            });
+            const map = { '': 'all', WARN: 'warn', KICK: 'kick', BAN: 'ban', PERMBAN: 'perm' };
+            const activeId = `cf-${map[value] || 'all'}`;
+            const activeBtn = document.getElementById(activeId);
+            if (activeBtn) activeBtn.classList.add('border-tac-red', 'text-tac-red', 'bg-tac-red/10');
             loadCaseBrowser(true);
-        }, 400);
-    };
+        };
 
-    window.loadCaseBrowser = async function(reset = true, append = false) {
-        const listEl    = document.getElementById('cases-list');
-        const loadingEl = document.getElementById('cases-loading');
-        const moreEl    = document.getElementById('cases-load-more');
-        const badgeEl   = document.getElementById('cases-total-badge');
-        if (!listEl) return;
+        window.debounceCaseSearch = function () {
+            clearTimeout(_caseDebounce);
+            _caseDebounce = setTimeout(() => {
+                _caseFilter.search = document.getElementById('cases-search')?.value || '';
+                _caseOffset = 0;
+                loadCaseBrowser(true);
+            }, 400);
+        };
 
-        if (reset) { _caseOffset = 0; listEl.innerHTML = ''; }
-        if (append) _caseOffset += 50;
+        window.loadCaseBrowser = async function (reset = true, append = false) {
+            const listEl = document.getElementById('cases-list');
+            const loadingEl = document.getElementById('cases-loading');
+            const moreEl = document.getElementById('cases-load-more');
+            const badgeEl = document.getElementById('cases-total-badge');
+            if (!listEl) return;
 
-        loadingEl?.classList.remove('hidden');
-        moreEl?.classList.add('hidden');
+            if (reset) { _caseOffset = 0; listEl.innerHTML = ''; }
+            if (append) _caseOffset += 50;
 
-        try {
-            const params = { limit: 50, offset: _caseOffset };
-            if (_caseFilter.type)   params.type   = _caseFilter.type;
-            if (_caseFilter.search) params.search = _caseFilter.search;
+            loadingEl?.classList.remove('hidden');
+            moreEl?.classList.add('hidden');
 
-            const { cases, total } = await window.api.getAllCases(params);
+            try {
+                const params = { limit: 50, offset: _caseOffset };
+                if (_caseFilter.type) params.type = _caseFilter.type;
+                if (_caseFilter.search) params.search = _caseFilter.search;
 
-            loadingEl?.classList.add('hidden');
+                const { cases, total } = await window.api.getAllCases(params);
 
-            if (badgeEl) {
-                badgeEl.classList.remove('hidden');
-                document.getElementById('cases-total-count').textContent = total;
-            }
+                loadingEl?.classList.add('hidden');
 
-            if (!cases.length && !append) {
-                listEl.innerHTML = '<div class="text-center py-12 font-mono text-sm text-tac-muted">KEINE EINTRÄGE GEFUNDEN</div>';
-                return;
-            }
+                if (badgeEl) {
+                    badgeEl.classList.remove('hidden');
+                    document.getElementById('cases-total-count').textContent = total;
+                }
 
-            cases.forEach(c => {
-                const badge   = CASE_BADGE[c.type] || 'border-tac-border text-tac-muted bg-transparent';
-                const date    = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '?';
-                const dur     = c.duration_days ? ` · ${c.duration_days}d` : '';
-                const row     = document.createElement('div');
-                row.className = 'flex items-start gap-3 bg-tac-panel border border-tac-border p-3 hover:border-zinc-600 transition-colors';
-                row.innerHTML = `
+                if (!cases.length && !append) {
+                    listEl.innerHTML = '<div class="text-center py-12 font-mono text-sm text-tac-muted">KEINE EINTRÄGE GEFUNDEN</div>';
+                    return;
+                }
+
+                cases.forEach(c => {
+                    const badge = CASE_BADGE[c.type] || 'border-tac-border text-tac-muted bg-transparent';
+                    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '?';
+                    const dur = c.duration_days ? ` · ${c.duration_days}d` : '';
+                    const row = document.createElement('div');
+                    row.className = 'flex items-start gap-3 bg-tac-panel border border-tac-border p-3 hover:border-zinc-600 transition-colors';
+                    row.innerHTML = `
                     <span class="font-mono text-[9px] font-bold px-2 py-1 border flex-shrink-0 uppercase mt-0.5 ${badge}">${c.type}${dur}</span>
                     <div class="flex-1 overflow-hidden">
                         <div class="flex items-baseline gap-2 flex-wrap">
@@ -1203,152 +1346,152 @@
                         <p class="font-mono text-xs text-zinc-400 mt-0.5 truncate">${c.reason}</p>
                         <p class="font-mono text-[9px] text-tac-muted mt-1">${date} · ${c.moderator_username ?? 'Unbekannt'}</p>
                     </div>`;
-                listEl.appendChild(row);
-            });
+                    listEl.appendChild(row);
+                });
 
-            if (_caseOffset + 50 < total) moreEl?.classList.remove('hidden');
+                if (_caseOffset + 50 < total) moreEl?.classList.remove('hidden');
 
-        } catch(e) {
-            loadingEl?.classList.add('hidden');
-            listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red">FEHLER: ${e.message}</div>`;
-        }
-    };
-
-    // ====================================================
-    // COMMAND PALETTE
-    // ====================================================
-    const PALETTE_ACTIONS = [
-        { label: 'Übersicht',        icon: 'layout-dashboard', group: 'Navigation', action: () => showTab('home') },
-        { label: 'Dienst-Terminal',  icon: 'clock',            group: 'Navigation', action: () => showTab('shift') },
-        { label: 'Personalakte',     icon: 'users',            group: 'Navigation', action: () => showTab('roster') },
-        { label: 'Aktions-Matrix',   icon: 'gavel',            group: 'Navigation', action: () => showTab('calculator') },
-        { label: 'Schnellmoderator', icon: 'zap',              group: 'Navigation', action: () => showTab('quickmod') },
-        { label: 'Fallakten',        icon: 'folder-open',      group: 'Navigation', action: () => { showTab('cases'); loadCaseBrowser(); } },
-        { label: 'Server Intel',     icon: 'radar',            group: 'Navigation', action: () => { showTab('radar'); loadServerIntel(); } },
-        { label: 'Richtlinien',      icon: 'book-open',        group: 'Navigation', action: () => showTab('rules') },
-        { label: 'Befehlsreferenz',  icon: 'terminal',         group: 'Navigation', action: () => showTab('commands') },
-        { label: 'Dienst starten',   icon: 'play',             group: 'Aktionen',   action: () => { showTab('shift'); if (!isShiftActive) toggleShift(); } },
-        { label: 'Dienst pausieren', icon: 'pause',            group: 'Aktionen',   action: () => { if (isShiftActive) toggleShift(); } },
-        { label: 'Dienst beenden',   icon: 'square',           group: 'Aktionen',   action: () => stopShift() },
-        { label: 'Abmelden',         icon: 'log-out',          group: 'Aktionen',   action: () => logout() },
-    ];
-
-    let paletteIndex = -1;
-
-    function openPalette() {
-        const overlay = document.getElementById('cmd-palette');
-        if (!overlay) return;
-        overlay.classList.remove('hidden');
-        const input = document.getElementById('cmd-input');
-        if (input) { input.value = ''; input.focus(); }
-        filterPalette();
-    }
-
-    function closePalette() {
-        document.getElementById('cmd-palette')?.classList.add('hidden');
-        paletteIndex = -1;
-    }
-
-    function filterPalette() {
-        const q    = (document.getElementById('cmd-input')?.value || '').toLowerCase();
-        const list = document.getElementById('cmd-list');
-        if (!list) return;
-
-        const filtered = PALETTE_ACTIONS.filter(a =>
-            a.label.toLowerCase().includes(q) || a.group.toLowerCase().includes(q)
-        );
-        paletteIndex = filtered.length ? 0 : -1;
-
-        // Group by category
-        const groups = {};
-        filtered.forEach(a => { (groups[a.group] = groups[a.group] || []).push(a); });
-
-        list.innerHTML = '';
-        let globalIdx = 0;
-        Object.entries(groups).forEach(([grp, items]) => {
-            const header = document.createElement('li');
-            header.className = 'px-4 pt-2 pb-1 font-mono text-[9px] text-tac-muted tracking-widest uppercase';
-            header.textContent = grp;
-            list.appendChild(header);
-
-            items.forEach(item => {
-                const idx = globalIdx++;
-                const li = document.createElement('li');
-                li.className = `cmd-item flex items-center gap-3 px-4 py-2.5 font-mono text-sm cursor-pointer transition-colors ${idx === 0 ? 'bg-tac-amber/10 text-tac-amber' : 'text-zinc-300 hover:bg-white/5 hover:text-white'}`;
-                li.setAttribute('data-idx', idx);
-                li.setAttribute('role', 'option');
-                li.innerHTML = `<i data-lucide="${item.icon}" class="w-4 h-4 flex-shrink-0 opacity-60"></i><span>${item.label}</span>`;
-                li.onclick = () => { item.action(); closePalette(); };
-                list.appendChild(li);
-            });
-        });
-
-        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [list] });
-    }
-
-    function paletteKeyNav(e) {
-        const items = document.querySelectorAll('.cmd-item');
-        if (!items.length) return;
-
-        if (e.key === 'ArrowDown') { e.preventDefault(); paletteIndex = Math.min(paletteIndex + 1, items.length - 1); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); paletteIndex = Math.max(paletteIndex - 1, 0); }
-        else if (e.key === 'Enter') { e.preventDefault(); items[paletteIndex]?.click(); return; }
-        else if (e.key === 'Escape') { closePalette(); return; }
-
-        items.forEach((el, i) => {
-            const active = i === paletteIndex;
-            el.classList.toggle('bg-tac-amber/10', active);
-            el.classList.toggle('text-tac-amber', active);
-            el.classList.toggle('text-zinc-300', !active);
-            if (active) el.scrollIntoView({ block: 'nearest' });
-        });
-    }
-
-    // Global Ctrl+K listener (active after dashboard loads)
-    document.addEventListener('keydown', e => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            const palette = document.getElementById('cmd-palette');
-            if (!palette) return;
-            palette.classList.contains('hidden') ? openPalette() : closePalette();
-        }
-        if (e.key === 'Escape') closePalette();
-    });
-
-    // ====================================================
-    // CASE HISTORY (rendered inside lookupPlayer)
-    // ====================================================
-    const CASE_TYPE_STYLE = {
-        WARN:    { color: 'text-yellow-400', label: 'WARN' },
-        KICK:    { color: 'text-orange-400', label: 'KICK' },
-        BAN:     { color: 'text-red-400',    label: 'BAN'  },
-        PERMBAN: { color: 'text-red-600',    label: 'PERM' },
-    };
-
-    async function renderCaseHistory(robloxId) {
-        const section = document.getElementById('case-history-section');
-        const list    = document.getElementById('case-history-list');
-        const counter = document.getElementById('case-history-count');
-        if (!section || !list) return;
-
-        section.classList.remove('hidden');
-        list.innerHTML = '<div class="font-mono text-[10px] text-tac-muted py-2 italic">Lade Akten...</div>';
-
-        try {
-            const { cases } = await window.api.getPlayerCases(robloxId);
-            if (counter) counter.textContent = cases.length ? `${cases.length} Einträge` : '';
-
-            if (!cases.length) {
-                list.innerHTML = '<div class="font-mono text-[10px] text-tac-muted py-2 italic">Keine Einträge vorhanden.</div>';
-                return;
+            } catch (e) {
+                loadingEl?.classList.add('hidden');
+                listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red">FEHLER: ${e.message}</div>`;
             }
+        };
 
-            list.innerHTML = cases.slice(0, 15).map(c => {
-                const style = CASE_TYPE_STYLE[c.type] || { color: 'text-tac-muted', label: c.type };
-                const date  = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE') : '?';
-                const mod   = c.moderator_username ?? 'Unbekannt';
-                const dur   = c.duration_days ? ` (${c.duration_days}d)` : '';
-                return `
+        // ====================================================
+        // COMMAND PALETTE
+        // ====================================================
+        const PALETTE_ACTIONS = [
+            { label: 'Übersicht', icon: 'layout-dashboard', group: 'Navigation', action: () => showTab('home') },
+            { label: 'Dienst-Terminal', icon: 'clock', group: 'Navigation', action: () => showTab('shift') },
+            { label: 'Personalakte', icon: 'users', group: 'Navigation', action: () => showTab('roster') },
+            { label: 'Aktions-Matrix', icon: 'gavel', group: 'Navigation', action: () => showTab('calculator') },
+            { label: 'Schnellmoderator', icon: 'zap', group: 'Navigation', action: () => showTab('quickmod') },
+            { label: 'Fallakten', icon: 'folder-open', group: 'Navigation', action: () => { showTab('cases'); loadCaseBrowser(); } },
+            { label: 'Server Intel', icon: 'radar', group: 'Navigation', action: () => { showTab('radar'); loadServerIntel(); } },
+            { label: 'Richtlinien', icon: 'book-open', group: 'Navigation', action: () => showTab('rules') },
+            { label: 'Befehlsreferenz', icon: 'terminal', group: 'Navigation', action: () => showTab('commands') },
+            { label: 'Dienst starten', icon: 'play', group: 'Aktionen', action: () => { showTab('shift'); if (!isShiftActive) toggleShift(); } },
+            { label: 'Dienst pausieren', icon: 'pause', group: 'Aktionen', action: () => { if (isShiftActive) toggleShift(); } },
+            { label: 'Dienst beenden', icon: 'square', group: 'Aktionen', action: () => stopShift() },
+            { label: 'Abmelden', icon: 'log-out', group: 'Aktionen', action: () => logout() },
+        ];
+
+        let paletteIndex = -1;
+
+        function openPalette() {
+            const overlay = document.getElementById('cmd-palette');
+            if (!overlay) return;
+            overlay.classList.remove('hidden');
+            const input = document.getElementById('cmd-input');
+            if (input) { input.value = ''; input.focus(); }
+            filterPalette();
+        }
+
+        function closePalette() {
+            document.getElementById('cmd-palette')?.classList.add('hidden');
+            paletteIndex = -1;
+        }
+
+        function filterPalette() {
+            const q = (document.getElementById('cmd-input')?.value || '').toLowerCase();
+            const list = document.getElementById('cmd-list');
+            if (!list) return;
+
+            const filtered = PALETTE_ACTIONS.filter(a =>
+                a.label.toLowerCase().includes(q) || a.group.toLowerCase().includes(q)
+            );
+            paletteIndex = filtered.length ? 0 : -1;
+
+            // Group by category
+            const groups = {};
+            filtered.forEach(a => { (groups[a.group] = groups[a.group] || []).push(a); });
+
+            list.innerHTML = '';
+            let globalIdx = 0;
+            Object.entries(groups).forEach(([grp, items]) => {
+                const header = document.createElement('li');
+                header.className = 'px-4 pt-2 pb-1 font-mono text-[9px] text-tac-muted tracking-widest uppercase';
+                header.textContent = grp;
+                list.appendChild(header);
+
+                items.forEach(item => {
+                    const idx = globalIdx++;
+                    const li = document.createElement('li');
+                    li.className = `cmd-item flex items-center gap-3 px-4 py-2.5 font-mono text-sm cursor-pointer transition-colors ${idx === 0 ? 'bg-tac-amber/10 text-tac-amber' : 'text-zinc-300 hover:bg-white/5 hover:text-white'}`;
+                    li.setAttribute('data-idx', idx);
+                    li.setAttribute('role', 'option');
+                    li.innerHTML = `<i data-lucide="${item.icon}" class="w-4 h-4 flex-shrink-0 opacity-60"></i><span>${item.label}</span>`;
+                    li.onclick = () => { item.action(); closePalette(); };
+                    list.appendChild(li);
+                });
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [list] });
+        }
+
+        function paletteKeyNav(e) {
+            const items = document.querySelectorAll('.cmd-item');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') { e.preventDefault(); paletteIndex = Math.min(paletteIndex + 1, items.length - 1); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); paletteIndex = Math.max(paletteIndex - 1, 0); }
+            else if (e.key === 'Enter') { e.preventDefault(); items[paletteIndex]?.click(); return; }
+            else if (e.key === 'Escape') { closePalette(); return; }
+
+            items.forEach((el, i) => {
+                const active = i === paletteIndex;
+                el.classList.toggle('bg-tac-amber/10', active);
+                el.classList.toggle('text-tac-amber', active);
+                el.classList.toggle('text-zinc-300', !active);
+                if (active) el.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        // Global Ctrl+K listener (active after dashboard loads)
+        document.addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const palette = document.getElementById('cmd-palette');
+                if (!palette) return;
+                palette.classList.contains('hidden') ? openPalette() : closePalette();
+            }
+            if (e.key === 'Escape') closePalette();
+        });
+
+        // ====================================================
+        // CASE HISTORY (rendered inside lookupPlayer)
+        // ====================================================
+        const CASE_TYPE_STYLE = {
+            WARN: { color: 'text-yellow-400', label: 'WARN' },
+            KICK: { color: 'text-orange-400', label: 'KICK' },
+            BAN: { color: 'text-red-400', label: 'BAN' },
+            PERMBAN: { color: 'text-red-600', label: 'PERM' },
+        };
+
+        async function renderCaseHistory(robloxId) {
+            const section = document.getElementById('case-history-section');
+            const list = document.getElementById('case-history-list');
+            const counter = document.getElementById('case-history-count');
+            if (!section || !list) return;
+
+            section.classList.remove('hidden');
+            list.innerHTML = '<div class="font-mono text-[10px] text-tac-muted py-2 italic">Lade Akten...</div>';
+
+            try {
+                const { cases } = await window.api.getPlayerCases(robloxId);
+                if (counter) counter.textContent = cases.length ? `${cases.length} Einträge` : '';
+
+                if (!cases.length) {
+                    list.innerHTML = '<div class="font-mono text-[10px] text-tac-muted py-2 italic">Keine Einträge vorhanden.</div>';
+                    return;
+                }
+
+                list.innerHTML = cases.slice(0, 15).map(c => {
+                    const style = CASE_TYPE_STYLE[c.type] || { color: 'text-tac-muted', label: c.type };
+                    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE') : '?';
+                    const mod = c.moderator_username ?? 'Unbekannt';
+                    const dur = c.duration_days ? ` (${c.duration_days}d)` : '';
+                    return `
                 <div class="border border-tac-border/60 bg-black/30 px-3 py-2 flex gap-2 items-start">
                     <span class="font-mono text-[9px] font-bold ${style.color} uppercase flex-shrink-0 mt-0.5 w-8">${style.label}${dur}</span>
                     <div class="flex-1 overflow-hidden">
@@ -1356,55 +1499,55 @@
                         <p class="font-mono text-[9px] text-tac-muted mt-0.5">${date} · ${mod}${c.active ? ' · <span class="text-tac-red">AKTIV</span>' : ''}</p>
                     </div>
                 </div>`;
-            }).join('');
-        } catch(e) {
-            list.innerHTML = `<div class="font-mono text-[10px] text-tac-red py-2">Fehler: ${e.message}</div>`;
-        }
-    }
-
-    // ====================================================
-    // SERVER INTEL (RADAR TAB)
-    // ====================================================
-    let radarInterval = null;
-
-    window.loadServerIntel = async function() {
-        const loading = document.getElementById('radar-loading');
-        const grid    = document.getElementById('radar-grid');
-        const errDiv  = document.getElementById('radar-error');
-        const emptyDiv = document.getElementById('radar-empty');
-        const summary = document.getElementById('radar-summary');
-        const refreshBtn = document.getElementById('radar-refresh-btn');
-
-        if (!loading) return; // tab not loaded yet
-
-        [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
-        loading.classList.remove('hidden');
-        if (refreshBtn) refreshBtn.disabled = true;
-
-        try {
-            const { servers, totalPlayers, serverCount } = await window.api.getServers();
-            loading.classList.add('hidden');
-
-            if (!servers.length) {
-                emptyDiv?.classList.remove('hidden');
-                return;
+                }).join('');
+            } catch (e) {
+                list.innerHTML = `<div class="font-mono text-[10px] text-tac-red py-2">Fehler: ${e.message}</div>`;
             }
+        }
 
-            // Summary bar
-            const totalEl = document.getElementById('radar-total-players');
-            const countEl = document.getElementById('radar-server-count');
-            if (totalEl) totalEl.textContent = totalPlayers;
-            if (countEl) countEl.textContent = serverCount;
-            summary?.classList.remove('hidden');
+        // ====================================================
+        // SERVER INTEL (RADAR TAB)
+        // ====================================================
+        let radarInterval = null;
 
-            // Render cards
-            if (grid) {
-                grid.innerHTML = servers.map(s => {
-                    const fillPct = Math.round((s.players / s.maxPlayers) * 100);
-                    const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
-                    const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
-                    const fpsColor  = s.fps  >= 55 ? 'text-tac-green' : s.fps  >= 30  ? 'text-tac-amber' : 'text-tac-red';
-                    return `
+        window.loadServerIntel = async function () {
+            const loading = document.getElementById('radar-loading');
+            const grid = document.getElementById('radar-grid');
+            const errDiv = document.getElementById('radar-error');
+            const emptyDiv = document.getElementById('radar-empty');
+            const summary = document.getElementById('radar-summary');
+            const refreshBtn = document.getElementById('radar-refresh-btn');
+
+            if (!loading) return; // tab not loaded yet
+
+            [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
+            loading.classList.remove('hidden');
+            if (refreshBtn) refreshBtn.disabled = true;
+
+            try {
+                const { servers, totalPlayers, serverCount } = await window.api.getServers();
+                loading.classList.add('hidden');
+
+                if (!servers.length) {
+                    emptyDiv?.classList.remove('hidden');
+                    return;
+                }
+
+                // Summary bar
+                const totalEl = document.getElementById('radar-total-players');
+                const countEl = document.getElementById('radar-server-count');
+                if (totalEl) totalEl.textContent = totalPlayers;
+                if (countEl) countEl.textContent = serverCount;
+                summary?.classList.remove('hidden');
+
+                // Render cards
+                if (grid) {
+                    grid.innerHTML = servers.map(s => {
+                        const fillPct = Math.round((s.players / s.maxPlayers) * 100);
+                        const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
+                        const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
+                        const fpsColor = s.fps >= 55 ? 'text-tac-green' : s.fps >= 30 ? 'text-tac-amber' : 'text-tac-red';
+                        return `
                     <div class="bg-tac-panel border border-tac-border p-4 relative overflow-hidden group hover:border-tac-green/40 transition-colors">
                         <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <i data-lucide="server" class="w-12 h-12 text-tac-green"></i>
@@ -1431,114 +1574,114 @@
                             <span class="text-[8px] truncate max-w-[100px] opacity-50">${s.jobId.substring(0, 8)}…</span>
                         </div>
                     </div>`;
-                }).join('');
-                grid.classList.remove('hidden');
-                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
-            }
-
-            // Auto-refresh every 60s
-            clearInterval(radarInterval);
-            radarInterval = setInterval(() => {
-                if (document.getElementById('tab-radar')?.classList.contains('block')) {
-                    window.loadServerIntel();
-                } else {
-                    clearInterval(radarInterval);
+                    }).join('');
+                    grid.classList.remove('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
                 }
-            }, 60000);
 
-        } catch(e) {
-            loading.classList.add('hidden');
-            const errMsg = document.getElementById('radar-error-msg');
-            if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
-            errDiv?.classList.remove('hidden');
-        } finally {
-            if (refreshBtn) refreshBtn.disabled = false;
-        }
-    };
-    // ====================================================
-    // STAFF STATS (MY STATS WIDGET)
-    // ====================================================
-    async function loadMyStats() {
-        try {
-            const stats = await window.api.getStats();
-            document.getElementById('stat-total-shifts').textContent = stats.total_shifts;
-            document.getElementById('stat-total-hours').textContent  = (stats.total_seconds / 3600).toFixed(1);
-            document.getElementById('stat-week-cases').textContent   = stats.week_cases;
-            document.getElementById('stat-total-bans').textContent    = stats.total_bans;
-        } catch (e) {
-            console.warn('[STATS] Fehler beim Laden:', e.message);
-        }
-    }
+                // Auto-refresh every 60s
+                clearInterval(radarInterval);
+                radarInterval = setInterval(() => {
+                    if (document.getElementById('tab-radar')?.classList.contains('block')) {
+                        window.loadServerIntel();
+                    } else {
+                        clearInterval(radarInterval);
+                    }
+                }, 60000);
 
-    // ====================================================
-    // WATCHLIST LOGIC
-    // ====================================================
-    window.openAddWatchlistModal = function() {
-        const modal = document.getElementById('watchlist-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.getElementById('wl-input').value = '';
-            document.getElementById('wl-reason').value = '';
-            document.getElementById('wl-input').focus();
-        }
-    };
-
-    window.closeAddWatchlistModal = function() {
-        const modal = document.getElementById('watchlist-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    };
-
-    window.submitWatchlist = async function() {
-        const input  = document.getElementById('wl-input').value.trim();
-        const reason = document.getElementById('wl-reason').value.trim();
-        if (!input || !reason) { showToast('Bitte fülle alle Felder aus.', 'warn'); return; }
-
-        try {
-            // Lookup player first to get ID/Username
-            const player = await window.api.lookupPlayer(input);
-            await window.api.addToWatchlist({
-                robloxId:       String(player.id),
-                robloxUsername: player.username,
-                reason:         reason
-            });
-            showToast('Eintrag hinzugefügt.', 'success');
-            closeAddWatchlistModal();
-            loadWatchlist();
-        } catch (e) {
-            showToast('Fehler: ' + e.message, 'error');
-        }
-    };
-
-    window.loadWatchlist = async function() {
-        const listEl    = document.getElementById('watchlist-list');
-        const loadingEl = document.getElementById('watchlist-loading');
-        const emptyEl   = document.getElementById('watchlist-empty');
-        const badgeEl   = document.getElementById('watchlist-nav-badge');
-        if (!listEl) return;
-
-        listEl.innerHTML = '';
-        loadingEl.classList.remove('hidden');
-        emptyEl.classList.add('hidden');
-
-        try {
-            const { watchlist } = await window.api.getWatchlist();
-            loadingEl.classList.add('hidden');
-
-            if (badgeEl) badgeEl.textContent = watchlist.length > 0 ? `WATCHLIST (${watchlist.length})` : 'WATCHLIST';
-
-            if (!watchlist.length) {
-                emptyEl.classList.remove('hidden');
-                return;
+            } catch (e) {
+                loading.classList.add('hidden');
+                const errMsg = document.getElementById('radar-error-msg');
+                if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
+                errDiv?.classList.remove('hidden');
+            } finally {
+                if (refreshBtn) refreshBtn.disabled = false;
             }
+        };
+        // ====================================================
+        // STAFF STATS (MY STATS WIDGET)
+        // ====================================================
+        async function loadMyStats() {
+            try {
+                const stats = await window.api.getStats();
+                document.getElementById('stat-total-shifts').textContent = stats.total_shifts;
+                document.getElementById('stat-total-hours').textContent = (stats.total_seconds / 3600).toFixed(1);
+                document.getElementById('stat-week-cases').textContent = stats.week_cases;
+                document.getElementById('stat-total-bans').textContent = stats.total_bans;
+            } catch (e) {
+                console.warn('[STATS] Fehler beim Laden:', e.message);
+            }
+        }
 
-            watchlist.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'bg-tac-panel border border-tac-border p-4 flex gap-4 items-start group hover:border-yellow-500/40 transition-colors';
-                card.innerHTML = `
+        // ====================================================
+        // WATCHLIST LOGIC
+        // ====================================================
+        window.openAddWatchlistModal = function () {
+            const modal = document.getElementById('watchlist-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.getElementById('wl-input').value = '';
+                document.getElementById('wl-reason').value = '';
+                document.getElementById('wl-input').focus();
+            }
+        };
+
+        window.closeAddWatchlistModal = function () {
+            const modal = document.getElementById('watchlist-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        };
+
+        window.submitWatchlist = async function () {
+            const input = document.getElementById('wl-input').value.trim();
+            const reason = document.getElementById('wl-reason').value.trim();
+            if (!input || !reason) { showToast('Bitte fülle alle Felder aus.', 'warn'); return; }
+
+            try {
+                // Lookup player first to get ID/Username
+                const player = await window.api.lookupPlayer(input);
+                await window.api.addToWatchlist({
+                    robloxId: String(player.id),
+                    robloxUsername: player.username,
+                    reason: reason
+                });
+                showToast('Eintrag hinzugefügt.', 'success');
+                closeAddWatchlistModal();
+                loadWatchlist();
+            } catch (e) {
+                showToast('Fehler: ' + e.message, 'error');
+            }
+        };
+
+        window.loadWatchlist = async function () {
+            const listEl = document.getElementById('watchlist-list');
+            const loadingEl = document.getElementById('watchlist-loading');
+            const emptyEl = document.getElementById('watchlist-empty');
+            const badgeEl = document.getElementById('watchlist-nav-badge');
+            if (!listEl) return;
+
+            listEl.innerHTML = '';
+            loadingEl.classList.remove('hidden');
+            emptyEl.classList.add('hidden');
+
+            try {
+                const { watchlist } = await window.api.getWatchlist();
+                loadingEl.classList.add('hidden');
+
+                if (badgeEl) badgeEl.textContent = watchlist.length > 0 ? `WATCHLIST (${watchlist.length})` : 'WATCHLIST';
+
+                if (!watchlist.length) {
+                    emptyEl.classList.remove('hidden');
+                    return;
+                }
+
+                watchlist.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-tac-panel border border-tac-border p-4 flex gap-4 items-start group hover:border-yellow-500/40 transition-colors';
+                    card.innerHTML = `
                     <div class="w-12 h-12 bg-tac-dark border border-tac-border overflow-hidden flex-shrink-0">
                         <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${item.roblox_id}&width=150&height=150&format=png" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all">
                     </div>
@@ -1552,64 +1695,64 @@
                         <p class="font-mono text-[10px] text-tac-muted uppercase mb-1">ID: ${item.roblox_id}</p>
                         <p class="font-mono text-xs text-zinc-400 break-words">${item.reason}</p>
                     </div>`;
-                listEl.appendChild(card);
-            });
-            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [listEl] });
-        } catch (e) {
-            loadingEl.classList.add('hidden');
-            listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red uppercase">FEHLER BEIM LADEN</div>`;
-        }
-    };
-
-    window.removeFromWatchlist = async function(id) {
-        if (!confirm('Eintrag wirklich löschen?')) return;
-        try {
-            await window.api.removeFromWatchlist(id);
-            showToast('Eintrag entfernt.', 'success');
-            loadWatchlist();
-        } catch (e) {
-            showToast('Löschen fehlgeschlagen: ' + e.message, 'error');
-        }
-    };
-
-    window.loadServerIntel = async function() {
-        const loading = document.getElementById('radar-loading');
-        const grid    = document.getElementById('radar-grid');
-        const errDiv  = document.getElementById('radar-error');
-        const emptyDiv = document.getElementById('radar-empty');
-        const summary = document.getElementById('radar-summary');
-        const refreshBtn = document.getElementById('radar-refresh-btn');
-
-        if (!loading) return; // tab not loaded yet
-
-        [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
-        loading.classList.remove('hidden');
-        if (refreshBtn) refreshBtn.disabled = true;
-
-        try {
-            const { servers, totalPlayers, serverCount } = await window.api.getServers();
-            loading.classList.add('hidden');
-
-            if (!servers.length) {
-                emptyDiv?.classList.remove('hidden');
-                return;
+                    listEl.appendChild(card);
+                });
+                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [listEl] });
+            } catch (e) {
+                loadingEl.classList.add('hidden');
+                listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red uppercase">FEHLER BEIM LADEN</div>`;
             }
+        };
 
-            // Summary bar
-            const totalEl = document.getElementById('radar-total-players');
-            const countEl = document.getElementById('radar-server-count');
-            if (totalEl) totalEl.textContent = totalPlayers;
-            if (countEl) countEl.textContent = serverCount;
-            summary?.classList.remove('hidden');
+        window.removeFromWatchlist = async function (id) {
+            if (!confirm('Eintrag wirklich löschen?')) return;
+            try {
+                await window.api.removeFromWatchlist(id);
+                showToast('Eintrag entfernt.', 'success');
+                loadWatchlist();
+            } catch (e) {
+                showToast('Löschen fehlgeschlagen: ' + e.message, 'error');
+            }
+        };
 
-            // Render cards
-            if (grid) {
-                grid.innerHTML = servers.map(s => {
-                    const fillPct = Math.round((s.players / s.maxPlayers) * 100);
-                    const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
-                    const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
-                    const fpsColor  = s.fps  >= 55 ? 'text-tac-green' : s.fps  >= 30  ? 'text-tac-amber' : 'text-tac-red';
-                    return `
+        window.loadServerIntel = async function () {
+            const loading = document.getElementById('radar-loading');
+            const grid = document.getElementById('radar-grid');
+            const errDiv = document.getElementById('radar-error');
+            const emptyDiv = document.getElementById('radar-empty');
+            const summary = document.getElementById('radar-summary');
+            const refreshBtn = document.getElementById('radar-refresh-btn');
+
+            if (!loading) return; // tab not loaded yet
+
+            [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
+            loading.classList.remove('hidden');
+            if (refreshBtn) refreshBtn.disabled = true;
+
+            try {
+                const { servers, totalPlayers, serverCount } = await window.api.getServers();
+                loading.classList.add('hidden');
+
+                if (!servers.length) {
+                    emptyDiv?.classList.remove('hidden');
+                    return;
+                }
+
+                // Summary bar
+                const totalEl = document.getElementById('radar-total-players');
+                const countEl = document.getElementById('radar-server-count');
+                if (totalEl) totalEl.textContent = totalPlayers;
+                if (countEl) countEl.textContent = serverCount;
+                summary?.classList.remove('hidden');
+
+                // Render cards
+                if (grid) {
+                    grid.innerHTML = servers.map(s => {
+                        const fillPct = Math.round((s.players / s.maxPlayers) * 100);
+                        const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
+                        const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
+                        const fpsColor = s.fps >= 55 ? 'text-tac-green' : s.fps >= 30 ? 'text-tac-amber' : 'text-tac-red';
+                        return `
                     <div class="bg-tac-panel border border-tac-border p-4 relative overflow-hidden group hover:border-tac-green/40 transition-colors">
                         <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <i data-lucide="server" class="w-12 h-12 text-tac-green"></i>
@@ -1636,177 +1779,184 @@
                             <span class="text-[8px] truncate max-w-[100px] opacity-50">${s.jobId.substring(0, 8)}…</span>
                         </div>
                     </div>`;
-                }).join('');
-                grid.classList.remove('hidden');
-                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
+                    }).join('');
+                    grid.classList.remove('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
+                }
+
+                // Auto-refresh every 60s
+                clearInterval(radarInterval);
+                radarInterval = setInterval(() => {
+                    if (document.getElementById('tab-radar')?.classList.contains('block')) {
+                        window.loadServerIntel();
+                    } else {
+                        clearInterval(radarInterval);
+                    }
+                }, 60000);
+
+            } catch (e) {
+                loading.classList.add('hidden');
+                const errMsg = document.getElementById('radar-error-msg');
+                if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
+                errDiv?.classList.remove('hidden');
+            } finally {
+                if (refreshBtn) refreshBtn.disabled = false;
             }
+        };
 
-            // Auto-refresh every 60s
-            clearInterval(radarInterval);
-            radarInterval = setInterval(() => {
-                if (document.getElementById('tab-radar')?.classList.contains('block')) {
-                    window.loadServerIntel();
-                } else {
-                    clearInterval(radarInterval);
+        // ====================================================
+        // ROBLOX OPEN CLOUD INTEGRATION → redirected to Game Panel
+        // ====================================================
+        // All in-game actions (kick, ban, unban) are handled in /gamepanel.
+        // The context menu "Game Panel öffnen" opens it with the player pre-filled.
+
+        window.openBroadcastModal = function () {
+            const modal = document.getElementById('broadcast-modal');
+            document.getElementById('broadcast-msg').value = '';
+            modal?.classList.remove('hidden');
+            modal?.classList.add('flex');
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
+            document.getElementById('broadcast-msg').focus();
+        };
+
+        window.closeBroadcastModal = function () {
+            const modal = document.getElementById('broadcast-modal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        };
+
+        window.sendBroadcast = async function () {
+            const msg = document.getElementById('broadcast-msg')?.value.trim();
+            if (!msg) { showToast('Bitte eine Nachricht eingeben.', 'warn'); return; }
+            showConfirm(
+                'Broadcast an alle Server?',
+                `"${msg.substring(0, 80)}${msg.length > 80 ? '...' : ''}"\n\nDiese Nachricht wird an alle aktiven Spielserver übertragen.`,
+                async () => {
+                    try {
+                        await window.api.cloudBroadcast(msg);
+                        showToast('✓ Broadcast erfolgreich gesendet.', 'success');
+                        closeBroadcastModal();
+                    } catch (e) {
+                        showToast('Broadcast fehlgeschlagen: ' + e.message, 'error');
+                    }
                 }
-            }, 60000);
+            );
+        };
 
-        } catch(e) {
-            loading.classList.add('hidden');
-            const errMsg = document.getElementById('radar-error-msg');
-            if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
-            errDiv?.classList.remove('hidden');
-        } finally {
-            if (refreshBtn) refreshBtn.disabled = false;
+        // ====================================================
+        // ROLE HELPERS
+        // ====================================================
+
+        // Returns true for Game Moderator and above (MOD / ADMIN / OWNER).
+        // TRAINEE (Junior Administrator) is Discord/helper only — no in-game actions.
+        function canDoIngame() {
+            return ['MOD', 'ADMIN', 'OWNER'].includes(window.currentRole || '');
         }
-    };
 
-    // ====================================================
-    // ROBLOX OPEN CLOUD INTEGRATION → redirected to Game Panel
-    // ====================================================
-    // All in-game actions (kick, ban, unban) are handled in /gamepanel.html.
-    // The context menu "Game Panel öffnen" opens it with the player pre-filled.
+        // Called once after the dashboard fragment loads to show/hide in-game buttons.
+        function applyRoleVisibility() {
+            const ingame = document.querySelectorAll('[data-ingame-only]');
+            ingame.forEach(el => {
+                el.style.display = canDoIngame() ? '' : 'none';
+            });
 
-    window.openBroadcastModal = function() {
-        const modal = document.getElementById('broadcast-modal');
-        document.getElementById('broadcast-msg').value = '';
-        modal?.classList.remove('hidden');
-        modal?.classList.add('flex');
-        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
-        document.getElementById('broadcast-msg').focus();
-    };
-
-    window.closeBroadcastModal = function() {
-        const modal = document.getElementById('broadcast-modal');
-        modal?.classList.add('hidden');
-        modal?.classList.remove('flex');
-    };
-
-    window.sendBroadcast = async function() {
-        const msg = document.getElementById('broadcast-msg')?.value.trim();
-        if (!msg) { showToast('Bitte eine Nachricht eingeben.', 'warn'); return; }
-        showConfirm(
-            'Broadcast an alle Server?',
-            `"${msg.substring(0, 80)}${msg.length > 80 ? '...' : ''}"\n\nDiese Nachricht wird an alle aktiven Spielserver übertragen.`,
-            async () => {
-                try {
-                    await window.api.cloudBroadcast(msg);
-                    showToast('✓ Broadcast erfolgreich gesendet.', 'success');
-                    closeBroadcastModal();
-                } catch (e) {
-                    showToast('Broadcast fehlgeschlagen: ' + e.message, 'error');
-                }
-            }
-        );
-    };
-
-    // ====================================================
-    // ROLE HELPERS
-    // ====================================================
-
-    // Returns true for Game Moderator and above (MOD / ADMIN / OWNER).
-    // TRAINEE (Junior Administrator) is Discord/helper only — no in-game actions.
-    function canDoIngame() {
-        return ['MOD', 'ADMIN', 'OWNER'].includes(window.currentRole || '');
-    }
-
-    // Called once after the dashboard fragment loads to show/hide in-game buttons.
-    function applyRoleVisibility() {
-        const ingame = document.querySelectorAll('[data-ingame-only]');
-        ingame.forEach(el => {
-            el.style.display = canDoIngame() ? '' : 'none';
-        });
-    }
-
-    // ====================================================
-    // TACTICAL CONTEXT MENU LOGIC
-    // ====================================================
-    let cmTarget = { id: '', username: '' };
-
-    function closeCm() {
-        const menu = document.getElementById('context-menu');
-        if (menu) menu.style.display = 'none';
-    }
-
-    function openCm(e, id, username) {
-        e.preventDefault();
-        cmTarget = { id, username };
-        const menu = document.getElementById('context-menu');
-        const title = document.getElementById('cm-user-title');
-        if (!menu || !title) return;
-
-        title.textContent = `USER: ${username.toUpperCase()}`;
-
-        // Show/hide in-game actions based on role
-        menu.querySelectorAll('[data-ingame-only]').forEach(el => {
-            el.style.display = canDoIngame() ? '' : 'none';
-        });
-
-        // Position menu at cursor
-        menu.style.display = 'block';
-        
-        // Adjust if it goes off screen
-        let x = e.clientX;
-        let y = e.clientY;
-        const menuWidth = 180;
-        const menuHeight = 220;
-        
-        if (x + menuWidth > window.innerWidth) x -= menuWidth;
-        if (y + menuHeight > window.innerHeight) y -= menuHeight;
-        
-        menu.style.left = x + 'px';
-        menu.style.top = y + 'px';
-        
-        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [menu] });
-    }
-
-    window.handleCmAction = async function(action) {
-        closeCm();
-        if (!cmTarget.id) return;
-
-        switch (action) {
-            case 'lookup':
-                showTab('quickmod');
-                const lookupInput = document.getElementById('lookup-input');
-                if (lookupInput) {
-                    lookupInput.value = cmTarget.username;
-                    lookupPlayer();
-                }
-                break;
-                
-            case 'gamepanel':
-                window.open(`/gamepanel.html?player=${encodeURIComponent(cmTarget.id)}`, '_blank');
-                break;
-                
-            case 'warn':
-                showTab('calculator');
-                const calcUser = document.getElementById('calc-username');
-                if (calcUser) {
-                    calcUser.value = cmTarget.username;
-                    // Trigger calc if offense is selected
-                    if (document.getElementById('calc-offense')?.value) runCalculation();
-                }
-                break;
+            // DB Panel + SYSTEM section — OWNER only
+            const isOwner = window.currentRole === 'OWNER';
+            const dbLink = document.getElementById('nav-dbpanel');
+            const sysLabel = document.getElementById('nav-section-owner');
+            if (dbLink) dbLink.style.display = isOwner ? '' : 'none';
+            if (sysLabel) sysLabel.style.display = isOwner ? '' : 'none';
         }
-    };
 
-    // Global listeners for context menu
-    document.addEventListener('contextmenu', e => {
-        const card = e.target.closest('.user-card');
-        if (card) {
-            const id = card.getAttribute('data-user-id');
-            const name = card.getAttribute('data-username');
-            if (id && name) openCm(e, id, name);
-        } else {
+        // ====================================================
+        // TACTICAL CONTEXT MENU LOGIC
+        // ====================================================
+        let cmTarget = { id: '', username: '' };
+
+        function closeCm() {
+            const menu = document.getElementById('context-menu');
+            if (menu) menu.style.display = 'none';
+        }
+
+        function openCm(e, id, username) {
+            e.preventDefault();
+            cmTarget = { id, username };
+            const menu = document.getElementById('context-menu');
+            const title = document.getElementById('cm-user-title');
+            if (!menu || !title) return;
+
+            title.textContent = `USER: ${username.toUpperCase()}`;
+
+            // Show/hide in-game actions based on role
+            menu.querySelectorAll('[data-ingame-only]').forEach(el => {
+                el.style.display = canDoIngame() ? '' : 'none';
+            });
+
+            // Position menu at cursor
+            menu.style.display = 'block';
+
+            // Adjust if it goes off screen
+            let x = e.clientX;
+            let y = e.clientY;
+            const menuWidth = 180;
+            const menuHeight = 220;
+
+            if (x + menuWidth > window.innerWidth) x -= menuWidth;
+            if (y + menuHeight > window.innerHeight) y -= menuHeight;
+
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [menu] });
+        }
+
+        window.handleCmAction = async function (action) {
             closeCm();
-        }
-    });
+            if (!cmTarget.id) return;
 
-    document.addEventListener('click', e => {
-        if (!e.target.closest('#context-menu')) closeCm();
-    });
+            switch (action) {
+                case 'lookup':
+                    showTab('quickmod');
+                    const lookupInput = document.getElementById('lookup-input');
+                    if (lookupInput) {
+                        lookupInput.value = cmTarget.username;
+                        lookupPlayer();
+                    }
+                    break;
 
-    window.closeCm = closeCm;
+                case 'gamepanel':
+                    window.open(`/gamepanel?player=${encodeURIComponent(cmTarget.id)}`, '_blank');
+                    break;
+
+                case 'warn':
+                    showTab('calculator');
+                    const calcUser = document.getElementById('calc-username');
+                    if (calcUser) {
+                        calcUser.value = cmTarget.username;
+                        // Trigger calc if offense is selected
+                        if (document.getElementById('calc-offense')?.value) runCalculation();
+                    }
+                    break;
+            }
+        };
+
+        // Global listeners for context menu
+        document.addEventListener('contextmenu', e => {
+            const card = e.target.closest('.user-card');
+            if (card) {
+                const id = card.getAttribute('data-user-id');
+                const name = card.getAttribute('data-username');
+                if (id && name) openCm(e, id, name);
+            } else {
+                closeCm();
+            }
+        });
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#context-menu')) closeCm();
+        });
+
+        window.closeCm = closeCm;
 
     </script>
 </body>
