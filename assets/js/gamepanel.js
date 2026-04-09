@@ -2,6 +2,65 @@
 
 let gpCurrentPlayer = null;
 
+// ── Staff Protection ──────────────────────────────────────────────────────────
+
+const GP_ROLE_RANK = { OWNER: 4, ADMIN: 3, MOD: 2, TRAINEE: 1 };
+
+let gpStaffMap     = null;   // { roblox_id (string) → role }
+let gpStaffMapExp  = 0;
+
+async function gpLoadStaffMap() {
+    if (gpStaffMap !== null && Date.now() < gpStaffMapExp) return gpStaffMap;
+    try {
+        const data = await window.api.getRoster();
+        gpStaffMap = {};
+        (data.roster || []).forEach(s => { gpStaffMap[String(s.roblox_id)] = s.role; });
+        gpStaffMapExp = Date.now() + 5 * 60 * 1000; // cache 5 min
+    } catch {
+        gpStaffMap = gpStaffMap || {}; // keep stale cache on error
+    }
+    return gpStaffMap;
+}
+
+async function gpApplyStaffProtection(robloxId) {
+    const staffMap = await gpLoadStaffMap();
+    const myRank   = GP_ROLE_RANK[window.currentRole] ?? 2;
+    const targetRole = staffMap[String(robloxId)] ?? null;
+    const targetRank = targetRole ? (GP_ROLE_RANK[targetRole] ?? 0) : 0;
+    const canAct   = myRank > targetRank;
+
+    const kickBtn  = document.getElementById('gp-btn-kick');
+    const banBtn   = document.getElementById('gp-btn-ban');
+    const unbanBtn = document.getElementById('gp-btn-unban');
+
+    // Clear previous warning
+    document.getElementById('gp-staff-warning')?.remove();
+
+    if (!canAct && targetRole) {
+        [kickBtn, banBtn, unbanBtn].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = true;
+            btn.classList.add('opacity-40', 'cursor-not-allowed');
+            btn.onclick = null;
+        });
+
+        const actionsSection = document.getElementById('gp-player-section')?.querySelector('section:last-of-type');
+        if (actionsSection) {
+            const warn = document.createElement('div');
+            warn.id = 'gp-staff-warning';
+            warn.className = 'flex items-center gap-3 bg-tac-amber/5 border border-tac-amber/30 px-4 py-3 font-mono text-xs text-tac-amber';
+            warn.innerHTML = `<i data-lucide="shield" class="w-4 h-4 flex-shrink-0"></i><span>STAFF-SCHUTZ AKTIV — Dieser Spieler ist ${escHtml(targetRole)} und kann von dir nicht sanktioniert werden.</span>`;
+            actionsSection.insertAdjacentElement('beforebegin', warn);
+            if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [warn] });
+        }
+    } else {
+        // Re-enable (may have been disabled from a previous search)
+        if (kickBtn)  { kickBtn.disabled  = false; kickBtn.classList.remove('opacity-40','cursor-not-allowed');  kickBtn.onclick  = () => openGpModal('modal-gp-kick'); }
+        if (banBtn)   { banBtn.disabled   = false; banBtn.classList.remove('opacity-40','cursor-not-allowed');   banBtn.onclick   = () => openGpModal('modal-gp-ban'); }
+        if (unbanBtn) { unbanBtn.disabled = false; unbanBtn.classList.remove('opacity-40','cursor-not-allowed'); unbanBtn.onclick = () => openGpModal('modal-gp-unban'); }
+    }
+}
+
 function escHtml(unsafe) {
     if (!unsafe) return '';
     return String(unsafe)
@@ -45,7 +104,8 @@ async function gpLookupPlayer() {
         document.getElementById('gp-search-hint').textContent = 'Drücke Enter oder klicke Suchen';
 
         gpLoadRestriction(player.id);
-        
+        gpApplyStaffProtection(player.id);
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (e) {
         document.getElementById('gp-search-hint').textContent = 'Drücke Enter oder klicke Suchen';
@@ -72,10 +132,38 @@ async function gpLoadRestriction(userId) {
     }
 }
 
+// Parses ISO 8601 duration string (e.g. "P30D", "P1Y2M3DT4H5M6S") → milliseconds
+function parseIso8601Duration(duration) {
+    if (!duration) return null;
+    const m = duration.match(/^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/);
+    if (!m) return null;
+    const years   = parseInt(m[1] || 0);
+    const months  = parseInt(m[2] || 0);
+    const days    = parseInt(m[3] || 0);
+    const hours   = parseInt(m[4] || 0);
+    const minutes = parseInt(m[5] || 0);
+    const seconds = parseFloat(m[6] || 0);
+    return ((years * 365 + months * 30 + days) * 86400 + hours * 3600 + minutes * 60 + seconds) * 1000;
+}
+
+// Formats remaining milliseconds into a human-readable German string
+function formatRemainingTime(ms) {
+    if (ms <= 0) return 'Abgelaufen';
+    const totalSec = Math.floor(ms / 1000);
+    const d = Math.floor(totalSec / 86400);
+    const h = Math.floor((totalSec % 86400) / 3600);
+    const min = Math.floor((totalSec % 3600) / 60);
+    if (d > 0) return `${d} Tag${d !== 1 ? 'e' : ''} ${h} Std.`;
+    if (h > 0) return `${h} Std. ${min} Min.`;
+    return `${min} Min.`;
+}
+
 function gpRenderRestriction(data) {
     const content = document.getElementById('gp-restriction-content');
     const active = data?.gameJoinRestriction?.active ?? false;
-    const isPerm = !data?.gameJoinRestriction?.duration;
+    const duration = data?.gameJoinRestriction?.duration ?? null;
+    const startTime = data?.gameJoinRestriction?.startTime ?? null;
+    const isPerm = !duration;
     const displayReason = data?.gameJoinRestriction?.displayReason ?? '–';
     const privateReason = data?.gameJoinRestriction?.privateReason ?? '–';
 
@@ -89,12 +177,23 @@ function gpRenderRestriction(data) {
             </div>
         </div>`;
     } else {
+        let timeLabel = 'PERMANENT';
+        if (!isPerm && startTime) {
+            const durationMs = parseIso8601Duration(duration);
+            if (durationMs !== null) {
+                const endMs = new Date(startTime).getTime() + durationMs;
+                const remaining = endMs - Date.now();
+                timeLabel = remaining > 0 ? formatRemainingTime(remaining) + ' verbleibend' : 'Abgelaufen';
+            }
+        }
+
         content.innerHTML = `
-        <div class="flex items-start gap-3 mb-4">
-            <div class="w-3 h-3 rounded-full bg-tac-red flex-shrink-0 mt-0.5"></div>
-            <div>
+        <div class="flex items-start justify-between gap-3 mb-4">
+            <div class="flex items-start gap-3">
+                <div class="w-3 h-3 rounded-full bg-tac-red flex-shrink-0 mt-0.5"></div>
                 <div class="font-mono text-sm text-tac-red font-bold">${isPerm ? 'PERMANENT GESPERRT' : 'TEMPORÄR GESPERRT'}</div>
             </div>
+            <div class="font-mono text-xs text-tac-amber font-bold tracking-widest">${escHtml(timeLabel)}</div>
         </div>
         <div class="space-y-2">
             <div class="bg-tac-panel border border-tac-border p-3">

@@ -87,4 +87,40 @@ export class StaffController {
       .all();
     return json({ activity: results }, 200, origin);
   }
+
+  // GET /api/staff/verify — re-checks Roblox group membership; logs out clients whose rank was removed
+  static async verify(_request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+
+    const row = await env.DATABASE
+      .prepare('SELECT roblox_id FROM users WHERE id = ?')
+      .bind(Number(user.sub))
+      .first<{ roblox_id: string }>();
+    if (!row) return err('Benutzer nicht gefunden', 404, origin);
+
+    const ALLOWED_ROLES = [
+      'Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung', 'Management',
+      'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator',
+      'Head Game Moderator', 'Game Moderator',
+    ];
+
+    try {
+      const res = await fetch(`https://groups.roblox.com/v1/users/${row.roblox_id}/groups/roles`);
+      // If Roblox is unreachable, fail open — don't kick on their outage
+      if (!res.ok) return json({ valid: true }, 200, origin);
+
+      const data = await res.json() as { data: Array<{ group: { id: number }; role: { name: string } }> };
+      const groupId = parseInt(env.ROBLOX_GROUP_ID);
+      const membership = data.data?.find((g) => g.group.id === groupId);
+
+      if (!membership || !ALLOWED_ROLES.includes(membership.role.name)) {
+        return err('Roblox-Gruppenrang nicht mehr gültig', 403, origin);
+      }
+
+      return json({ valid: true }, 200, origin);
+    } catch {
+      // Network error — fail open
+      return json({ valid: true }, 200, origin);
+    }
+  }
 }

@@ -209,6 +209,26 @@ async function checkOAuthCallback() {
     }
 }
 
+// ─── Rank Verification Interval ────────────────────────────────────────────
+// Called once after the dashboard loads. Every 5 minutes it asks the worker
+// to re-check the user's current Roblox group rank. If the rank was removed,
+// the worker returns 403 and the user is logged out automatically.
+function startRankVerification() {
+    const INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+    setInterval(async () => {
+        try {
+            await window.api.get('/staff/verify');
+        } catch (e) {
+            if (e?.status === 403 || e?.status === 404) {
+                showToast('Dein Roblox-Gruppenrang wurde entfernt. Du wirst abgemeldet...', 'error');
+                setTimeout(() => logout(), 3000);
+            }
+            // 401 is handled by api.js auto-refresh; ignore network errors (fail open)
+        }
+    }, INTERVAL);
+}
+
 // Export to window
 window.auth = {
     startRobloxOAuth,
@@ -216,5 +236,6 @@ window.auth = {
     checkSession,
     logout,
     showToast,
-    saveSession
+    saveSession,
+    startRankVerification,
 };

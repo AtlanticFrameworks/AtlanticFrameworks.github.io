@@ -48,6 +48,7 @@ const ROUTES: Route[] = [
 
   // ── Staff ────────────────────────────────────────────────────────────────
   route('GET',  '/api/staff/me',       StaffController.me       as Handler),
+  route('GET',  '/api/staff/verify',   StaffController.verify   as Handler),
   route('GET',  '/api/staff/sessions', StaffController.sessions as Handler),
   route('GET',  '/api/staff/roster',   StaffController.roster   as Handler),
   route('GET',  '/api/staff/status',   StaffController.status   as Handler),
