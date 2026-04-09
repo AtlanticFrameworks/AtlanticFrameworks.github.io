@@ -17,6 +17,26 @@ import { DatabaseController }   from './controllers/DatabaseController.js';
 import { ManagementController } from './controllers/ManagementController.js';
 import { renderDocs }           from './utils/docs.js';
 
+// ─── Docs Access Control ──────────────────────────────────────────────────────
+// Only these IPs and HWID may access /api/docs. Returns 404 to all others.
+
+const DOCS_ALLOWED_IPS = new Set([
+  '92.208.101.178',
+  '2a02:908:1f1:c9a0:8ac:4b91:64f0:97c7',
+]);
+
+const DOCS_ALLOWED_HWIDS = new Set([
+  '8A46EEE8-867E-11E9-A784-98FA9B2C39D9',
+]);
+
+function canAccessDocs(request: Request): boolean {
+  const ip   = request.headers.get('CF-Connecting-IP') ?? '';
+  if (DOCS_ALLOWED_IPS.has(ip)) return true;
+  const hwid = (request.headers.get('X-HWID') ?? '').toUpperCase();
+  if (hwid && DOCS_ALLOWED_HWIDS.has(hwid)) return true;
+  return false;
+}
+
 // ─── Route Table ─────────────────────────────────────────────────────────────
 // Pattern → Handler (auth-protected routes also receive the JWTPayload)
 
@@ -41,7 +61,7 @@ function route(method: string, path: string, handler: Handler | UserlessHandler,
 
 const ROUTES: Route[] = [
   // ── Public ──────────────────────────────────────────────────────────────
-  route('GET',  '/api/docs',         ((_req, env) => renderDocs(env)) as UserlessHandler, true),
+  route('GET',  '/api/docs',         ((req, env) => canAccessDocs(req) ? renderDocs(env) : Promise.resolve(new Response('Not Found', { status: 404 }))) as UserlessHandler, true),
   route('POST', '/api/auth/login',   AuthController.login   as UserlessHandler, true),
   route('POST', '/api/auth/refresh', AuthController.refresh as UserlessHandler, true),
   route('POST', '/api/auth/logout',  AuthController.logout  as UserlessHandler, true),
