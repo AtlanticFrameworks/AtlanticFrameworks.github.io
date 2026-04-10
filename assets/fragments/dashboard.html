@@ -181,23 +181,34 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Vitals -->
                 <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Status Card 1: Core System -->
                     <div class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i
-                                data-lucide="server" class="w-16 h-16 text-tac-amber"></i></div>
-                        <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-1">SERVER STATUS</p>
-                        <p class="font-display text-3xl font-bold text-white">ONLINE</p>
+                                data-lucide="database" class="w-16 h-16 text-tac-amber"></i></div>
+                        <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-1">SYSTEM INTEGRITÄT</p>
+                        <p class="font-display text-3xl font-bold text-white">AKTIV</p>
                         <div class="mt-4 pt-4 border-t border-tac-border space-y-1.5 font-mono text-xs">
                             <div class="flex justify-between">
-                                <span class="text-tac-muted">STAFF PANEL</span>
-                                <span id="status-db" class="text-tac-green">AKTIV</span>
+                                <span class="text-zinc-500">STAFF PANEL / DB</span>
+                                <span id="status-db" class="text-tac-green font-bold">AKTIV</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Card 2: External Services -->
+                    <div class="bg-tac-panel border border-tac-border p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i
+                                data-lucide="wifi" class="w-16 h-16 text-tac-amber"></i></div>
+                        <p class="font-mono text-[10px] text-tac-muted tracking-widest mb-1">EXTERNE KNOTEN</p>
+                        <p class="font-display text-3xl font-bold text-white">VERBUNDEN</p>
+                        <div class="mt-4 pt-4 border-t border-tac-border space-y-1.5 font-mono text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-zinc-500">ROBLOX API</span>
+                                <span id="status-roblox" class="text-tac-green font-bold">SYNCED</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-tac-muted">ROBLOX CONNECTION</span>
-                                <span id="status-roblox" class="text-tac-green">OPERATIONAL</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-tac-muted">DISCORD BOT</span>
-                                <span id="status-discord" class="text-tac-green">VERBUNDEN</span>
+                                <span class="text-zinc-500">DISCORD BOT</span>
+                                <span id="status-discord" class="text-tac-red font-bold">OFFLINE</span>
                             </div>
                         </div>
                     </div>
