@@ -85,6 +85,53 @@ async function loadDiscordTab() {
         msgEl.addEventListener('input', updateDcCharCount);
         msgEl._discordWired = true;
     }
+    loadMaintenanceStatus();
+}
+
+async function loadMaintenanceStatus() {
+    const badge = document.getElementById('maintenance-status-badge');
+    const text  = document.getElementById('maintenance-toggle-text');
+    const btn   = document.getElementById('maintenance-toggle-btn');
+    if (!badge || !text || !btn) return;
+
+    try {
+        const data = await window.api.getStatus();
+        const site = (data || []).find(s => s.service === 'Website');
+        const isMaint = site?.status === 'MAINTENANCE';
+
+        badge.textContent = isMaint ? 'WARTUNG' : 'ONLINE';
+        badge.className = `px-2 py-0.5 border font-mono text-[10px] font-bold tracking-tighter ${isMaint ? 'border-tac-amber text-tac-amber bg-tac-amber/5' : 'border-tac-green text-tac-green bg-tac-green/5'}`;
+        
+        text.textContent = isMaint ? 'WARTUNG BEENDEN' : 'WARTUNGSMODUS STARTEN';
+        btn.classList.toggle('border-tac-amber', isMaint);
+        btn.classList.toggle('text-white', isMaint);
+        btn.dataset.current = site?.status || 'ONLINE';
+    } catch (e) {
+        badge.textContent = 'FEHLER';
+        badge.className = 'px-2 py-0.5 border border-tac-red text-tac-red bg-tac-red/5 font-mono text-[10px] font-bold tracking-tighter';
+    }
+}
+
+async function toggleMaintenanceMode() {
+    const btn  = document.getElementById('maintenance-toggle-btn');
+    const curr = btn.dataset.current || 'ONLINE';
+    const next = curr === 'MAINTENANCE' ? 'ONLINE' : 'MAINTENANCE';
+
+    btn.disabled = true;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> VERARBEITE...';
+
+    try {
+        await window.api.post('/status/update', { service: 'Website', status: next });
+        showToast(`Website-Status auf ${next} geändert.`, 'success');
+        await loadMaintenanceStatus();
+    } catch (e) {
+        showToast('Fehler beim Ändern des Status: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [btn] });
+    }
 }
 
 async function sendDiscordAnnouncement() {

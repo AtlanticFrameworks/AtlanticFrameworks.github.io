@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wartungsarbeiten | ATLANTIC Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bw: {
+                            dark: '#0f1115',
+                            gold: '#E2B007'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Oswald', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline-overlay {
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%), 
+                        linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+            background-size: 100% 2px, 3px 100%;
+        }
+        .tactical-notch {
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+    </style>
+</head>
+<body class="bg-bw-dark text-gray-200 font-sans antialiased overflow-hidden h-screen flex items-center justify-center">
+
+    <!-- SCANLINE OVERLAY -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-50 opacity-[0.03] scanline-overlay"></div>
+
+    <div class="relative z-10 text-center px-4 max-w-2xl mx-auto">
+        <!-- Logo -->
+        <div class="mb-8 flex justify-center">
+            <img src="assets/images/logo.png" alt="Logo" class="h-24 w-24 object-contain grayscale opacity-50">
+        </div>
+
+        <!-- Status Header -->
+        <div class="inline-flex items-center gap-3 bg-bw-gold/10 border border-bw-gold/20 px-6 py-2 rounded-full mb-8">
+            <div class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-bw-gold opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-bw-gold"></span>
+            </div>
+            <span class="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-bw-gold">System: Wartungsarbeiten</span>
+        </div>
+
+        <h1 class="font-display text-5xl md:text-7xl font-bold text-white mb-6 tracking-tighter uppercase leading-none">
+            Operation <span class="text-bw-gold">Downtime</span>
+        </h1>
+
+        <p class="text-gray-400 font-mono text-sm mb-12 leading-relaxed">
+            Wir führen aktuell planmäßige Wartungsarbeiten am Mainframe durch, um die Systemstabilität und Sicherheit zu gewährleisten.<br><br>
+            <span class="text-white">Status:</span> DEPLOYING CRITICAL UPDATES...<br>
+            <span class="text-white">Dauer:</span> Wir sind in Kürze wieder für Sie da.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="https://discord.gg/bwrp" target="_blank"
+                class="group relative px-8 py-3 bg-white/5 border border-white/10 text-white font-display font-bold text-lg uppercase tracking-wider overflow-hidden tactical-notch hover:border-bw-gold/50 transition-all">
+                <span class="relative z-10 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-4 h-4"></i> Discord Status
+                </span>
+            </a>
+            
+            <button onclick="location.reload()"
+                class="px-8 py-3 bg-bw-gold text-black font-display font-bold text-lg uppercase tracking-wider tactical-notch hover:bg-white transition-all">
+                Check Status
+            </button>
+        </div>
+
+        <div class="mt-16 pt-8 border-t border-white/5 text-[10px] font-mono text-gray-600 tracking-[0.3em] uppercase">
+            Atlantic Studios // Node Security Layer 4
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Check if maintenance is over
+        async function checkStatus() {
+            try {
+                const res = await fetch('https://bwrp.net/api/status');
+                const data = await res.json();
+                const site = data.find(s => s.service === 'Website');
+                if (site && site.status !== 'MAINTENANCE') {
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {}
+        }
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>

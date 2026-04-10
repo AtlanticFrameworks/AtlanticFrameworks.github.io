@@ -452,6 +452,27 @@ async function fetchStaff() {
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
+    // Check for maintenance mode (except on maintenance page or staff panel)
+    const isMaintPage = window.location.pathname.includes('maintenance.html');
+    const isStaffPage = window.location.pathname.includes('team') || window.location.pathname.includes('dbpanel');
+    
+    if (!isMaintPage && !isStaffPage) {
+        async function checkMaintenance() {
+            try {
+                const res = await fetch('https://bwrp.net/api/status');
+                const data = await res.json();
+                const site = (data || []).find(s => s.service === 'Website');
+                if (site && site.status === 'MAINTENANCE') {
+                    window.location.href = 'maintenance.html';
+                }
+            } catch (e) {
+                console.warn('[System] Status-Check fehlgeschlagen:', e.message);
+            }
+        }
+        checkMaintenance();
+        // Check once an hour if the tab stays open, or on refresh
+    }
+
     lucide.createIcons();
     initParticleSystem();
     initTiltEffect();

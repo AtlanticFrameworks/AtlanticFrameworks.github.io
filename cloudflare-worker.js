@@ -44,6 +44,7 @@ async function initDB(db) {
     );
 
     INSERT OR IGNORE INTO server_status (service, status) VALUES
+      ('Website',      'ONLINE'),
       ('Roblox API',   'OPERATIONAL'),
       ('Discord Bot',  'ONLINE'),
       ('Database',     'SYNCED');

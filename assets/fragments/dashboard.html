@@ -1270,8 +1270,56 @@
             <!-- Status bar -->
             <div id="discord-status-bar" class="hidden mb-6 p-3 border font-mono text-xs flex items-center gap-3"></div>
 
-            <div id="discord-content-wrapper">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Maintenance & Status Control -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 bg-tac-card border border-tac-border p-5 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="shield-alert" class="w-5 h-5 text-tac-amber"></i>
+                            <h3 class="font-display text-base font-bold text-white tracking-widest uppercase">Wartungsmodus & Website-Status</h3>
+                        </div>
+                        <div id="maintenance-status-badge" class="px-2 py-0.5 border font-mono text-[10px] font-bold tracking-tighter">LADE...</div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <div class="flex-1">
+                            <p class="font-mono text-xs text-tac-muted leading-relaxed">
+                                Schaltet die Website in den <span class="text-tac-amber">Wartungsmodus</span>. Besucher sehen dann den Wartungs-Screen.
+                                Interne Dienste und das Staff Panel bleiben erreichbar.
+                            </p>
+                        </div>
+                        <button id="maintenance-toggle-btn" onclick="toggleMaintenanceMode()"
+                            class="w-full sm:w-auto px-6 py-2.5 bg-tac-panel border border-tac-border text-tac-muted font-mono text-xs font-bold uppercase tracking-widest hover:border-tac-amber hover:text-white transition-all flex items-center justify-center gap-2 group">
+                            <i data-lucide="power" class="w-4 h-4 group-hover:text-tac-amber"></i>
+                            <span id="maintenance-toggle-text">Status prüfen</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-tac-card border border-tac-border p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <i data-lucide="activity" class="w-5 h-5 text-tac-blue"></i>
+                            <h3 class="font-display text-base font-bold text-white tracking-widest uppercase">System-Gesundheit</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-tac-muted">API KNOTEN</span>
+                                <span class="text-tac-green font-bold">OPERATIONAL</span>
+                            </div>
+                            <div class="flex items-center justify-between font-mono text-[10px]">
+                                <span class="text-tac-muted">DB LÄTTE</span>
+                                <span class="text-tac-green font-bold">OPTIMAL</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="testDiscordWebhook()" class="w-full mt-4 py-2 border border-tac-border text-[10px] text-tac-muted font-mono hover:text-tac-blue hover:border-tac-blue/50 transition-colors uppercase tracking-widest">
+                        Webhook Testen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Discord Announcement Form -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
                 <!-- ── Ankündigung senden ── -->
                 <div class="bg-tac-card border border-tac-border p-5 space-y-4">
@@ -1404,7 +1452,7 @@
                 </div>
             </div>
 
-            <div id="gp-perm-denied" class="hidden mb-6">
+            <div id="gp-perm-denied" class="hidden mb-6 bg-tac-red/5 border border-tac-red/30 p-6 clip-tl animate-fade-in">
                 <div class="border border-tac-red/50 bg-tac-red/5 p-6 clip-tl text-center">
                     <i data-lucide="shield-off" class="w-10 h-10 text-tac-red mx-auto mb-3"></i>
                     <div class="font-display text-xl text-tac-red mb-1">ZUGRIFF VERWEIGERT</div>

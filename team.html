@@ -2186,9 +2186,16 @@
         // Called once after the dashboard fragment loads to show/hide in-game buttons.
         function applyRoleVisibility() {
             const ingame = document.querySelectorAll('[data-ingame-only]');
+            const canIngame = canDoIngame();
             ingame.forEach(el => {
-                el.style.display = canDoIngame() ? '' : 'none';
+                el.style.display = canIngame ? '' : 'none';
             });
+
+            // Game Panel permissions
+            const gpDenied = document.getElementById('gp-perm-denied');
+            const gpMain = document.getElementById('gp-main-content');
+            if (gpDenied) gpDenied.classList.toggle('hidden', canIngame);
+            if (gpMain) gpMain.classList.toggle('hidden', !canIngame);
 
             // DB Panel + SYSTEM section — OWNER only
             const isOwner = window.currentRole === 'OWNER';
