@@ -593,7 +593,15 @@
             const el = document.getElementById('sys-time');
             if (!el) return;
             function tick() {
-                el.textContent = new Date().toISOString().substring(11, 19) + ' UTC';
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('de-DE', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit',
+                    hour12: false,
+                    timeZone: 'Europe/Berlin'
+                });
+                el.textContent = timeStr + ' UHR';
             }
             tick();
             setInterval(tick, 1000);
@@ -1000,6 +1008,23 @@
             const subtextEl = document.getElementById('calc-subtext');
 
             if (!offense || !countRadio || !resultEl) return;
+
+            if (offense === 'CUSTOM') {
+                resultEl.textContent = 'MANUELLE EINGABE';
+                resultEl.className = 'font-display text-2xl md:text-3xl font-bold tracking-widest text-tac-amber';
+                if (subtextEl) { 
+                    subtextEl.textContent = 'EIGENER GRUND AKTIVIERT'; 
+                    subtextEl.className = 'font-mono text-xs text-tac-amber mt-1'; 
+                }
+                
+                const reasonInput = document.getElementById('qm-reason');
+                if (reasonInput && !offenseOverride) {
+                    reasonInput.value = '';
+                    reasonInput.focus();
+                }
+                generateCommand();
+                return;
+            }
 
             const countIndex = parseInt(countRadio.value) - 1;
             const entry = PUNISHMENT_DATA[offense];
