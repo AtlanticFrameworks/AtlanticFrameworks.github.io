@@ -13,6 +13,18 @@ const ROBLOX_FETCH_HEADERS: Record<string, string> = {
   'Accept-Language': 'en-US,en;q=0.9',
 };
 
+async function robloxFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { ...ROBLOX_FETCH_HEADERS, ...(init.headers as Record<string, string> ?? {}) },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error(`[Roblox] ${init.method ?? 'GET'} ${url} → ${res.status}: ${body.slice(0, 300)}`);
+  }
+  return res;
+}
+
 async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promise<Response> {
   const headers = { 
     ...ROBLOX_FETCH_HEADERS, 
@@ -39,8 +51,8 @@ type UsernameResult =
 async function resolveUsername(env: Env, username: string): Promise<UsernameResult> {
   try {
     // Roblox Open Cloud v2 User Search
-    // Filter syntax: username == 'name'
-    const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(`username == '${username}'`)}`;
+    // Filter syntax: username == "name"
+    const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(`username == "${username}"`)}`;
     const res = await cloudFetch(env, url);
 
     if (res.ok) {
