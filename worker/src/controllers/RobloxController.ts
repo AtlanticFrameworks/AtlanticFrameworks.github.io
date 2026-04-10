@@ -5,6 +5,11 @@ const ROBLOX_USERS_API  = 'https://users.roblox.com/v1';
 const ROBLOX_GROUPS_API = 'https://groups.roblox.com/v1';
 const ROBLOX_GAMES_API  = 'https://games.roblox.com/v1';
 
+type UsernameResult =
+  | { type: 'found';    userId: string }
+  | { type: 'notFound' }
+  | { type: 'apiError'; status: number; message: string; debugUrl: string };
+
 // Neutral server-to-server headers — no Origin/Referer pointing to roblox.com,
 // as that triggers Roblox's CSRF check (they expect a .ROBLOSECURITY cookie with it).
 const ROBLOX_FETCH_HEADERS: Record<string, string> = {

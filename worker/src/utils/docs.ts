@@ -96,18 +96,21 @@ export function renderDocs(_env: Env): Response {
         ::-webkit-scrollbar-thumb { background:#1c1c1c; }
 
         /* Try-it panels */
-        .try-panel { margin-top:1rem; border:1px solid rgba(16,185,129,.2); background:rgba(16,185,129,.03); }
-        .try-panel-header { display:flex; align-items:center; gap:.75rem; padding:.6rem .85rem; border-bottom:1px solid rgba(16,185,129,.15); }
-        .try-panel-header span { font-family:'JetBrains Mono',monospace; font-size:.65rem; color:#10b981; text-transform:uppercase; letter-spacing:.1em; font-weight:700; }
-        .try-input { background:#000; border:1px solid rgba(255,255,255,.08); color:#e4e4e7; font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.4rem .6rem; outline:none; min-width:180px; flex:1; }
-        .try-input:focus { border-color:rgba(16,185,129,.5); }
-        .try-run { background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:#10b981; font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:.35rem .9rem; cursor:pointer; transition:all .15s; white-space:nowrap; }
-        .try-run:hover { background:rgba(16,185,129,.25); }
-        .try-run:disabled { opacity:.4; cursor:not-allowed; }
-        .try-output { display:none; padding:.75rem .85rem; border-top:1px solid rgba(255,255,255,.04); }
-        .try-output pre { margin:0; background:#000; border:none; font-size:.68rem; max-height:220px; overflow-y:auto; }
-        .try-status-ok { color:#10b981; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; }
-        .try-status-err { color:#ef4444; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; }
+        .try-panel { margin-top:1rem; border:1px solid rgba(16,185,129,.15); background:rgba(16,185,129,.02); border-radius:4px; overflow:hidden; }
+        .try-panel-header { display:flex; align-items:center; gap:.75rem; padding:.65rem 1rem; border-bottom:1px solid rgba(16,185,129,.1); background:rgba(16,185,129,.03); }
+        .try-panel-header span { font-family:'JetBrains Mono',monospace; font-size:.62rem; color:#10b981; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+        .try-input { background:#08080a; border:1px solid #1c1c1c; color:#e4e4e7; font-family:'JetBrains Mono',monospace; font-size:.72rem; padding:.45rem .75rem; outline:none; flex:1; border-radius:2px; transition:border-color .15s; }
+        .try-input:focus { border-color:rgba(16,185,129,.4); }
+        .try-body-area { width:100%; min-height:100px; background:#000; border:1px solid #1c1c1c; color:#10b981; font-family:'JetBrains Mono',monospace; font-size:.7rem; padding:.75rem; outline:none; margin-top:.5rem; border-radius:2px; resize:vertical; }
+        .try-body-area:focus { border-color:rgba(16,185,129,.4); }
+        .try-run { background:#10b981; color:#000; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; padding:.45rem 1.25rem; cursor:pointer; transition:all .15s; border-radius:2px; }
+        .try-run:hover { background:#34d399; transform:translateY(-1px); }
+        .try-run:active { transform:translateY(0); }
+        .try-run:disabled { opacity:.4; cursor:not-allowed; background:#1c1c1c; color:#52525b; }
+        .try-output { display:none; padding:0; border-top:1px solid rgba(255,255,255,0.04); }
+        .try-output pre { margin:0; background:#050505; border:none; border-radius:0; font-size:.68rem; max-height:300px; overflow-y:auto; padding:1rem; }
+        .try-status-ok { color:#10b981; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; background:rgba(16,185,129,.1); padding:2px 6px; border-radius:2px; }
+        .try-status-err { color:#ef4444; font-family:'JetBrains Mono',monospace; font-size:.65rem; font-weight:700; background:rgba(239,68,68,.1); padding:2px 6px; border-radius:2px; }
     </style>
 </head>
 <body class="flex min-h-screen font-sans">
@@ -431,6 +434,14 @@ export function renderDocs(_env: Env): Response {
     }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/staff/sessions" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -460,6 +471,14 @@ export function renderDocs(_env: Env): Response {
     }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/staff/roster" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -486,6 +505,14 @@ export function renderDocs(_env: Env): Response {
     }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/staff/status" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -514,6 +541,14 @@ export function renderDocs(_env: Env): Response {
     }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/staff/activity" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -540,6 +575,14 @@ export function renderDocs(_env: Env): Response {
   "week_cases":    12,
   "cases_filed":   95
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/staff/stats" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -582,6 +625,15 @@ export function renderDocs(_env: Env): Response {
     }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/watchlist" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
                     </div>
                 </div>
 
@@ -623,6 +675,15 @@ export function renderDocs(_env: Env): Response {
                                 <p class="font-mono text-[9px] text-tac-muted mt-2"><code>entry</code> is <span class="text-white">null</span> when <code>flagged: false</code></p>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Roblox User ID..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/watchlist/check/{v}" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -656,6 +717,13 @@ export function renderDocs(_env: Env): Response {
                                 <pre class="text-tac-green"><code>{ "success": true }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><span class="try-label" style="margin-left:auto"></span><button class="try-run" data-path="/watchlist" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "playerRobloxId": "1", "playerUsername": "Name", "reason": "Text" }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -686,6 +754,15 @@ export function renderDocs(_env: Env): Response {
                                 </div>
                                 <pre class="text-tac-green"><code>{ "success": true }</code></pre>
                             </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Watchlist Row ID..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/watchlist/{v}" data-method="DELETE" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
@@ -751,6 +828,15 @@ export function renderDocs(_env: Env): Response {
 }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Query (e.g. ?type=BAN&search=Zane)" />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/moderation/all{v}" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -781,6 +867,15 @@ export function renderDocs(_env: Env): Response {
                                 </div>
                                 <pre class="text-tac-green"><code>{ "cases": [ { ... } ] }</code></pre>
                             </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Roblox Player ID..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/moderation/cases/{v}" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
@@ -817,17 +912,15 @@ export function renderDocs(_env: Env): Response {
                                     <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest">Response 201</p>
                                     <button class="copy-btn font-mono text-[9px] text-tac-muted hover:text-white uppercase transition-colors">Copy</button>
                                 </div>
-                                <pre class="text-tac-green"><code>{
-  "case": {
-    "id": 1,
-    "incident_id": "INC-0042",
-    "type": "BAN",
-    "target_username": "Player1",
-    "reason": "Mass RDM",
-    "created_at": "2026-04-08T12:00:00.000Z"
-  }
-}</code></pre>
+                                <pre class="text-tac-green"><code>{ "case": { "id": 1, "incident_id": "INC-0042", ... } }</code></pre>
                             </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><span class="try-label" style="margin-left:auto"></span><button class="try-run" data-path="/moderation/cases" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "targetRobloxId": "123", "targetUsername": "Name", "type": "WARN", "reason": "Test" }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
@@ -860,6 +953,18 @@ export function renderDocs(_env: Env): Response {
                                 </div>
                                 <pre class="text-tac-green"><code>{ "success": true }</code></pre>
                             </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Case Row ID..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/moderation/cases/{v}" data-method="PATCH" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "notes": "Updated note content..." }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
@@ -898,6 +1003,14 @@ export function renderDocs(_env: Env): Response {
     "start_time": "2026-04-08T12:00:00.000Z"
   }
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/shifts/start" data-method="POST" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -942,6 +1055,17 @@ export function renderDocs(_env: Env): Response {
 }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/shifts/end" data-method="POST" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "cases_count": 5, "notes": "Great shift!" }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -966,8 +1090,16 @@ export function renderDocs(_env: Env): Response {
     "start_time": "2026-04-08T12:00:00.000Z"
   }
 }
-
+ 
 // shift is null when no active shift</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/shifts/active" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -996,6 +1128,14 @@ export function renderDocs(_env: Env): Response {
     }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/shifts/analytics" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1083,6 +1223,14 @@ export function renderDocs(_env: Env): Response {
     { "id": 300, "name": "Admin",  "rank": 200, "memberCount": 5 }
   ]
 }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/roblox/group/roles" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1123,6 +1271,15 @@ export function renderDocs(_env: Env): Response {
   ]
 }</code></pre>
                             </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <input class="try-input" placeholder="Role ID..." />
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/roblox/group/roles/{v}/users" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
@@ -1212,6 +1369,13 @@ export function renderDocs(_env: Env): Response {
 }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><span class="try-label" style="margin-left:auto"></span><button class="try-run" data-path="/cloud/kick" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "targetRobloxId": 123, "reason": "Trolling" }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1250,6 +1414,13 @@ export function renderDocs(_env: Env): Response {
 }</code></pre>
                             </div>
                         </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><span class="try-label" style="margin-left:auto"></span><button class="try-run" data-path="/cloud/ban" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "targetRobloxId": 123, "reason": "Exploiting", "durationDays": 7 }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1284,6 +1455,13 @@ export function renderDocs(_env: Env): Response {
   "message": "Player1 wurde entsperrt."
 }</code></pre>
                             </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><span class="try-label" style="margin-left:auto"></span><button class="try-run" data-path="/cloud/unban" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "targetRobloxId": 123 }'></textarea>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
@@ -1395,55 +1573,88 @@ export function renderDocs(_env: Env): Response {
     });
 
     // ── Try-it panel logic ────────────────────────────────────────────────────
-    const API = 'https://bwrp.net/api';
+    const API = location.origin + '/api';
 
     async function tryIt(btn) {
         const panel     = btn.closest('.try-panel');
         const output    = panel.querySelector('.try-output');
         const statusEl  = panel.querySelector('.try-label');
         const pathInput = panel.querySelector('.try-input');
-        const template  = btn.dataset.path;   // e.g. '/staff/me' or '/roblox/player/{v}'
+        const bodyInput = panel.querySelector('.try-body-area');
+        
+        const template  = btn.dataset.path;
         const method    = btn.dataset.method || 'GET';
-        const val       = pathInput ? pathInput.value.trim() : '';
-
-        if (pathInput && !val) {
-            showTryResult(output, statusEl, 0, { error: 'Pflichtfeld fehlt' });
+        
+        // Path segments (/{v}) are required; query strings ({v} not preceded by /) are optional.
+        const isPathParam = template.includes('/{v}');
+        if (pathInput && !pathInput.value.trim() && isPathParam) {
+            showTryResult(output, statusEl, 0, { error: 'Path parameter is required' });
             return;
         }
 
-        const path = template.includes('{v}') ? template.replace('{v}', encodeURIComponent(val)) : template;
+        let body = null;
+        if (bodyInput) {
+            try {
+                const val = bodyInput.value.trim();
+                if (val) body = JSON.stringify(JSON.parse(val));
+            } catch (e) {
+                showTryResult(output, statusEl, 0, { error: 'Invalid JSON in request body' });
+                return;
+            }
+        }
+
+        const rawVal = pathInput ? pathInput.value.trim() : '';
+        // Query strings (starting with '?') must not be percent-encoded; path segments must be.
+        // Empty rawVal for optional query param just removes the {v} placeholder.
+        const encodedVal = rawVal.startsWith('?') ? rawVal : (rawVal ? encodeURIComponent(rawVal) : '');
+        const path = template.includes('{v}') ? template.replace('{v}', encodedVal) : template;
 
         btn.disabled = true;
+        const oldText = btn.textContent;
         btn.textContent = '...';
+        
         try {
-            const res = await fetch(API + path, { method, credentials: 'include', headers: { 'Content-Type': 'application/json' } });
-            let body;
-            try { body = await res.json(); } catch { body = { raw: await res.text() }; }
-            showTryResult(output, statusEl, res.status, body);
+            const options = { method, credentials: 'include' };
+            if (body) {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = body;
+            }
+
+            const res = await fetch(API + path, options);
+            let responseBody;
+            try { 
+                responseBody = await res.json(); 
+            } catch { 
+                responseBody = { raw: await res.text() }; 
+            }
+            showTryResult(output, statusEl, res.status, responseBody);
         } catch (e) {
-            showTryResult(output, statusEl, 0, { error: 'Netzwerkfehler: ' + e.message });
+            showTryResult(output, statusEl, 0, { error: 'Network Error: ' + e.message });
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Run';
+            btn.textContent = oldText;
         }
     }
 
     function showTryResult(output, statusEl, status, body) {
         if (statusEl) {
             statusEl.textContent = status ? 'HTTP ' + status : 'ERROR';
-            statusEl.className = (status >= 200 && status < 300) ? 'try-status-ok try-label' : 'try-status-err try-label';
+            statusEl.className = (status >= 200 && status < 300) ? 'try-status-ok' : 'try-status-err';
         }
         output.style.display = 'block';
         const pre = output.querySelector('pre');
         if (pre) pre.textContent = JSON.stringify(body, null, 2);
+        output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     // Enter key in try-it inputs
     document.addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
+        if (e.target.tagName === 'TEXTAREA') return;
         const input = e.target.closest('.try-input');
         if (!input) return;
-        const btn = input.closest('.try-panel-header')?.querySelector('.try-run');
+        const btn = input.closest('.try-panel-header')?.querySelector('.try-run') || 
+                    input.closest('.try-panel')?.querySelector('.try-run');
         if (btn) btn.click();
     });
 
