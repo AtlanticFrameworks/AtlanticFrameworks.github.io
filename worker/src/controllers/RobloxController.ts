@@ -27,6 +27,7 @@ async function robloxFetch(url: string, init: RequestInit = {}): Promise<Respons
 
 async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promise<Response> {
   const headers = { 
+    ...ROBLOX_FETCH_HEADERS,
     'x-api-key': env.ROBLOX_CLOUD_KEY,
     'Accept':    'application/json',
     ...(init.headers as Record<string, string> ?? {}) 
