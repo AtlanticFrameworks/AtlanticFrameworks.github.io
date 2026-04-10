@@ -301,6 +301,8 @@ export function renderDocs(_env: Env): Response {
   "data": {
     "status": "AKTIV",
     "is_active": true,
+    "emoji": "🟢",
+    "icon": "https://raw.githubusercontent.com/.../peace.png",
     "timestamp": {
       "current": 1712774400,
       "next_switch": 1712778000
