@@ -160,7 +160,7 @@ export class CloudController {
       });
 
       await auditLog(env.DATABASE, Number(user.sub), 'SERVER_SHUTDOWN', 'servers', serverJobId, { serverJobId }, getIP(request));
-      new DiscordService(env).sendSystemNotification?.(`${user.username} hat Server ${serverJobId.slice(0, 8)}... heruntergefahren.`).catch(() => {});
+      new DiscordService(env).sendMonitoringAlert('Server Heruntergefahren', `Der Server **${serverJobId.slice(0, 8)}...** wurde von **${user.username}** heruntergefahren.`).catch(() => {});
 
       return json({ success: true, message: `Shutdown-Signal an Server ${serverJobId.slice(0, 8)}... gesendet.` }, 200, origin);
     } catch (e) {
@@ -200,7 +200,7 @@ export class CloudController {
       });
 
       await auditLog(env.DATABASE, Number(user.sub), 'SERVER_RESTART_ALL', 'servers', undefined, { protectedCount: allProtected.length }, getIP(request));
-      new DiscordService(env).sendSystemNotification?.(`${user.username} hat RESTART ALL ausgelöst. ${allProtected.length} Server geschützt.`).catch(() => {});
+      new DiscordService(env).sendMonitoringAlert('Globaler Server-Restart', `**${user.username}** hat einen Neustart aller Server ausgelöst. **${allProtected.length}** Server sind geschützt.`).catch(() => {});
 
       return json({
         success: true,

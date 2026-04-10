@@ -182,4 +182,18 @@ export class DiscordService {
       }],
     });
   }
+
+  // ── Monitoring Alert (Role Ping) ──────────────────────────────────────────
+  async sendMonitoringAlert(title: string, message: string, color = 0xF59E0B): Promise<void> {
+    await this.send({
+      content: '<@&1421218443822108832>',
+      embeds: [{
+        title:       `🖥️ MONITORING: ${title}`,
+        description: message,
+        color:       color,
+        footer:      { text: 'BWRP Monitoring System' },
+        timestamp:   new Date().toISOString(),
+      }],
+    });
+  }
 }

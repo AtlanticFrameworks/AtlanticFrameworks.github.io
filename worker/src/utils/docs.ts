@@ -1595,10 +1595,42 @@ export function renderDocs(_env: Env): Response {
                         <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
                     </div>
                     <div class="ep-body px-6 py-5 bg-black/20">
+                <!-- PATCH /mgmt/users/:id/role -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PATCH</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/mgmt/users/<span class="text-tac-amber">:id</span>/role</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Update a staff member's primary administrative rank</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest mb-2">Request Body (JSON)</p>
+                                <table class="param-table">
+                                    <thead><tr><th>Field</th><th>Type</th><th>Req</th></tr></thead>
+                                    <tbody>
+                                        <tr><td class="param-name">role</td><td class="param-type">string</td><td class="param-req">YES</td></tr>
+                                    </tbody>
+                                </table>
+                                <p class="font-mono text-[9px] text-tac-muted mt-2">Options: <span class="text-white">VERIFY · TRAINEE · MOD · ADMIN · OWNER</span></p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest">Response 200</p>
+                                    <button class="copy-btn font-mono text-[9px] text-tac-muted hover:text-white uppercase transition-colors">Copy</button>
+                                </div>
+                                <pre class="text-tac-green"><code>{ "success": true }</code></pre>
+                            </div>
+                        </div>
                         <div class="try-panel">
-                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/mgmt/users/{v}/hwid-reset" data-method="PATCH" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/mgmt/users/{v}/role" data-method="PATCH" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "role": "MOD" }'></textarea></div>
                             <div class="try-output"><pre></pre></div>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
@@ -1612,22 +1644,77 @@ export function renderDocs(_env: Env): Response {
                 <div class="line"></div>
             </div>
             <div class="space-y-2">
+                <!-- GET /roles/permissions -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/roles/permissions</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List all available system permissions</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <pre class="text-tac-green"><code>{ "permissions": ["MANAGE_ROLES", "VIEW_AUDIT", "MANAGE_D1", ...] }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/roles/permissions" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- GET /roles -->
                 <div class="ep">
                     <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
                         <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
                         <code class="font-mono text-[13px] font-semibold text-white">/roles</code>
-                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List all defineable staff roles</span>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List all defineable staff roles with their permissions</span>
                         <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
                         <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
                     </div>
                     <div class="ep-body px-6 py-5 bg-black/20">
+                        <pre class="text-tac-green"><code>{ "roles": [ { "id": 1, "name": "Teamleiter", "permissions": ["..."] } ] }</code></pre>
                         <div class="try-panel">
                             <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/roles" data-method="GET" onclick="tryIt(this)">Run</button></div>
                             <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- POST /roles -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/roles</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Create a new organizational role</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "name": "Manager", "permissions": ["MANAGE_ROLES"] }'></textarea></div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/roles" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GET /roles/users/:userId -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/roles/users/<span class="text-tac-amber">:userId</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">View all custom roles assigned to a staff member</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User ID..." /><button class="try-run" data-path="/roles/users/{v}" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- POST /roles/users/:userId/assign -->
                 <div class="ep">
                     <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
@@ -1639,8 +1726,25 @@ export function renderDocs(_env: Env): Response {
                     </div>
                     <div class="ep-body px-6 py-5 bg-black/20">
                         <div class="try-panel">
-                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/roles/users/{v}/assign" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User ID..." /><button class="try-run" data-path="/roles/users/{v}/assign" data-method="POST" onclick="tryIt(this)">Run</button></div>
                             <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "roleId": 5 }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELETE /roles/users/:userId/:roleId -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-delete px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">DELETE</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/roles/users/<span class="text-tac-amber">:userId</span>/<span class="text-tac-amber">:roleId</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Revoke a custom role from a staff member</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="userId/roleId" /><button class="try-run" data-path="/roles/users/{v}" data-method="DELETE" onclick="tryIt(this)">Run</button></div>
                             <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
@@ -1673,19 +1777,37 @@ export function renderDocs(_env: Env): Response {
                         </div>
                     </div>
                 </div>
-                <!-- PUT /notes -->
+                <!-- POST /notes/pin -->
                 <div class="ep">
                     <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
-                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PUT</span>
-                        <code class="font-mono text-[13px] font-semibold text-white">/notes</code>
-                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Update your personal scratchpad content</span>
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/notes/pin</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Pin a moderation case or player ID to your workspace</span>
                         <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
                         <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
                     </div>
                     <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
                         <div class="try-panel">
-                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/notes" data-method="PUT" onclick="tryIt(this)">Run</button></div>
-                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "content": "New scratchpad text..." }'></textarea></div>
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/notes/pin" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "id": "INC-0042", "type": "CASE" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POST /notes/unpin -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/notes/unpin</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Remove a pinned item from your workspace</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/notes/unpin" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "id": "INC-0042" }'></textarea></div>
                             <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
@@ -1792,22 +1914,92 @@ export function renderDocs(_env: Env): Response {
             </div>
             <div class="note-warn note mb-4">Direct row-level access to D1 tables. Bypasses application logic. Strictly OWNER ONLY.</div>
             <div class="space-y-2">
-                <!-- GET /db/stats -->
+                <!-- GET /db/users -->
                 <div class="ep">
                     <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
                         <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
-                        <code class="font-mono text-[13px] font-semibold text-white">/db/stats</code>
-                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Database performance metrics and table sizes</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/users</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Raw D1 user table dump</span>
                         <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
                         <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
                     </div>
                     <div class="ep-body px-6 py-5 bg-black/20">
                         <div class="try-panel">
-                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/stats" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/users" data-method="GET" onclick="tryIt(this)">Run</button></div>
                             <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- DELETE /db/users/:id -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-delete px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">DELETE</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/users/<span class="text-tac-amber">:id</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Permanently remove a staff record from the database</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/db/users/{v}" data-method="DELETE" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PATCH /db/cases/:id -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PATCH</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/cases/<span class="text-tac-amber">:id</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Modify raw case data in D1</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="Case ID..." /><button class="try-run" data-path="/db/cases/{v}" data-method="PATCH" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "reason": "Updated reason" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELETE /db/cases/:id -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-delete px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">DELETE</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/cases/<span class="text-tac-amber">:id</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Permanently delete a moderation case from the immutable history</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="Case ID..." /><button class="try-run" data-path="/db/cases/{v}" data-method="DELETE" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELETE /db/sessions/:id -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-delete px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">DELETE</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/sessions/<span class="text-tac-amber">:id</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Force-expire a staff session</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="Session UUID..." /><button class="try-run" data-path="/db/sessions/{v}" data-method="DELETE" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- GET /db/audit-logs -->
                 <div class="ep">
                     <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
@@ -1824,6 +2016,59 @@ export function renderDocs(_env: Env): Response {
                         </div>
                     </div>
                 </div>
+
+                <!-- GET /db/stats -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/stats</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Database performance metrics and table sizes</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/stats" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GET /db/server-status -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/server-status</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">View health and latency of internal microservices</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/server-status" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PATCH /db/server-status/:service -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PATCH</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/server-status/<span class="text-tac-amber">:service</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Manually override service health states</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="Service Name..." /><button class="try-run" data-path="/db/server-status/{v}" data-method="PATCH" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "status": "UP", "message": "Manual override" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- DELETE /db/rate-limits -->
                 <div class="ep">
                     <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
@@ -1850,7 +2095,7 @@ export function renderDocs(_env: Env): Response {
         <div class="font-mono text-[10px] text-tac-muted">
             <span class="text-white font-semibold">BWRP STAFF PANEL</span> · Cloudflare Workers · D1 · Roblox OAuth 2.0
         </div>
-        <div class="font-mono text-[10px] text-tac-muted tabular-nums">59 ENDPOINTS · &copy; 2026 ATLANTIC COMMAND</div>
+        <div class="font-mono text-[10px] text-tac-muted tabular-nums">79 ENDPOINTS · &copy; 2026 ATLANTIC COMMAND</div>
     </footer>
 
 </main><!-- /main -->

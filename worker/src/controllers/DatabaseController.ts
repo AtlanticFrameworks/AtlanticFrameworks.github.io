@@ -1,6 +1,7 @@
 import type { Env, JWTPayload } from '../types/index.js';
 import { json, err, auditLog, getIP } from '../middleware/auth.js';
 import { ROLE_RANK } from '../types/index.js';
+import { DiscordService } from '../services/DiscordService.js';
 
 /**
  * DatabaseController – Raw D1 management, OWNER-only.
@@ -96,6 +97,7 @@ export class DatabaseController {
 
     await env.DATABASE.prepare('DELETE FROM users WHERE id = ?').bind(targetId).run();
     await auditLog(env.DATABASE, Number(user.sub), 'DB_DELETE_USER', 'users', String(targetId), { username: existing.username }, getIP(request));
+    new DiscordService(env).sendMonitoringAlert('User-Eintrag Gelöscht (OWNER)', `**${user.username}** hat den User-Eintrag von **${existing.username}** (ID: ${targetId}) endgültig aus der D1 gelöscht.`).catch(() => {});
 
     return json({ success: true, message: `User ${existing.username} (ID ${targetId}) gelöscht.` }, 200, origin);
   }
@@ -173,6 +175,7 @@ export class DatabaseController {
 
     await env.DATABASE.prepare('DELETE FROM cases WHERE id = ?').bind(caseId).run();
     await auditLog(env.DATABASE, Number(user.sub), 'DB_DELETE_CASE', 'cases', String(caseId), { incident_id: existing.incident_id }, getIP(request));
+    new DiscordService(env).sendMonitoringAlert('Fall Gelöscht (OWNER)', `**${user.username}** hat den Moderationsfall **${existing.incident_id}** endgültig gelöscht.`).catch(() => {});
 
     return json({ success: true, message: `Case #${caseId} (${existing.incident_id}) gelöscht.` }, 200, origin);
   }
@@ -290,6 +293,7 @@ export class DatabaseController {
 
     const { meta } = await env.DATABASE.prepare('DELETE FROM rate_limits').run();
     await auditLog(env.DATABASE, Number(user.sub), 'DB_CLEAR_RATE_LIMITS', 'rate_limits', null, { rowsDeleted: meta?.changes ?? 0 }, getIP(request));
+    new DiscordService(env).sendMonitoringAlert('Rate-Limits Gelöscht', `**${user.username}** hat alle aktiven IP-Sperren (${meta?.changes ?? 0} Einträge) aus der Datenbank gelöscht.`).catch(() => {});
 
     return json({ success: true, rowsDeleted: meta?.changes ?? 0 }, 200, origin);
   }

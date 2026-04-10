@@ -1961,6 +1961,62 @@
                 if (refreshBtn) refreshBtn.disabled = false;
             }
         };
+
+        window.confirmShutdownServer = function (jobId, players) {
+            showConfirm(
+                'Server herunterfahren?',
+                `Bist du sicher, dass du diesen Server (${players} Spieler) herunterfahren möchtest?\n\nDer Server wird sofort gestoppt.`,
+                () => executeShutdownServer(jobId)
+            );
+        };
+
+        window.executeShutdownServer = async function (jobId) {
+            try {
+                await window.api.shutdownServer(jobId);
+                showToast('✓ Shutdown-Signal gesendet', 'success');
+                loadServerIntel();
+            } catch (e) {
+                showToast(friendlyApiError(e, 'Shutdown fehlgeschlagen'), 'error');
+            }
+        };
+
+        window.confirmRestartAll = function () {
+            const modal = document.getElementById('restart-confirm-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.getElementById('protected-ids').value = '';
+                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] });
+            } else {
+                // Fallback if modal not found
+                showConfirm(
+                    'ALLE Server neu starten?',
+                    'Bist du sicher, dass alle Spielserver neu gestartet werden sollen?\n\nDies betrifft alle Instanzen ohne Schutz-ID.',
+                    () => executeRestartAll()
+                );
+            }
+        };
+
+        window.closeRestartConfirm = function () {
+            const modal = document.getElementById('restart-confirm-modal');
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+        };
+
+        window.executeRestartAll = async function () {
+            const input = document.getElementById('protected-ids')?.value.trim() || '';
+            const protectedIds = input ? input.split(',').map(id => id.trim()) : [];
+
+            try {
+                closeRestartConfirm();
+                await window.api.restartAllServers(protectedIds);
+                showToast('✓ Globaler Neustart eingeleitet', 'success');
+                setTimeout(loadServerIntel, 2000);
+            } catch (e) {
+                showToast(friendlyApiError(e, 'Neustart fehlgeschlagen'), 'error');
+            }
+        };
+
         // ====================================================
         // STAFF STATS (MY STATS WIDGET)
         // ====================================================

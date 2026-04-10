@@ -1,6 +1,7 @@
 import type { Env, JWTPayload } from '../types/index.js';
 import { json, err, auditLog, getIP } from '../middleware/auth.js';
 import { ROLE_RANK } from '../types/index.js';
+import { DiscordService } from '../services/DiscordService.js';
 
 export class ManagementController {
 
@@ -153,6 +154,7 @@ export class ManagementController {
 
     await env.DATABASE.prepare('UPDATE users SET hwid = NULL WHERE id = ?').bind(targetId).run();
     await auditLog(env.DATABASE, Number(user.sub), 'MGMT_RESET_HWID', 'users', String(targetId), { username: existing.username }, getIP(request));
+    new DiscordService(env).sendMonitoringAlert('Staff HWID Reset', `**${user.username}** hat die HWID-Sperre für **${existing.username}** (ID: ${targetId}) aufgehoben.`).catch(() => {});
 
     return json({ success: true, message: `HWID-Sperre von ${existing.username} aufgehoben.` }, 200, origin);
   }
@@ -198,6 +200,7 @@ export class ManagementController {
 
     await env.DATABASE.prepare('UPDATE users SET role = ? WHERE id = ?').bind(role, targetId).run();
     await auditLog(env.DATABASE, Number(user.sub), 'MGMT_UPDATE_ROLE', 'users', String(targetId), { username: targetUser.username, oldRole: targetUser.role, newRole: role }, getIP(request));
+    new DiscordService(env).sendMonitoringAlert('Staff Role Update', `**${user.username}** hat den Rang von **${targetUser.username}** von \`${targetUser.role}\` zu \`${role}\` geändert.`).catch(() => {});
 
     return json({ success: true, message: `Rolle von ${targetUser.username} auf ${role} geändert.` }, 200, origin);
   }
