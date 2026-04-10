@@ -566,6 +566,9 @@
                     // Show server power buttons for ADMIN+
                     const restartBtn = document.getElementById('radar-restart-all-btn');
                     if (restartBtn) restartBtn.style.display = 'flex';
+                    // Show Discord tab for ADMIN+
+                    const navDiscord = document.getElementById('nav-discord');
+                    if (navDiscord) navDiscord.style.display = 'flex';
                 }
 
                 // Init
@@ -1116,7 +1119,7 @@
 
             } catch (e) {
                 if (loading) loading.classList.add('hidden');
-                showToast('Spieler-Lookup fehlgeschlagen: ' + (e.message || 'Unbekannter Fehler'), 'error');
+                showToast(friendlyApiError(e, 'Spieler nicht gefunden'), 'error');
                 console.error(e);
             }
         };
@@ -1199,7 +1202,7 @@
                 showToast('Case erfolgreich eingetragen!', 'success');
                 renderCaseHistory(lookedUpPlayer.id);
             } catch (e) {
-                showToast('Fehler beim Eintragen: ' + (e.message || 'Unbekannt'), 'error');
+                showToast(friendlyApiError(e, 'Fehler beim Eintragen'), 'error');
             }
         };
 
@@ -1301,7 +1304,7 @@
                 }
             } catch (e) {
                 document.getElementById('sl-loading')?.classList.add('hidden');
-                showToast('Schichtlog-Ladefehler: ' + (e.message || 'Unbekannt'), 'error');
+                showToast(friendlyApiError(e, 'Schichtlog konnte nicht geladen werden'), 'error');
             }
         }
 
@@ -2012,7 +2015,7 @@
                 closeAddWatchlistModal();
                 loadWatchlist();
             } catch (e) {
-                showToast('Fehler: ' + e.message, 'error');
+                showToast(friendlyApiError(e, 'Hinzufügen fehlgeschlagen'), 'error');
             }
         };
 
@@ -2071,7 +2074,7 @@
                 showToast('Eintrag entfernt.', 'success');
                 loadWatchlist();
             } catch (e) {
-                showToast('Löschen fehlgeschlagen: ' + e.message, 'error');
+                showToast(friendlyApiError(e, 'Löschen fehlgeschlagen'), 'error');
             }
         };
 
@@ -2108,7 +2111,7 @@
                         showToast('✓ Broadcast erfolgreich gesendet.', 'success');
                         closeBroadcastModal();
                     } catch (e) {
-                        showToast('Broadcast fehlgeschlagen: ' + e.message, 'error');
+                        showToast(friendlyApiError(e, 'Broadcast fehlgeschlagen'), 'error');
                     }
                 }
             );
@@ -2234,8 +2237,9 @@
 
     </script>
     <script src="assets/js/management.js?v=12"></script>
-    <script src="assets/js/gamepanel.js?v=11"></script>
+    <script src="assets/js/gamepanel.js?v=12"></script>
     <script src="assets/js/notes.js?v=1"></script>
+    <script src="assets/js/discord.js?v=1"></script>
 </body>
 
 </html>

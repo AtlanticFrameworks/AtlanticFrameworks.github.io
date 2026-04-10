@@ -110,7 +110,7 @@ async function gpLookupPlayer() {
     } catch (e) {
         document.getElementById('gp-search-hint').textContent = 'Drücke Enter oder klicke Suchen';
         if (e.status === 404) showStatus('Spieler nicht gefunden.', 'error');
-        else showStatus('Fehler: ' + e.message, 'error');
+        else showStatus(friendlyApiError(e, 'Spieler-Lookup fehlgeschlagen'), 'error');
     }
 }
 
@@ -232,7 +232,7 @@ async function executeGpKick() {
         closeGpModal('modal-gp-kick');
         document.getElementById('gp-kick-reason').value = '';
     } catch(e) {
-        showStatus('Fehler beim Kick: ' + e.message, 'error');
+        showStatus(friendlyApiError(e, 'Kick fehlgeschlagen'), 'error');
     } finally {
         btn.textContent = orig; btn.disabled = false;
     }
@@ -277,7 +277,7 @@ async function executeGpBan() {
         document.getElementById('gp-ban-duration').value = '';
         gpRefreshRestriction();
     } catch(e) {
-        showStatus('Fehler beim Bann: ' + e.message, 'error');
+        showStatus(friendlyApiError(e, 'Ban fehlgeschlagen'), 'error');
     } finally {
         btn.textContent = orig; btn.disabled = false;
     }
@@ -296,7 +296,7 @@ async function executeGpUnban() {
         closeGpModal('modal-gp-unban');
         gpRefreshRestriction();
     } catch(e) {
-        showStatus('Fehler beim Unban: ' + e.message, 'error');
+        showStatus(friendlyApiError(e, 'Unban fehlgeschlagen'), 'error');
     } finally {
         btn.textContent = orig; btn.disabled = false;
     }

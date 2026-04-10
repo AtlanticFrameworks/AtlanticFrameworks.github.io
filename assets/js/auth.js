@@ -13,36 +13,73 @@ const ALLOWED_ROLES = [
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
 // ─── Toast System ───────────────────────────────────────────────────────────
-function showToast(message, type = 'info', duration = 3500) {
+function dismissToast(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.animation = 'slideOutR 0.3s ease-in forwards';
+    setTimeout(() => el?.remove(), 300);
+}
+
+/**
+ * showToast(message, type, autoDismissMs)
+ * type: 'success' | 'error' | 'info' | 'warn'
+ * autoDismissMs: 0 = persistent (manual close required). Default 0 for all types.
+ *   Pass a positive number to auto-dismiss (e.g. 4000 for 4 s).
+ */
+function showToast(message, type = 'info', autoDismissMs = 0) {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
-    const id = 'toast-' + Date.now();
+    const id = 'toast-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
     const colorMap = {
-        success: 'border-tac-green text-tac-green bg-tac-card',
-        error: 'border-tac-red   text-tac-red   bg-tac-card',
-        info: 'border-tac-amber text-tac-amber bg-tac-card',
-        warn: 'border-yellow-500 text-yellow-400 bg-tac-card',
+        success: 'border-tac-green  text-tac-green  bg-tac-card',
+        error:   'border-tac-red    text-tac-red    bg-tac-card',
+        info:    'border-tac-amber  text-tac-amber  bg-tac-card',
+        warn:    'border-yellow-500 text-yellow-400 bg-tac-card',
     };
     const iconMap = {
         success: 'circle-check',
-        error: 'circle-x',
-        info: 'info',
-        warn: 'triangle-alert',
+        error:   'circle-x',
+        info:    'info',
+        warn:    'triangle-alert',
     };
 
     const toast = document.createElement('div');
     toast.id = id;
-    toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 border font-mono text-xs max-w-xs backdrop-blur-sm animate-slide-in-r ${colorMap[type] || colorMap.info}`;
-    toast.innerHTML = `<i data-lucide="${iconMap[type] || 'info'}" class="w-4 h-4 flex-shrink-0"></i><span>${message}</span>`;
+    toast.className = `pointer-events-auto flex items-start gap-3 px-4 py-3 border font-mono text-xs max-w-sm backdrop-blur-sm animate-slide-in-r ${colorMap[type] || colorMap.info}`;
+    toast.innerHTML = `
+        <i data-lucide="${iconMap[type] || 'info'}" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+        <span class="flex-1 leading-relaxed">${message}</span>
+        <button onclick="dismissToast('${id}')" class="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity ml-1 cursor-pointer" title="Schließen">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>`;
 
     container.appendChild(toast);
     if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [toast] });
 
-    setTimeout(() => {
-        toast.style.animation = 'slideOutR 0.3s ease-in forwards';
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+    if (autoDismissMs > 0) {
+        setTimeout(() => dismissToast(id), autoDismissMs);
+    }
+}
+
+// ─── Friendly API Error Messages ────────────────────────────────────────────
+/**
+ * Returns a short, user-friendly message for an ApiError.
+ * Hides raw technical details from end-users.
+ */
+function friendlyApiError(e, fallback = 'Aktion fehlgeschlagen') {
+    if (!e) return fallback;
+    const status = e.status ?? 0;
+    if (status === 404) return 'Nicht gefunden';
+    if (status === 403) return 'Keine Berechtigung';
+    if (status === 401) return 'Nicht angemeldet';
+    if (status === 429) return 'Zu viele Anfragen – bitte warten';
+    if (status === 503 || status === 502) return 'Dienst momentan nicht verfügbar';
+    if (status >= 500)  return 'Serverfehler – bitte später erneut versuchen';
+    // Use backend message if it's short and in German (no raw stack traces)
+    const msg = e.message ?? '';
+    if (msg && msg.length < 120 && !/Error:|at |TypeError|fetch failed/i.test(msg)) return msg;
+    return fallback;
 }
 
 // ─── Session Management ─────────────────────────────────────────────────────

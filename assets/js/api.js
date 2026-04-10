@@ -205,6 +205,11 @@ class ApiClient {
     async restartAllServers(extraProtectedJobIds = []) {
         return this.post('/cloud/servers/restart-all', { extraProtectedJobIds });
     }
+
+    // ── Discord Endpoints ─────────────────────────────────────────────────────
+
+    async sendDiscordAnnouncement(data) { return this.post('/discord/announce', data); }
+    async testDiscordWebhook()          { return this.post('/discord/test', {}); }
 }
 
 class ApiError extends Error {

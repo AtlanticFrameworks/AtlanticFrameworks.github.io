@@ -17,6 +17,7 @@ import { DatabaseController }   from './controllers/DatabaseController.js';
 import { ManagementController } from './controllers/ManagementController.js';
 import { RolesController }      from './controllers/RolesController.js';
 import { NotesController }      from './controllers/NotesController.js';
+import { DiscordController }    from './controllers/DiscordController.js';
 import { renderDocs }           from './utils/docs.js';
 import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
@@ -242,6 +243,10 @@ const ROUTES: Route[] = [
   // ── Server Power Operations (ADMIN+) ─────────────────────────────────────
   route('POST',   '/api/cloud/servers/shutdown',          CloudController.shutdownServer as Handler),
   route('POST',   '/api/cloud/servers/restart-all',       CloudController.restartAll     as Handler),
+
+  // ── Discord (ADMIN+) ─────────────────────────────────────────────────────
+  route('POST',   '/api/discord/announce',                DiscordController.announce as Handler),
+  route('POST',   '/api/discord/test',                    DiscordController.test     as Handler),
 
   // ── Database Management (OWNER only) ──────────────────────────────────────
   route('GET',    '/api/db/stats',                        DatabaseController.stats             as Handler),
