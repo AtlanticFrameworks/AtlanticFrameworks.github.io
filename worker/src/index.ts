@@ -18,6 +18,7 @@ import { ManagementController } from './controllers/ManagementController.js';
 import { RolesController }      from './controllers/RolesController.js';
 import { NotesController }      from './controllers/NotesController.js';
 import { DiscordController }    from './controllers/DiscordController.js';
+import { FriedenszeitController } from './controllers/FriedenszeitController.js';
 import { renderDocs }           from './utils/docs.js';
 import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
@@ -177,6 +178,7 @@ const ROUTES: Route[] = [
   route('POST', '/api/auth/login',   AuthController.login   as UserlessHandler, true),
   route('POST', '/api/auth/refresh', AuthController.refresh as UserlessHandler, true),
   route('POST', '/api/auth/logout',  AuthController.logout  as UserlessHandler, true),
+  route('GET',  '/api/friedenszeit', FriedenszeitController.getStatus as UserlessHandler, true),
 
   // ── Staff ────────────────────────────────────────────────────────────────
   route('GET',  '/api/staff/me',       StaffController.me       as Handler),

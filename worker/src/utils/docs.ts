@@ -167,6 +167,7 @@ export function renderDocs(_env: Env): Response {
         <a href="#roles"      class="nav-link"><i data-lucide="user-plus"  class="w-3.5 h-3.5 shrink-0"></i>Roles & Perms<span class="nav-count">8</span></a>
         <a href="#notes"      class="nav-link"><i data-lucide="file-text"   class="w-3.5 h-3.5 shrink-0"></i>Staff Notes<span class="nav-count">4</span></a>
         <a href="#maintenance" class="nav-link"><i data-lucide="hammer"     class="w-3.5 h-3.5 shrink-0"></i>Maintenance<span class="nav-count">2</span></a>
+        <a href="#public"      class="nav-link"><i data-lucide="globe"      class="w-3.5 h-3.5 shrink-0"></i>Public API<span class="nav-count">1</span></a>
         <a href="#discord"    class="nav-link"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0"></i>Discord<span class="nav-count">2</span></a>
         <a href="#db"         class="nav-link"><i data-lucide="database"   class="w-3.5 h-3.5 shrink-0"></i>Database<span class="nav-count">13</span></a>
 
@@ -259,6 +260,67 @@ export function renderDocs(_env: Env): Response {
                         <tr><td class="text-tac-amber">503</td><td class="param-desc">Open Cloud action failed</td><td class="text-zinc-500">{ "error": "..." }</td></tr>
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        <!-- ══ PUBLIC UTILITIES ═══════════════════════════════════════ -->
+        <section id="public" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="globe" class="w-4 h-4 text-tac-green shrink-0"></i>
+                <h3>Public API</h3>
+                <div class="line"></div>
+            </div>
+            <p class="font-mono text-[11px] text-tac-muted mb-6">Open endpoints for community tools and Discord bot integrations. No authentication required.</p>
+            <div class="space-y-2">
+
+                <!-- GET /friedenszeit -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/api/friedenszeit</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Current Friedenszeit status and Discord integration tokens</span>
+                        <span class="auth-pub px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Public</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest mb-2">Description</p>
+                                <p class="font-sans text-xs text-zinc-400 leading-relaxed">
+                                    Returns the current protocol status (Peace Time). Active on even hours, Inactive on odd hours (Europe/Berlin).
+                                    Includes pre-formatted Discord timestamps for bots.
+                                </p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest">Response 200</p>
+                                    <button class="copy-btn font-mono text-[9px] text-tac-muted hover:text-white uppercase transition-colors">Copy</button>
+                                </div>
+                                <pre class="text-tac-green"><code>{
+  "success": true,
+  "data": {
+    "status": "AKTIV",
+    "is_active": true,
+    "timestamp": {
+      "current": 1712774400,
+      "next_switch": 1712778000
+    },
+    "discord": {
+      "relative": "&lt;t:1712778000:R&gt;",
+      "full": "&lt;t:1712778000:f&gt;"
+    },
+    "seconds_remaining": 3600
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/friedenszeit" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
