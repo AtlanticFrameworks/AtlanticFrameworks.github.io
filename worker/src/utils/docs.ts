@@ -634,7 +634,6 @@ export function renderDocs(_env: Env): Response {
                             <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
-                    </div>
                 </div>
 
                 <!-- GET /watchlist/check/:robloxId -->
