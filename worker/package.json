@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev":    "wrangler dev",
+    "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute bwrp-staff --file=./schema.sql",
     "db:local": "wrangler d1 execute bwrp-staff --local --file=./schema.sql"
@@ -11,6 +11,6 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240529.0",
     "typescript": "^5.4.5",
-    "wrangler": "^3.60.0"
+    "wrangler": "^4.81.1"
   }
 }

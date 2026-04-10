@@ -27,9 +27,8 @@ async function robloxFetch(url: string, init: RequestInit = {}): Promise<Respons
 
 async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promise<Response> {
   const headers = { 
-    'x-api-key':     env.ROBLOX_CLOUD_KEY,
-    'Authorization': `Bearer ${env.ROBLOX_CLOUD_KEY}`,
-    'Accept':        'application/json',
+    'x-api-key': env.ROBLOX_CLOUD_KEY,
+    'Accept':    'application/json',
     ...(init.headers as Record<string, string> ?? {}) 
   };
   const res = await fetch(url, { ...init, headers });
@@ -47,11 +46,13 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
 type UsernameResult =
   | { type: 'found';    userId: string }
   | { type: 'notFound' }
-  | { type: 'apiError'; status: number; message: string };
+  | { type: 'apiError'; status: number; message: string; debugUrl: string };
 
 async function resolveUsername(env: Env, username: string): Promise<UsernameResult> {
+  // Roblox Open Cloud v2 User Search expects single quotes for AIP-160 filter strings
+  const filter = `username == '${username}'`;
+  const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(filter)}`;
   try {
-    const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(`username == "${username}"`)}`;
     const res = await cloudFetch(env, url);
 
     if (res.ok) {
@@ -62,10 +63,10 @@ async function resolveUsername(env: Env, username: string): Promise<UsernameResu
       return { type: 'notFound' };
     }
     const errorText = await res.text().catch(() => 'Keine Fehlerdetails');
-    return { type: 'apiError', status: res.status, message: errorText };
+    return { type: 'apiError', status: res.status, message: errorText, debugUrl: url };
   } catch (e) {
     console.error('[Roblox-Cloud] resolveUsername threw:', (e as Error).message);
-    return { type: 'apiError', status: 500, message: (e as Error).message };
+    return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: url };
   }
 }
 
@@ -85,7 +86,8 @@ export class RobloxController {
         const result = await resolveUsername(env, identifier);
         if (result.type === 'notFound') return err('Spieler nicht gefunden', 404, origin);
         if (result.type === 'apiError') {
-          return err(`Roblox-Cloud-Fehler (${result.status}): ${result.message.slice(0, 100)}`, 502, origin);
+          const debugInfo = `URL: ${result.debugUrl}`;
+          return err(`Roblox-Cloud-Fehler (${result.status}): ${result.message.slice(0, 50)} | ${debugInfo}`, 502, origin);
         }
         userId = result.userId;
       }
