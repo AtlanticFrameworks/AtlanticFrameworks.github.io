@@ -101,3 +101,35 @@ CREATE TABLE IF NOT EXISTS rate_limits (
   window_start INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_rate_limits_window ON rate_limits(window_start);
+
+-- Dynamic custom roles (RBAC)
+-- permissions: JSON array of permission strings, e.g. ["KICK_PLAYERS","BAN_PLAYERS"]
+CREATE TABLE IF NOT EXISTS roles (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  name        TEXT    NOT NULL UNIQUE,
+  color       TEXT    NOT NULL DEFAULT '#71717a',
+  hierarchy   INTEGER NOT NULL DEFAULT 0,
+  permissions TEXT    NOT NULL DEFAULT '[]',
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Many-to-many: staff users ↔ custom roles
+CREATE TABLE IF NOT EXISTS user_roles (
+  user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role_id     INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+  assigned_by INTEGER REFERENCES users(id),
+  assigned_at TEXT    NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, role_id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_roles_user ON user_roles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role_id);
+
+-- Personal staff notes (one row per user, upserted on save)
+-- pinned_tickets: JSON array of { id, incident_id, type, target_username, created_at }
+CREATE TABLE IF NOT EXISTS notes (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id        INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  content        TEXT    NOT NULL DEFAULT '',
+  pinned_tickets TEXT    NOT NULL DEFAULT '[]',
+  updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+);

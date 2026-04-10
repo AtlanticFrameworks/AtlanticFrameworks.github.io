@@ -170,4 +170,16 @@ export class DiscordService {
       }],
     });
   }
+
+  async sendSystemNotification(message: string): Promise<void> {
+    await this.send({
+      embeds: [{
+        title:       '⚙️ System-Benachrichtigung',
+        description: message,
+        color:       0x3B82F6,
+        footer:      { text: 'BWRP Staff Panel' },
+        timestamp:   new Date().toISOString(),
+      }],
+    });
+  }
 }

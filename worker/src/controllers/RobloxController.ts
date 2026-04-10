@@ -45,57 +45,37 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
   return res;
 }
 
-// Three possible outcomes for a username lookup:
-//   found    → got a valid user ID from Roblox
-//   notFound → Roblox responded successfully but the username doesn't exist
-//   apiError → request failed (e.g. invalid key, rate limit, or network error)
+// POST /v1/usernames/users — no CSRF required (designed as server-to-server).
+// Minimal headers only: spoofed browser UA on POST endpoints triggers Roblox WAF.
 async function resolveUsername(_env: Env, username: string): Promise<UsernameResult> {
-  // ── Strategy 1: Public API (v1) – PRIMARY ────────────────────────────────
   try {
-    const res = await robloxFetch(`${ROBLOX_USERS_API}/usernames/users`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ usernames: [username], excludeBannedUsers: false }),
+    const res = await fetch(`${ROBLOX_USERS_API}/usernames/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept':       'application/json',
+      },
+      body: JSON.stringify({ usernames: [username], excludeBannedUsers: false }),
     });
 
     if (res.ok) {
-      const data = await res.json() as { data: Array<{ id: number; name: string }> };
+      const data = await res.json() as {
+        data: Array<{ requestedUsername: string; id: number; name: string; displayName: string }>;
+      };
       if (data.data && data.data.length > 0) {
-        console.log(`[Roblox] Found user "${username}" via v1 API`);
+        console.log(`[Roblox] Resolved "${username}" → ${data.data[0].id}`);
         return { type: 'found', userId: String(data.data[0].id) };
       }
-      // If v1 returns 200 with empty data, it really is "not found"
-      return { type: 'notFound' };
-    } 
-    
-    // If v1 returns error (e.g. 502/403), we proceed to Strategy 2 OR return error
-    console.warn(`[Roblox] v1 lookup failed with status ${res.status}`);
-  } catch (e) {
-    console.error('[Roblox] v1 lookup threw:', (e as Error).message);
-  }
-
-  // ── Strategy 2: Legacy public API – FALLBACK ─────────────────────────────
-  // api.roblox.com is the oldest Roblox endpoint; unauthenticated and rarely WAF'd.
-  try {
-    const url = `https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`;
-    const res = await robloxFetch(url);
-
-    if (res.ok) {
-      const data = await res.json() as { Id?: number; success?: boolean };
-      if (data.Id) {
-        console.log(`[Roblox] Found user "${username}" via legacy API`);
-        return { type: 'found', userId: String(data.Id) };
-      }
-      // success:false → username genuinely not found
       return { type: 'notFound' };
     }
-    console.warn(`[Roblox] legacy lookup failed with status ${res.status}`);
-  } catch (e) {
-    console.error('[Roblox] legacy lookup threw:', (e as Error).message);
-  }
 
-  // If both strategies failed without a clear "found" or "notFound" result, return API Error
-  return { type: 'apiError', status: 502, message: 'Alle Roblox-API-Strategien fehlgeschlagen (WAF/Timeout)', debugUrl: 'all' };
+    const body = await res.text().catch(() => '');
+    console.error(`[Roblox] username POST ${res.status}: ${body.slice(0, 200)}`);
+    return { type: 'apiError', status: res.status, message: `Roblox ${res.status}`, debugUrl: 'v1/usernames/users' };
+  } catch (e) {
+    console.error('[Roblox] username lookup threw:', (e as Error).message);
+    return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: 'v1/usernames/users' };
+  }
 }
 
 export class RobloxController {

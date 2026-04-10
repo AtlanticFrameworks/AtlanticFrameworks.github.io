@@ -90,6 +90,51 @@ export interface ShiftRow {
   created_at:       string;
 }
 
+// ── Dynamic RBAC ─────────────────────────────────────────────────────────────
+
+/** All granular permissions that can be toggled on a custom role. */
+export const ALL_PERMISSIONS = [
+  'VIEW_CASES',
+  'CREATE_CASES',
+  'EDIT_CASES',
+  'DELETE_CASES',
+  'KICK_PLAYERS',
+  'BAN_PLAYERS',
+  'UNBAN_PLAYERS',
+  'MANAGE_WATCHLIST',
+  'VIEW_ANALYTICS',
+  'MANAGE_SHIFTS',
+  'VIEW_SERVER_INTEL',
+  'SERVER_POWER_OPS',
+  'MANAGE_STAFF_ROLES',
+] as const;
+
+export type Permission = (typeof ALL_PERMISSIONS)[number];
+
+export interface RoleRow {
+  id:          number;
+  name:        string;
+  color:       string;
+  hierarchy:   number;
+  permissions: string;  // JSON array of Permission
+  created_at:  string;
+}
+
+export interface UserRoleRow {
+  user_id:     number;
+  role_id:     number;
+  assigned_by: number | null;
+  assigned_at: string;
+}
+
+export interface NoteRow {
+  id:             number;
+  user_id:        number;
+  content:        string;
+  pinned_tickets: string;  // JSON array
+  updated_at:     string;
+}
+
 // Request context (attached by auth middleware)
 export interface AuthContext {
   user: JWTPayload;

@@ -15,6 +15,8 @@ import { WatchlistController }  from './controllers/WatchlistController.js';
 import { CloudController }      from './controllers/CloudController.js';
 import { DatabaseController }   from './controllers/DatabaseController.js';
 import { ManagementController } from './controllers/ManagementController.js';
+import { RolesController }      from './controllers/RolesController.js';
+import { NotesController }      from './controllers/NotesController.js';
 import { renderDocs }           from './utils/docs.js';
 import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
@@ -216,10 +218,30 @@ const ROUTES: Route[] = [
   route('GET',  '/api/cloud/restriction/:userId',         CloudController.getRestriction as Handler),
 
   // ── Team Management (ADMIN+) ──────────────────────────────────────────────
-  route('GET',    '/api/mgmt/users',                      ManagementController.listStaff as Handler),
-  route('PATCH',  '/api/mgmt/users/:id/hwid-reset',       ManagementController.resetHwid as Handler),
-  route('PATCH',  '/api/mgmt/users/:id/role',             ManagementController.updateRole as Handler),
+  route('GET',    '/api/mgmt/users',                      ManagementController.listStaff      as Handler),
+  route('PATCH',  '/api/mgmt/users/:id/hwid-reset',       ManagementController.resetHwid      as Handler),
+  route('PATCH',  '/api/mgmt/users/:id/role',             ManagementController.updateRole     as Handler),
+  route('GET',    '/api/mgmt/users/:id/activity',         ManagementController.getUserActivity as Handler),
 
+  // ── Dynamic Roles (OWNER CRUD, ADMIN read/assign) ─────────────────────────
+  route('GET',    '/api/roles/permissions',               RolesController.listPermissions as Handler),
+  route('GET',    '/api/roles',                           RolesController.listRoles       as Handler),
+  route('POST',   '/api/roles',                           RolesController.createRole      as Handler),
+  route('PATCH',  '/api/roles/:id',                       RolesController.updateRole      as Handler),
+  route('DELETE', '/api/roles/:id',                       RolesController.deleteRole      as Handler),
+  route('GET',    '/api/roles/users/:userId',             RolesController.getUserRoles    as Handler),
+  route('POST',   '/api/roles/users/:userId/assign',      RolesController.assignRole      as Handler),
+  route('DELETE', '/api/roles/users/:userId/:roleId',     RolesController.removeRole      as Handler),
+
+  // ── Personal Notes ────────────────────────────────────────────────────────
+  route('GET',    '/api/notes',                           NotesController.getNote     as Handler),
+  route('PUT',    '/api/notes',                           NotesController.saveNote    as Handler),
+  route('POST',   '/api/notes/pin',                       NotesController.pinTicket   as Handler),
+  route('POST',   '/api/notes/unpin',                     NotesController.unpinTicket as Handler),
+
+  // ── Server Power Operations (ADMIN+) ─────────────────────────────────────
+  route('POST',   '/api/cloud/servers/shutdown',          CloudController.shutdownServer as Handler),
+  route('POST',   '/api/cloud/servers/restart-all',       CloudController.restartAll     as Handler),
 
   // ── Database Management (OWNER only) ──────────────────────────────────────
   route('GET',    '/api/db/stats',                        DatabaseController.stats             as Handler),

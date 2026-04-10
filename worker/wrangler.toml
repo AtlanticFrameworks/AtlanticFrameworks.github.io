@@ -21,6 +21,7 @@ ALLOWED_ORIGIN     = "https://atlanticframeworks.github.io"
 ROBLOX_GROUP_ID    = "34246821"
 ROBLOX_UNIVERSE_ID = "6003245325"
 ROBLOX_PLACE_ID    = "136750166564584"   # Main Game Place (for server list)
+# PROTECTED_JOB_IDS  = "job-id-1,job-id-2"  # Comma-separated Roblox server Job IDs protected from Restart All
 
 # Secrets – deploy with: wrangler secret put <NAME>
 # JWT_SECRET           → random 64+ char string (e.g. openssl rand -hex 32)

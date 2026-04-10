@@ -164,9 +164,47 @@ class ApiClient {
 
     // ── Management Endpoints ──────────────────────────────────────────────────
 
-    async getStaffManagement() { return this.get('/mgmt/users'); }
-    async resetStaffHwid(id) { return this.patch(`/mgmt/users/${id}/hwid-reset`, {}); }
-    async updateStaffRole(id, role) { return this.patch(`/mgmt/users/${id}/role`, { role }); }
+    async getStaffManagement()          { return this.get('/mgmt/users'); }
+    async resetStaffHwid(id)            { return this.patch(`/mgmt/users/${id}/hwid-reset`, {}); }
+    async updateStaffRole(id, role)     { return this.patch(`/mgmt/users/${id}/role`, { role }); }
+    async getUserActivity(id)           { return this.get(`/mgmt/users/${id}/activity`); }
+
+    // ── Dynamic Roles Endpoints ───────────────────────────────────────────────
+
+    async getPermissions()              { return this.get('/roles/permissions'); }
+    async getRoles()                    { return this.get('/roles'); }
+    async createRole(data)              { return this.post('/roles', data); }
+    async updateRole(id, data)          { return this.patch(`/roles/${id}`, data); }
+    async deleteRole(id) {
+        const res = await this.fetch(`/roles/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+    async getUserRoles(userId)          { return this.get(`/roles/users/${userId}`); }
+    async assignRoleToUser(userId, roleId)  { return this.post(`/roles/users/${userId}/assign`, { roleId }); }
+    async removeRoleFromUser(userId, roleId) {
+        const res = await this.fetch(`/roles/users/${userId}/${roleId}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+
+    // ── Notes Endpoints ───────────────────────────────────────────────────────
+
+    async getNotes()                    { return this.get('/notes'); }
+    async saveNotes(content)            {
+        const res = await this.fetch('/notes', { method: 'PUT', body: JSON.stringify({ content }) });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+    async pinTicket(data)               { return this.post('/notes/pin', data); }
+    async unpinTicket(incidentId)       { return this.post('/notes/unpin', { incidentId }); }
+
+    // ── Server Power Operations ───────────────────────────────────────────────
+
+    async shutdownServer(serverJobId)   { return this.post('/cloud/servers/shutdown', { serverJobId }); }
+    async restartAllServers(extraProtectedJobIds = []) {
+        return this.post('/cloud/servers/restart-all', { extraProtectedJobIds });
+    }
 }
 
 class ApiError extends Error {

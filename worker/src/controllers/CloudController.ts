@@ -133,4 +133,82 @@ export class CloudController {
       return err((e as Error).message, 503, origin);
     }
   }
+
+  // ─── POST /api/cloud/servers/shutdown ──────────────────────────────────────
+  /**
+   * Sends a shutdown signal to a single specific server via MessagingService.
+   * The in-game script must handle the "SHUTDOWN_SERVER" type and check game.JobId.
+   * Body: { serverId, serverJobId }
+   */
+  static async shutdownServer(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    if (ROLE_RANK[user.role] < ROLE_RANK['ADMIN']) return err('Nur ADMIN+ kann Server herunterfahren', 403, origin);
+
+    const body: any = await request.json().catch(() => ({}));
+    const { serverJobId } = body;
+    if (!serverJobId || typeof serverJobId !== 'string') {
+      return err('serverJobId ist ein Pflichtfeld', 400, origin);
+    }
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:      'SHUTDOWN_SERVER',
+        jobId:     serverJobId,
+        issuedBy:  user.username,
+        issuedAt:  new Date().toISOString(),
+      });
+
+      await auditLog(env.DATABASE, Number(user.sub), 'SERVER_SHUTDOWN', 'servers', serverJobId, { serverJobId }, getIP(request));
+      new DiscordService(env).sendSystemNotification?.(`${user.username} hat Server ${serverJobId.slice(0, 8)}... heruntergefahren.`).catch(() => {});
+
+      return json({ success: true, message: `Shutdown-Signal an Server ${serverJobId.slice(0, 8)}... gesendet.` }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
+
+  // ─── POST /api/cloud/servers/restart-all ───────────────────────────────────
+  /**
+   * Sends a restart signal to all servers via MessagingService.
+   * SAFETY: The backend always filters out protected job IDs defined in the
+   * PROTECTED_JOB_IDS environment variable (comma-separated).
+   * Additional job IDs to protect can be passed in the request body.
+   * Body: { extraProtectedJobIds?: string[] }
+   */
+  static async restartAll(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    if (ROLE_RANK[user.role] < ROLE_RANK['ADMIN']) return err('Nur ADMIN+ kann alle Server neustarten', 403, origin);
+
+    const body: any = await request.json().catch(() => ({}));
+    const extraProtected: string[] = Array.isArray(body.extraProtectedJobIds) ? body.extraProtectedJobIds : [];
+
+    // Core protected job IDs come from environment (set by the owner, never overridable by clients)
+    const envProtected: string[] = (env as any).PROTECTED_JOB_IDS
+      ? (env as any).PROTECTED_JOB_IDS.split(',').map((s: string) => s.trim()).filter(Boolean)
+      : [];
+
+    const allProtected = [...new Set([...envProtected, ...extraProtected])];
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:           'RESTART_ALL',
+        excludeJobIds:  allProtected,   // In-game script checks: if excludeJobIds.includes(game.JobId) → skip
+        issuedBy:       user.username,
+        issuedAt:       new Date().toISOString(),
+      });
+
+      await auditLog(env.DATABASE, Number(user.sub), 'SERVER_RESTART_ALL', 'servers', undefined, { protectedCount: allProtected.length }, getIP(request));
+      new DiscordService(env).sendSystemNotification?.(`${user.username} hat RESTART ALL ausgelöst. ${allProtected.length} Server geschützt.`).catch(() => {});
+
+      return json({
+        success: true,
+        message: `Restart-Signal gesendet. ${allProtected.length} Server sind geschützt.`,
+        protectedJobIds: allProtected,
+      }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
 }
