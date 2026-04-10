@@ -57,8 +57,34 @@ export class ModerationService {
       .first<CaseRow>();
 
     if (!newCase) throw new Error('Fall konnte nicht angelegt werden');
+    
+    // ── Security Check: Mass-Banning Detection ──────────────────────────────
+    try {
+      const windowMinutes = 20;
+      const threshold     = 5;
+      const recent = await this.env.DATABASE
+        .prepare(`SELECT target_username FROM cases 
+                  WHERE moderator_id = ? 
+                  AND type IN ('BAN', 'PERMBAN') 
+                  AND created_at >= datetime('now', '-${windowMinutes} minutes')`)
+        .bind(input.moderatorId)
+        .all<{ target_username: string }>();
 
-    // Notify Discord
+      if (recent.results && recent.results.length >= threshold) {
+        const details = recent.results.map(r => `\`${r.target_username}\``).join(', ');
+        await this.discord.sendSecurityAlert({
+          moderatorName: input.moderatorName,
+          moderatorId:   input.moderatorId,
+          count:         recent.results.length,
+          windowMinutes,
+          details:       details.length > 1000 ? details.slice(0, 997) + '...' : details,
+        }).catch(console.warn);
+      }
+    } catch (e) {
+      console.error('Mass-ban check failure:', e);
+    }
+
+    // Notify Discord (Standard Case Log)
     await this.discord.sendCaseEmbed(newCase, input.moderatorName).catch(console.warn);
 
     return newCase;

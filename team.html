@@ -20,6 +20,8 @@
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css" />
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -522,6 +524,8 @@
                     if (typeof loadAnnouncements === 'function') loadAnnouncements();
                 }
                 if (typeof initDatabase === 'function') initDatabase().catch(e => console.error('DB Fehler:', e));
+                
+                checkTutorialAutoStart();
 
             } catch (e) {
                 console.error('Dashboard-Ladefehler:', e);
@@ -1361,6 +1365,88 @@
             if (lastTab && document.getElementById(`tab-${lastTab}`)) showTab(lastTab);
         };
 
+        // ===================================================
+        // INTERACTIVE TUTORIAL (driver.js)
+        // ===================================================
+        window.startTutorial = function() {
+            const driver = window.driver.js.driver;
+            const driverObj = driver({
+                showProgress: true,
+                allowClose: true,
+                steps: [
+                    { 
+                        popover: { 
+                            title: 'Willkommen im Staff Panel', 
+                            description: 'Dieser Leitfaden führt dich durch die wichtigsten Funktionen der taktischen Oberfläche.' 
+                        } 
+                    },
+                    { 
+                        element: '#sidebar', 
+                        popover: { 
+                            title: 'Die Kommando-Zentrale', 
+                            description: 'Hier findest du das Navigationsmenü. Du kannst zwischen der Übersicht, dem Dienst-Terminal und weiteren Modulen wechseln.' 
+                        } 
+                    },
+                    { 
+                        element: '.p-5.border-b.border-tac-border.bg-black\/20', 
+                        popover: { 
+                            title: 'Operator Profil', 
+                            description: 'Hier siehst du deinen aktuellen Rang und Status. Stelle sicher, dass dein Avatar korrekt angezeigt wird.' 
+                        } 
+                    },
+                    { 
+                        element: '[data-tab="home"]', 
+                        popover: { 
+                            title: 'Taktische Übersicht', 
+                            description: 'Auf dem Dashboard siehst du den System-Status und globale Ankündigungen.' 
+                        } 
+                    },
+                    { 
+                        element: '[data-tab="shift"]', 
+                        popover: { 
+                            title: 'Dienst-Terminal', 
+                            description: 'SEHR WICHTIG: Hier startest und beendest du deine Schicht. Nur aktive Schichten werden für Statistiken gezählt.' 
+                        } 
+                    },
+                    { 
+                        element: '[data-tab="modcenter"]', 
+                        popover: { 
+                            title: 'Mod-Zentrum', 
+                            description: 'Hier kannst du nach Spielern suchen, ihre Akten einsehen und Sanktionen (Warns/Bans) verhängen.' 
+                        } 
+                    },
+                    { 
+                        element: '#sys-time', 
+                        popover: { 
+                            title: 'Systemzeit', 
+                            description: 'Alle Aktivitäten werden in UTC geloggt. Nutze diese Zeit für Zeitangaben in Beweismitteln.' 
+                        } 
+                    },
+                    { 
+                        popover: { 
+                            title: 'Bereit für den Einsatz', 
+                            description: 'Das war es! Bei Fragen wende dich an die Projektleitung. Viel Erfolg im Dienst.' 
+                        } 
+                    }
+                ],
+                onDestroyed: () => {
+                    localStorage.setItem('bwrp_tutorial_complete', 'true');
+                }
+            });
+
+            driverObj.drive();
+        };
+
+        // Auto-start tutorial if not completed
+        function checkTutorialAutoStart() {
+            setTimeout(() => {
+                const complete = localStorage.getItem('bwrp_tutorial_complete');
+                if (!complete) {
+                    window.startTutorial();
+                }
+            }, 2500); // Wait for dashboard fragments to load
+        }
+
     </script>
 
 
@@ -1858,7 +1944,7 @@
 
             try {
                 const { watchlist } = await window.api.getWatchlist();
-                loadingEl.classList.add('hidden');
+                loadingEl.classList.remove('hidden');
 
                 if (badgeEl) badgeEl.textContent = watchlist.length > 0 ? `WATCHLIST (${watchlist.length})` : 'WATCHLIST';
 
@@ -1901,95 +1987,6 @@
                 loadWatchlist();
             } catch (e) {
                 showToast('Löschen fehlgeschlagen: ' + e.message, 'error');
-            }
-        };
-
-        window.loadServerIntel = async function () {
-            const loading = document.getElementById('radar-loading');
-            const grid = document.getElementById('radar-grid');
-            const errDiv = document.getElementById('radar-error');
-            const emptyDiv = document.getElementById('radar-empty');
-            const summary = document.getElementById('radar-summary');
-            const refreshBtn = document.getElementById('radar-refresh-btn');
-
-            if (!loading) return; // tab not loaded yet
-
-            [grid, errDiv, emptyDiv, summary].forEach(el => el?.classList.add('hidden'));
-            loading.classList.remove('hidden');
-            if (refreshBtn) refreshBtn.disabled = true;
-
-            try {
-                const { servers, totalPlayers, serverCount } = await window.api.getServers();
-                loading.classList.add('hidden');
-
-                if (!servers.length) {
-                    emptyDiv?.classList.remove('hidden');
-                    return;
-                }
-
-                // Summary bar
-                const totalEl = document.getElementById('radar-total-players');
-                const countEl = document.getElementById('radar-server-count');
-                if (totalEl) totalEl.textContent = totalPlayers;
-                if (countEl) countEl.textContent = serverCount;
-                summary?.classList.remove('hidden');
-
-                // Render cards
-                if (grid) {
-                    grid.innerHTML = servers.map(s => {
-                        const fillPct = Math.round((s.players / s.maxPlayers) * 100);
-                        const fillColor = fillPct >= 90 ? 'bg-tac-red' : fillPct >= 60 ? 'bg-tac-amber' : 'bg-tac-green';
-                        const pingColor = s.ping < 80 ? 'text-tac-green' : s.ping < 150 ? 'text-tac-amber' : 'text-tac-red';
-                        const fpsColor = s.fps >= 55 ? 'text-tac-green' : s.fps >= 30 ? 'text-tac-amber' : 'text-tac-red';
-                        return `
-                    <div class="bg-tac-panel border border-tac-border p-4 relative overflow-hidden group hover:border-tac-green/40 transition-colors">
-                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <i data-lucide="server" class="w-12 h-12 text-tac-green"></i>
-                        </div>
-                        <p class="font-mono text-[9px] text-tac-muted tracking-widest mb-3">SERVER #${s.index}</p>
-
-                        <div class="flex items-end justify-between mb-3">
-                            <div>
-                                <p class="font-display text-2xl font-bold text-white">${s.players}<span class="text-tac-muted text-base">/${s.maxPlayers}</span></p>
-                                <p class="font-mono text-[9px] text-tac-muted uppercase">Spieler</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-mono text-sm font-bold ${pingColor}">${s.ping}ms</p>
-                                <p class="font-mono text-[9px] text-tac-muted">Ping</p>
-                            </div>
-                        </div>
-
-                        <div class="w-full h-1 bg-tac-dark border border-tac-border/50 mb-3">
-                            <div class="h-full ${fillColor} transition-all" style="width:${fillPct}%"></div>
-                        </div>
-
-                        <div class="flex justify-between font-mono text-[9px] text-tac-muted">
-                            <span>FPS: <span class="${fpsColor} font-bold">${s.fps}</span></span>
-                            <span class="text-[8px] truncate max-w-[100px] opacity-50">${s.jobId.substring(0, 8)}…</span>
-                        </div>
-                    </div>`;
-                    }).join('');
-                    grid.classList.remove('hidden');
-                    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] });
-                }
-
-                // Auto-refresh every 60s
-                clearInterval(radarInterval);
-                radarInterval = setInterval(() => {
-                    if (document.getElementById('tab-radar')?.classList.contains('block')) {
-                        window.loadServerIntel();
-                    } else {
-                        clearInterval(radarInterval);
-                    }
-                }, 60000);
-
-            } catch (e) {
-                loading.classList.add('hidden');
-                const errMsg = document.getElementById('radar-error-msg');
-                if (errMsg) errMsg.textContent = e.message || 'SERVER NICHT ERREICHBAR';
-                errDiv?.classList.remove('hidden');
-            } finally {
-                if (refreshBtn) refreshBtn.disabled = false;
             }
         };
 

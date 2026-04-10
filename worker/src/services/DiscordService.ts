@@ -144,4 +144,30 @@ export class DiscordService {
       }],
     });
   }
+
+  // ── Security Alert (Role Ping) ─────────────────────────────────────────────
+
+  async sendSecurityAlert(opts: {
+    moderatorName: string;
+    moderatorId:   number;
+    count:         number;
+    windowMinutes: number;
+    details:       string;
+  }): Promise<void> {
+    await this.send({
+      content: '<@&1421242412960976997>', // Ping the management role
+      embeds: [{
+        title:  '🚨 SICHERHEITS-ALARM: MASSEN-BANNS ERKANNT',
+        color:  0x7F1D1D, // Deep red
+        description: `Der Moderator **${opts.moderatorName}** (ID: ${opts.moderatorId}) hat eine ungewöhnlich hohe Anzahl an Bans durchgeführt.`,
+        fields: [
+            { name: 'Anzahl Bans', value: `\`${opts.count}\` in den letzten ${opts.windowMinutes} Min.`, inline: true },
+            { name: 'Status',      value: '⚠️ Überprüfung empfohlen', inline: true },
+            { name: 'Betroffene Ziele (Auszug)', value: opts.details },
+        ],
+        footer: { text: 'BWRP Security Monitor' },
+        timestamp: new Date().toISOString(),
+      }],
+    });
+  }
 }
