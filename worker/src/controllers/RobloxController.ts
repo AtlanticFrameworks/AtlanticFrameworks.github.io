@@ -49,7 +49,7 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
 //   found    → got a valid user ID from Roblox
 //   notFound → Roblox responded successfully but the username doesn't exist
 //   apiError → request failed (e.g. invalid key, rate limit, or network error)
-async function resolveUsername(env: Env, username: string): Promise<UsernameResult> {
+async function resolveUsername(_env: Env, username: string): Promise<UsernameResult> {
   // ── Strategy 1: Public API (v1) – PRIMARY ────────────────────────────────
   try {
     const res = await robloxFetch(`${ROBLOX_USERS_API}/usernames/users`, {
@@ -74,28 +74,24 @@ async function resolveUsername(env: Env, username: string): Promise<UsernameResu
     console.error('[Roblox] v1 lookup threw:', (e as Error).message);
   }
 
-  // ── Strategy 2: Roblox Open Cloud (v2) – FALLBACK ────────────────────────
-  if (env.ROBLOX_CLOUD_KEY && env.ROBLOX_CLOUD_KEY.length > 20) {
-    try {
-      const filter = `username=='${username}'`;
-      const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(filter)}`;
-      const res = await cloudFetch(env, url);
+  // ── Strategy 2: Legacy public API – FALLBACK ─────────────────────────────
+  // api.roblox.com is the oldest Roblox endpoint; unauthenticated and rarely WAF'd.
+  try {
+    const url = `https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`;
+    const res = await robloxFetch(url);
 
-      if (res.ok) {
-        const data = await res.json() as { users?: Array<{ id: string }> };
-        if (data.users && data.users.length > 0) {
-          console.log(`[Roblox-Cloud] Found user "${username}" via v2 API`);
-          return { type: 'found', userId: data.users[0].id };
-        }
-        return { type: 'notFound' };
+    if (res.ok) {
+      const data = await res.json() as { Id?: number; success?: boolean };
+      if (data.Id) {
+        console.log(`[Roblox] Found user "${username}" via legacy API`);
+        return { type: 'found', userId: String(data.Id) };
       }
-      
-      const errorDetail = await res.text().catch(() => 'Keine Details');
-      return { type: 'apiError', status: res.status, message: `v2 Error: ${errorDetail.slice(0, 50)}`, debugUrl: 'v2/users' };
-    } catch (e) {
-      console.error('[Roblox-Cloud] v2 lookup threw:', (e as Error).message);
-      return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: 'v2/users' };
+      // success:false → username genuinely not found
+      return { type: 'notFound' };
     }
+    console.warn(`[Roblox] legacy lookup failed with status ${res.status}`);
+  } catch (e) {
+    console.error('[Roblox] legacy lookup threw:', (e as Error).message);
   }
 
   // If both strategies failed without a clear "found" or "notFound" result, return API Error
