@@ -533,7 +533,7 @@
         async function enterDashboard(username, rank, avatarUrl) {
             window.currentRole = rank; // 'OWNER' | 'ADMIN' | 'MOD' | 'TRAINEE'
             try {
-                const res = await fetch('assets/fragments/dashboard.html?v=5');
+                const res = await fetch('assets/fragments/dashboard.html?v=11');
                 if (!res.ok) throw new Error(`Fetch Error: ${res.status}`);
                 const html = await res.text();
                 if (!html) throw new Error('Dashboard-Fragment leer');
@@ -2235,8 +2235,8 @@
         window.closeCm = closeCm;
 
     </script>
-    <script src="assets/js/management.js?v=3"></script>
-    <script src="assets/js/gamepanel.js?v=3"></script>
+    <script src="assets/js/management.js?v=11"></script>
+    <script src="assets/js/gamepanel.js?v=11"></script>
 </body>
 
 </html>

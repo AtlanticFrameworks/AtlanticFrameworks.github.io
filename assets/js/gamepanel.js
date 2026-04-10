@@ -242,13 +242,26 @@ async function executeGpBan() {
     if (!gpCurrentPlayer) return;
     const privateR = document.getElementById('gp-ban-reason').value.trim();
     const displayR = document.getElementById('gp-ban-display-reason').value.trim() || privateR;
-    const durationDays = parseInt(document.getElementById('gp-ban-duration').value);
+    const durationRaw = document.getElementById('gp-ban-duration').value.trim();
     
     if (!privateR) return showStatus('Interne Begründung erforderlich', 'error');
 
     let durationIso = null;
-    if (!isNaN(durationDays) && durationDays > 0) {
-        durationIso = `P${durationDays}D`;
+    if (durationRaw) {
+        const match = durationRaw.match(/^(\d+)([mhdyw])?$/i);
+        if (match) {
+            const val = match[1];
+            const unit = (match[2] || 'd').toLowerCase();
+            switch(unit) {
+                case 'm': durationIso = `PT${val}M`; break;
+                case 'h': durationIso = `PT${val}H`; break;
+                case 'd': durationIso = `P${val}D`; break;
+                case 'w': durationIso = `P${val}W`; break;
+                case 'y': durationIso = `P${val}Y`; break;
+            }
+        } else if (!isNaN(parseInt(durationRaw))) {
+             durationIso = `P${parseInt(durationRaw)}D`;
+        }
     }
 
     const btn = document.getElementById('gp-ban-submit');
