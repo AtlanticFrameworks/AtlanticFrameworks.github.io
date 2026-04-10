@@ -533,7 +533,7 @@
         async function enterDashboard(username, rank, avatarUrl) {
             window.currentRole = rank; // 'OWNER' | 'ADMIN' | 'MOD' | 'TRAINEE'
             try {
-                const res = await fetch('assets/fragments/dashboard.html?v=12');
+                const res = await fetch('assets/fragments/dashboard.html?v=13');
                 if (!res.ok) throw new Error(`Fetch Error: ${res.status}`);
                 const html = await res.text();
                 if (!html) throw new Error('Dashboard-Fragment leer');
@@ -649,19 +649,6 @@
             if (sidebar) sidebar.classList.toggle('-translate-x-full');
         };
 
-        // ===================================================
-        // STAFF HIERARCHY CONFIG
-        // ===================================================
-        const HIERARCHY_CONFIG = [
-            {
-                containerId: 'container-pr', tierLabel: 'KOMMANDO', tierColor: '#ef4444',
-                roles: ['Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung'],
-                // Merge these role names into one card block
-                combineGroups: [{ displayName: 'Ownership Team', roleNames: ['Group Owner', 'Ownership Team'] }],
-            },
-            { containerId: 'container-hr', tierLabel: 'AUFSICHT', tierColor: '#e2a800', roles: ['Management', 'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator'] },
-            { containerId: 'container-mr', tierLabel: 'FELD-TEAM', tierColor: '#10b981', roles: ['Head Game Moderator', 'Game Moderator'] },
-        ];
         let staffLoaded = false;
         let isStaffLoading = false;
 
@@ -670,105 +657,102 @@
             isStaffLoading = true;
 
             const loading = document.getElementById('staff-loading');
-            const grid = document.getElementById('staff-hierarchy-grid');
-            const search = document.getElementById('staff-search-container');
-            if (!loading || !grid) {
-                isStaffLoading = false;
-                return;
-            }
+            const grid    = document.getElementById('staff-hierarchy-grid');
+            const search  = document.getElementById('staff-search-container');
+            if (!loading || !grid) { isStaffLoading = false; return; }
 
             loading.classList.remove('hidden');
             grid.classList.add('hidden');
             if (search) search.classList.add('hidden');
 
-            const AVATAR_FALLBACK = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc1NTY5IiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik02IDIxdjItYTQgNCAwIDAgMSA0LTRoNGE0IDQgMCAwIDEgNCA0djIiLz48L3N2Zz4=';
+            const AVATAR_FALLBACK = '/assets/images/logo.png';
 
             try {
-                const rolesData = await window.api.getGroupRoles();
-                if (!rolesData?.roles) throw new Error('Ungültige Rollen-Daten');
-                rolesData.roles.sort((a, b) => b.rank - a.rank);
+                const { roster } = await window.api.getRoster();
+                if (!roster?.length) {
+                    grid.innerHTML = '<div class="text-center text-tac-muted font-mono text-xs py-12">Keine Mitarbeiter in der Datenbank gefunden.</div>';
+                    staffLoaded = true;
+                    return;
+                }
 
-                for (const config of HIERARCHY_CONFIG) {
-                    const container = document.getElementById(config.containerId);
-                    if (!container) continue;
-                    container.innerHTML = '';
-                    const categoryRoles = rolesData.roles.filter(r => config.roles.includes(r.name));
+                // ── Build role-group map ──────────────────────────────────────
+                // Key: role_id (or 0 for unassigned). Value: { role meta, members[] }
+                const roleMap = new Map(); // role_id → { id, name, color, hierarchy, members[] }
 
-                    // Fetch all members first, then render (allows merging)
-                    const roleMembersMap = {};
-                    for (const role of categoryRoles) {
-                        await delay(200);
-                        try {
-                            const data = await window.api.getGroupRoleUsers(role.id);
-                            roleMembersMap[role.name] = data.data || [];
-                        } catch { roleMembersMap[role.name] = []; }
-                    }
-
-                    // Render with optional group merging
-                    const rendered = new Set();
-                    for (const role of categoryRoles) {
-                        if (rendered.has(role.name)) continue;
-                        let members = roleMembersMap[role.name] || [];
-                        let displayName = role.name;
-
-                        if (config.combineGroups) {
-                            for (const grp of config.combineGroups) {
-                                if (grp.roleNames.includes(role.name)) {
-                                    members = grp.roleNames.flatMap(rn => roleMembersMap[rn] || []);
-                                    displayName = grp.displayName;
-                                    grp.roleNames.forEach(rn => rendered.add(rn));
-                                    break;
-                                }
-                            }
+                for (const user of roster) {
+                    if (user.customRoles && user.customRoles.length > 0) {
+                        // Place user under their highest-hierarchy role
+                        const primary = user.customRoles.reduce((best, r) => r.hierarchy > best.hierarchy ? r : best, user.customRoles[0]);
+                        if (!roleMap.has(primary.role_id)) {
+                            roleMap.set(primary.role_id, { ...primary, members: [] });
                         }
-                        rendered.add(role.name);
-                        if (!members.length) continue;
-
-                        const block = document.createElement('div');
-                        block.className = 'mb-4';
-                        block.innerHTML = `
-                            <div class="bg-tac-dark border-l-2 border-[${config.tierColor}] px-3 py-2 mb-2 flex items-center justify-between">
-                                <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">${displayName}</span>
-                                <span class="font-mono text-[10px] text-tac-muted">${members.length} OPS</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                ${members.map(m => `
-                                    <div class="user-card group flex items-center gap-2 bg-tac-dark border border-tac-border p-2 hover:border-[${config.tierColor}]/60 transition-all cursor-default relative"
-                                         data-user-id="${m.userId}" data-username="${m.username}">
-                                        <div class="w-9 h-9 bg-zinc-800 border border-tac-border overflow-hidden flex-shrink-0">
-                                            <img src="${m.avatarUrl || AVATAR_FALLBACK}"
-                                                 class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 transition-all"
-                                                 loading="lazy"
-                                                 onerror="this.src='${AVATAR_FALLBACK}'">
-                                        </div>
-                                        <div class="overflow-hidden flex-1">
-                                            <p class="user-name font-mono text-[11px] font-bold text-zinc-200 truncate">${m.username}</p>
-                                            <p class="font-mono text-[9px] text-tac-muted">ID: ${m.userId}</p>
-                                        </div>
-                                        <a href="https://www.roblox.com/users/${m.userId}/profile" target="_blank"
-                                           class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-tac-muted hover:text-tac-amber"
-                                           title="Profil öffnen">
-                                            <i data-lucide="external-link" class="w-3 h-3"></i>
-                                        </a>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                        container.appendChild(block);
+                        roleMap.get(primary.role_id).members.push(user);
+                    } else {
+                        // No custom role assigned
+                        if (!roleMap.has(0)) roleMap.set(0, { role_id: 0, name: 'Kein Rang', color: '#52525b', hierarchy: -1, members: [] });
+                        roleMap.get(0).members.push(user);
                     }
                 }
+
+                // Sort role groups by hierarchy descending
+                const groups = [...roleMap.values()].sort((a, b) => b.hierarchy - a.hierarchy);
+
+                // ── Rebuild grid HTML ──────────────────────────────────────────
+                // Clear static tier containers; we'll write dynamic blocks
+                ['container-pr', 'container-hr', 'container-mr'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '';
+                });
+
+                // Replace entire grid content
+                grid.innerHTML = groups.map(group => `
+                    <div class="roster-group" data-role-id="${group.role_id}">
+                        <div class="flex items-center gap-3 border-b border-tac-border/50 pb-2 mb-4">
+                            <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${group.color}"></div>
+                            <h3 class="font-display font-bold tracking-[0.2em] uppercase text-base" style="color:${group.color}">${group.name}</h3>
+                            <span class="font-mono text-[10px] text-tac-muted ml-auto">${group.members.length} OPS</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-8">
+                            ${group.members.map(m => `
+                                <div class="user-card group flex items-center gap-2 bg-tac-dark border border-tac-border p-2 hover:border-zinc-600 transition-all cursor-default"
+                                     data-user-id="${m.id}" data-username="${m.username}">
+                                    <div class="w-9 h-9 bg-zinc-800 border border-tac-border overflow-hidden flex-shrink-0">
+                                        <img src="${m.avatar_url || AVATAR_FALLBACK}"
+                                             class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 transition-all"
+                                             loading="lazy"
+                                             onerror="this.src='${AVATAR_FALLBACK}'">
+                                    </div>
+                                    <div class="overflow-hidden flex-1 min-w-0">
+                                        <p class="user-name font-mono text-[11px] font-bold text-zinc-200 truncate">${m.username}</p>
+                                        <div class="flex items-center gap-1 mt-0.5 flex-wrap">
+                                            ${(m.customRoles ?? []).map(r =>
+                                                `<span class="font-mono text-[8px] font-bold px-1 border" style="color:${r.color};border-color:${r.color}40">${r.name}</span>`
+                                            ).join('')}
+                                            ${(!m.customRoles || !m.customRoles.length) ? `<span class="font-mono text-[9px] text-tac-muted">${m.role}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <a href="https://www.roblox.com/users/${m.roblox_id}/profile" target="_blank"
+                                       class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-tac-muted hover:text-tac-amber flex-shrink-0"
+                                       title="Roblox-Profil">
+                                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                                    </a>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+
                 staffLoaded = true;
                 lucide.createIcons({ nodes: [grid] });
-            } catch (err) {
-                console.error('Hierarchie-Ladefehler:', err);
-                if (grid) grid.insertAdjacentHTML('beforeend', `
-                    <div class="col-span-full text-center text-tac-red font-mono text-xs p-4 border border-tac-red/20 bg-tac-red/5">
-                        FEHLER BEIM LADEN DER MITARBEITERDATEN
-                    </div>`);
+            } catch (e) {
+                console.error('Hierarchie-Ladefehler:', e);
+                grid.innerHTML = `<div class="text-center text-tac-red font-mono text-xs p-4 border border-tac-red/20 bg-tac-red/5">
+                    FEHLER BEIM LADEN: ${e.message}
+                </div>`;
             } finally {
                 isStaffLoading = false;
                 if (loading) loading.classList.add('hidden');
-                if (grid) grid.classList.remove('hidden');
+                if (grid)   grid.classList.remove('hidden');
                 if (search) search.classList.remove('hidden');
             }
         }

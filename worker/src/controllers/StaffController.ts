@@ -23,13 +23,44 @@ export class StaffController {
     return json({ sessions: results }, 200, origin);
   }
 
-  // GET /api/staff/roster  (all staff members)
+  // GET /api/staff/roster  (all staff members with their custom roles)
   static async roster(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
-    const { results } = await env.DATABASE
-      .prepare('SELECT id, roblox_id, username, avatar_url, role, last_seen FROM users ORDER BY role DESC, username ASC')
-      .all();
-    return json({ roster: results }, 200, origin);
+
+    // Fetch all staff
+    const users = await env.DATABASE
+      .prepare('SELECT id, roblox_id, username, avatar_url, role, last_seen FROM users ORDER BY username ASC')
+      .all<{ id: number; roblox_id: string; username: string; avatar_url: string | null; role: string; last_seen: string | null }>();
+
+    // Fetch all custom role assignments with role metadata in one query
+    const assignments = await env.DATABASE
+      .prepare(`
+        SELECT ur.user_id, r.id as role_id, r.name, r.color, r.hierarchy
+        FROM user_roles ur
+        JOIN roles r ON r.id = ur.role_id
+        ORDER BY r.hierarchy DESC
+      `)
+      .all<{ user_id: number; role_id: number; name: string; color: string; hierarchy: number }>();
+
+    // Group assignments by user_id
+    const rolesByUser = new Map<number, { role_id: number; name: string; color: string; hierarchy: number }[]>();
+    for (const a of assignments.results) {
+      const list = rolesByUser.get(a.user_id) ?? [];
+      list.push({ role_id: a.role_id, name: a.name, color: a.color, hierarchy: a.hierarchy });
+      rolesByUser.set(a.user_id, list);
+    }
+
+    const roster = users.results.map(u => ({
+      id:          u.id,
+      roblox_id:   u.roblox_id,
+      username:    u.username,
+      avatar_url:  u.avatar_url,
+      role:        u.role,
+      last_seen:   u.last_seen,
+      customRoles: rolesByUser.get(u.id) ?? [],
+    }));
+
+    return json({ roster }, 200, origin);
   }
 
   // GET /api/staff/status  (server_status rows)
