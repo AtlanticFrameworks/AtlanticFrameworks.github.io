@@ -46,12 +46,10 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
 type UsernameResult =
   | { type: 'found';    userId: string }
   | { type: 'notFound' }
-  | { type: 'apiError' };
+  | { type: 'apiError'; status: number; message: string };
 
 async function resolveUsername(env: Env, username: string): Promise<UsernameResult> {
   try {
-    // Roblox Open Cloud v2 User Search
-    // Filter syntax: username == "name"
     const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(`username == "${username}"`)}`;
     const res = await cloudFetch(env, url);
 
@@ -62,10 +60,11 @@ async function resolveUsername(env: Env, username: string): Promise<UsernameResu
       }
       return { type: 'notFound' };
     }
-    return { type: 'apiError' };
+    const errorText = await res.text().catch(() => 'Keine Fehlerdetails');
+    return { type: 'apiError', status: res.status, message: errorText };
   } catch (e) {
     console.error('[Roblox-Cloud] resolveUsername threw:', (e as Error).message);
-    return { type: 'apiError' };
+    return { type: 'apiError', status: 500, message: (e as Error).message };
   }
 }
 
@@ -84,12 +83,13 @@ export class RobloxController {
       } else {
         const result = await resolveUsername(env, identifier);
         if (result.type === 'notFound') return err('Spieler nicht gefunden', 404, origin);
-        if (result.type === 'apiError') return err('Roblox-API (Cloud) nicht erreichbar. Prüfe API-Key Berechtigungen.', 502, origin);
+        if (result.type === 'apiError') {
+          return err(`Roblox-Cloud-Fehler (${result.status}): ${result.message.slice(0, 100)}`, 502, origin);
+        }
         userId = result.userId;
       }
 
       // Fetch profile via Open Cloud + thumbnail via Public API
-      // (Thumbnails don't have a direct Cloud v2 equivalent that is simpler than public v1)
       const [profileRes, thumbRes] = await Promise.all([
         cloudFetch(env, `https://apis.roblox.com/cloud/v2/users/${userId}`),
         robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`),
@@ -97,7 +97,8 @@ export class RobloxController {
 
       if (!profileRes.ok) {
          if (profileRes.status === 404) return err('Spieler nicht gefunden', 404, origin);
-         return err('Roblox-Cloud-Fehler bei Profilabfrage', 502, origin);
+         const errorText = await profileRes.text().catch(() => 'Unbekannter Fehler');
+         return err(`Roblox-Cloud-Profilfehler (${profileRes.status}): ${errorText.slice(0, 100)}`, 502, origin);
       }
       
       const profile = await profileRes.json() as { 
