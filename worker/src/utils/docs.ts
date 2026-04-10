@@ -160,9 +160,15 @@ export function renderDocs(_env: Env): Response {
         <a href="#staff"      class="nav-link"><i data-lucide="users"      class="w-3.5 h-3.5 shrink-0"></i>Staff Panel<span class="nav-count">6</span></a>
         <a href="#watchlist"  class="nav-link"><i data-lucide="eye"        class="w-3.5 h-3.5 shrink-0"></i>Watchlist<span class="nav-count">4</span></a>
         <a href="#moderation" class="nav-link"><i data-lucide="gavel"      class="w-3.5 h-3.5 shrink-0"></i>Moderation<span class="nav-count">4</span></a>
-        <a href="#shifts"     class="nav-link"><i data-lucide="clock"      class="w-3.5 h-3.5 shrink-0"></i>Shifts<span class="nav-count">4</span></a>
+        <a href="#shifts"     class="nav-link"><i data-lucide="clock"      class="w-3.5 h-3.5 shrink-0"></i>Shifts<span class="nav-count">5</span></a>
         <a href="#roblox"     class="nav-link"><i data-lucide="database"   class="w-3.5 h-3.5 shrink-0"></i>Roblox Proxy<span class="nav-count">4</span></a>
         <a href="#cloud"      class="nav-link"><i data-lucide="cloud"      class="w-3.5 h-3.5 shrink-0"></i>Open Cloud<span class="nav-count">4</span></a>
+        <a href="#mgmt"       class="nav-link"><i data-lucide="shield-check" class="w-3.5 h-3.5 shrink-0"></i>Management<span class="nav-count">4</span></a>
+        <a href="#roles"      class="nav-link"><i data-lucide="user-plus"  class="w-3.5 h-3.5 shrink-0"></i>Roles & Perms<span class="nav-count">8</span></a>
+        <a href="#notes"      class="nav-link"><i data-lucide="file-text"   class="w-3.5 h-3.5 shrink-0"></i>Staff Notes<span class="nav-count">4</span></a>
+        <a href="#maintenance" class="nav-link"><i data-lucide="hammer"     class="w-3.5 h-3.5 shrink-0"></i>Maintenance<span class="nav-count">2</span></a>
+        <a href="#discord"    class="nav-link"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0"></i>Discord<span class="nav-count">2</span></a>
+        <a href="#db"         class="nav-link"><i data-lucide="database"   class="w-3.5 h-3.5 shrink-0"></i>Database<span class="nav-count">13</span></a>
 
         <p class="font-mono text-[9px] text-tac-muted tracking-[.2em] uppercase px-2 pb-2 pt-4">Reference</p>
         <a href="#auth-model" class="nav-link"><i data-lucide="key-round"  class="w-3.5 h-3.5 shrink-0"></i>Auth Model</a>
@@ -188,8 +194,8 @@ export function renderDocs(_env: Env): Response {
             </span>
             <span class="text-tac-muted">|</span>
             <span class="text-tac-muted">BASE: <span class="text-white">https://bwrp.net/api</span></span>
-            <span class="text-tac-muted">|</span>
-            <span class="text-tac-muted">25 ENDPOINTS</span>
+            <span class="text-zinc-500">|</span>
+            <span class="text-tac-amber font-bold">59 ENDPOINTS</span>
         </div>
         <div id="clock" class="font-mono text-[10px] text-tac-muted tabular-nums"></div>
     </div>
@@ -1138,6 +1144,27 @@ export function renderDocs(_env: Env): Response {
                     </div>
                 </div>
 
+                <!-- GET /shifts/all -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/shifts/all</code>
+                        <span class="font-mono text-[10px] text-tac-muted flex-1 min-w-0 truncate">Global shift logs — limited to recent history</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header">
+                                <span>Try it</span>
+                                <span class="try-label" style="margin-left:auto"></span>
+                                <button class="try-run" data-path="/shifts/all" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -1517,13 +1544,313 @@ export function renderDocs(_env: Env): Response {
             </div>
         </section>
 
+        <!-- ══ MANAGEMENT ══════════════════════════════════════════════ -->
+        <section id="mgmt" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="shield-check" class="w-4 h-4 text-tac-amber shrink-0"></i>
+                <h3>Staff Management</h3>
+                <div class="line"></div>
+            </div>
+            <div class="space-y-2">
+                <!-- GET /mgmt/users -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/mgmt/users</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Complete list of all registered staff members</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <pre class="text-tac-green"><code>{ "staff": [ { "id": 1, "username": "...", "role": "OWNER", "hwidLocked": true, "customRoles": [] } ] }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/mgmt/users" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- GET /mgmt/users/:id/activity -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/mgmt/users/<span class="text-tac-amber">:id</span>/activity</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Detailed dossier of a staff member's actions and stats</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/mgmt/users/{v}/activity" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- PATCH /mgmt/users/:id/hwid-reset -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PATCH</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/mgmt/users/<span class="text-tac-amber">:id</span>/hwid-reset</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Unlock account for a new hardware ID</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/mgmt/users/{v}/hwid-reset" data-method="PATCH" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ ROLES & PERMISSIONS ════════════════════════════════════ -->
+        <section id="roles" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="user-plus" class="w-4 h-4 text-tac-amber shrink-0"></i>
+                <h3>Roles & Permissions</h3>
+                <div class="line"></div>
+            </div>
+            <div class="space-y-2">
+                <!-- GET /roles -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/roles</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List all defineable staff roles</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/roles" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- POST /roles/users/:userId/assign -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/roles/users/<span class="text-tac-amber">:userId</span>/assign</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Grant a custom role to a staff member</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="User D1 ID..." /><button class="try-run" data-path="/roles/users/{v}/assign" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "roleId": 5 }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ STAFF NOTES ════════════════════════════════════════════ -->
+        <section id="notes" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="file-text" class="w-4 h-4 text-tac-amber shrink-0"></i>
+                <h3>Staff Notes</h3>
+                <div class="line"></div>
+            </div>
+            <div class="space-y-2">
+                <!-- GET /notes -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/notes</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Retrieve your personal scratchpad and pinned tickets</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <pre class="text-tac-green"><code>{ "content": "Text...", "pinnedTickets": [], "updatedAt": "..." }</code></pre>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/notes" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- PUT /notes -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PUT</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/notes</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Update your personal scratchpad content</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/notes" data-method="PUT" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "content": "New scratchpad text..." }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ MAINTENANCE ════════════════════════════════════════════ -->
+        <section id="maintenance" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="hammer" class="w-4 h-4 text-tac-amber shrink-0"></i>
+                <h3>Server Maintenance</h3>
+                <div class="line"></div>
+            </div>
+            <div class="note-warn note mb-4">Power operations directly impact live game servers. Requires ADMIN+ rank.</div>
+            <div class="space-y-2">
+                <!-- POST /cloud/servers/shutdown -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/cloud/servers/shutdown</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Signal a specific server instance to gracefully shut down</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/cloud/servers/shutdown" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "serverJobId": "guid-here" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- POST /cloud/servers/restart-all -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/cloud/servers/restart-all</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Trigger a rolling restart for all servers except protected ones</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/cloud/servers/restart-all" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "extraProtectedJobIds": [] }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ DISCORD ════════════════════════════════════════════════ -->
+        <section id="discord" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="message-square" class="w-4 h-4 text-tac-amber shrink-0"></i>
+                <h3>Discord</h3>
+                <div class="line"></div>
+            </div>
+            <div class="space-y-2">
+                <!-- POST /discord/announce -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/discord/announce</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Send a rich embed message to a Discord webhook</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/discord/announce" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "title": "...", "message": "...", "color": "#hex", "ping": "@everyone" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- POST /discord/test -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/discord/test</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Validate webhook configuration and endpoint health</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">ADMIN+</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/discord/test" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ DATABASE PANEL ══════════════════════════════════════════ -->
+        <section id="db" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="database" class="w-4 h-4 text-tac-muted shrink-0"></i>
+                <h3>Direct Database Access</h3>
+                <div class="line"></div>
+            </div>
+            <div class="note-warn note mb-4">Direct row-level access to D1 tables. Bypasses application logic. Strictly OWNER ONLY.</div>
+            <div class="space-y-2">
+                <!-- GET /db/stats -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/stats</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Database performance metrics and table sizes</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/stats" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- GET /db/audit-logs -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/audit-logs</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Global immutable audit trail of all staff actions</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/audit-logs" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- DELETE /db/rate-limits -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-delete px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">DELETE</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/db/rate-limits</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Clear all active IP-based rate limit blocks</span>
+                        <span class="auth-owner px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/db/rate-limits" data-method="DELETE" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note mt-4 opacity-50">Additional CRUD routes for users, cases, and sessions are available but restricted to direct D1 console patterns.</div>
+        </section>
+
     </div><!-- /content -->
 
     <footer class="border-t border-tac-border px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4 bg-tac-panel/30">
         <div class="font-mono text-[10px] text-tac-muted">
             <span class="text-white font-semibold">BWRP STAFF PANEL</span> · Cloudflare Workers · D1 · Roblox OAuth 2.0
         </div>
-        <div class="font-mono text-[10px] text-tac-muted tabular-nums">25 ENDPOINTS · &copy; 2026 ATLANTIC COMMAND</div>
+        <div class="font-mono text-[10px] text-tac-muted tabular-nums">59 ENDPOINTS · &copy; 2026 ATLANTIC COMMAND</div>
     </footer>
 
 </main><!-- /main -->
