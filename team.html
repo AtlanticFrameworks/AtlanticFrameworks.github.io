@@ -296,6 +296,59 @@
                 opacity: 0;
             }
         }
+        /* === DRIVER JS THEME === */
+        .driver-popover.driverjs-theme {
+            background-color: #111114 !important;
+            color: #ffffff !important;
+            border: 1px solid #252529 !important;
+            border-radius: 0 !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+            padding: 15px !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-title {
+            font-family: 'Oswald', sans-serif !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            color: #e2a800 !important;
+            font-size: 16px !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-description {
+            color: #a1a1aa !important;
+            font-size: 11px !important;
+            line-height: 1.5 !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-next-btn,
+        .driver-popover.driverjs-theme .driver-popover-prev-btn,
+        .driver-popover.driverjs-theme .driver-popover-close-btn {
+            background-color: #e2a800 !important;
+            color: #000000 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+            transition: all 0.2s !important;
+            font-size: 10px !important;
+            text-transform: uppercase !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-next-btn:hover,
+        .driver-popover.driverjs-theme .driver-popover-prev-btn:hover {
+            background-color: #ffffff !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-progress-text {
+            color: #71717a !important;
+            font-size: 10px !important;
+        }
+
+        .driver-popover.driverjs-theme .driver-popover-arrow-side-left::after { border-left-color: #111114 !important; }
+        .driver-popover.driverjs-theme .driver-popover-arrow-side-right::after { border-right-color: #111114 !important; }
+        .driver-popover.driverjs-theme .driver-popover-arrow-side-top::after { border-top-color: #111114 !important; }
+        .driver-popover.driverjs-theme .driver-popover-arrow-side-bottom::after { border-bottom-color: #111114 !important; }
     </style>
 </head>
 
@@ -1373,59 +1426,61 @@
             const driverObj = driver({
                 showProgress: true,
                 allowClose: true,
+                popoverClass: 'driverjs-theme',
+                overlayColor: 'rgba(0,0,0,0.85)',
                 steps: [
                     { 
                         popover: { 
-                            title: 'Willkommen im Staff Panel', 
-                            description: 'Dieser Leitfaden führt dich durch die wichtigsten Funktionen der taktischen Oberfläche.' 
+                            title: 'Willkommen Operatør', 
+                            description: 'Diese taktische Schnittstelle dient der Überwachung und Verwaltung von Atlantic Studios Knoten.' 
                         } 
                     },
                     { 
                         element: '#sidebar', 
                         popover: { 
-                            title: 'Die Kommando-Zentrale', 
-                            description: 'Hier findest du das Navigationsmenü. Du kannst zwischen der Übersicht, dem Dienst-Terminal und weiteren Modulen wechseln.' 
+                            title: 'Zentral-Menü', 
+                            description: 'Navigiere hier zwischen System-Modulen wie Dienst-Terminal oder Personalakte.' 
                         } 
                     },
                     { 
-                        element: '.p-5.border-b.border-tac-border.bg-black\/20', 
+                        element: '#sidebar-profile', 
                         popover: { 
-                            title: 'Operator Profil', 
-                            description: 'Hier siehst du deinen aktuellen Rang und Status. Stelle sicher, dass dein Avatar korrekt angezeigt wird.' 
+                            title: 'Operator-ID', 
+                            description: 'Überprüfe hier stets deinen aktuellen Status und deine autorisierte Identität.' 
                         } 
                     },
                     { 
                         element: '[data-tab="home"]', 
                         popover: { 
-                            title: 'Taktische Übersicht', 
-                            description: 'Auf dem Dashboard siehst du den System-Status und globale Ankündigungen.' 
+                            title: 'Dashboard', 
+                            description: 'Der primäre Monitor für Systemstabilität und externe Knoten-Verbindungen.' 
                         } 
                     },
                     { 
                         element: '[data-tab="shift"]', 
                         popover: { 
                             title: 'Dienst-Terminal', 
-                            description: 'SEHR WICHTIG: Hier startest und beendest du deine Schicht. Nur aktive Schichten werden für Statistiken gezählt.' 
+                            description: 'WICHTIG: Starte hier deine Schicht, damit deine Einsatzzeiten korrekt im Protokoll erfasst werden.' 
                         } 
                     },
                     { 
                         element: '[data-tab="modcenter"]', 
                         popover: { 
                             title: 'Mod-Zentrum', 
-                            description: 'Hier kannst du nach Spielern suchen, ihre Akten einsehen und Sanktionen (Warns/Bans) verhängen.' 
+                            description: 'Durchsuche die Datenbank nach Subjekten und verhänge bei Verstößen entsprechende Sanktionen.' 
                         } 
                     },
                     { 
                         element: '#sys-time', 
                         popover: { 
-                            title: 'Systemzeit', 
-                            description: 'Alle Aktivitäten werden in UTC geloggt. Nutze diese Zeit für Zeitangaben in Beweismitteln.' 
+                            title: 'Synchronzeit', 
+                            description: 'Alle Log-Daten werden in dieser synchronisierten UTC-Zeit erfasst.' 
                         } 
                     },
                     { 
                         popover: { 
-                            title: 'Bereit für den Einsatz', 
-                            description: 'Das war es! Bei Fragen wende dich an die Projektleitung. Viel Erfolg im Dienst.' 
+                            title: 'Status: Einsatzbereit', 
+                            description: 'Die Einführung ist abgeschlossen. Dein Zugang ist nun vollständig initialisiert. Viel Erfolg.' 
                         } 
                     }
                 ],
