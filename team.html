@@ -1062,7 +1062,7 @@
             const actionSel = document.getElementById('qm-action');
             if (actionSel) { actionSel.value = caseType; onActionChange(); }
             const durationInput = document.getElementById('qm-duration');
-            if (durationInput) durationInput.value = durationDays || '';
+            if (durationInput) durationInput.value = durationDays ? `${durationDays}d` : '';
             const reasonInput = document.getElementById('qm-reason');
             if (reasonInput) reasonInput.value = reason;
 
@@ -1162,7 +1162,14 @@
 
             let punishment;
             if (action === 'PERMBAN') punishment = 'PERMBAN';
-            else if (action === 'BAN') punishment = duration ? `BAN ${duration}d` : 'BAN';
+            else if (action === 'BAN') {
+                if (!duration) punishment = 'BAN'; // Permanent wenn leer laut User-Anforderung
+                else {
+                    // Falls nur eine Zahl eingegeben wurde, Standardmäßig Tage (d) anhängen
+                    if (/^\d+$/.test(duration)) punishment = `BAN ${duration}d`;
+                    else punishment = `BAN ${duration}`;
+                }
+            }
             else if (action === 'KICK') punishment = 'KICK';
             else punishment = 'WARN';
 
