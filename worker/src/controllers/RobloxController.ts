@@ -44,31 +44,48 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
 //   found    → got a valid user ID from Roblox
 //   notFound → Roblox responded successfully but the username doesn't exist
 //   apiError → request failed (e.g. invalid key, rate limit, or network error)
-type UsernameResult =
-  | { type: 'found';    userId: string }
-  | { type: 'notFound' }
-  | { type: 'apiError'; status: number; message: string; debugUrl: string };
-
 async function resolveUsername(env: Env, username: string): Promise<UsernameResult> {
-  // Roblox Open Cloud v2 User Search expects single quotes for AIP-160 filter strings
-  const filter = `username == '${username}'`;
-  const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(filter)}`;
+  // ── Strategy 1: Public API (v1) – AS SUGGESTED BY USER ───────────────────
+  // This is highly reliable and does not require a Cloud API Key.
   try {
-    const res = await cloudFetch(env, url);
+    const res = await robloxFetch(`${ROBLOX_USERS_API}/usernames/users`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ usernames: [username], excludeBannedUsers: false }),
+    });
 
     if (res.ok) {
-      const data = await res.json() as { users?: Array<{ id: string }> };
-      if (data.users && data.users.length > 0) {
-        return { type: 'found', userId: data.users[0].id };
+      const data = await res.json() as { data: Array<{ id: number }> };
+      if (data.data && data.data.length > 0) {
+        console.log(`[Roblox] Found user "${username}" via v1 API (Primary)`);
+        return { type: 'found', userId: String(data.data[0].id) };
       }
-      return { type: 'notFound' };
+      // If not found in v1, we can still try v2 as a last resort
     }
-    const errorText = await res.text().catch(() => 'Keine Fehlerdetails');
-    return { type: 'apiError', status: res.status, message: errorText, debugUrl: url };
   } catch (e) {
-    console.error('[Roblox-Cloud] resolveUsername threw:', (e as Error).message);
-    return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: url };
+    console.error('[Roblox] v1 lookup failed:', (e as Error).message);
   }
+
+  // ── Strategy 2: Roblox Open Cloud (v2) – SECONDARY ───────────────────────
+  if (env.ROBLOX_CLOUD_KEY && env.ROBLOX_CLOUD_KEY.length > 20) {
+    try {
+      const filter = `username=='${username}'`;
+      const url = `https://apis.roblox.com/cloud/v2/users?filter=${encodeURIComponent(filter)}`;
+      const res = await cloudFetch(env, url);
+
+      if (res.ok) {
+        const data = await res.json() as { users?: Array<{ id: string }> };
+        if (data.users && data.users.length > 0) {
+          console.log(`[Roblox-Cloud] Found user "${username}" via v2 API (Secondary)`);
+          return { type: 'found', userId: data.users[0].id };
+        }
+      }
+    } catch (e) {
+      console.error('[Roblox-Cloud] v2 lookup failed:', (e as Error).message);
+    }
+  }
+
+  return { type: 'notFound' };
 }
 
 export class RobloxController {
@@ -87,31 +104,48 @@ export class RobloxController {
         const result = await resolveUsername(env, identifier);
         if (result.type === 'notFound') return err('Spieler nicht gefunden', 404, origin);
         if (result.type === 'apiError') {
-          const debugInfo = `URL: ${result.debugUrl}`;
-          return err(`Roblox-Cloud-Fehler (${result.status}): ${result.message.slice(0, 50)} | ${debugInfo}`, 502, origin);
+          return err(`Roblox-API-Fehler (${result.status}): ${result.message}`, 502, origin);
         }
         userId = result.userId;
       }
 
-      // Fetch profile via Open Cloud + thumbnail via Public API
-      const [profileRes, thumbRes] = await Promise.all([
-        cloudFetch(env, `https://apis.roblox.com/cloud/v2/users/${userId}`),
-        robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`),
-      ]);
+      // ── Profile lookup ─────────────────────────────────────────────────────
+      // We try Cloud v2 first (if key exists), then fallback to v1
+      let profile: { id: string; username: string; displayName: string; created: string; description: string; isBanned: boolean };
 
-      if (!profileRes.ok) {
-         if (profileRes.status === 404) return err('Spieler nicht gefunden', 404, origin);
-         const errorText = await profileRes.text().catch(() => 'Unbekannter Fehler');
-         return err(`Roblox-Cloud-Profilfehler (${profileRes.status}): ${errorText.slice(0, 100)}`, 502, origin);
+      try {
+        const profileRes = await cloudFetch(env, `https://apis.roblox.com/cloud/v2/users/${userId}`);
+        if (profileRes.ok) {
+          const data = await profileRes.json() as { id: string; username: string; displayName: string; createTime: string };
+          profile = {
+            id:          data.id,
+            username:    data.username,
+            displayName: data.displayName,
+            created:     data.createTime,
+            description: '',
+            isBanned:    false
+          };
+        } else {
+          throw new Error(`Profile v2 failed: ${profileRes.status}`);
+        }
+      } catch {
+        // Fallback to Public v1 API
+        const profileRes = await robloxFetch(`${ROBLOX_USERS_API}/users/${userId}`);
+        if (!profileRes.ok) return err('Spieler-Profil nicht gefunden (V1 Fallback)', 404, origin);
+        
+        const data = await profileRes.json() as { id: number; name: string; displayName: string; created: string; description: string; isBanned: boolean };
+        profile = {
+          id:          String(data.id),
+          username:    data.name,
+          displayName: data.displayName,
+          created:     data.created,
+          description: data.description,
+          isBanned:    data.isBanned
+        };
       }
-      
-      const profile = await profileRes.json() as { 
-        id: string; 
-        username: string; 
-        displayName: string; 
-        createTime: string; 
-      };
 
+      // Fetch thumbnail (always via Public Thumbnails API)
+      const thumbRes = await robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`);
       let avatarUrl = '';
       if (thumbRes.ok) {
         const thumbData = await thumbRes.json() as { data: Array<{ targetId: number; imageUrl: string; state: string }> };
@@ -122,9 +156,9 @@ export class RobloxController {
         id:          profile.id,
         username:    profile.username,
         displayName: profile.displayName,
-        description: '', // Open Cloud v2 User does not currently return description
-        created:     profile.createTime,
-        isBanned:    false, // Open Cloud v2 User does not currently return ban status
+        description: profile.description,
+        created:     profile.created,
+        isBanned:    profile.isBanned,
         avatarUrl,
         profileUrl:  `https://www.roblox.com/users/${profile.id}/profile`,
       }, 200, origin);
