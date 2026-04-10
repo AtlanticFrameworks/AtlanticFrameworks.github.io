@@ -594,12 +594,19 @@
             { containerId: 'container-mr', tierLabel: 'FELD-TEAM', tierColor: '#10b981', roles: ['Head Game Moderator', 'Game Moderator'] },
         ];
         let staffLoaded = false;
+        let isStaffLoading = false;
 
         async function loadStaffHierarchy() {
+            if (isStaffLoading) return;
+            isStaffLoading = true;
+
             const loading = document.getElementById('staff-loading');
             const grid = document.getElementById('staff-hierarchy-grid');
             const search = document.getElementById('staff-search-container');
-            if (!loading || !grid) return;
+            if (!loading || !grid) {
+                isStaffLoading = false;
+                return;
+            }
 
             loading.classList.remove('hidden');
             grid.classList.add('hidden');
@@ -690,6 +697,7 @@
                         FEHLER BEIM LADEN DER MITARBEITERDATEN
                     </div>`);
             } finally {
+                isStaffLoading = false;
                 if (loading) loading.classList.add('hidden');
                 if (grid) grid.classList.remove('hidden');
                 if (search) search.classList.remove('hidden');
