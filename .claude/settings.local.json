@@ -8,7 +8,8 @@
       "Bash(npx tsc:*)",
       "Bash(grep -n \"function runCalculation\\\\|function generateQuickCommand\\\\|function lookupPlayer\\\\|function resetChecklist\\\\|function copyQmCommand\\\\|function copyCalcCommand\\\\|function toggleChecklist\" assets/js/*.js)",
       "Bash(npm run:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(node:*)"
     ]
   }
 }
