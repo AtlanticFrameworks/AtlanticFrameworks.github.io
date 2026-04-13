@@ -155,7 +155,12 @@ export function renderDocs(_env: Env): Response {
 
     <!-- Nav -->
     <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-        <p class="font-mono text-[9px] text-tac-muted tracking-[.2em] uppercase px-2 pb-2 pt-1">Endpoints</p>
+        <p class="font-mono text-[9px] text-tac-muted tracking-[.2em] uppercase px-2 pb-2 pt-1">Reference</p>
+        <a href="#auth-model" class="nav-link"><i data-lucide="key-round"  class="w-3.5 h-3.5 shrink-0"></i>Auth Model</a>
+        <a href="#errors"     class="nav-link"><i data-lucide="triangle-alert" class="w-3.5 h-3.5 shrink-0"></i>Error Codes</a>
+
+        <p class="font-mono text-[9px] text-tac-muted tracking-[.2em] uppercase px-2 pb-2 pt-4">Endpoints</p>
+        <a href="#public"      class="nav-link"><i data-lucide="globe"      class="w-3.5 h-3.5 shrink-0"></i>Public API<span class="nav-count">1</span></a>
         <a href="#auth"       class="nav-link"><i data-lucide="lock"       class="w-3.5 h-3.5 shrink-0"></i>Authentication<span class="nav-count">3</span></a>
         <a href="#staff"      class="nav-link"><i data-lucide="users"      class="w-3.5 h-3.5 shrink-0"></i>Staff Panel<span class="nav-count">6</span></a>
         <a href="#watchlist"  class="nav-link"><i data-lucide="eye"        class="w-3.5 h-3.5 shrink-0"></i>Watchlist<span class="nav-count">4</span></a>
@@ -167,13 +172,8 @@ export function renderDocs(_env: Env): Response {
         <a href="#roles"      class="nav-link"><i data-lucide="user-plus"  class="w-3.5 h-3.5 shrink-0"></i>Roles & Perms<span class="nav-count">8</span></a>
         <a href="#notes"      class="nav-link"><i data-lucide="file-text"   class="w-3.5 h-3.5 shrink-0"></i>Staff Notes<span class="nav-count">4</span></a>
         <a href="#maintenance" class="nav-link"><i data-lucide="hammer"     class="w-3.5 h-3.5 shrink-0"></i>Maintenance<span class="nav-count">2</span></a>
-        <a href="#public"      class="nav-link"><i data-lucide="globe"      class="w-3.5 h-3.5 shrink-0"></i>Public API<span class="nav-count">1</span></a>
         <a href="#discord"    class="nav-link"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0"></i>Discord<span class="nav-count">2</span></a>
         <a href="#db"         class="nav-link"><i data-lucide="database"   class="w-3.5 h-3.5 shrink-0"></i>Database<span class="nav-count">13</span></a>
-
-        <p class="font-mono text-[9px] text-tac-muted tracking-[.2em] uppercase px-2 pb-2 pt-4">Reference</p>
-        <a href="#auth-model" class="nav-link"><i data-lucide="key-round"  class="w-3.5 h-3.5 shrink-0"></i>Auth Model</a>
-        <a href="#errors"     class="nav-link"><i data-lucide="triangle-alert" class="w-3.5 h-3.5 shrink-0"></i>Error Codes</a>
     </nav>
 
     <!-- Back -->
