@@ -83,6 +83,8 @@ async function renderDocsWithTimer(env: Env, expiresUnix: number): Promise<Respo
     display: flex; align-items: center; gap: 12px;
     padding: 7px 20px; font-family: 'JetBrains Mono', monospace;
   }
+  /* Offset fixed/sticky elements in docs.ts */
+  header.fixed.top-0, #sidebar, .sticky.top-0 { top: 36px !important; }
   #docs-timer-label { font-size: 9px; color: #71717a; letter-spacing: .12em; white-space: nowrap; }
   #docs-timer-track { flex: 1; background: #18181b; height: 3px; overflow: hidden; }
   #docs-timer-bar   { height: 100%; width: 100%; background: #e2a800; transition: width 1s linear, background .5s; }
