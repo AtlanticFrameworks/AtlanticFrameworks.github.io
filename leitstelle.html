@@ -575,6 +575,28 @@
                         <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-30</span><span>Standortabfrage</span></li>
                         <li class="flex items-start gap-4"><span class="font-mono text-red-400 font-bold w-12 shrink-0">10-80</span><span>Aktive Verfolgungsjagd [+ Ort]</span></li>
                     </ul>
+            </div>
+            
+            <div class="px-8 pb-8">
+                <div class="bg-red-600/10 border border-red-600/20 rounded-xl p-6 mt-4">
+                    <h3 class="text-red-500 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i> Funk-Etikette & Prio-Funk
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                        <ul class="space-y-2">
+                            <li class="flex justify-between border-b border-white/5 pb-1"><span>Funk betreten:</span> <span class="text-white font-mono">Rufname 10-0</span></li>
+                            <li class="flex justify-between border-b border-white/5 pb-1"><span>Funk verlassen:</span> <span class="text-white font-mono">Rufname 10-99</span></li>
+                            <li class="flex flex-col gap-1">
+                                <span class="text-gray-500 text-xs uppercase">Funk wechseln:</span>
+                                <span class="text-white font-mono text-[11px]">Rufname wechsel zu Frequenz XX...</span>
+                            </li>
+                        </ul>
+                        <div class="bg-black/40 p-4 rounded border border-red-600/30">
+                            <span class="text-red-400 font-bold uppercase text-xs block mb-1">Prio-Funk (Absolute Funkstille)</span>
+                            <p class="text-[10px] text-gray-400 mb-2">Gilt bei 10-80, 11-99 etc. Befehl zur Funkstille:</p>
+                            <div class="text-2xl font-display font-bold text-white text-center tracking-widest animate-pulse">"STOPFEN!"</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
