@@ -685,24 +685,25 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             name: '4.1 Codes',
             codes: [
-                'Code 1 | Anfahrt ohne Sonderrechte',
-                'Code 2 | Anfahrt mit Blaulicht',
+                'Code 1 | Anfahrt ohne Siren ohne Blaulicht',
+                'Code 2 | Anfahrt ohne Siren mit Blaulicht',
                 'Code 3 | Anfahrt mit Sonderrechten',
-                'Code 4 | Einsatz beendet',
-                'Code 5 | Geheime Ermittlung'
+                'Code 4 | Einsatz beendet / alles i.O.',
+                'Code 5 | Geheime Ermittlung',
+                'Code 6 | Ankunft zu Fuß'
             ]
         },
         {
             name: '10-er Codes',
             codes: [
+                '10-00 | Einwahl in Funk',
                 '10-01 | Dienstantritt',
                 '10-02 | Dienstende',
                 '10-03 | Benötigte Einteilung',
-                '10-04 | Verstanden / Einsatzbereit',
+                '10-04 | Verstanden',
                 '10-05 | Funkspruch wiederholen',
                 '10-07 | Medic benötigt',
                 '10-08 | Statusabfrage',
-                '10-09 | Pause',
                 '10-10 | Auf Anfahrt',
                 '10-20 | Abholung benötigt',
                 '10-30 | Standortabfrage',
