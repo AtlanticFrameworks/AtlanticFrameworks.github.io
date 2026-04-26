@@ -289,6 +289,9 @@
                         <i data-lucide="shield" class="w-6 h-6 text-bw-gold"></i> Einheiten
                     </h2>
                     <div class="flex gap-2">
+                        <button id="open-codes-btn" class="p-2 bg-white/5 hover:bg-bw-gold/20 border border-white/10 rounded-md transition-colors" title="Funk-Codes öffnen">
+                            <i data-lucide="book-open" class="w-4 h-4 text-bw-gold"></i>
+                        </button>
                         <button id="btn-snapshot-save" class="p-2 bg-white/5 hover:bg-green-500/20 border border-white/10 rounded-md transition-colors" title="Snapshot speichern">
                             <i data-lucide="save" class="w-4 h-4 text-green-400"></i>
                         </button>
@@ -297,9 +300,6 @@
                         </button>
                         <button id="btn-clear-all" class="p-2 bg-white/5 hover:bg-red-500/20 border border-white/10 rounded-md transition-colors" title="Alles löschen">
                             <i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i>
-                        </button>
-                        <button id="btn-share-state" class="p-2 bg-white/5 hover:bg-bw-gold/20 border border-white/10 rounded-md transition-colors" title="Zustand teilen">
-                            <i data-lucide="share-2" class="w-4 h-4 text-bw-gold"></i>
                         </button>
                     </div>
                 </div>
@@ -322,6 +322,22 @@
 
                 <div id="patrol-list" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3">
                     <!-- Patrol items will be injected here -->
+                </div>
+            </div>
+
+            <!-- PERSONNEL POOL -->
+            <div class="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg p-5 flex flex-col h-64">
+                <h2 class="font-display font-bold text-xl text-white uppercase tracking-wider mb-3 flex items-center justify-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5 text-bw-gold"></i> Personal-Pool
+                </h2>
+                <div id="personnel-pool" class="flex-1 overflow-y-auto custom-scrollbar flex flex-wrap gap-2 mb-3 content-start">
+                    <!-- Personnel will be injected here -->
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="pool-input" class="flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-bw-gold" placeholder="Name hinzufügen...">
+                    <button id="pool-add" class="bg-bw-gold text-black p-2 rounded hover:bg-white transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
@@ -520,20 +536,20 @@
         </div>
     </div>
 
-    <!-- CODES MODAL -->
-    <div id="codes-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
-        <div class="bg-bw-dark border border-white/10 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300 relative shadow-2xl" id="codes-modal-content">
+    <!-- CODES SIDEBAR -->
+    <div id="codes-modal" class="fixed right-0 top-20 bottom-0 w-full max-w-2xl bg-bw-dark/95 backdrop-blur-xl border-l border-white/10 z-[60] flex flex-col transform translate-x-full transition-transform duration-300 shadow-2xl">
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-8 relative" id="codes-modal-content">
             
-            <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black/40">
-                <h2 class="font-display font-bold text-3xl text-white uppercase tracking-wider flex items-center gap-3">
-                    <i data-lucide="book-open" class="w-8 h-8 text-bw-gold"></i> Funk-Codes & Status
+            <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+                <h2 class="font-display font-bold text-4xl text-white uppercase tracking-wider flex items-center gap-3">
+                    <i data-lucide="book-open" class="w-10 h-10 text-bw-gold"></i> Funk-Codes
                 </h2>
                 <button id="close-codes-modal" class="text-gray-400 hover:text-white transition-colors">
-                    <i data-lucide="x" class="w-8 h-8"></i>
+                    <i data-lucide="x" class="w-10 h-10"></i>
                 </button>
             </div>
             
-            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-300">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-300">
                 <!-- 4.1 Codes -->
                 <div>
                     <h3 class="text-bw-gold font-bold uppercase tracking-widest mb-4 border-b border-white/10 pb-2">4.1 Codes</h3>
@@ -575,27 +591,26 @@
                         <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-30</span><span>Standortabfrage</span></li>
                         <li class="flex items-start gap-4"><span class="font-mono text-red-400 font-bold w-12 shrink-0">10-80</span><span>Aktive Verfolgungsjagd [+ Ort]</span></li>
                     </ul>
+                </div>
             </div>
-            
-            <div class="px-8 pb-8">
-                <div class="bg-red-600/10 border border-red-600/20 rounded-xl p-6 mt-4">
-                    <h3 class="text-red-500 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-5 h-5"></i> Funk-Etikette & Prio-Funk
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                        <ul class="space-y-2">
-                            <li class="flex justify-between border-b border-white/5 pb-1"><span>Funk betreten:</span> <span class="text-white font-mono">Rufname 10-0</span></li>
-                            <li class="flex justify-between border-b border-white/5 pb-1"><span>Funk verlassen:</span> <span class="text-white font-mono">Rufname 10-99</span></li>
-                            <li class="flex flex-col gap-1">
-                                <span class="text-gray-500 text-xs uppercase">Funk wechseln:</span>
-                                <span class="text-white font-mono text-[11px]">Rufname wechsel zu Frequenz XX...</span>
-                            </li>
-                        </ul>
-                        <div class="bg-black/40 p-4 rounded border border-red-600/30">
-                            <span class="text-red-400 font-bold uppercase text-xs block mb-1">Prio-Funk (Absolute Funkstille)</span>
-                            <p class="text-[10px] text-gray-400 mb-2">Gilt bei 10-80, 11-99 etc. Befehl zur Funkstille:</p>
-                            <div class="text-2xl font-display font-bold text-white text-center tracking-widest animate-pulse">"STOPFEN!"</div>
-                        </div>
+
+            <div class="bg-red-600/10 border border-red-600/20 rounded-xl p-6 mt-8">
+                <h3 class="text-red-500 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-5 h-5"></i> Funk-Etikette & Prio-Funk
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <ul class="space-y-2">
+                        <li class="flex justify-between border-b border-white/5 pb-1"><span>Funk betreten:</span> <span class="text-white font-mono">Rufname 10-0</span></li>
+                        <li class="flex justify-between border-b border-white/5 pb-1"><span>Funk verlassen:</span> <span class="text-white font-mono">Rufname 10-99</span></li>
+                        <li class="flex flex-col gap-1">
+                            <span class="text-gray-500 text-xs uppercase">Funk wechseln:</span>
+                            <span class="text-white font-mono text-[11px]">Rufname wechsel zu Frequenz XX...</span>
+                        </li>
+                    </ul>
+                    <div class="bg-black/40 p-4 rounded border border-red-600/30">
+                        <span class="text-red-400 font-bold uppercase text-xs block mb-1">Prio-Funk (Absolute Funkstille)</span>
+                        <p class="text-[10px] text-gray-400 mb-2">Gilt bei 10-80, 11-99 etc. Befehl zur Funkstille:</p>
+                        <div class="text-2xl font-display font-bold text-white text-center tracking-widest animate-pulse">"STOPFEN!"</div>
                     </div>
                 </div>
             </div>

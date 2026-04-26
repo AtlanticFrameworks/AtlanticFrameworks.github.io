@@ -655,29 +655,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (openCodesBtn) {
         openCodesBtn.addEventListener('click', () => {
-            codesModal.classList.remove('hidden');
-            setTimeout(() => {
-                codesModal.classList.remove('opacity-0');
-                codesModalContent.classList.remove('scale-95');
-            }, 10);
+            // Close other sidebar if open
+            closeModal();
+            
+            codesModal.classList.remove('translate-x-full');
+            codesModal.classList.add('translate-x-0');
         });
     }
-
+    
     const closeCodesModal = () => {
-        codesModal.classList.add('opacity-0');
-        codesModalContent.classList.add('scale-95');
-        setTimeout(() => {
-            codesModal.classList.add('hidden');
-        }, 300);
+        codesModal.classList.remove('translate-x-0');
+        codesModal.classList.add('translate-x-full');
     };
-
+    
     closeCodesBtn.addEventListener('click', closeCodesModal);
-
-    codesModal.addEventListener('click', (e) => {
-        if (e.target === codesModal) {
-            closeCodesModal();
-        }
-    });
 
     // --- CUSTOM DROPDOWN LOGIC ---
     
