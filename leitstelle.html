@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitstelle | BWRP</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & Oswald -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/logo.png">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bw: {
+                            dark: '#0f1115',
+                            gold: '#E2B007',
+                            goldHover: '#cca006',
+                            glass: 'rgba(20, 25, 30, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        /* Specific styles for Leitstelle */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1c23;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .map-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            cursor: grab;
+            user-select: none;
+            /* Default transform will be handled by JS for panning/zooming if needed, otherwise just static */
+        }
+        
+        /* specific overrides for map wrapper to allow panning/zooming */
+        #map-wrapper {
+            position: absolute;
+            top: 50%; left: 50%;
+            /* Let the image define the dimensions */
+            transform-origin: center center;
+            cursor: grab;
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+        #map-image {
+            width: 2500px;
+            height: auto;
+            max-width: none;
+            opacity: 0.85;
+            mix-blend-screen: screen;
+            pointer-events: none;
+            user-select: none;
+        }
+        #map-wrapper:active {
+            cursor: grabbing;
+        }
+        .marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        
+        .marker.dragging {
+            z-index: 1000;
+            cursor: grabbing;
+        }
+
+        /* Ultimate RP Grid Overlay */
+        .map-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 100px 100px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Selection & Attention Effects */
+        .marker.selected .marker-icon {
+            box-shadow: 0 0 0 4px #E2B007, 0 0 30px #E2B007;
+            transform: scale(1.1);
+        }
+
+        .marker.attention .marker-icon {
+            animation: pulse-attention 0.5s infinite alternate;
+        }
+
+        @keyframes pulse-attention {
+            from { box-shadow: 0 0 10px #ef4444; transform: scale(1.1); }
+            to { box-shadow: 0 0 40px #ef4444, 0 0 60px #ef4444; transform: scale(1.3); }
+        }
+
+        /* Tooltip Style */
+        .marker-tooltip {
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            backdrop-blur: md;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .marker:hover .marker-tooltip {
+            opacity: 1;
+        }
+
+        /* Mini-Map / Radar (Top Right) */
+        #radar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 220px;
+            height: 220px;
+            background: rgba(0,0,0,0.7);
+            backdrop-blur: xl;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+        }
+        #radar-viewport {
+            position: absolute;
+            border: 1px solid #E2B007;
+            background: rgba(226, 176, 7, 0.1);
+            pointer-events: none;
+        }
+
+        /* Sidebar Toggle Classes */
+        .sidebar-collapsed {
+            width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Transition for layout changes */
+        aside, main, .map-container {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hotbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            backdrop-blur: xl;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 45;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        }
+
+        .hotbar-btn {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #9ca3af;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .hotbar-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: #E2B007;
+            transform: translateY(-4px);
+        }
+        .hotbar-btn .key-hint {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #374151;
+            color: #9ca3af;
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }    transition: transform 0.1s;
+        }
+        
+        .marker:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .marker.dragging {
+            z-index: 50;
+            opacity: 0.8;
+            cursor: grabbing;
+        }
+        
+        /* Custom scrollbar for sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05); 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(226,176,7,0.5); 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(226,176,7,0.8); 
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 font-sans antialiased bg-bw-dark flex flex-col h-screen overflow-hidden selection:bg-bw-gold selection:text-black">
+
+    <!-- CANVAS BACKGROUND (Dust/Embers) -->
+    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- HEADER (Dynamically Loaded) -->
+    <div id="navbar-container"></div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="flex-1 flex flex-col md:flex-row mt-20 pt-2 pb-4 px-4 gap-4 h-[calc(100vh-5rem)] relative z-10 overflow-hidden">
+        
+        <!-- SIDEBAR TOGGLE (Left) -->
+        <button id="toggle-sidebar-left" class="fixed left-0 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-md border border-white/10 p-2 rounded-r-xl z-30 hover:bg-bw-gold hover:text-black transition-all">
+            <i data-lucide="chevron-left" id="toggle-icon-left" class="w-5 h-5"></i>
+        </button>
+
+        <!-- SIDEBAR (Left) -->
+        <aside id="sidebar-left" class="w-full md:w-96 flex flex-col gap-4 h-full shrink-0">
+            
+            <!-- STREIFEN MANAGEMENT -->
+            <div class="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg p-5 flex flex-col flex-1 overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="font-display font-bold text-2xl text-white uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="shield" class="w-6 h-6 text-bw-gold"></i> Einheiten
+                    </h2>
+                    <div class="flex gap-2">
+                        <button id="btn-snapshot-save" class="p-2 bg-white/5 hover:bg-green-500/20 border border-white/10 rounded-md transition-colors" title="Snapshot speichern">
+                            <i data-lucide="save" class="w-4 h-4 text-green-400"></i>
+                        </button>
+                        <button id="btn-snapshot-load" class="p-2 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-md transition-colors" title="Snapshot laden">
+                            <i data-lucide="upload" class="w-4 h-4 text-blue-400"></i>
+                        </button>
+                        <button id="btn-clear-all" class="p-2 bg-white/5 hover:bg-red-500/20 border border-white/10 rounded-md transition-colors" title="Alles löschen">
+                            <i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i>
+                        </button>
+                        <button id="btn-share-state" class="p-2 bg-white/5 hover:bg-bw-gold/20 border border-white/10 rounded-md transition-colors" title="Zustand teilen">
+                            <i data-lucide="share-2" class="w-4 h-4 text-bw-gold"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Unit Presets (Speed Creation) -->
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button class="preset-btn bg-blue-500/10 border border-blue-500/30 p-2 rounded flex items-center gap-2 text-[10px] uppercase font-bold tracking-tighter hover:bg-blue-500/20 transition-all" data-preset="feldjaeger">
+                        <i data-lucide="shield-check" class="w-3 h-3 text-blue-400"></i> Feldjäger
+                    </button>
+                    <button class="preset-btn bg-red-500/10 border border-red-500/30 p-2 rounded flex items-center gap-2 text-[10px] uppercase font-bold tracking-tighter hover:bg-red-500/20 transition-all" data-preset="sanitaeter">
+                        <i data-lucide="heart" class="w-3 h-3 text-red-400"></i> Sanität
+                    </button>
+                    <button class="preset-btn bg-green-500/10 border border-green-500/30 p-2 rounded flex items-center gap-2 text-[10px] uppercase font-bold tracking-tighter hover:bg-green-500/20 transition-all" data-preset="infanterie">
+                        <i data-lucide="crosshair" class="w-3 h-3 text-green-400"></i> Infanterie
+                    </button>
+                    <button class="preset-btn bg-bw-gold/10 border border-bw-gold/30 p-2 rounded flex items-center gap-2 text-[10px] uppercase font-bold tracking-tighter hover:bg-bw-gold/20 transition-all" data-preset="luft">
+                        <i data-lucide="plane" class="w-3 h-3 text-bw-gold"></i> Luft
+                    </button>
+                </div>
+
+                <div id="patrol-list" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3">
+                    <!-- Patrol items will be injected here -->
+                </div>
+            </div>
+
+            <!-- LOGBOOK -->
+            <div class="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg p-5 flex flex-col h-64">
+                <h2 class="font-display font-bold text-xl text-white uppercase tracking-wider mb-3 flex items-center justify-center gap-2">
+                    <i data-lucide="scroll-text" class="w-5 h-5 text-bw-gold"></i> RP-Logbuch
+                </h2>
+                <div class="flex gap-1 mb-2">
+                    <button class="quick-log bg-blue-500/10 border border-blue-500/30 text-[9px] uppercase px-2 py-1 rounded hover:bg-blue-500/20 transition-all" data-text="Lage Update: Sektor gesichert.">Lage</button>
+                    <button class="quick-log bg-red-500/10 border border-red-500/30 text-[9px] uppercase px-2 py-1 rounded hover:bg-red-500/20 transition-all" data-text="DRINGEND: Verstärkung angefordert!" data-type="CRITICAL">Verstärkung</button>
+                    <button class="quick-log bg-yellow-500/10 border border-yellow-500/30 text-[9px] uppercase px-2 py-1 rounded hover:bg-yellow-500/20 transition-all" data-text="Status Abfrage läuft..." data-type="WARN">Status?</button>
+                </div>
+                <div id="rp-log" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 mb-3 text-xs">
+                    <!-- Log entries -->
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="log-input" class="flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-bw-gold" placeholder="Eintrag verfassen...">
+                    <button id="log-send" class="bg-bw-gold text-black p-2 rounded hover:bg-white transition-colors">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            
+        </aside>
+
+        <!-- MAP AREA -->
+        <div class="flex-1 flex flex-col bg-black/40 backdrop-blur-md border border-white/10 rounded-lg p-2 relative">
+            
+            <!-- TOP LEFT: Notepad & Controls -->
+            <div class="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                <button id="toggle-notepad" class="w-12 h-12 bg-black/80 border border-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 hover:text-bw-gold transition-colors shadow-lg backdrop-blur-md" title="Notizblock umschalten">
+                    <i data-lucide="sticky-note" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Floating Notepad (Top Left) -->
+            <div id="floating-notepad" class="hidden absolute top-4 left-20 w-80 h-80 bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-30 flex flex-col overflow-hidden">
+                <div class="px-4 py-3 bg-white/5 border-b border-white/10 flex justify-between items-center">
+                    <span class="text-[11px] font-bold uppercase tracking-widest text-bw-gold flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i> Notizblock
+                    </span>
+                    <button id="close-notepad" class="text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <textarea id="leitstelle-notes" class="flex-1 bg-transparent p-5 text-sm text-gray-300 focus:outline-none resize-none custom-scrollbar" placeholder="Hier taktische Notizen eintragen..."></textarea>
+            </div>
+
+            <div class="absolute top-4 right-4 z-20 flex gap-2">
+                <div class="bg-black/80 border border-white/10 rounded px-3 py-1 text-xs text-gray-400 font-mono flex items-center gap-2 shadow-lg backdrop-blur-md">
+                    <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    GPS AKTIV
+                </div>
+            </div>
+
+            <!-- BOTTOM RIGHT: Navigation Controls (Larger) -->
+            <div class="absolute bottom-6 right-6 z-20 flex gap-3 flex-col">
+                <button id="map-zoom-in" class="w-14 h-14 bg-black/80 border border-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 hover:text-bw-gold transition-colors shadow-lg backdrop-blur-md">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </button>
+                <button id="map-zoom-out" class="w-14 h-14 bg-black/80 border border-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 hover:text-bw-gold transition-colors shadow-lg backdrop-blur-md">
+                    <i data-lucide="minus" class="w-6 h-6"></i>
+                </button>
+                <button id="map-reset" class="w-14 h-14 bg-black/80 border border-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 hover:text-bw-gold transition-colors shadow-lg backdrop-blur-md mt-2" title="Ansicht zurücksetzen">
+                    <i data-lucide="maximize" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="map-container overflow-hidden rounded-lg relative bg-[#0a0a0a]" id="map-container">
+                <div class="map-grid"></div>
+                
+                <div id="map-wrapper">
+                    <img src="assets/images/Map.png" alt="Map" id="map-image" class="w-full h-full object-contain pointer-events-none opacity-60 mix-blend-screen select-none" draggable="false">
+                    <!-- Markers layer now inside map-wrapper to scale/pan with map -->
+                    <div id="markers-layer" class="absolute inset-0 z-10 pointer-events-none">
+                        <!-- Markers will be injected here -->
+                    </div>
+                    <!-- Drawing layer for waypoints/lines -->
+                    <svg id="drawing-layer" class="absolute inset-0 pointer-events-none z-5" style="width: 100%; height: 100%;"></svg>
+                </div>
+
+                <!-- Radar / Mini-Map -->
+                <div id="radar">
+                    <img src="assets/images/Map.png" class="w-full h-full object-contain opacity-40 grayscale invert" draggable="false">
+                    <div id="radar-viewport"></div>
+                    <!-- Radar Markers -->
+                    <div id="radar-markers" class="absolute inset-0 pointer-events-none"></div>
+                </div>
+
+                <!-- Map Coordinates -->
+                <div class="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 rounded-md text-[10px] text-gray-400 font-mono z-40 pointer-events-none">
+                    X: <span id="coord-x">0000</span> | Y: <span id="coord-y">0000</span>
+                </div>
+            </div>
+
+            <!-- HOTBAR -->
+            <div class="hotbar">
+                <div class="relative">
+                    <button id="hot-add" class="hotbar-btn" title="Einheit hinzufügen">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span class="key-hint">N</span>
+                    </button>
+                    <!-- Sub-menu for Add Options -->
+                    <div id="add-options-menu" class="hidden absolute bottom-full left-0 mb-4 bg-black/90 backdrop-blur-xl border border-white/10 p-2 rounded-xl flex flex-col gap-1 shadow-2xl min-w-[140px] z-50">
+                        <button id="hot-add-foot" class="flex items-center gap-3 px-3 py-2.5 hover:bg-blue-500/20 rounded-lg text-[11px] text-white uppercase font-bold tracking-wider transition-all">
+                            <i data-lucide="footprints" class="w-4 h-4 text-blue-400"></i> Fußstreife
+                        </button>
+                        <button id="hot-add-vehicle" class="flex items-center gap-3 px-3 py-2.5 hover:bg-bw-gold/20 rounded-lg text-[11px] text-white uppercase font-bold tracking-wider transition-all">
+                            <i data-lucide="car" class="w-4 h-4 text-bw-gold"></i> Fahrzeug
+                        </button>
+                    </div>
+                </div>
+                <button id="hot-delete" class="hotbar-btn" title="Einheit löschen">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    <span class="key-hint">DEL</span>
+                </button>
+                <button id="hot-attention" class="hotbar-btn" title="Aufmerksamkeit / Alarm">
+                    <i data-lucide="bell" class="w-5 h-5 text-red-400"></i>
+                    <span class="key-hint">A</span>
+                </button>
+                <div class="w-px h-8 bg-white/10 mx-1 self-center"></div>
+                <button id="hot-undo" class="hotbar-btn" title="Rückgängig">
+                    <i data-lucide="undo" class="w-5 h-5"></i>
+                    <span class="key-hint">^Z</span>
+                </button>
+                <div class="w-px h-8 bg-white/10 mx-1 self-center"></div>
+                <button id="hot-replay" class="hotbar-btn hover:text-bw-gold" title="Situation Replay">
+                    <i data-lucide="play" class="w-5 h-5"></i>
+                    <span class="key-hint">R</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- DETAIL SIDEBAR (Right) -->
+    <div id="detail-modal" class="fixed right-0 top-20 bottom-0 w-full max-w-md bg-bw-dark/95 backdrop-blur-xl border-l border-white/10 z-50 flex flex-col transform translate-x-full transition-transform duration-300 shadow-2xl">
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 relative" id="detail-modal-content">
+            
+            <button id="close-modal" class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors z-10">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <div class="flex items-center gap-4 mb-6">
+                <div id="modal-icon" class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10">
+                    <i data-lucide="shield" class="w-6 h-6 text-bw-gold"></i>
+                </div>
+                <div class="flex-1">
+                    <input type="text" id="modal-patrol-name" class="bg-transparent border-b border-white/20 text-white font-display font-bold text-3xl uppercase tracking-wider focus:outline-none focus:border-bw-gold w-full" value="Streife 1">
+                    <div id="modal-patrol-type" class="text-sm text-gray-400 uppercase tracking-widest mt-1">Typ</div>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-sm text-gray-400 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Personal</h3>
+                    <div id="modal-personnel-list" class="space-y-2 mb-4">
+                        <!-- Personnel items -->
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <input type="text" id="modal-personnel-input" class="flex-1 bg-black/50 border border-white/10 rounded px-4 py-3 text-base text-white focus:outline-none focus:border-bw-gold" placeholder="Name der Person..." autocomplete="off">
+                        <button id="modal-add-person" class="bg-bw-gold/20 hover:bg-bw-gold/40 text-bw-gold border border-bw-gold/50 rounded px-4 py-3 transition-colors shrink-0">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm text-gray-400 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Status / Info</h3>
+                    
+                    <!-- CUSTOM DROPDOWN -->
+                    <div class="relative w-full mb-4" id="custom-status-dropdown">
+                        <div id="status-selected" class="w-full bg-black/50 border border-white/10 rounded px-4 py-3 text-base text-white hover:border-bw-gold cursor-pointer flex justify-between items-center transition-colors">
+                            <span id="status-selected-text">10-08 | Statusabfrage</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <div id="status-options" class="absolute left-0 right-0 top-full mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded shadow-2xl z-50 hidden max-h-64 overflow-y-auto custom-scrollbar">
+                            <!-- Options injected by JS -->
+                        </div>
+                    </div>
+                    
+                    <textarea id="modal-patrol-info" class="w-full bg-black/50 border border-white/10 rounded p-4 text-base text-gray-300 focus:outline-none focus:border-bw-gold resize-none h-28" placeholder="Zusätzliche Infos zur Streife..."></textarea>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-between items-center border-t border-white/10 pt-5 pb-2">
+                <button id="modal-delete-patrol" class="text-red-400 hover:text-red-300 text-base flex items-center gap-2 transition-colors">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i> Auflösen
+                </button>
+                <button id="modal-save" class="bg-bw-gold text-black font-bold uppercase tracking-wider px-8 py-3 rounded text-base hover:bg-white transition-colors">
+                    Speichern
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- CODES MODAL -->
+    <div id="codes-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-bw-dark border border-white/10 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300 relative shadow-2xl" id="codes-modal-content">
+            
+            <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <h2 class="font-display font-bold text-3xl text-white uppercase tracking-wider flex items-center gap-3">
+                    <i data-lucide="book-open" class="w-8 h-8 text-bw-gold"></i> Funk-Codes & Status
+                </h2>
+                <button id="close-codes-modal" class="text-gray-400 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-8 h-8"></i>
+                </button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 grid grid-cols-1 md:grid-cols-2 gap-10 text-base text-gray-300">
+                <!-- 4.1 Codes -->
+                <div>
+                    <h3 class="text-bw-gold font-bold uppercase tracking-widest mb-4 border-b border-white/10 pb-2">4.1 Codes</h3>
+                    <ul class="space-y-3">
+                        <li class="flex flex-col"><span class="font-mono text-white font-bold">Code 1</span><span>Einsatzfahrt ohne Sirene, ohne Blaulicht anfahren</span></li>
+                        <li class="flex flex-col"><span class="font-mono text-white font-bold">Code 2</span><span>Einsatzfahrt ohne Sirene, mit Blaulicht</span></li>
+                        <li class="flex flex-col"><span class="font-mono text-white font-bold">Code 3</span><span>Einsatzfahrt mit Sirene und Blaulicht</span></li>
+                        <li class="flex flex-col"><span class="font-mono text-white font-bold">Code 4</span><span>Einsatzort beendet / alles in Ordnung [+ Ort]</span></li>
+                        <li class="flex flex-col"><span class="font-mono text-white font-bold">Code 5</span><span>Geheime Ermittlung / Außer Sichtweite aufhalten [+ Ort]</span></li>
+                    </ul>
+                    
+                    <h3 class="text-bw-gold font-bold uppercase tracking-widest mt-8 mb-4 border-b border-white/10 pb-2">11-er Codes</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-4"><span class="font-mono text-red-400 font-bold w-12">11-20</span><span>Soldat angeschossen [+ Ort]</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-red-400 font-bold w-12">11-99</span><span>Unter Beschuss [+ Ort]</span></li>
+                    </ul>
+
+                    <h3 class="text-bw-gold font-bold uppercase tracking-widest mt-8 mb-4 border-b border-white/10 pb-2">20-er Codes</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-4"><span class="font-mono text-blue-400 font-bold w-12">20-20</span><span>Verstärkung benötigt [+ Ort]</span></li>
+                    </ul>
+                </div>
+
+                <!-- 10-er Codes -->
+                <div>
+                    <h3 class="text-bw-gold font-bold uppercase tracking-widest mb-4 border-b border-white/10 pb-2">4.2 Ten Codes (10-er)</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-01</span><span>Dienstantritt</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-02</span><span>Dienstende</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-03</span><span>Benötigte Einteilung</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-04</span><span>Verstanden</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-05</span><span>Funkspruch wiederholen</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-green-400 font-bold w-12 shrink-0">10-07</span><span>Medic benötigt [+Ort]</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-08</span><span>Statusabfrage</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-09</span><span>Pause</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-10</span><span>Auf Anfahrt [+ Ort]</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-yellow-400 font-bold w-12 shrink-0">10-20</span><span>Abholung benötigt [+ Ort]</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-white font-bold w-12 shrink-0">10-30</span><span>Standortabfrage</span></li>
+                        <li class="flex items-start gap-4"><span class="font-mono text-red-400 font-bold w-12 shrink-0">10-80</span><span>Aktive Verfolgungsjagd [+ Ort]</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-bw-dark border border-white/10 rounded-2xl p-8 max-w-md w-full transform scale-95 transition-transform duration-300 shadow-2xl text-center relative overflow-hidden">
+            <!-- Glow Effect -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-500/10 blur-[100px] rounded-full"></div>
+            
+            <div class="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6 relative z-10">
+                <i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i>
+            </div>
+            <h2 class="font-display font-bold text-2xl text-white uppercase tracking-wider mb-2 relative z-10">Sicherheitsabfrage</h2>
+            <p id="confirm-message" class="text-gray-400 mb-8 text-sm relative z-10">Möchten Sie diese Aktion wirklich durchführen?</p>
+            
+            <div class="flex gap-3 relative z-10">
+                <button id="confirm-cancel" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] text-gray-400 hover:text-white transition-all">
+                    Abbrechen
+                </button>
+                <button id="confirm-proceed" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-red-500/20">
+                    Bestätigen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/leitstelle.js"></script>
+</body>
+
+</html>
