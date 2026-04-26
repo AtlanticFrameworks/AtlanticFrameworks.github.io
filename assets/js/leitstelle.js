@@ -954,55 +954,61 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', escHandler);
     };
 
-    document.getElementById('btn-clear-all').addEventListener('click', (e) => {
-        e.preventDefault();
-        showCustomConfirm('Möchten Sie wirklich die gesamte Leitstelle zurücksetzen? Alle Einheiten, Logs und das Personal im Pool werden gelöscht.', () => {
-            patrols.length = 0;
-            rpLogs.length = 0;
-            personnelPool.length = 0;
-            replayHistory.length = 0;
-            
-            localStorage.removeItem('bwrp_leitstelle_patrols');
-            localStorage.removeItem('bwrp_leitstelle_logs');
-            localStorage.removeItem('bwrp_leitstelle_pool');
-            localStorage.removeItem('bwrp_leitstelle_notes');
-            
-            addLog('System VOLLSTÄNDIG zurückgesetzt.', 'CRITICAL');
-            renderAll();
-            renderPool();
-            renderLogs();
-        });
-    });
-
-    document.getElementById('btn-share-state').addEventListener('click', () => {
-        const state = {
-            patrols,
-            rpLogs,
-            personnelPool,
-            notes: document.getElementById('leitstelle-notes').value,
-            timestamp: Date.now()
-        };
-        
-        try {
-            const json = JSON.stringify(state);
-            const base64 = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => {
-                return String.fromCharCode('0x' + p1);
-            }));
-            
-            const url = new URL(window.location.href);
-            url.searchParams.set('s', base64);
-            
-            navigator.clipboard.writeText(url.href).then(() => {
-                addLog('Teilbarer Link in Zwischenablage kopiert!', 'INFO');
-                showCustomConfirm('Link kopiert! Sie können diesen Link nun an andere Dispatcher senden. Möchten Sie den Link in einem neuen Tab testen?', () => {
-                    window.open(url.href, '_blank');
-                });
+    const btnClearAll = document.getElementById('btn-clear-all');
+    if (btnClearAll) {
+        btnClearAll.addEventListener('click', (e) => {
+            e.preventDefault();
+            showCustomConfirm('Möchten Sie wirklich die gesamte Leitstelle zurücksetzen? Alle Einheiten, Logs und das Personal im Pool werden gelöscht.', () => {
+                patrols.length = 0;
+                rpLogs.length = 0;
+                personnelPool.length = 0;
+                replayHistory.length = 0;
+                
+                localStorage.removeItem('bwrp_leitstelle_patrols');
+                localStorage.removeItem('bwrp_leitstelle_logs');
+                localStorage.removeItem('bwrp_leitstelle_pool');
+                localStorage.removeItem('bwrp_leitstelle_notes');
+                
+                addLog('System VOLLSTÄNDIG zurückgesetzt.', 'CRITICAL');
+                renderAll();
+                renderPool();
+                renderLogs();
             });
-        } catch (e) {
-            console.error('Sharing failed', e);
-            addLog('Fehler beim Generieren des Links.', 'CRITICAL');
-        }
-    });
+        });
+    }
+
+    const btnShareState = document.getElementById('btn-share-state');
+    if (btnShareState) {
+        btnShareState.addEventListener('click', () => {
+            const state = {
+                patrols,
+                rpLogs,
+                personnelPool,
+                notes: document.getElementById('leitstelle-notes').value,
+                timestamp: Date.now()
+            };
+            
+            try {
+                const json = JSON.stringify(state);
+                const base64 = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+                    return String.fromCharCode('0x' + p1);
+                }));
+                
+                const url = new URL(window.location.href);
+                url.searchParams.set('s', base64);
+                
+                navigator.clipboard.writeText(url.href).then(() => {
+                    addLog('Teilbarer Link in Zwischenablage kopiert!', 'INFO');
+                    showCustomConfirm('Link kopiert! Sie können diesen Link nun an andere Dispatcher senden. Möchten Sie den Link in einem neuen Tab testen?', () => {
+                        window.open(url.href, '_blank');
+                    });
+                });
+            } catch (e) {
+                console.error('Sharing failed', e);
+                addLog('Fehler beim Generieren des Links.', 'CRITICAL');
+            }
+        });
+    }
 
     // Handle incoming shared state
     const urlParams = new URLSearchParams(window.location.search);
@@ -1230,27 +1236,38 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         
-        if (e.key === 'Delete') document.getElementById('hot-delete').click();
-        if (e.key === 'n') document.getElementById('hot-add').click();
-        if (e.key === 'a') document.getElementById('hot-attention').click();
-        if (e.key === 'r') document.getElementById('hot-replay').click();
+        const deleteBtn = document.getElementById('hot-delete');
+        if (e.key === 'Delete' && deleteBtn) deleteBtn.click();
+        
+        const addBtn = document.getElementById('hot-add');
+        if (e.key === 'n' && addBtn) addBtn.click();
+        
+        const attentionBtn = document.getElementById('hot-attention');
+        if (e.key === 'a' && attentionBtn) attentionBtn.click();
+        
+        const replayBtn = document.getElementById('hot-replay');
+        if (e.key === 'r' && replayBtn) replayBtn.click();
         
         // Undo mock (simple clear last waypoint or patrol)
-        if (e.ctrlKey && e.key === 'z') {
-            document.getElementById('hot-undo').click();
+        const undoBtn = document.getElementById('hot-undo');
+        if (e.ctrlKey && e.key === 'z' && undoBtn) {
+            undoBtn.click();
         }
     });
 
     // Personnel Pool Actions
-    document.getElementById('pool-add').addEventListener('click', () => {
-        const input = document.getElementById('pool-input');
-        if (input.value) {
-            personnelPool.push(input.value);
-            input.value = '';
-            renderPool();
-            saveState();
-        }
-    });
+    const poolAddBtn = document.getElementById('pool-add');
+    if (poolAddBtn) {
+        poolAddBtn.addEventListener('click', () => {
+            const input = document.getElementById('pool-input');
+            if (input && input.value) {
+                personnelPool.push(input.value);
+                input.value = '';
+                renderPool();
+                saveState();
+            }
+        });
+    }
 
     // Add Replay Button to Hotbar or Sidebar? Let's add it to Hotbar.
     // Wait, let's just use the button in the action bar if it exists.
