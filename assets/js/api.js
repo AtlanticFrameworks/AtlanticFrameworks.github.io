@@ -22,7 +22,7 @@ class ApiClient {
             const refreshed = await this._refresh();
             if (refreshed) return this._request(path, options);
             // Refresh failed → redirect to login
-            window.logout?.();
+            window.auth?.logout?.();
             return res;
         }
         return res;

@@ -31,7 +31,7 @@ const CONTENT_SECURITY_POLICY = [
   "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com",
+  "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com https://tr.rbxcdn.com https://*.rbxcdn.com",
   "connect-src 'self' https://unpkg.com https://discord.com https://api.codetabs.com https://api.allorigins.win https://corsproxy.io https://groups.roblox.com https://thumbnails.roblox.com https://apis.roblox.com",
   "frame-src 'none'",
   "frame-ancestors 'none'",
