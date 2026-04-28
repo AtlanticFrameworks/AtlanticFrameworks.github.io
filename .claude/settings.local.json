@@ -16,7 +16,8 @@
       "Bash(grep -l \"manifest.json\" \"C:/Users/batua/Documents/Projekte/BWRPWebsite/\"*.html)",
       "Bash(git:*)",
       "Bash(grep -n \"tailwind\\\\|cdn\\\\|CDN\" /c/Users/batua/Documents/Projekte/BWRPWebsite/*.html)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(curl -sI https://bwrp.net/)"
     ]
   }
 }
