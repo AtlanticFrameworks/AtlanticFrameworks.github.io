@@ -1,6 +1,7 @@
 // assets/js/gamepanel.js
 
-let gpCurrentPlayer = null;
+let gpCurrentPlayer  = null;
+let gpSearchInFlight = false;
 
 // ── Staff Protection ──────────────────────────────────────────────────────────
 
@@ -72,9 +73,11 @@ function escHtml(unsafe) {
 }
 
 async function gpLookupPlayer() {
+    if (gpSearchInFlight) return;
     const query = document.getElementById('gp-search-input').value.trim();
     if (!query) { showStatus && showStatus('Bitte einen Spielernamen oder eine ID eingeben.', 'error'); return; }
 
+    gpSearchInFlight = true;
     document.getElementById('gp-search-hint').textContent = 'Suche läuft...';
     document.getElementById('gp-player-section').classList.add('hidden');
 
@@ -111,6 +114,8 @@ async function gpLookupPlayer() {
         document.getElementById('gp-search-hint').textContent = 'Drücke Enter oder klicke Suchen';
         if (e.status === 404) showStatus('Spieler nicht gefunden.', 'error');
         else showStatus(friendlyApiError(e, 'Spieler-Lookup fehlgeschlagen'), 'error');
+    } finally {
+        gpSearchInFlight = false;
     }
 }
 

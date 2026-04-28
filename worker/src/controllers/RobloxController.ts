@@ -71,7 +71,7 @@ async function resolveUsername(_env: Env, username: string): Promise<UsernameRes
 
     const body = await res.text().catch(() => '');
     console.error(`[Roblox] username POST ${res.status}: ${body.slice(0, 200)}`);
-    return { type: 'apiError', status: res.status, message: `Roblox ${res.status}`, debugUrl: 'v1/usernames/users' };
+    return { type: 'apiError', status: res.status, message: body.slice(0, 200) || `Roblox ${res.status}`, debugUrl: 'v1/usernames/users' };
   } catch (e) {
     console.error('[Roblox] username lookup threw:', (e as Error).message);
     return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: 'v1/usernames/users' };

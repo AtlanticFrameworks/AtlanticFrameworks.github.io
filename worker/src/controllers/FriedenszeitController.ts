@@ -40,9 +40,9 @@ export class FriedenszeitController {
     const nowTimestamp    = Math.floor(now.getTime() / 1000);
     
     const emoji = isActive ? '🟢' : '🔴';
-    const icon  = isActive 
-      ? 'https://raw.githubusercontent.com/AtlanticFrameworks/AtlanticFrameworks.github.io/refs/heads/main/assets/images/peace.png'
-      : 'https://raw.githubusercontent.com/AtlanticFrameworks/AtlanticFrameworks.github.io/main/assets/images/war.png';
+    const icon  = isActive
+      ? 'https://bwrp.net/assets/images/peace.png'
+      : 'https://bwrp.net/assets/images/war.png';
 
     return json({
       success: true,

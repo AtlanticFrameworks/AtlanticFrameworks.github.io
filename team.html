@@ -540,8 +540,6 @@
                     loadStaffHierarchy().catch(e => console.error('Staff Fehler:', e));
                     if (typeof loadAnnouncements === 'function') loadAnnouncements();
                 }
-                if (typeof initDatabase === 'function') initDatabase().catch(e => console.error('DB Fehler:', e));
-                
                 checkTutorialAutoStart();
 
             } catch (e) {

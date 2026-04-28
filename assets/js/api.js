@@ -152,8 +152,8 @@ class ApiClient {
     async cloudKick(targetRobloxId, targetUsername, reason) {
         return this.post('/cloud/kick', { targetRobloxId, targetUsername, reason });
     }
-    async cloudBan(targetRobloxId, targetUsername, reason, displayReason, durationDays = null) {
-        return this.post('/cloud/ban', { targetRobloxId, targetUsername, reason, displayReason, durationDays });
+    async cloudBan(targetRobloxId, targetUsername, reason, displayReason, durationIso = null) {
+        return this.post('/cloud/ban', { targetRobloxId, targetUsername, reason, displayReason, durationIso });
     }
     async cloudUnban(targetRobloxId, targetUsername) {
         return this.post('/cloud/unban', { targetRobloxId, targetUsername });

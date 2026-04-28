@@ -54,14 +54,14 @@ export class CloudController {
     if (ROLE_RANK[user.role] < ROLE_RANK['MOD']) return err('Keine Berechtigung', 403, origin);
 
     const body: any = await request.json().catch(() => ({}));
-    const { targetRobloxId, targetUsername, reason, displayReason, durationDays } = body;
+    const { targetRobloxId, targetUsername, reason, displayReason, durationIso } = body;
     if (!targetRobloxId || !reason) return err('targetRobloxId und reason sind Pflichtfelder', 400, origin);
     if (isNaN(Number(targetRobloxId)) || Number(targetRobloxId) <= 0) return err('targetRobloxId muss eine gültige Roblox-ID sein', 400, origin);
-    if (durationDays !== undefined && durationDays !== null && (isNaN(Number(durationDays)) || Number(durationDays) < 1)) return err('durationDays muss eine positive Zahl sein', 400, origin);
+    if (durationIso !== undefined && durationIso !== null && (typeof durationIso !== 'string' || !/^P/.test(durationIso))) return err('durationIso muss eine ISO 8601 Dauer sein (z.B. P7D, PT2H)', 400, origin);
 
     try {
       const cloud = new RobloxCloudService(env);
-      const duration = durationDays ? `P${durationDays}D` : null;
+      const duration = durationIso || null;
       await cloud.banUser({
         userId:        Number(targetRobloxId),
         reason:        reason,

@@ -1,6 +1,6 @@
 import type { Env } from '../types/index.js';
 import { AuthService } from '../services/AuthService.js';
-import { json, err, getCookie, clearCookie, getIP, auditLog } from '../middleware/auth.js';
+import { json, err, getCookie, setCookie, clearCookie, getIP, auditLog } from '../middleware/auth.js';
 
 export class AuthController {
   static async login(request: Request, env: Env): Promise<Response> {
@@ -46,9 +46,7 @@ export class AuthController {
     const newAccess = await svc.refreshAccessToken(refreshToken);
     if (!newAccess)   return err('Refresh-Token ungültig oder abgelaufen', 401);
 
-    const { setCookie } = await import('../middleware/auth.js');
-    // Re-issue access cookie
-    const accessCookie = (await import('../middleware/auth.js')).setCookie('bwrp_access', newAccess, 15 * 60);
+    const accessCookie = setCookie('bwrp_access', newAccess, 15 * 60);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
