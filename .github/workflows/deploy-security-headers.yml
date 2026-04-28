@@ -1,0 +1,22 @@
+name: Deploy Security Headers Worker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'security-worker/**'
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: security-worker
