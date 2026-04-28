@@ -10,39 +10,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap"
         rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="/assets/images/logo.png">
+    <link rel="manifest" href="/manifest.json">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'tac-dark': '#08080a',
-                        'tac-panel': '#111114',
-                        'tac-card': '#16161a',
-                        'tac-border': '#252529',
-                        'tac-amber': '#e2a800',
-                        'tac-green': '#10b981',
-                        'tac-red': '#ef4444',
-                        'tac-blue': '#3b82f6',
-                        'tac-muted': '#71717a',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Oswald', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    keyframes: {
-                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.3s ease-out',
-                    }
-                }
-            }
-        };
-    </script>
 
     <style>
         ::-webkit-scrollbar {
@@ -357,6 +328,7 @@
             clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
         }
     </style>
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
 <body class="bg-tac-dark text-white min-h-screen font-sans crt-overlay">

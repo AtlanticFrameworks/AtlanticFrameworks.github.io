@@ -4,27 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wartungsarbeiten | ATLANTIC Studios</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="/assets/images/logo.png">
+    <link rel="manifest" href="/manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bw: {
-                            dark: '#0f1115',
-                            gold: '#E2B007'
-                        }
-                    },
-                    fontFamily: {
-                        display: ['Oswald', 'sans-serif'],
-                        mono: ['Roboto Mono', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         @keyframes scanline {
             0% { transform: translateY(-100%); }
@@ -39,6 +23,7 @@
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
     </style>
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body class="bg-bw-dark text-gray-200 font-sans antialiased overflow-hidden h-screen flex items-center justify-center">
 

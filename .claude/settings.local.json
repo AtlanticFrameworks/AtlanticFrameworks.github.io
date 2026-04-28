@@ -9,7 +9,14 @@
       "Bash(grep -n \"function runCalculation\\\\|function generateQuickCommand\\\\|function lookupPlayer\\\\|function resetChecklist\\\\|function copyQmCommand\\\\|function copyCalcCommand\\\\|function toggleChecklist\" assets/js/*.js)",
       "Bash(npm run:*)",
       "Bash(python:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(convert --version)",
+      "Bash(magick --version)",
+      "Bash(python3 -c \"from PIL import Image; print\\('Pillow available'\\)\")",
+      "Bash(grep -l \"manifest.json\" \"C:/Users/batua/Documents/Projekte/BWRPWebsite/\"*.html)",
+      "Bash(git:*)",
+      "Bash(grep -n \"tailwind\\\\|cdn\\\\|CDN\" /c/Users/batua/Documents/Projekte/BWRPWebsite/*.html)",
+      "Bash(npm install:*)"
     ]
   }
 }

@@ -32,14 +32,18 @@ async function loadComponent(elementId, filePath) {
             });
 
         } else {
-            console.error(`Failed to load ${filePath}: ${response.statusText}`);
+            console.warn(
+                `[components] Failed to load "${filePath}" — ` +
+                `HTTP ${response.status} ${response.statusText}. ` +
+                `Check that the file exists with a .html extension and is reachable from the server.`
+            );
         }
     } catch (error) {
-        console.error(`Error loading ${filePath}:`, error);
+        console.warn(`[components] Network error loading "${filePath}":`, error.message);
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadComponent('navbar-container', 'assets/components/header');
-    loadComponent('footer-container', 'assets/components/footer');
+    loadComponent('navbar-container', 'assets/components/header.html');
+    loadComponent('footer-container', 'assets/components/footer.html');
 });
