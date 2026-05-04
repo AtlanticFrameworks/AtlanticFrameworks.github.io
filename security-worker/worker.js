@@ -60,6 +60,40 @@ function isHtmlResponse(response) {
 // ── Main handler ──────────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // --- ROBLOX PROXY ROUTE ---
+    if (url.pathname.startsWith('/proxy/roblox/')) {
+        const targetUrl = request.url.split('/proxy/roblox/')[1];
+        if (targetUrl) {
+            const decodedUrl = decodeURIComponent(targetUrl);
+            try {
+                const proxyResp = await fetch(decodedUrl, {
+                    headers: { 
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const proxyHeaders = new Headers(proxyResp.headers);
+                proxyHeaders.set('Access-Control-Allow-Origin', '*');
+                proxyHeaders.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+                proxyHeaders.delete('X-Frame-Options');
+                
+                // If Roblox returned an error (like 403), we still return it with CORS headers so the client can read the JSON error
+                return new Response(proxyResp.body, { 
+                    status: proxyResp.status, 
+                    headers: proxyHeaders 
+                });
+            } catch (err) {
+                return new Response(JSON.stringify({ error: 'Proxy fetch failed' }), { 
+                    status: 502, 
+                    headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+                });
+            }
+        }
+    }
+
     // Subrequests from Cloudflare Workers do NOT re-trigger this worker,
     // so fetch(request) goes directly to the GitHub Pages origin.
     let response;

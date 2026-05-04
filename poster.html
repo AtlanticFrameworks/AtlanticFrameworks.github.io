@@ -103,7 +103,7 @@
         [data-layout="vanguard"] .poster-side-images { position: absolute; right: 45px; top: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
         [data-layout="vanguard"] .poster-bottom-section { position: absolute; bottom: 45px; left: 45px; right: 45px; z-index: 30; }
         [data-layout="vanguard"] .bottom-title-small { color: var(--accent-color); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
-        [data-layout="vanguard"] .bottom-title-large { color: var(--text-main); font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; max-width: 500px; overflow-wrap: break-word; }
+        [data-layout="vanguard"] .bottom-title-large { color: var(--text-main); font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; max-width: 700px; overflow-wrap: break-word; }
         [data-layout="vanguard"] .divider-container { display: flex; align-items: center; margin-bottom: 20px; gap: 12px; width: 85%; }
         [data-layout="vanguard"] .divider-line { height: 2px; background-color: var(--accent-color); flex-grow: 1; }
         [data-layout="vanguard"] .divider-line.short { flex-grow: 0; width: 60px; }
@@ -561,7 +561,7 @@
     </main>
 
     <!-- Modals -->
-    <div id="modal-assets" class="modal-backdrop">
+    <div id="modal-assets" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-display font-bold text-xl tracking-widest text-bw-gold uppercase">VERBANDSLOGO WÄHLEN</h3>
@@ -580,8 +580,8 @@
     </div>
 
     <!-- Export Modal -->
-    <div id="modal-export" class="modal-backdrop">
-        <div class="modal-content w-[400px]">
+    <div id="modal-export" class="modal-overlay">
+        <div class="modal-box w-[400px]">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xs font-bold text-bw-gold uppercase tracking-widest">Datei Exportieren</h3>
                 <button onclick="closeModal('export')" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -642,10 +642,14 @@
             btn.disabled = true;
 
             try {
-                const proxies = ["https://corsproxy.io/?", "https://api.allorigins.win/raw?url=", "https://api.codetabs.com/v1/proxy?quest="];
+                const proxies = [
+                    "https://bwrp.net/proxy/roblox/",
+                    "https://corsproxy.io/?", 
+                    "https://api.codetabs.com/v1/proxy?quest="
+                ];
 
                 // 1. Set Headshot (Portrait 1) via Proxy for CORS compliance
-                const headshotUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userId=${id}&size=420x420&format=Png&isCircular=false`;
+                const headshotUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=420x420&format=Png&isCircular=false`;
                 const p1 = document.getElementById('p-side-1');
                 p1.src = `${proxies[0]}${encodeURIComponent(headshotUrl)}`;
                 p1.classList.add('loaded');
@@ -856,10 +860,10 @@
             saveState();
         }
 
-        function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+        function closeModal(id) { document.getElementById('modal-' + id).classList.remove('active'); }
         function openExportModal() { 
             console.log("Opening Export Modal...");
-            document.getElementById('modal-export').classList.add('open'); 
+            document.getElementById('modal-export').classList.add('active'); 
         }
         function setExportFormat(f) { exportFormat = f; document.querySelectorAll('.export-opt').forEach(b => { b.classList.toggle('active', b.textContent.toLowerCase() === f); b.classList.toggle('bg-bw-gold/10', b.textContent.toLowerCase() === f); b.classList.toggle('border-bw-gold/30', b.textContent.toLowerCase() === f); }); }
         function setExportQuality(q) { 

@@ -12,8 +12,8 @@ class AvatarRenderer {
         this.isInitialized = false;
         // Robust list of proxies to bypass CORS and CSP restrictions
         this.proxies = [
+            "https://bwrp.net/proxy/roblox/",
             "https://corsproxy.io/?",
-            "https://api.allorigins.win/raw?url=",
             "https://api.codetabs.com/v1/proxy?quest="
         ];
     }
