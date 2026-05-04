@@ -63,16 +63,13 @@ const AssetService = {
     },
 
     getProxiedUrl(url) {
-        // Simple logic for non-async URL generation (textures, etc)
-        // We swap roblox.com -> roproxy.com or rbxcdn.com -> roproxy.com
-        if (url.includes('roblox.com')) {
-            return url.replace('roblox.com', 'roproxy.com');
+        // Prevent double-proxying if the URL already has corsproxy
+        if (url.includes('corsproxy.io')) {
+            return url;
         }
-        if (url.includes('rbxcdn.com')) {
-            return url.replace('rbxcdn.com', 'roproxy.com');
-        }
-        // Fallback to first prefix proxy
-        return `${this.proxies[1]}${encodeURIComponent(url)}`;
+
+        // Wrap the entire original URL with CorsProxy.io
+        return `https://corsproxy.io/?${encodeURIComponent(url)}`;
     },
 
     async fetchProxied(url, options = {}) {
