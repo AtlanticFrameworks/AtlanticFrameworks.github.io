@@ -899,9 +899,54 @@
             btn.textContent = 'EXPORTING...';
             
             const canvasEl = document.getElementById('poster-canvas');
+            const canvas3D = document.querySelector('#avatar-3d-canvas canvas');
+            const fallbackMain = document.getElementById('p-main');
+            const container3D = document.getElementById('avatar-3d-canvas');
+            
+            // State for restoration
+            let tempImg = null;
+            const originalParent = canvasEl.parentElement;
+            const originalTransform = canvasEl.style.transform;
+            const originalPosition = canvasEl.style.position;
+            const originalTop = canvasEl.style.top;
+            const originalLeft = canvasEl.style.left;
             
             try {
-                // We use onclone to modify the canvas for rendering without touching the live DOM
+                // 1. Prepare 3D Canvas (Swap to Image for Capture)
+                if (canvas3D && container3D.style.display !== 'none') {
+                    tempImg = document.createElement('img');
+                    tempImg.src = canvas3D.toDataURL();
+                    tempImg.style.position = 'absolute';
+                    tempImg.style.inset = '0';
+                    tempImg.style.width = '100%';
+                    tempImg.style.height = '100%';
+                    tempImg.style.objectFit = 'contain';
+                    tempImg.id = "temp-3d-snap";
+                    container3D.appendChild(tempImg);
+                    canvas3D.style.visibility = 'hidden';
+                }
+
+                // 2. Explicitly hide invisible elements that might interfere
+                fallbackMain.style.display = 'none';
+
+                // 3. Move to a clean, fixed container for pixel-perfect capture
+                const exportBox = document.createElement('div');
+                exportBox.id = "export-temp-box";
+                exportBox.style.position = 'fixed';
+                exportBox.style.top = '-5000px'; // Way off-screen
+                exportBox.style.left = '0';
+                exportBox.style.width = '800px';
+                exportBox.style.height = '1200px';
+                exportBox.style.zIndex = '-9999';
+                document.body.appendChild(exportBox);
+                
+                canvasEl.style.transform = 'none';
+                canvasEl.style.position = 'static';
+                exportBox.appendChild(canvasEl);
+
+                // Wait for DOM to settle
+                await new Promise(r => setTimeout(r, 100));
+
                 const canvas = await html2canvas(canvasEl, { 
                     scale: exportQuality, 
                     useCORS: true, 
@@ -910,26 +955,7 @@
                     width: 800,
                     height: 1200,
                     windowWidth: 800,
-                    windowHeight: 1200,
-                    onclone: (clonedDoc) => {
-                        const clonedCanvas = clonedDoc.getElementById('poster-canvas');
-                        clonedCanvas.style.transform = 'none';
-                        clonedCanvas.style.position = 'relative';
-                        clonedCanvas.style.margin = '0';
-                        clonedCanvas.style.top = '0';
-                        clonedCanvas.style.left = '0';
-
-                        // Convert 3D Canvas to static image in the clone
-                        const canvas3D = document.querySelector('#avatar-3d-canvas canvas');
-                        if (canvas3D) {
-                            const cloned3DContainer = clonedDoc.getElementById('avatar-3d-canvas');
-                            const img3D = clonedDoc.createElement('img');
-                            img3D.src = canvas3D.toDataURL();
-                            img3D.className = 'absolute inset-0 w-full h-full object-contain';
-                            cloned3DContainer.innerHTML = '';
-                            cloned3DContainer.appendChild(img3D);
-                        }
-                    }
+                    windowHeight: 1200
                 });
                 
                 const link = document.createElement('a');
@@ -940,6 +966,22 @@
                 alert("Export failed!"); 
                 console.error(err); 
             } finally {
+                // Restore State
+                if (tempImg) {
+                    tempImg.remove();
+                    canvas3D.style.visibility = 'visible';
+                }
+                fallbackMain.style.display = 'block';
+                
+                canvasEl.style.transform = originalTransform;
+                canvasEl.style.position = originalPosition;
+                canvasEl.style.top = originalTop;
+                canvasEl.style.left = originalLeft;
+                originalParent.appendChild(canvasEl);
+                
+                const box = document.getElementById('export-temp-box');
+                if (box) box.remove();
+
                 btn.disabled = false;
                 btn.textContent = 'EXPORT STARTEN';
                 closeModal('export');
