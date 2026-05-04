@@ -140,7 +140,7 @@
         .asset-card img { width: 100%; aspect-ratio: 1; object-fit: contain; margin-bottom: 8px; }
 
         /* Image Control Menu */
-        .img-controls { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 1px solid var(--bw-gold); display: flex; gap: 5px; padding: 5px; z-index: 100; opacity: 0; transition: opacity 0.2s; pointer-events: auto; }
+        .img-controls { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.9); border: 1px solid var(--bw-gold); display: flex; gap: 8px; padding: 8px; z-index: 1000; opacity: 0; transition: opacity 0.2s; pointer-events: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .side-image-wrapper:hover .img-controls, .character-container:hover .img-controls, .bottom-logo-wrapper:hover .img-controls { opacity: 1; }
         .ctrl-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; border-radius: 2px; }
         .ctrl-btn:hover { background: var(--bw-gold); color: black; }
@@ -330,7 +330,7 @@
             <div class="absolute inset-0 bg-black/80 pointer-events-none"></div>
             
             <!-- Zoom Controls -->
-            <div class="absolute top-6 right-6 z-20 flex items-center gap-2">
+            <div class="absolute top-6 left-6 z-50 flex items-center gap-2">
                 <div class="bg-bw-panel border border-bw-border p-2 flex items-center gap-4 px-4 shadow-2xl">
                     <span class="font-mono text-[9px] text-gray-500 uppercase" data-i18n="poster.zoom">Zoom</span>
                     <div class="flex items-center gap-3">
@@ -598,8 +598,11 @@
 
         function adjustImg(target, type, delta) {
             const state = imgStates[target];
-            if (type === 'scale') state.scale = Math.max(0.1, state.scale + delta);
-            document.getElementById('p-' + target).style.transform = `scale(${state.scale})`;
+            if (type === 'scale') {
+                state.scale = Math.max(0.1, state.scale + delta);
+                const img = document.getElementById('p-' + target);
+                img.style.transform = `scale(${state.scale})`;
+            }
         }
 
         function adjustZoom(delta) {
