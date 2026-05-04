@@ -2,11 +2,9 @@
  * AssetService - Handles Roblox API, Proxies, and Asset loading
  */
 const AssetService = {
-    // We are abandoning the complex Cloudflare prefix proxies.
-    // Instead, we use RoProxy (the community standard) and a couple of fallbacks just in case.
-    // Completely removed RoProxy. Using CorsProxy as primary.
     proxies: [
-        "https://roblox-char-proxy-5pnqnpplw-batuatakanerol-5232s-projects.vercel.app/"
+        // Added /api/proxy?url= to the end of your Vercel domain
+        "https://roblox-char-proxy-5pnqnpplw-batuatakanerol-5232s-projects.vercel.app/api/proxy?url="
     ],
 
     async fetchWithFallbacks(targetUrl, isRobloxApi = true) {
