@@ -82,6 +82,7 @@
         .poster-overlay-scanlines { position: absolute; inset: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%); background-size: 100% 4px; pointer-events: none; z-index: 42; }
 
         /* Shared Components */
+        .header-group { position: relative; z-index: 40; }
         .side-image-wrapper { width: 170px; height: 230px; border: 3px solid var(--accent-color); border-radius: 12px; overflow: hidden; background-color: rgba(0,0,0,0.5); position: relative; }
         .img-editable { width: 100%; height: 100%; object-fit: contain; cursor: pointer; transition: all 0.3s; opacity: 0; }
         .img-editable.loaded { opacity: 1; }
@@ -97,7 +98,7 @@
         [data-layout="vanguard"] .poster-side-images { position: absolute; right: 45px; top: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
         [data-layout="vanguard"] .poster-bottom-section { position: absolute; bottom: 45px; left: 45px; right: 45px; z-index: 30; }
         [data-layout="vanguard"] .bottom-title-small { color: var(--accent-color); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
-        [data-layout="vanguard"] .bottom-title-large { color: white; font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; }
+        [data-layout="vanguard"] .bottom-title-large { color: white; font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; max-width: 500px; overflow-wrap: break-word; }
         [data-layout="vanguard"] .divider-container { display: flex; align-items: center; margin-bottom: 20px; gap: 12px; width: 85%; }
         [data-layout="vanguard"] .divider-line { height: 2px; background-color: var(--accent-color); flex-grow: 1; }
         [data-layout="vanguard"] .divider-line.short { flex-grow: 0; width: 60px; }
@@ -123,6 +124,70 @@
         [data-layout="dossier"] .poster-watermark { position: absolute; top: 15px; left: 45px; }
         [data-layout="dossier"] .bottom-logo-wrapper { width: 180px; height: 180px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 40px; }
 
+        /* --- LAYOUT 3: MINIMALIST --- */
+        [data-layout="minimalist"] .poster-content { align-items: center; justify-content: center; text-align: center; }
+        [data-layout="minimalist"] .header-group { margin-bottom: 20px; }
+        [data-layout="minimalist"] .poster-callsign { font-size: 8rem; color: white; letter-spacing: 0.2em; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 10px; }
+        [data-layout="minimalist"] .poster-top-subtitle { font-size: 1.2rem; opacity: 0.6; }
+        [data-layout="minimalist"] .character-container { position: absolute; inset: 0; z-index: 5; opacity: 0.3; filter: grayscale(1); }
+        [data-layout="minimalist"] .poster-side-images { position: absolute; bottom: 80px; left: 45px; right: 45px; flex-direction: row; justify-content: center; gap: 30px; }
+        [data-layout="minimalist"] .side-image-wrapper { width: 120px; height: 120px; border-radius: 50%; border-width: 1px; }
+        [data-layout="minimalist"] .poster-bottom-section { position: relative; z-index: 10; margin-top: 40px; }
+        [data-layout="minimalist"] .bottom-title-large { font-size: 2rem; letter-spacing: 0.5em; }
+        [data-layout="minimalist"] .divider-container, [data-layout="minimalist"] .bottom-logo-wrapper { display: none; }
+
+        /* --- LAYOUT 4: TACTICAL GRID --- */
+        [data-layout="tactical-grid"] .poster-content { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; gap: 20px; padding: 30px; }
+        [data-layout="tactical-grid"] .header-group { grid-column: 1 / span 2; border: 1px solid var(--accent-color); padding: 20px; background: rgba(0,0,0,0.4); }
+        [data-layout="tactical-grid"] .poster-callsign { font-size: 6rem; }
+        [data-layout="tactical-grid"] .character-container { position: relative; grid-row: 2; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); height: 100%; width: 100%; top: 0; bottom: 0; }
+        [data-layout="tactical-grid"] .poster-side-images { position: relative; grid-row: 2; right: 0; top: 0; display: grid; grid-template-columns: 1fr; gap: 10px; }
+        [data-layout="tactical-grid"] .side-image-wrapper { width: 100%; height: 100%; border-radius: 4px; }
+        [data-layout="tactical-grid"] .poster-bottom-section { grid-column: 1 / span 2; position: relative; bottom: 0; left: 0; right: 0; display: flex; flex-direction: row; gap: 20px; border-top: 1px solid var(--accent-color); padding-top: 20px; }
+        [data-layout="tactical-grid"] .bottom-logo-wrapper { width: 80px; height: 80px; }
+
+        /* --- LAYOUT 5: COVERT INTEL --- */
+        [data-layout="covert"] { --accent-color: #ff3333 !important; }
+        [data-layout="covert"] .poster-canvas { background: #111 !important; }
+        [data-layout="covert"] .poster-content { padding: 60px; font-family: 'JetBrains Mono', monospace; }
+        [data-layout="covert"] .poster-callsign { font-size: 5rem; background: white; color: black; padding: 0 15px; display: inline-block; margin-bottom: 20px; }
+        [data-layout="covert"] .poster-top-subtitle { text-decoration: line-through; opacity: 0.5; }
+        [data-layout="covert"] .character-container { position: absolute; right: 45px; top: 120px; width: 350px; height: 500px; border: 10px solid white; transform: rotate(3deg); z-index: 20; box-shadow: 10px 10px 30px rgba(0,0,0,0.5); }
+        [data-layout="covert"] .poster-side-images { left: 45px; top: 250px; right: auto; transform: rotate(-2deg); }
+        [data-layout="covert"] .side-image-wrapper { width: 150px; height: 150px; border: 5px solid white; }
+        [data-layout="covert"] .poster-bottom-section { bottom: 60px; max-width: 400px; }
+        [data-layout="covert"] .bottom-description { background: black; color: white; padding: 10px; border-left: 4px solid var(--accent-color); }
+        [data-layout="covert"] .bottom-logo-wrapper { position: absolute; top: 45px; right: 45px; opacity: 0.2; filter: grayscale(1) invert(1); }
+
+        /* --- LAYOUT 6: CINEMATIC --- */
+        [data-layout="cinematic"] .poster-content { padding: 0; justify-content: center; align-items: center; }
+        [data-layout="cinematic"]::before, [data-layout="cinematic"]::after { content: ''; position: absolute; left: 0; right: 0; height: 120px; background: black; z-index: 50; }
+        [data-layout="cinematic"]::before { top: 0; }
+        [data-layout="cinematic"]::after { bottom: 0; }
+        [data-layout="cinematic"] .character-container { position: absolute; inset: 0; top: 0; bottom: 0; z-index: 10; }
+        [data-layout="cinematic"] .header-group { position: absolute; bottom: 150px; left: 60px; z-index: 60; text-align: left; }
+        [data-layout="cinematic"] .poster-callsign { font-size: 10rem; line-height: 0.8; text-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        [data-layout="cinematic"] .poster-side-images { display: none; }
+        [data-layout="cinematic"] .poster-bottom-section { position: absolute; bottom: 40px; left: 60px; right: 60px; z-index: 60; display: flex; justify-content: space-between; align-items: center; }
+        [data-layout="cinematic"] .bottom-title-large { font-size: 1.5rem; letter-spacing: 0.3em; margin: 0; }
+        [data-layout="cinematic"] .bottom-description, [data-layout="cinematic"] .divider-container { display: none; }
+        [data-layout="cinematic"] .bottom-logo-wrapper { width: 60px; height: 60px; }
+
+        /* --- LAYOUT 7: TECHNICAL MANUAL --- */
+        [data-layout="technical"] { --accent-color: #00f2ff !important; }
+        [data-layout="technical"] .poster-canvas { background: #001a1a !important; }
+        [data-layout="technical"] .poster-content { padding: 40px; border: 1px solid var(--accent-color); margin: 20px; height: calc(100% - 40px); }
+        [data-layout="technical"] .header-group { border-bottom: 1px solid var(--accent-color); padding-bottom: 20px; margin-bottom: 30px; }
+        [data-layout="technical"] .poster-callsign { font-family: 'JetBrains Mono', monospace; font-size: 4rem; letter-spacing: -0.05em; }
+        [data-layout="technical"] .character-container { position: absolute; right: 0; top: 150px; width: 500px; height: 700px; border-left: 1px solid var(--accent-color); padding: 20px; }
+        [data-layout="technical"] .poster-side-images { left: 40px; top: 200px; right: auto; gap: 40px; }
+        [data-layout="technical"] .side-image-wrapper { width: 180px; height: 180px; border-radius: 0; border: 1px solid var(--accent-color); }
+        [data-layout="technical"] .side-image-wrapper::before { content: 'REF_DATA'; position: absolute; top: -15px; left: 0; font-size: 8px; color: var(--accent-color); }
+        [data-layout="technical"] .poster-bottom-section { bottom: 40px; left: 40px; width: 300px; }
+        [data-layout="technical"] .bottom-title-large { font-family: 'JetBrains Mono'; font-size: 1.5rem; }
+        [data-layout="technical"] .bottom-description { font-size: 0.8rem; border: 1px solid rgba(0,242,255,0.2); padding: 10px; }
+        [data-layout="technical"] .bottom-logo-wrapper { position: absolute; top: 40px; right: 40px; width: 100px; height: 100px; border: 1px solid var(--accent-color); padding: 10px; }
+
         /* Drag & Drop Highlight */
         .drop-zone-active { border: 4px dashed var(--bw-gold) !important; background: rgba(226,176,7,0.2) !important; }
 
@@ -142,10 +207,55 @@
         .ctrl-btn:hover { background: var(--bw-gold); color: black; }
 
         /* Empty State */
-        .drop-zone::after { content: 'KLICKEN ODER BILD HIERHER ZIEHEN'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; font-family: 'JetBrains Mono'; color: rgba(255,255,255,0.2); text-align: center; padding: 20px; pointer-events: none; z-index: 1; }
+        .drop-zone::after { 
+            content: 'KLICKEN ODER BILD HIERHER ZIEHEN'; 
+            position: absolute; 
+            inset: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 8px; 
+            font-family: 'JetBrains Mono'; 
+            color: rgba(255,255,255,0.2); 
+            text-align: center; 
+            padding: 15px; 
+            pointer-events: none; 
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        #zone-main::after {
+            font-size: 2.5rem;
+            opacity: 0.05;
+            z-index: -1;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            padding: 100px;
+        }
+
         .drop-zone.has-img::after { display: none; }
 
         .tactical-notch { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
+
+        /* Sidebar Polish */
+        .layout-card { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            padding: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .layout-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .layout-card.active { border-color: var(--bw-gold); background: rgba(226,176,7,0.1); }
+        .layout-thumb { height: 40px; background: rgba(0,0,0,0.4); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--bw-gold); }
     </style>
 </head>
 
@@ -173,6 +283,26 @@
                         <div onclick="setLayout('dossier')" id="lay-dossier" class="layout-card">
                             <div class="layout-thumb"><div class="absolute left-2 inset-y-2 w-4 bg-white/20"></div><div class="absolute right-2 inset-y-2 w-8 bg-bw-gold/40"></div></div>
                             <span class="text-[9px] font-bold uppercase text-center">Dossier</span>
+                        </div>
+                        <div onclick="setLayout('minimalist')" id="lay-minimalist" class="layout-card">
+                            <div class="layout-thumb"><div class="absolute inset-4 border border-white/10 flex items-center justify-center"><div class="w-4 h-4 bg-white/20"></div></div></div>
+                            <span class="text-[9px] font-bold uppercase text-center">Minimalist</span>
+                        </div>
+                        <div onclick="setLayout('tactical-grid')" id="lay-tactical-grid" class="layout-card">
+                            <div class="layout-thumb grid grid-cols-2 gap-1 p-1"><div class="bg-white/10"></div><div class="bg-bw-gold/20"></div><div class="bg-white/10"></div><div class="bg-white/10"></div></div>
+                            <span class="text-[9px] font-bold uppercase text-center">Tactical Grid</span>
+                        </div>
+                        <div onclick="setLayout('covert')" id="lay-covert" class="layout-card">
+                            <div class="layout-thumb"><div class="absolute inset-0 bg-black/40"></div><div class="absolute top-2 left-2 w-10 h-1 bg-bw-gold/40"></div><div class="absolute bottom-2 left-2 w-6 h-1 bg-white/20"></div></div>
+                            <span class="text-[9px] font-bold uppercase text-center">Covert Intel</span>
+                        </div>
+                        <div onclick="setLayout('cinematic')" id="lay-cinematic" class="layout-card">
+                            <div class="layout-thumb flex flex-col justify-between"><div class="h-2 bg-black"></div><div class="flex-1 bg-white/5"></div><div class="h-2 bg-black"></div></div>
+                            <span class="text-[9px] font-bold uppercase text-center">Cinematic</span>
+                        </div>
+                        <div onclick="setLayout('technical')" id="lay-technical" class="layout-card">
+                            <div class="layout-thumb"><div class="absolute inset-2 border-l border-b border-white/20"></div><div class="absolute top-4 right-4 w-4 h-4 rounded-full border border-bw-gold/40"></div></div>
+                            <span class="text-[9px] font-bold uppercase text-center">Tech Manual</span>
                         </div>
                     </div>
                 </section>
@@ -282,7 +412,7 @@
 
             <!-- The Canvas -->
             <div id="poster-scaler" style="transform: scale(0.65);">
-                <div id="poster-canvas" data-layout="vanguard" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div id="poster-canvas" data-layout="vanguard" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" onclick="if(event.target === this) triggerUpload('main')">
                     
                     <div id="ov-grain" class="poster-overlay-grain"></div>
                     <div id="ov-scan" class="poster-overlay-scanlines"></div>
