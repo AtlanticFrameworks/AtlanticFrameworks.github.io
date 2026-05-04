@@ -258,6 +258,10 @@
                             <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.callsign">Rufzeichen</span>
                             <input type="text" id="in-callsign" value="GHOST" class="input-tactical font-bold" oninput="syncText(this, 'p-callsign')">
                         </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Rufzeichen Größe</span><span id="val-callsign-size" class="text-[9px] text-bw-gold">14rem</span></div>
+                            <input type="range" min="5" max="30" step="0.5" value="14" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateFontSize('p-callsign', this.value)">
+                        </div>
                         <div>
                             <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.watermark">Wasserzeichen</span>
                             <input type="text" id="in-watermark" value="@BWRP_SYSTEM" class="input-tactical" oninput="syncText(this, 'p-watermark')">
@@ -545,11 +549,6 @@
             const display = document.getElementById(displayId);
             if (display) {
                 display.textContent = input.value;
-                if (displayId === 'p-callsign') {
-                    const length = input.value.length;
-                    const baseSize = 14 * 16;
-                    display.style.fontSize = length > 8 ? (baseSize * (8/length)) + 'px' : '';
-                }
             }
             saveState();
         }
@@ -634,6 +633,14 @@
             saveState();
         }
 
+        function updateFontSize(targetId, val) {
+            const el = document.getElementById(targetId);
+            if (el) el.style.fontSize = val + 'rem';
+            const valLabel = document.getElementById('val-callsign-size');
+            if (valLabel) valLabel.textContent = val + 'rem';
+            saveState();
+        }
+
         function adjustImg(target, type, delta) {
             const state = imgStates[target];
             if (type === 'scale') {
@@ -686,6 +693,7 @@
                 inputs: {
                     rank: document.getElementById('in-rank').value,
                     callsign: document.getElementById('in-callsign').value,
+                    callsign_size: document.querySelector('input[oninput*="updateFontSize("]').value,
                     watermark: document.getElementById('in-watermark').value,
                     unit: document.getElementById('in-unit').value,
                     specialty: document.getElementById('in-specialty').value,
@@ -777,6 +785,12 @@
             // Load Zoom
             currentZoom = state.zoom;
             adjustZoom(0);
+
+            // Load Font Sizes
+            const callsignSize = state.inputs.callsign_size || "14";
+            updateFontSize('p-callsign', callsignSize);
+            const sizeSlider = document.querySelector('input[oninput*="updateFontSize("]');
+            if (sizeSlider) sizeSlider.value = callsignSize;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
