@@ -11,16 +11,25 @@ const AssetService = {
     getProxiedUrl(url) {
         const proxy = this.proxies[0];
         const useEncoding = proxy.endsWith('?') || proxy.endsWith('=');
-        return useEncoding ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${url}`;
+        let targetUrl = url;
+        if (!useEncoding) {
+            targetUrl = url.replace('https://', '').replace('http://', '');
+        }
+        return useEncoding ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${targetUrl}`;
     },
 
     async fetchProxied(url, options = {}) {
         let lastError;
         for (const proxy of this.proxies) {
             try {
-                // If proxy ends with '?' or '=', use encodeURIComponent. Otherwise, append raw (for internal proxies)
+                // If proxy ends with '?' or '=', use encodeURIComponent. 
+                // Otherwise, strip protocol and append (for internal proxies like bwrp.net/proxy/roblox/)
                 const useEncoding = proxy.endsWith('?') || proxy.endsWith('=');
-                const proxyUrl = useEncoding ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${url}`;
+                let targetUrl = url;
+                if (!useEncoding) {
+                    targetUrl = url.replace('https://', '').replace('http://', '');
+                }
+                const proxyUrl = useEncoding ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${targetUrl}`;
                 
                 const response = await fetch(proxyUrl, {
                     ...options,
