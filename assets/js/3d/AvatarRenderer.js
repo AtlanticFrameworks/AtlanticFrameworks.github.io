@@ -10,26 +10,11 @@ class AvatarRenderer {
         this.controls = null;
         this.model = null;
         this.isInitialized = false;
-        // Robust list of proxies to bypass CORS and CSP restrictions
-        this.proxies = [
-            "https://bwrp.net/proxy/roblox/",
-            "https://corsproxy.io/?",
-            "https://api.codetabs.com/v1/proxy?quest="
-        ];
+        this.proxies = AssetService.proxies;
     }
 
-    async fetchProxied(targetUrl) {
-        for (const proxyBase of this.proxies) {
-            try {
-                const fullUrl = `${proxyBase}${encodeURIComponent(targetUrl)}`;
-                const response = await fetch(fullUrl);
-                if (response.ok) return response;
-            } catch (e) {
-                console.warn(`Proxy ${proxyBase} failed, trying next...`, e);
-            }
-        }
-        // Last resort: direct fetch (will likely fail CORS but good for local dev)
-        return fetch(targetUrl);
+    async fetchProxied(url, options) {
+        return AssetService.fetchProxied(url, options);
     }
 
     init(containerId) {
@@ -109,7 +94,7 @@ class AvatarRenderer {
                 const url = sceneData.mtl;
                 // Since MTLLoader.load doesn't natively support our async proxy list, 
                 // we pre-fetch the blob if possible, or just use the first proxy
-                const mtlUrl = `${this.proxies[0]}${encodeURIComponent(url)}`;
+                const mtlUrl = AssetService.getProxiedUrl(url);
                 mtlLoader.load(mtlUrl, resolve, undefined, reject);
             });
             mtl.preload();
@@ -117,7 +102,7 @@ class AvatarRenderer {
             objLoader.setMaterials(mtl);
             this.model = await new Promise((resolve, reject) => {
                 const url = sceneData.obj;
-                const objUrl = `${this.proxies[0]}${encodeURIComponent(url)}`;
+                const objUrl = AssetService.getProxiedUrl(url);
                 objLoader.load(objUrl, resolve, undefined, reject);
             });
 
