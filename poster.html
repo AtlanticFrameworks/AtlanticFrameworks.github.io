@@ -10,11 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/main.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/style.css">
 
     <script>
@@ -198,11 +196,25 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--bw-gold); }
 
         /* Modals */
-        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-backdrop.active { display: flex; }
-        .modal-content { background: #0f0f12; border: 1px solid rgba(255,255,255,0.05); padding: 30px; box-shadow: 0 50px 100px rgba(0,0,0,0.9); position: relative; }
+        .modal-backdrop { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.9); 
+            backdrop-filter: blur(10px); 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+            opacity: 1 !important; 
+            pointer-events: auto !important; 
+        }
+        .modal-backdrop.open { display: flex !important; opacity: 1 !important; }
+        .modal-content { background: #0f0f12; border: 1px solid rgba(255,255,255,0.05); padding: 30px; box-shadow: 0 50px 100px rgba(0,0,0,0.9); position: relative; transform: none !important; }
         .modal-box { background: #0f0f12; border: 1px solid rgba(255,255,255,0.05); padding: 30px; width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.9); }
-        .grid-asset { display: grid; grid-cols-4; grid-template-columns: repeat(4, 1fr); gap: 15px; overflow-y: auto; padding-right: 10px; }
+        .grid-asset { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; overflow-y: auto; padding-right: 10px; }
+
+        /* Fix for nonexistent pattern.png in main.css */
+        [class*="bg-[url"], .bg-grid-pattern { background-image: none !important; }
     </style>
 </head>
 
@@ -695,7 +707,7 @@
                 };
                 reader.readAsDataURL(file);
             }
-            e.target.value = ''; // Fix for selecting same image issue
+            e.target.value = '';
         }
 
         function handleDragOver(e) { e.preventDefault(); const zone = e.target.closest('.drop-zone'); if (zone) zone.classList.add('drop-zone-active'); }
@@ -729,7 +741,7 @@
             activeTarget = target;
             const grid = document.getElementById('asset-grid');
             grid.innerHTML = divLogos.map(name => `<div class="asset-card" onclick="selectAsset('${name}')"><img src="assets/images/div_logos/${name}"><span class="text-[8px] font-mono text-gray-500 uppercase">${name.replace('.png', '')}</span></div>`).join('');
-            document.getElementById('modal-assets').classList.add('active');
+            document.getElementById('modal-assets').classList.add('open');
         }
 
         function selectAsset(name) {
@@ -774,8 +786,11 @@
             saveState();
         }
 
-        function closeModal(id) { document.getElementById('modal-' + id).classList.remove('active'); }
-        function openExportModal() { document.getElementById('modal-export').classList.add('active'); }
+        function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+        function openExportModal() { 
+            console.log("Opening Export Modal...");
+            document.getElementById('modal-export').classList.add('open'); 
+        }
         function setExportFormat(f) { exportFormat = f; document.querySelectorAll('.export-opt').forEach(b => { b.classList.toggle('active', b.textContent.toLowerCase() === f); b.classList.toggle('bg-bw-gold/10', b.textContent.toLowerCase() === f); b.classList.toggle('border-bw-gold/30', b.textContent.toLowerCase() === f); }); }
         function setExportQuality(q) { 
             exportQuality = q; 
