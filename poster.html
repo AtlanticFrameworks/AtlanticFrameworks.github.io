@@ -196,6 +196,13 @@
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--bw-gold); }
+
+        /* Modals */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-backdrop.active { display: flex; }
+        .modal-content { background: #0f0f12; border: 1px solid rgba(255,255,255,0.05); padding: 30px; box-shadow: 0 50px 100px rgba(0,0,0,0.9); position: relative; }
+        .modal-box { background: #0f0f12; border: 1px solid rgba(255,255,255,0.05); padding: 30px; width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.9); }
+        .grid-asset { display: grid; grid-cols-4; grid-template-columns: repeat(4, 1fr); gap: 15px; overflow-y: auto; padding-right: 10px; }
     </style>
 </head>
 
@@ -538,47 +545,60 @@
     </main>
 
     <!-- Modals -->
-    <div id="modal-assets" class="modal-overlay">
+    <div id="modal-assets" class="modal-backdrop">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="font-display font-bold text-xl tracking-widest text-bw-gold uppercase" data-i18n="poster.logo">VERBANDSLOGO WÄHLEN</h3>
+                <h3 class="font-display font-bold text-xl tracking-widest text-bw-gold uppercase">VERBANDSLOGO WÄHLEN</h3>
                 <button onclick="closeModal('assets')" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
             <div class="grid-asset custom-scroll" id="asset-grid"></div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="triggerUpload('logo')" class="bg-white/5 hover:bg-white/10 px-6 py-2 text-xs font-mono tracking-widest uppercase border border-white/10">
-                    <span data-i18n="poster.custom_logo">EIGENES LOGO HOCHLADEN</span>
+            <div class="mt-6 flex justify-between gap-4">
+                <button onclick="triggerUpload('logo')" class="flex-1 bg-white/5 hover:bg-white/10 px-6 py-3 text-[10px] font-mono tracking-widest uppercase border border-white/10">
+                    EIGENES LOGO HOCHLADEN
+                </button>
+                <button onclick="closeModal('assets')" class="px-6 py-3 border border-white/10 text-[10px] font-bold uppercase hover:bg-white/5 text-gray-400">
+                    Abbrechen
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="modal-export" class="modal-overlay">
-        <div class="modal-box max-w-md">
-            <h3 class="font-display font-bold text-xl tracking-widest text-bw-gold uppercase mb-6" data-i18n="poster.export">EXPORT OPTIONEN</h3>
+    <!-- Export Modal -->
+    <div id="modal-export" class="modal-backdrop">
+        <div class="modal-content w-[400px]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xs font-bold text-bw-gold uppercase tracking-widest">Datei Exportieren</h3>
+                <button onclick="closeModal('export')" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            
             <div class="space-y-6">
-                <div>
-                    <label class="label-tactical" data-i18n="poster.format">Format</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="setExportFormat('png')" class="export-opt active border border-bw-gold/30 p-2 text-xs font-mono bg-bw-gold/10">PNG</button>
-                        <button onclick="setExportFormat('jpg')" class="export-opt border border-white/10 p-2 text-xs font-mono hover:bg-white/5">JPG</button>
+                <div class="space-y-3">
+                    <label class="text-[9px] text-gray-500 uppercase font-mono">Format</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button class="export-opt active bg-bw-gold/10 border border-bw-gold/30 p-3 text-[10px] font-bold uppercase text-white flex justify-between items-center">
+                            PNG (Empfohlen) <i data-lucide="check" class="w-3 h-3 text-bw-gold"></i>
+                        </button>
                     </div>
                 </div>
-                <div>
-                    <label class="label-tactical" data-i18n="poster.quality">Qualität</label>
-                    <div class="space-y-2">
-                        <button onclick="setExportQuality(1)" class="export-qual active w-full text-left p-3 border border-bw-gold/30 bg-bw-gold/10 flex justify-between items-center">
-                            <span class="text-xs font-mono" data-i18n="poster.web">Web (72 DPI)</span>
-                            <i data-lucide="check" class="w-3 h-3 text-bw-gold"></i>
-                        </button>
-                        <button onclick="setExportQuality(2)" class="export-qual w-full text-left p-3 border border-white/10 hover:bg-white/5 flex justify-between items-center">
-                            <span class="text-xs font-mono" data-i18n="poster.print">Druck (300 DPI)</span>
-                            <i data-lucide="check" class="w-3 h-3 hidden"></i>
-                        </button>
+
+                <div class="space-y-3">
+                    <label class="text-[9px] text-gray-500 uppercase font-mono">Qualität / Auflösung</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setExportQuality(1)" class="export-qual active p-3 border border-bw-gold/30 bg-bw-gold/10 text-[10px] font-bold uppercase text-white">HD</button>
+                        <button onclick="setExportQuality(2)" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">2K</button>
+                        <button onclick="setExportQuality(4)" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">4K</button>
                     </div>
+                </div>
+
+                <div class="flex flex-col gap-2 pt-2">
+                    <button id="btn-do-export" onclick="doExport()" class="w-full py-4 bg-bw-gold text-black text-xs font-black uppercase tracking-tighter hover:bg-white transition-colors">
+                        Export Starten
+                    </button>
+                    <button onclick="closeModal('export')" class="w-full py-3 border border-white/10 text-[10px] font-bold uppercase hover:bg-white/5 text-gray-400">
+                        Abbrechen
+                    </button>
                 </div>
             </div>
-            <div class="mt-10"><button id="btn-do-export" onclick="doExport()" class="w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all">START EXPORT</button></div>
         </div>
     </div>
 
@@ -757,26 +777,74 @@
         function closeModal(id) { document.getElementById('modal-' + id).classList.remove('active'); }
         function openExportModal() { document.getElementById('modal-export').classList.add('active'); }
         function setExportFormat(f) { exportFormat = f; document.querySelectorAll('.export-opt').forEach(b => { b.classList.toggle('active', b.textContent.toLowerCase() === f); b.classList.toggle('bg-bw-gold/10', b.textContent.toLowerCase() === f); b.classList.toggle('border-bw-gold/30', b.textContent.toLowerCase() === f); }); }
-        function setExportQuality(q) { exportQuality = q; document.querySelectorAll('.export-qual').forEach((b, i) => { const isActive = (i + 1) === q; b.classList.toggle('active', isActive); b.querySelector('i').classList.toggle('hidden', !isActive); }); }
+        function setExportQuality(q) { 
+            exportQuality = q; 
+            document.querySelectorAll('.export-qual').forEach((b, i) => { 
+                const scales = [1, 2, 4];
+                const isActive = scales[i] === q;
+                b.classList.toggle('active', isActive); 
+                b.classList.toggle('bg-bw-gold/10', isActive);
+                b.classList.toggle('border-bw-gold/30', isActive);
+                b.classList.toggle('text-white', isActive);
+            }); 
+        }
 
         async function doExport() {
             const btn = document.getElementById('btn-do-export');
             btn.disabled = true;
             btn.textContent = 'EXPORTING...';
+            
+            const canvasEl = document.getElementById('poster-canvas');
             const scaler = document.getElementById('poster-scaler');
             const prevTransform = scaler.style.transform;
-            scaler.style.transform = 'scale(1)';
+            
+            // 1. Reset scale and fix canvas for rendering
+            scaler.style.transform = 'none';
+            
+            // 2. Temporarily move to a fixed, clean container to avoid flex/alignment issues
+            const exportContainer = document.createElement('div');
+            exportContainer.style.position = 'fixed';
+            exportContainer.style.top = '0';
+            exportContainer.style.left = '0';
+            exportContainer.style.width = '800px';
+            exportContainer.style.height = '1200px';
+            exportContainer.style.zIndex = '-1000';
+            exportContainer.style.overflow = 'hidden';
+            document.body.appendChild(exportContainer);
+            
+            const originalParent = canvasEl.parentElement;
+            exportContainer.appendChild(canvasEl);
+
             try {
-                const canvas = await html2canvas(document.getElementById('poster-canvas'), { scale: exportQuality * 2, useCORS: true, backgroundColor: null });
+                // Wait a bit for CSS to settle
+                await new Promise(r => setTimeout(r, 200));
+                
+                const canvas = await html2canvas(canvasEl, { 
+                    scale: exportQuality, 
+                    useCORS: true, 
+                    backgroundColor: null,
+                    logging: false,
+                    width: 800,
+                    height: 1200
+                });
+                
                 const link = document.createElement('a');
-                link.download = `BWRP_Poster_${Date.now()}.${exportFormat}`;
-                link.href = canvas.toDataURL(`image/${exportFormat}`, 0.9);
+                link.download = `BWRP_Poster_${Date.now()}.png`;
+                link.href = canvas.toDataURL(`image/png`, 1.0);
                 link.click();
-            } catch (err) { alert("Export failed!"); }
-            btn.disabled = false;
-            btn.textContent = 'START EXPORT';
-            scaler.style.transform = prevTransform;
-            closeModal('export');
+            } catch (err) { 
+                alert("Export failed!"); 
+                console.error(err); 
+            } finally {
+                // Restore canvas and clean up
+                originalParent.appendChild(canvasEl);
+                document.body.removeChild(exportContainer);
+                scaler.style.transform = prevTransform;
+                
+                btn.disabled = false;
+                btn.textContent = 'EXPORT STARTEN';
+                closeModal('export');
+            }
         }
 
         function updateEffects() {
