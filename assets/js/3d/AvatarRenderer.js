@@ -14,7 +14,9 @@ class AvatarRenderer {
     }
 
     async fetchProxied(url, options) {
-        return AssetService.fetchProxied(url, options);
+        // Convert the URL using your existing AssetService, then use native fetch
+        const proxiedUrl = AssetService.getProxiedUrl(url);
+        return fetch(proxiedUrl, options);
     }
 
     init(containerId) {
@@ -25,10 +27,10 @@ class AvatarRenderer {
         this.camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
         this.camera.position.set(0, 0, 10);
 
-        this.renderer = new THREE.WebGLRenderer({ 
-            antialias: true, 
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
             alpha: true,
-            preserveDrawingBuffer: true 
+            preserveDrawingBuffer: true
         });
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -115,7 +117,7 @@ class AvatarRenderer {
             // 5. Load OBJ
             const objLoader = new THREE.OBJLoader();
             objLoader.setMaterials(mtl);
-            
+
             this.model = await new Promise((resolve, reject) => {
                 objLoader.load(objUrl, resolve, undefined, reject);
             });
@@ -124,9 +126,9 @@ class AvatarRenderer {
             const box = new THREE.Box3().setFromObject(this.model);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
-            
+
             this.model.position.sub(center);
-            
+
             const maxDim = Math.max(size.x, size.y, size.z);
             const scale = 6 / maxDim; // Slightly larger fit
             this.model.scale.set(scale, scale, scale);
