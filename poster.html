@@ -810,37 +810,26 @@
             btn.textContent = 'EXPORTING...';
             
             const canvasEl = document.getElementById('poster-canvas');
-            const scaler = document.getElementById('poster-scaler');
-            const prevTransform = scaler.style.transform;
             
-            // 1. Reset scale and fix canvas for rendering
-            scaler.style.transform = 'none';
-            
-            // 2. Temporarily move to a fixed, clean container to avoid flex/alignment issues
-            const exportContainer = document.createElement('div');
-            exportContainer.style.position = 'fixed';
-            exportContainer.style.top = '0';
-            exportContainer.style.left = '0';
-            exportContainer.style.width = '800px';
-            exportContainer.style.height = '1200px';
-            exportContainer.style.zIndex = '-1000';
-            exportContainer.style.overflow = 'hidden';
-            document.body.appendChild(exportContainer);
-            
-            const originalParent = canvasEl.parentElement;
-            exportContainer.appendChild(canvasEl);
-
             try {
-                // Wait a bit for CSS to settle
-                await new Promise(r => setTimeout(r, 200));
-                
+                // We use onclone to modify the canvas for rendering without touching the live DOM
                 const canvas = await html2canvas(canvasEl, { 
                     scale: exportQuality, 
                     useCORS: true, 
                     backgroundColor: null,
                     logging: false,
                     width: 800,
-                    height: 1200
+                    height: 1200,
+                    windowWidth: 800,
+                    windowHeight: 1200,
+                    onclone: (clonedDoc) => {
+                        const clonedCanvas = clonedDoc.getElementById('poster-canvas');
+                        clonedCanvas.style.transform = 'none';
+                        clonedCanvas.style.position = 'relative';
+                        clonedCanvas.style.margin = '0';
+                        clonedCanvas.style.top = '0';
+                        clonedCanvas.style.left = '0';
+                    }
                 });
                 
                 const link = document.createElement('a');
@@ -851,11 +840,6 @@
                 alert("Export failed!"); 
                 console.error(err); 
             } finally {
-                // Restore canvas and clean up
-                originalParent.appendChild(canvasEl);
-                document.body.removeChild(exportContainer);
-                scaler.style.transform = prevTransform;
-                
                 btn.disabled = false;
                 btn.textContent = 'EXPORT STARTEN';
                 closeModal('export');
