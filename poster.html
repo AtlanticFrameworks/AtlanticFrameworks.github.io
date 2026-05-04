@@ -284,27 +284,116 @@
 
                 <!-- Image Transformations -->
                 <section class="space-y-4">
-                    <label class="label-tactical">Bild-Steuerung (Zoom)</label>
-                    <div class="space-y-4 bg-black/20 p-3 border border-white/5">
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Hauptcharakter</span><span id="val-main" class="text-[9px] text-bw-gold">1.0x</span></div>
-                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('main', this.value)">
+                    <label class="label-tactical">Bild-Transformationen</label>
+                    <div class="space-y-6 bg-black/20 p-3 border border-white/5 custom-scroll max-h-[400px] overflow-y-auto">
+                        <!-- Main Character -->
+                        <div class="space-y-2 border-b border-white/5 pb-3">
+                            <span class="text-[10px] font-bold text-white uppercase block">Hauptcharakter</span>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">ZOOM</span>
+                                    <input type="range" min="0.1" max="4" step="0.01" value="1" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgTransform('main', 'scale', this.value)">
+                                    <span id="val-main-scale" class="text-[8px] text-bw-gold w-8">1.00x</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">X-POS</span>
+                                    <input type="range" min="-600" max="600" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('main', 'x', this.value)">
+                                    <span id="val-main-x" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">Y-POS</span>
+                                    <input type="range" min="-600" max="600" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('main', 'y', this.value)">
+                                    <span id="val-main-y" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Portrait 1</span><span id="val-side-1" class="text-[9px] text-bw-gold">1.0x</span></div>
-                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('side-1', this.value)">
+
+                        <!-- side-1 -->
+                        <div class="space-y-2 border-b border-white/5 pb-3">
+                            <span class="text-[10px] font-bold text-white uppercase block">Portrait 1</span>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">ZOOM</span>
+                                    <input type="range" min="0.1" max="4" step="0.01" value="1" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgTransform('side-1', 'scale', this.value)">
+                                    <span id="val-side-1-scale" class="text-[8px] text-bw-gold w-8">1.00x</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">X-POS</span>
+                                    <input type="range" min="-300" max="300" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('side-1', 'x', this.value)">
+                                    <span id="val-side-1-x" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">Y-POS</span>
+                                    <input type="range" min="-300" max="300" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('side-1', 'y', this.value)">
+                                    <span id="val-side-1-y" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Portrait 2</span><span id="val-side-2" class="text-[9px] text-bw-gold">1.0x</span></div>
-                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('side-2', this.value)">
+
+                        <!-- side-2 -->
+                        <div class="space-y-2 border-b border-white/5 pb-3">
+                            <span class="text-[10px] font-bold text-white uppercase block">Portrait 2</span>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">ZOOM</span>
+                                    <input type="range" min="0.1" max="4" step="0.01" value="1" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgTransform('side-2', 'scale', this.value)">
+                                    <span id="val-side-2-scale" class="text-[8px] text-bw-gold w-8">1.00x</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">X-POS</span>
+                                    <input type="range" min="-300" max="300" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('side-2', 'x', this.value)">
+                                    <span id="val-side-2-x" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">Y-POS</span>
+                                    <input type="range" min="-300" max="300" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('side-2', 'y', this.value)">
+                                    <span id="val-side-2-y" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Portrait 3</span><span id="val-side-3" class="text-[9px] text-bw-gold">1.0x</span></div>
-                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('side-3', this.value)">
+
+                        <!-- side-3 -->
+                        <div class="space-y-2 border-b border-white/5 pb-3">
+                            <span class="text-[10px] font-bold text-white uppercase block">Portrait 3</span>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">ZOOM</span>
+                                    <input type="range" min="0.1" max="4" step="0.01" value="1" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgTransform('side-3', 'scale', this.value)">
+                                    <span id="val-side-3-scale" class="text-[8px] text-bw-gold w-8">1.00x</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">X-POS</span>
+                                    <input type="range" min="-300" max="300" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('side-3', 'x', this.value)">
+                                    <span id="val-side-3-x" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">Y-POS</span>
+                                    <input type="range" min="-300" max="300" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('side-3', 'y', this.value)">
+                                    <span id="val-side-3-y" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Verbandslogo</span><span id="val-logo" class="text-[9px] text-bw-gold">1.0x</span></div>
-                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('logo', this.value)">
+
+                        <!-- Logo -->
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-white uppercase block">Verbandslogo</span>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">ZOOM</span>
+                                    <input type="range" min="0.1" max="4" step="0.01" value="1" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgTransform('logo', 'scale', this.value)">
+                                    <span id="val-logo-scale" class="text-[8px] text-bw-gold w-8">1.00x</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">X-POS</span>
+                                    <input type="range" min="-200" max="200" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('logo', 'x', this.value)">
+                                    <span id="val-logo-x" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[8px] text-gray-500 w-8">Y-POS</span>
+                                    <input type="range" min="-200" max="200" step="1" value="0" class="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" oninput="updateImgTransform('logo', 'y', this.value)">
+                                    <span id="val-logo-y" class="text-[8px] text-gray-400 w-8">0px</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -553,6 +642,14 @@
             saveState();
         }
 
+        function updateFontSize(targetId, val) {
+            const el = document.getElementById(targetId);
+            if (el) el.style.fontSize = val + 'rem';
+            const valLabel = document.getElementById('val-callsign-size');
+            if (valLabel) valLabel.textContent = val + 'rem';
+            saveState();
+        }
+
         function syncInput(display, inputId) {
             const input = document.getElementById(inputId);
             if (input) input.value = display.textContent;
@@ -624,20 +721,21 @@
             closeModal('assets');
         }
 
-        function updateImgScale(target, val) {
-            imgStates[target].scale = parseFloat(val);
+        function updateImgTransform(target, type, val) {
+            const state = imgStates[target];
+            if (type === 'scale') state.scale = parseFloat(val);
+            if (type === 'x') state.x = parseInt(val);
+            if (type === 'y') state.y = parseInt(val);
+            
             const img = document.getElementById('p-' + target);
-            if (img) img.style.transform = `scale(${val})`;
-            const valLabel = document.getElementById('val-' + target);
-            if (valLabel) valLabel.textContent = parseFloat(val).toFixed(2) + 'x';
-            saveState();
-        }
-
-        function updateFontSize(targetId, val) {
-            const el = document.getElementById(targetId);
-            if (el) el.style.fontSize = val + 'rem';
-            const valLabel = document.getElementById('val-callsign-size');
-            if (valLabel) valLabel.textContent = val + 'rem';
+            if (img) {
+                img.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+            }
+            
+            const label = document.getElementById(`val-${target}-${type}`);
+            if (label) {
+                label.textContent = type === 'scale' ? parseFloat(val).toFixed(2) + 'x' : val + 'px';
+            }
             saveState();
         }
 
@@ -645,7 +743,7 @@
             const state = imgStates[target];
             if (type === 'scale') {
                 state.scale = Math.max(0.1, state.scale + delta);
-                updateImgScale(target, state.scale);
+                updateImgTransform(target, 'scale', state.scale);
             }
         }
 
@@ -773,13 +871,18 @@
             Object.assign(imgStates, state.imgStates);
             for (const target in imgStates) {
                 const img = document.getElementById('p-' + target);
-                if (img) img.style.transform = `scale(${imgStates[target].scale})`;
+                if (img) {
+                    const s = imgStates[target];
+                    img.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.scale})`;
+                }
                 
-                // Update Sidebar Sliders
-                const slider = document.querySelector(`input[oninput*="updateImgScale('${target}'"]`);
-                if (slider) slider.value = imgStates[target].scale;
-                const valLabel = document.getElementById('val-' + target);
-                if (valLabel) valLabel.textContent = parseFloat(imgStates[target].scale).toFixed(2) + 'x';
+                // Update Sidebar Sliders & Labels
+                ['scale', 'x', 'y'].forEach(type => {
+                    const slider = document.querySelector(`input[oninput*="updateImgTransform('${target}', '${type}'"]`);
+                    if (slider) slider.value = imgStates[target][type];
+                    const label = document.getElementById(`val-${target}-${type}`);
+                    if (label) label.textContent = type === 'scale' ? parseFloat(imgStates[target][type]).toFixed(2) + 'x' : imgStates[target][type] + 'px';
+                });
             }
 
             // Load Zoom
