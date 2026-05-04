@@ -11,9 +11,19 @@
     
     <!-- Libraries -->
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Three.js Core & Loaders -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Custom 3D Handler -->
+    <script src="assets/js/3d/AvatarRenderer.js"></script>
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
 
     <script>
         tailwind.config = {
@@ -231,6 +241,19 @@
             </div>
 
             <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6">
+                <!-- Roblox Integration -->
+                <section class="bg-bw-gold/5 border border-bw-gold/20 p-4 space-y-3">
+                    <label class="label-tactical" style="color: #E2B007">Roblox Intelligence</label>
+                    <div class="space-y-2">
+                        <span class="text-[9px] text-gray-500 uppercase font-mono block">User ID</span>
+                        <div class="flex gap-2">
+                            <input type="text" id="roblox-user-id" placeholder="12345678" class="input-tactical flex-1">
+                            <button onclick="fetchRobloxAvatar()" class="bg-bw-gold text-black px-3 py-1 text-[10px] font-bold uppercase hover:bg-white transition-colors">Fetch</button>
+                        </div>
+                        <p class="text-[8px] text-gray-500 font-mono italic">Holt 3D Modell & Portraits direkt von Roblox.</p>
+                    </div>
+                </section>
+
                 <!-- Layout Selection -->
                 <section>
                     <label class="label-tactical" data-i18n="poster.layout">Layout Architektur</label>
@@ -516,10 +539,12 @@
                         </div>
 
                         <!-- Main Character -->
-                        <div class="character-container drop-zone" data-target="main" id="zone-main" onclick="triggerUpload('main')">
-                            <img id="p-main" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="character-img">
+                        <div class="character-container drop-zone" data-target="main" id="zone-main">
+                            <div id="avatar-3d-canvas" class="absolute inset-0 z-0"></div>
+                            <img id="p-main" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="character-img relative z-10 pointer-events-none opacity-0">
                             <div class="img-controls">
                                 <button class="ctrl-btn" onclick="triggerUpload('main'); event.stopPropagation();"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                                <button class="ctrl-btn" onclick="toggle3D(true)"><i data-lucide="box" class="w-3 h-3"></i></button>
                             </div>
                         </div>
 
@@ -621,6 +646,70 @@
     <script>
         let currentZoom = 0.65;
         let sidebarOpen = true;
+        const avatar3D = new AvatarRenderer();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            avatar3D.init('avatar-3d-canvas');
+            loadState();
+        });
+
+        async function fetchRobloxAvatar() {
+            const id = document.getElementById('roblox-user-id').value;
+            if (!id) return alert("Bitte User ID eingeben.");
+
+            const btn = document.querySelector('button[onclick="fetchRobloxAvatar()"]');
+            const originalText = btn.textContent;
+            btn.textContent = "...";
+            btn.disabled = true;
+
+            try {
+                // 1. Set Headshot (Portrait 1)
+                const headshotUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userId=${id}&size=420x420&format=Png&isCircular=false`;
+                const p1 = document.getElementById('p-side-1');
+                p1.src = headshotUrl;
+                p1.classList.add('loaded');
+                document.getElementById('zone-side-1').classList.add('has-img');
+
+                // 2. Load 3D Model
+                const success = await avatar3D.loadAvatar(id);
+                if (success) {
+                    toggle3D(true);
+                    
+                    // 3. Capture Snapshots (Back & Side)
+                    const angles = await avatar3D.captureAngles();
+                    if (angles) {
+                        const p2 = document.getElementById('p-side-2');
+                        p2.src = angles.back;
+                        p2.classList.add('loaded');
+                        document.getElementById('zone-side-2').classList.add('has-img');
+
+                        const p3 = document.getElementById('p-side-3');
+                        p3.src = angles.side;
+                        p3.classList.add('loaded');
+                        document.getElementById('zone-side-3').classList.add('has-img');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Fehler beim Laden des Avatars.");
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                saveState();
+            }
+        }
+
+        function toggle3D(show) {
+            const canvas = document.getElementById('avatar-3d-canvas');
+            const fallback = document.getElementById('p-main');
+            if (show) {
+                canvas.style.display = 'block';
+                fallback.style.opacity = '0';
+            } else {
+                canvas.style.display = 'none';
+                fallback.style.opacity = '1';
+            }
+        }
 
         function toggleSidebar() {
             const sidebar = document.querySelector('aside');
@@ -829,6 +918,17 @@
                         clonedCanvas.style.margin = '0';
                         clonedCanvas.style.top = '0';
                         clonedCanvas.style.left = '0';
+
+                        // Convert 3D Canvas to static image in the clone
+                        const canvas3D = document.querySelector('#avatar-3d-canvas canvas');
+                        if (canvas3D) {
+                            const cloned3DContainer = clonedDoc.getElementById('avatar-3d-canvas');
+                            const img3D = clonedDoc.createElement('img');
+                            img3D.src = canvas3D.toDataURL();
+                            img3D.className = 'absolute inset-0 w-full h-full object-contain';
+                            cloned3DContainer.innerHTML = '';
+                            cloned3DContainer.appendChild(img3D);
+                        }
                     }
                 });
                 
