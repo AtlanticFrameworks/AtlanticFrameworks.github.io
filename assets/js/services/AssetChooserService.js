@@ -104,6 +104,22 @@ const AssetChooserService = {
             state.scale = Math.max(0.1, state.scale + delta);
             this.updateImgTransform(target, 'scale', state.scale);
         }
+    },
+
+    removeImage(target) {
+        const img = document.getElementById('p-' + target);
+        const zone = document.getElementById('zone-' + target);
+        if (img) {
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            img.classList.remove('loaded');
+            if (zone) zone.classList.remove('has-img');
+            
+            if (target === 'main' && window.UIStateService) {
+                UIStateService.toggle3D(false);
+            }
+            
+            if (window.UIStateService) UIStateService.saveToStorage();
+        }
     }
 };
 
