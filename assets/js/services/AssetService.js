@@ -60,6 +60,23 @@ const AssetService = {
 
         if (!json.data || !json.data[0]) throw new Error("Headshot not found");
         return json.data[0].imageUrl;
+    },
+
+    getProxiedUrl(url) {
+        // Simple logic for non-async URL generation (textures, etc)
+        // We swap roblox.com -> roproxy.com or rbxcdn.com -> roproxy.com
+        if (url.includes('roblox.com')) {
+            return url.replace('roblox.com', 'roproxy.com');
+        }
+        if (url.includes('rbxcdn.com')) {
+            return url.replace('rbxcdn.com', 'roproxy.com');
+        }
+        // Fallback to first prefix proxy
+        return `${this.proxies[1]}${encodeURIComponent(url)}`;
+    },
+
+    async fetchProxied(url, options = {}) {
+        return this.fetchWithFallbacks(url, true);
     }
 };
 
