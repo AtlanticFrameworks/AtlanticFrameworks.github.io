@@ -79,9 +79,16 @@ const AssetChooserService = {
         if (type === 'x') state.x = parseInt(val);
         if (type === 'y') state.y = parseInt(val);
         
+        const transformStr = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        
+        // Update 2D Image
         const img = document.getElementById('p-' + target);
-        if (img) {
-            img.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        if (img) img.style.transform = transformStr;
+
+        // Update 3D Canvas (If this is the main target)
+        const canvas3d = document.getElementById('avatar-3d-canvas');
+        if (target === 'main' && canvas3d) {
+            canvas3d.style.transform = transformStr;
         }
         
         const label = document.getElementById(`val-${target}-${type}`);
