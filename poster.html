@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poster Generator | BWRP SYSTEM</title>
+    <title data-i18n="poster.title">Poster Generator | BWRP SYSTEM</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -51,70 +51,30 @@
         }
 
         /* --- TACTICAL UI --- */
-        .sidebar-panel {
-            background: #0f0f12;
-            border-right: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-            position: relative;
-        }
-
-        .input-tactical {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 10px 12px;
-            color: white;
-            font-size: 0.75rem;
-            width: 100%;
-            transition: all 0.2s;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .input-tactical:focus {
-            border-color: #E2B007;
-            background: rgba(226,176,7,0.05);
-            outline: none;
-        }
-
-        .label-tactical {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(255,255,255,0.4);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .label-tactical::before {
-            content: '';
-            width: 4px;
-            height: 4px;
-            background: #E2B007;
-        }
+        .sidebar-panel { background: #0f0f12; border-right: 1px solid rgba(255,255,255,0.05); box-shadow: 10px 0 30px rgba(0,0,0,0.5); position: relative; z-index: 50; }
+        .input-tactical { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; color: white; font-size: 0.75rem; width: 100%; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+        .input-tactical:focus { border-color: #E2B007; background: rgba(226,176,7,0.05); outline: none; }
+        .label-tactical { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255,255,255,0.4); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .label-tactical::before { content: ''; width: 4px; height: 4px; background: #E2B007; }
 
         /* --- POSTER CORE --- */
         #poster-canvas {
             --bg-inner: #ff6b00;
             --bg-outer: #1a0500;
             --accent-color: #E2B007;
+            --font-main: 'Oswald';
+            --font-body: 'Montserrat';
             
-            width: 800px;
-            height: 1200px;
+            width: 800px; height: 1200px;
             background: radial-gradient(circle at 50% 50%, var(--bg-inner) 0%, var(--bg-outer) 100%);
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
-            font-family: 'Montserrat', sans-serif;
+            position: relative; overflow: hidden; flex-shrink: 0;
+            font-family: var(--font-body), sans-serif;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .poster-content {
-            position: absolute; inset: 0;
-            padding: 45px;
-            display: flex; flex-direction: column;
-            z-index: 10;
-        }
+        .poster-content { position: absolute; inset: 0; padding: 45px; display: flex; flex-direction: column; z-index: 10; pointer-events: none; }
+        .poster-content > * { pointer-events: auto; }
 
         /* FX Overlays */
         .poster-overlay-grain { position: absolute; inset: 0; background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjY1IiBsb3VnaD0iMiIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1Ii8+PC9zdmc+'); opacity: 0.3; pointer-events: none; z-index: 45; }
@@ -122,50 +82,63 @@
         .poster-overlay-scanlines { position: absolute; inset: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%); background-size: 100% 4px; pointer-events: none; z-index: 42; }
 
         /* --- LAYOUT 1: VANGUARD --- */
-        [data-layout="vanguard"] .poster-top-subtitle { color: var(--accent-color); font-weight: 800; letter-spacing: 0.15em; font-size: 1.1rem; text-transform: uppercase; margin-bottom: -5px; z-index: 2; }
-        [data-layout="vanguard"] .poster-callsign { font-family: 'Oswald', sans-serif; font-size: 14rem; font-weight: 700; color: var(--accent-color); line-height: 0.85; text-transform: uppercase; margin-left: -5px; z-index: 1; opacity: 0.95; letter-spacing: -0.02em; }
-        [data-layout="vanguard"] .poster-watermark { color: var(--accent-color); font-weight: 700; font-size: 1rem; letter-spacing: 0.08em; margin-top: 15px; opacity: 0.8; z-index: 2; }
+        [data-layout="vanguard"] .poster-top-subtitle { color: var(--accent-color); font-weight: 800; letter-spacing: 0.15em; font-size: 1.1rem; text-transform: uppercase; }
+        [data-layout="vanguard"] .poster-callsign { font-family: var(--font-main); font-size: 14rem; font-weight: 700; color: var(--accent-color); line-height: 0.85; text-transform: uppercase; margin-left: -5px; letter-spacing: -0.02em; }
+        [data-layout="vanguard"] .poster-watermark { color: var(--accent-color); font-weight: 700; font-size: 1rem; letter-spacing: 0.08em; margin-top: 15px; opacity: 0.8; }
         [data-layout="vanguard"] .character-container { position: absolute; top: 180px; left: 0; right: 0; bottom: 320px; display: flex; justify-content: center; align-items: flex-end; z-index: 20; }
         [data-layout="vanguard"] .poster-side-images { position: absolute; right: 45px; top: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
-        [data-layout="vanguard"] .side-image-wrapper { width: 170px; height: 230px; border: 3px solid var(--accent-color); border-radius: 12px; overflow: hidden; background-color: rgba(0,0,0,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
-        [data-layout="vanguard"] .side-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        [data-layout="vanguard"] .side-image-wrapper { width: 170px; height: 230px; border: 3px solid var(--accent-color); border-radius: 12px; overflow: hidden; background-color: rgba(0,0,0,0.5); position: relative; }
         [data-layout="vanguard"] .poster-bottom-section { position: absolute; bottom: 45px; left: 45px; right: 45px; z-index: 30; }
-        [data-layout="vanguard"] .bottom-title-small { color: var(--accent-color); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
-        [data-layout="vanguard"] .bottom-title-large { color: white; font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); letter-spacing: -0.01em; }
+        [data-layout="vanguard"] .bottom-title-small { color: var(--accent-color); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        [data-layout="vanguard"] .bottom-title-large { color: white; font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; }
         [data-layout="vanguard"] .divider-container { display: flex; align-items: center; margin-bottom: 20px; gap: 12px; width: 85%; }
         [data-layout="vanguard"] .divider-line { height: 2px; background-color: var(--accent-color); flex-grow: 1; }
         [data-layout="vanguard"] .divider-line.short { flex-grow: 0; width: 60px; }
-        [data-layout="vanguard"] .divider-icon { color: var(--accent-color); font-size: 1.5rem; line-height: 1; }
+        [data-layout="vanguard"] .divider-icon { color: var(--accent-color); font-size: 1.5rem; }
         [data-layout="vanguard"] .bottom-content-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; }
         [data-layout="vanguard"] .bottom-description { color: var(--accent-color); font-size: 1.05rem; line-height: 1.6; font-weight: 600; flex: 1; text-transform: uppercase; text-align: justify; }
-        [data-layout="vanguard"] .bottom-logo { width: 130px; height: 130px; object-fit: contain; flex-shrink: 0; }
+        [data-layout="vanguard"] .bottom-logo-wrapper { width: 130px; height: 130px; flex-shrink: 0; position: relative; }
 
-        /* --- OTHER LAYOUTS --- */
+        /* --- LAYOUT 2: DOSSIER --- */
         [data-layout="dossier"] .poster-content { padding: 0; display: grid; grid-template-columns: 1fr 350px; }
-        [data-layout="dossier"] .character-container { position: absolute; inset: 0; width: 60%; height: 100%; display: flex; align-items: center; justify-content: center; left: -100px; }
-        [data-layout="dossier"] .poster-bottom-section { position: absolute; right: 0; top: 0; bottom: 0; width: 350px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-left: 1px solid rgba(255,255,255,0.1); padding: 60px 40px; display: flex; flex-direction: column; z-index: 35; }
-        
-        [data-layout="technical"] #poster-canvas { background: #0a0c10; background-image: radial-gradient(circle, #1a202c 1px, transparent 1px); background-size: 40px 40px; }
+        [data-layout="dossier"] .character-container { position: absolute; inset: 0; width: 60%; height: 100%; display: flex; align-items: center; justify-content: center; left: -100px; z-index: 5; }
+        [data-layout="dossier"] .poster-side-images { position: absolute; left: 45px; top: 45px; z-index: 10; gap: 10px; }
+        [data-layout="dossier"] .side-image-wrapper { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--accent-color); }
+        [data-layout="dossier"] .poster-bottom-section { position: relative; width: 350px; height: 100%; background: rgba(0,0,0,0.6); backdrop-blur: 10px; border-left: 1px solid var(--accent-color); padding: 60px 40px; display: flex; flex-direction: column; z-index: 35; }
+        [data-layout="dossier"] .bottom-title-large { font-size: 2.5rem; margin-top: 20px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; }
+        [data-layout="dossier"] .divider-container { display: none; }
+        [data-layout="dossier"] .bottom-content-row { flex-direction: column; gap: 20px; }
+        [data-layout="dossier"] .bottom-logo-wrapper { order: -1; align-self: center; width: 150px; height: 150px; }
 
-        /* Common */
-        .character-img { max-height: 100%; max-width: 100%; object-fit: contain; transition: all 0.3s; }
-        .layout-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); padding: 10px; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; }
-        .layout-card:hover { border-color: #E2B007; background: rgba(226,176,7,0.05); }
-        .layout-card.active { border-color: #E2B007; background: rgba(226,176,7,0.1); }
-        .layout-thumb { width: 100%; height: 60px; background: #000; border-radius: 2px; position: relative; overflow: hidden; }
+        /* Common Elements */
+        .img-editable { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: all 0.3s; }
+        .img-editable:hover { filter: brightness(1.2); }
+        .character-img { max-height: 100%; max-width: 100%; object-fit: contain; cursor: move; }
+        .text-editable:focus { outline: 2px dashed var(--accent-color); outline-offset: 4px; background: rgba(226,176,7,0.1); }
+        
+        /* Drag & Drop Highlight */
+        .drop-zone-active { border: 4px dashed var(--bw-gold) !important; background: rgba(226,176,7,0.2) !important; }
+
+        /* Asset Chooser Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box { background: #0f0f12; border: 1px solid rgba(226,176,7,0.3); width: 90%; max-width: 800px; max-height: 80vh; padding: 2rem; display: flex; flex-direction: column; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); }
+        .grid-asset { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; overflow-y: auto; padding: 1rem; }
+        .asset-card { border: 1px solid rgba(255,255,255,0.05); padding: 10px; background: rgba(255,255,255,0.02); cursor: pointer; transition: all 0.2s; text-align: center; }
+        .asset-card:hover { border-color: var(--bw-gold); background: rgba(226,176,7,0.1); }
+        .asset-card img { width: 100%; aspect-ratio: 1; object-fit: contain; margin-bottom: 8px; }
+
+        /* Image Control Menu */
+        .img-controls { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 1px solid var(--bw-gold); display: flex; gap: 5px; padding: 5px; z-index: 100; opacity: 0; transition: opacity 0.2s; }
+        .side-image-wrapper:hover .img-controls, .character-container:hover .img-controls, .bottom-logo-wrapper:hover .img-controls { opacity: 1; }
+        .ctrl-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; border-radius: 2px; }
+        .ctrl-btn:hover { background: var(--bw-gold); color: black; }
+
+        /* Custom Color Picker */
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; }
 
         .tactical-notch { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #E2B007; }
-
-        select.input-tactical {
-            appearance: none;
-            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImrgbagyMjYsMTc2LDcsMC41KSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik02IDlsNiA2IDYtNiIvPjwvc3ZnPg==");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 14px;
-        }
     </style>
 </head>
 
@@ -176,17 +149,20 @@
     <main class="flex-1 flex overflow-hidden pt-20">
         <!-- Sidebar -->
         <aside class="w-80 sidebar-panel flex flex-col h-full z-10">
-            <div class="p-5 border-b border-bw-border bg-black/20">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="font-display font-bold text-lg uppercase tracking-widest text-white">SYSTEM EDITOR</h2>
-                    <span class="font-mono text-[9px] text-bw-gold/60 border border-bw-gold/20 px-1.5 py-0.5">V3.6 ALPHA</span>
+            <div class="p-5 border-b border-bw-border bg-black/20 flex items-center justify-between">
+                <div>
+                    <h2 class="font-display font-bold text-lg uppercase tracking-widest text-white" data-i18n="poster.editor">SYSTEM EDITOR</h2>
+                    <span class="font-mono text-[9px] text-bw-gold/60 border border-bw-gold/20 px-1.5 py-0.5">V4.0 STABLE</span>
                 </div>
+                <button onclick="toggleLanguage()" class="text-[10px] font-mono border border-white/10 px-2 py-1 hover:bg-white/5" id="lang-toggle">
+                    <span>DE</span>
+                </button>
             </div>
 
             <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6">
                 <!-- Layout Selection -->
                 <section>
-                    <label class="label-tactical">Layout Architektur</label>
+                    <label class="label-tactical" data-i18n="poster.layout">Layout Architektur</label>
                     <div class="grid grid-cols-2 gap-2">
                         <div onclick="setLayout('vanguard')" id="lay-vanguard" class="layout-card active">
                             <div class="layout-thumb"><div class="absolute inset-x-2 top-2 h-1 bg-bw-gold/40"></div><div class="absolute inset-x-4 bottom-2 h-4 bg-white/20"></div></div>
@@ -201,113 +177,89 @@
 
                 <!-- Color Config -->
                 <section class="space-y-4">
-                    <label class="label-tactical">Hintergrund-Styling</label>
+                    <label class="label-tactical" data-i18n="poster.colors">Hintergrund-Styling</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Innenfarbe</span>
-                            <input type="color" id="in-bg-inner" value="#ff6b00" class="w-full h-8 bg-transparent border border-white/10 rounded cursor-pointer" oninput="updateColors()">
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block" data-i18n="poster.inner">Innenfarbe</span>
+                            <div class="flex gap-2">
+                                <input type="color" id="in-bg-inner" value="#ff6b00" class="w-8 h-8 bg-transparent border border-white/10 rounded cursor-pointer" oninput="syncColor(this, 'bg-inner')">
+                                <input type="text" id="hex-bg-inner" value="#ff6b00" class="input-tactical flex-1 h-8 !py-0 text-[10px]" oninput="syncColor(this, 'bg-inner')">
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Außenfarbe</span>
-                            <input type="color" id="in-bg-outer" value="#1a0500" class="w-full h-8 bg-transparent border border-white/10 rounded cursor-pointer" oninput="updateColors()">
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block" data-i18n="poster.outer">Außenfarbe</span>
+                            <div class="flex gap-2">
+                                <input type="color" id="in-bg-outer" value="#1a0500" class="w-8 h-8 bg-transparent border border-white/10 rounded cursor-pointer" oninput="syncColor(this, 'bg-outer')">
+                                <input type="text" id="hex-bg-outer" value="#1a0500" class="input-tactical flex-1 h-8 !py-0 text-[10px]" oninput="syncColor(this, 'bg-outer')">
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Text Data -->
+                <!-- Typography Controls -->
                 <section class="space-y-4">
-                    <label class="label-tactical">Typografie-Daten</label>
-                    <div class="space-y-3">
+                    <label class="label-tactical" data-i18n="poster.typography">Typografie-Daten</label>
+                    <div class="space-y-4">
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Oberer Untertitel</span>
-                            <input type="text" id="in-top-subtitle" value="RANG / TITEL" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.rank">Rang</span>
+                            <input type="text" id="in-rank" value="Obegefreiter" class="input-tactical" oninput="syncText(this, 'p-rank')">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Haupt-Rufzeichen</span>
-                            <input type="text" id="in-main-title" value="RUFZEICHEN" class="input-tactical" oninput="updatePoster()">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] text-gray-500 uppercase font-mono" data-i18n="poster.callsign">Rufzeichen</span>
+                                <div class="flex gap-1">
+                                    <button onclick="adjustFontSize('p-callsign', 1)" class="w-4 h-4 bg-white/5 hover:bg-white/10 text-[8px] flex items-center justify-center">+</button>
+                                    <button onclick="adjustFontSize('p-callsign', -1)" class="w-4 h-4 bg-white/5 hover:bg-white/10 text-[8px] flex items-center justify-center">-</button>
+                                </div>
+                            </div>
+                            <input type="text" id="in-callsign" value="GHOST" class="input-tactical font-bold" oninput="syncText(this, 'p-callsign')">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Wasserzeichen</span>
-                            <input type="text" id="in-watermark" value="@DEIN_NAME" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.watermark">Wasserzeichen</span>
+                            <input type="text" id="in-watermark" value="@BWRP_SYSTEM" class="input-tactical" oninput="syncText(this, 'p-watermark')">
                         </div>
                         <div class="pt-2 border-t border-white/5"></div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Unterer Untertitel</span>
-                            <input type="text" id="in-bottom-subtitle" value="EINHEIT / TRUPP" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.unit">Einheit</span>
+                            <input type="text" id="in-unit" value="2. ZUG / 3. GRUPPE" class="input-tactical" oninput="syncText(this, 'p-unit')">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Unterer Haupttitel</span>
-                            <input type="text" id="in-bottom-title" value="SPEZIALEINHEIT" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.specialty">Spezialisierung</span>
+                            <input type="text" id="in-specialty" value="SCHARFSCHÜTZE" class="input-tactical" oninput="syncText(this, 'p-specialty')">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Missionsbeschreibung</span>
-                            <textarea id="in-description" rows="5" class="input-tactical resize-none" oninput="updatePoster()">GIB EINE KURZE BESCHREIBUNG DER ROLLE, SPEZIALISIERUNGEN UND DES HINTERGRUNDS DES CHARAKTERS EIN.</textarea>
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1" data-i18n="poster.desc">Beschreibung</span>
+                            <textarea id="in-desc" rows="4" class="input-tactical resize-none" oninput="syncText(this, 'p-desc')">ELITE-SCHARFSCHÜTZE MIT TAKTISCHER EXPERTISE IN VERDECKTEN OPERATIONEN UND LANGSTRECKEN-AUFKLÄRUNG.</textarea>
                         </div>
                     </div>
                 </section>
 
-                <!-- Logo Presets -->
+                <!-- Assets -->
                 <section class="space-y-4">
-                    <label class="label-tactical">Verbandslogo</label>
-                    <select id="sel-logo" class="input-tactical" onchange="setLogoPreset(this.value)">
-                        <option value="">-- Logo Wählen --</option>
-                        <option value="ABC Abwehrtruppe.png">ABC Abwehrtruppe</option>
-                        <option value="Bundeswehr Verband.png">Bundeswehr Verband</option>
-                        <option value="Bundeswehr.png">Bundeswehr</option>
-                        <option value="Feldjäger.png">Feldjäger</option>
-                        <option value="KSK.png">KSK</option>
-                        <option value="Karriere Center.png">Karriere Center</option>
-                        <option value="Logistiktruppe.png">Logistiktruppe</option>
-                        <option value="MAD.png">MAD</option>
-                        <option value="Marine.png">Marine</option>
-                        <option value="Militärgericht.png">Militärgericht</option>
-                        <option value="Militärmusikkorps.png">Militärmusikkorps</option>
-                        <option value="Raider.png">Raider</option>
-                        <option value="Sanitätsdienst.png">Sanitätsdienst</option>
-                        <option value="UN.png">UN</option>
-                        <option value="Wachbataillon.png">Wachbataillon</option>
-                    </select>
-                    <div class="flex items-center gap-2">
-                        <button onclick="document.getElementById('up-logo').click()" class="flex-1 py-2 border border-white/10 hover:bg-white/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
-                            <i data-lucide="upload" class="w-3 h-3"></i> Eigenes Logo
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Asset Uploads -->
-                <section class="space-y-4">
-                    <label class="label-tactical">Visuelle Assets</label>
+                    <label class="label-tactical" data-i18n="poster.assets">Visuelle Assets</label>
                     <div class="space-y-3">
-                        <button onclick="document.getElementById('up-main').click()" class="w-full py-2 border border-bw-gold/20 hover:bg-bw-gold/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
-                            <i data-lucide="user" class="w-4 h-4"></i> Hauptcharakter
+                        <button onclick="openAssetChooser('logo')" class="w-full py-2 border border-bw-gold/20 hover:bg-bw-gold/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
+                            <i data-lucide="shield" class="w-4 h-4"></i> <span data-i18n="poster.logo">Verbandslogo</span>
                         </button>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="document.getElementById('up-side-1').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[8px] uppercase">Bild 1</button>
-                            <button onclick="document.getElementById('up-side-2').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[8px] uppercase">Bild 2</button>
-                            <button onclick="document.getElementById('up-side-3').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[8px] uppercase">Bild 3</button>
-                        </div>
+                        <button onclick="triggerUpload('main')" class="w-full py-2 border border-white/10 hover:bg-white/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i> <span data-i18n="poster.main_char">Hauptcharakter</span>
+                        </button>
                     </div>
-                    <!-- Hidden Inputs -->
-                    <input type="file" id="up-main" class="hidden" accept="image/*" onchange="handleImage(this, 'main')">
-                    <input type="file" id="up-side-1" class="hidden" accept="image/*" onchange="handleImage(this, 'side-1')">
-                    <input type="file" id="up-side-2" class="hidden" accept="image/*" onchange="handleImage(this, 'side-2')">
-                    <input type="file" id="up-side-3" class="hidden" accept="image/*" onchange="handleImage(this, 'side-3')">
-                    <input type="file" id="up-logo" class="hidden" accept="image/*" onchange="handleImage(this, 'logo')">
                 </section>
 
                 <!-- Post-Processing -->
                 <section class="space-y-3 bg-white/5 p-3">
-                    <label class="label-tactical">Post-Processing</label>
+                    <label class="label-tactical" data-i18n="poster.processing">Post-Processing</label>
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] text-gray-400 font-mono uppercase">Filmkorn</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase" data-i18n="poster.grain">Filmkorn</span>
                         <input type="checkbox" id="eff-grain" checked onchange="updateEffects()" class="accent-bw-gold">
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] text-gray-400 font-mono uppercase">Vignette</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase" data-i18n="poster.vignette">Vignette</span>
                         <input type="checkbox" id="eff-vignette" checked onchange="updateEffects()" class="accent-bw-gold">
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] text-gray-400 font-mono uppercase">Scanlines</span>
+                        <span class="text-[10px] text-gray-400 font-mono uppercase" data-i18n="poster.scanlines">Scanlines</span>
                         <input type="checkbox" id="eff-scan" checked onchange="updateEffects()" class="accent-bw-gold">
                     </div>
                 </section>
@@ -316,44 +268,84 @@
             </div>
 
             <div class="p-5 border-t border-bw-border bg-black/40">
-                <button id="btn-export" onclick="exportPoster()" class="tactical-notch w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-3">
-                    <i data-lucide="save" class="w-5 h-5"></i> EXPORTIEREN
+                <button onclick="openExportModal()" class="tactical-notch w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-3">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    <span data-i18n="poster.export">EXPORTIEREN</span>
                 </button>
             </div>
         </aside>
 
         <!-- Preview Area -->
-        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')]">
-            <div class="absolute inset-0 bg-black/60 pointer-events-none"></div>
+        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')] bg-repeat">
+            <div class="absolute inset-0 bg-black/80 pointer-events-none"></div>
             
+            <!-- Zoom Controls -->
+            <div class="absolute top-6 right-6 z-20 flex items-center gap-2">
+                <div class="bg-bw-panel border border-bw-border p-2 flex items-center gap-4 px-4 shadow-2xl">
+                    <span class="font-mono text-[9px] text-gray-500 uppercase" data-i18n="poster.zoom">Zoom</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="adjustZoom(-0.1)" class="text-gray-400 hover:text-white"><i data-lucide="minus-circle" class="w-3 h-3"></i></button>
+                        <span id="zoom-level" class="text-[10px] font-mono font-bold w-10 text-center text-bw-gold">65%</span>
+                        <button onclick="adjustZoom(0.1)" class="text-gray-400 hover:text-white"><i data-lucide="plus-circle" class="w-3 h-3"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Canvas -->
             <div id="poster-scaler" style="transform: scale(0.65);">
-                <div id="poster-canvas" data-layout="vanguard">
+                <div id="poster-canvas" data-layout="vanguard" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                    
                     <div id="ov-grain" class="poster-overlay-grain"></div>
                     <div id="ov-scan" class="poster-overlay-scanlines"></div>
                     <div id="ov-vignette" class="poster-overlay-vignette"></div>
 
                     <div class="poster-content">
-                        <!-- Top -->
-                        <div class="poster-top-subtitle" id="p-top-subtitle">RANG / TITEL</div>
-                        <h1 id="p-main-title" class="poster-callsign">RUFZEICHEN</h1>
-                        <div class="poster-watermark" id="p-watermark">@DEIN_NAME</div>
+                        <!-- Header -->
+                        <div>
+                            <div id="p-rank" class="poster-top-subtitle text-editable" contenteditable="true" onblur="syncInput(this, 'in-rank')">OBEGEFREITER</div>
+                            <h1 id="p-callsign" class="poster-callsign text-editable" contenteditable="true" onblur="syncInput(this, 'in-callsign')">GHOST</h1>
+                            <div id="p-watermark" class="poster-watermark text-editable" contenteditable="true" onblur="syncInput(this, 'in-watermark')">@BWRP_SYSTEM</div>
+                        </div>
 
-                        <!-- Side Images -->
+                        <!-- Side Images (Vanguard) -->
                         <div class="poster-side-images">
-                            <div class="side-image-wrapper"><img id="p-side-1" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTcwIiBoZWlnaHQ9IjIzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+PC9zdmc+"></div>
-                            <div class="side-image-wrapper"><img id="p-side-2" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTcwIiBoZWlnaHQ9IjIzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+PC9zdmc+"></div>
-                            <div class="side-image-wrapper"><img id="p-side-3" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTcwIiBoZWlnaHQ9IjIzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+PC9zdmc+"></div>
+                            <div class="side-image-wrapper drop-zone" data-target="side-1">
+                                <img id="p-side-1" src="assets/images/logo.png" class="img-editable" onclick="triggerUpload('side-1')">
+                                <div class="img-controls">
+                                    <button class="ctrl-btn" onclick="adjustImg('side-1', 'scale', 0.1)"><i data-lucide="zoom-in" class="w-3 h-3"></i></button>
+                                    <button class="ctrl-btn" onclick="adjustImg('side-1', 'scale', -0.1)"><i data-lucide="zoom-out" class="w-3 h-3"></i></button>
+                                    <button class="ctrl-btn" onclick="triggerUpload('side-1')"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                                </div>
+                            </div>
+                            <div class="side-image-wrapper drop-zone" data-target="side-2">
+                                <img id="p-side-2" src="assets/images/logo.png" class="img-editable" onclick="triggerUpload('side-2')">
+                                <div class="img-controls">
+                                    <button class="ctrl-btn" onclick="adjustImg('side-2', 'scale', 0.1)"><i data-lucide="zoom-in" class="w-3 h-3"></i></button>
+                                    <button class="ctrl-btn" onclick="triggerUpload('side-2')"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                                </div>
+                            </div>
+                            <div class="side-image-wrapper drop-zone" data-target="side-3">
+                                <img id="p-side-3" src="assets/images/logo.png" class="img-editable" onclick="triggerUpload('side-3')">
+                                <div class="img-controls">
+                                    <button class="ctrl-btn" onclick="triggerUpload('side-3')"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Character -->
-                        <div class="character-container">
-                            <img id="p-main" class="character-img" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjgwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=">
+                        <!-- Main Character -->
+                        <div class="character-container drop-zone" data-target="main">
+                            <img id="p-main" src="assets/images/logo.png" class="character-img" style="opacity: 0.1; filter: grayscale(1) blur(5px);">
+                            <div class="img-controls">
+                                <button class="ctrl-btn" onclick="adjustImg('main', 'scale', 0.1)"><i data-lucide="zoom-in" class="w-3 h-3"></i></button>
+                                <button class="ctrl-btn" onclick="adjustImg('main', 'scale', -0.1)"><i data-lucide="zoom-out" class="w-3 h-3"></i></button>
+                                <button class="ctrl-btn" onclick="triggerUpload('main')"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                            </div>
                         </div>
 
-                        <!-- Bottom Section -->
+                        <!-- Bottom -->
                         <div class="poster-bottom-section">
-                            <div class="bottom-title-small" id="p-bottom-subtitle">EINHEIT / TRUPP</div>
-                            <div class="bottom-title-large" id="p-bottom-title">SPEZIALEINHEIT</div>
+                            <div id="p-unit" class="bottom-title-small text-editable" contenteditable="true" onblur="syncInput(this, 'in-unit')">2. ZUG / 3. GRUPPE</div>
+                            <div id="p-specialty" class="bottom-title-large text-editable" contenteditable="true" onblur="syncInput(this, 'in-specialty')">SCHARFSCHÜTZE</div>
                             
                             <div class="divider-container">
                                 <div class="divider-line short"></div>
@@ -362,93 +354,285 @@
                             </div>
 
                             <div class="bottom-content-row">
-                                <div class="bottom-description" id="p-description">
-                                    GIB EINE KURZE BESCHREIBUNG DER ROLLE, SPEZIALISIERUNGEN UND DES HINTERGRUNDS DES CHARAKTERS EIN.
+                                <div id="p-desc" class="bottom-description text-editable" contenteditable="true" onblur="syncInput(this, 'in-desc')">
+                                    ELITE-SCHARFSCHÜTZE MIT TAKTISCHER EXPERTISE IN VERDECKTEN OPERATIONEN UND LANGSTRECKEN-AUFKLÄRUNG.
                                 </div>
-                                <img id="p-logo" class="bottom-logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMwIiBoZWlnaHQ9IjEzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=">
+                                <div class="bottom-logo-wrapper drop-zone" data-target="logo">
+                                    <img id="p-logo" src="assets/images/div_logos/Bundeswehr.png" class="img-editable" onclick="openAssetChooser('logo')">
+                                    <div class="img-controls">
+                                        <button class="ctrl-btn" onclick="openAssetChooser('logo')"><i data-lucide="grid" class="w-3 h-3"></i></button>
+                                        <button class="ctrl-btn" onclick="triggerUpload('logo')"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- Asset Chooser Modal -->
+    <div id="modal-assets" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-display font-bold text-xl tracking-widest text-bw-gold uppercase" data-i18n="poster.logo">VERBANDSLOGO WÄHLEN</h3>
+                <button onclick="closeModal('assets')" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="grid-asset custom-scroll" id="asset-grid">
+                <!-- Populated by JS -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="triggerUpload('logo')" class="bg-white/5 hover:bg-white/10 px-6 py-2 text-xs font-mono tracking-widest uppercase border border-white/10">
+                    <span data-i18n="poster.custom_logo">EIGENES LOGO HOCHLADEN</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="modal-export" class="modal-overlay">
+        <div class="modal-box max-w-md">
+            <h3 class="font-display font-bold text-xl tracking-widest text-bw-gold uppercase mb-6" data-i18n="poster.export">EXPORT OPTIONEN</h3>
+            <div class="space-y-6">
+                <div>
+                    <label class="label-tactical" data-i18n="poster.format">Format</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setExportFormat('png')" class="export-opt active border border-bw-gold/30 p-2 text-xs font-mono bg-bw-gold/10">PNG</button>
+                        <button onclick="setExportFormat('jpg')" class="export-opt border border-white/10 p-2 text-xs font-mono hover:bg-white/5">JPG</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="label-tactical" data-i18n="poster.quality">Qualität</label>
+                    <div class="space-y-2">
+                        <button onclick="setExportQuality(1)" class="export-qual active w-full text-left p-3 border border-bw-gold/30 bg-bw-gold/10 flex justify-between items-center">
+                            <span class="text-xs font-mono" data-i18n="poster.web">Web (72 DPI)</span>
+                            <i data-lucide="check" class="w-3 h-3 text-bw-gold"></i>
+                        </button>
+                        <button onclick="setExportQuality(2)" class="export-qual w-full text-left p-3 border border-white/10 hover:bg-white/5 flex justify-between items-center">
+                            <span class="text-xs font-mono" data-i18n="poster.print">Druck (300 DPI)</span>
+                            <i data-lucide="check" class="w-3 h-3 hidden"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-10">
+                <button id="btn-do-export" onclick="doExport()" class="w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all">
+                    START EXPORT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="global-uploader" class="hidden" accept="image/*" onchange="handleFileSelect(event)">
+
     <script src="assets/js/components.js"></script>
+    <script src="assets/js/i18n.js"></script>
     <script>
+        let currentZoom = 0.65;
+        let activeTarget = null;
+        let exportFormat = 'png';
+        let exportQuality = 1;
+
+        const divLogos = [
+            "ABC Abwehrtruppe.png", "Bundeswehr Verband.png", "Bundeswehr.png", "Feldjäger.png",
+            "KSK.png", "Karriere Center.png", "Logistiktruppe.png", "MAD.png", "Marine.png",
+            "Militärgericht.png", "Militärmusikkorps.png", "Raider.png", "Sanitätsdienst.png",
+            "UN.png", "Wachbataillon.png"
+        ];
+
+        const imgStates = {
+            main: { scale: 1, x: 0, y: 0 },
+            'side-1': { scale: 1, x: 0, y: 0 },
+            'side-2': { scale: 1, x: 0, y: 0 },
+            'side-3': { scale: 1, x: 0, y: 0 },
+            logo: { scale: 1, x: 0, y: 0 }
+        };
+
         function setLayout(l) {
             document.getElementById('poster-canvas').setAttribute('data-layout', l);
             document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('active'));
             document.getElementById('lay-' + l).classList.add('active');
         }
 
-        function updateColors() {
-            const canvas = document.getElementById('poster-canvas');
-            canvas.style.setProperty('--bg-inner', document.getElementById('in-bg-inner').value);
-            canvas.style.setProperty('--bg-outer', document.getElementById('in-bg-outer').value);
-        }
-
-        function updatePoster() {
-            document.getElementById('p-top-subtitle').textContent = document.getElementById('in-top-subtitle').value;
-            document.getElementById('p-main-title').textContent = document.getElementById('in-main-title').value;
-            document.getElementById('p-watermark').textContent = document.getElementById('in-watermark').value;
-            document.getElementById('p-bottom-subtitle').textContent = document.getElementById('in-bottom-subtitle').value;
-            document.getElementById('p-bottom-title').textContent = document.getElementById('in-bottom-title').value;
-            document.getElementById('p-description').textContent = document.getElementById('in-description').value;
-        }
-
-        function setLogoPreset(filename) {
-            if (!filename) return;
-            document.getElementById('p-logo').src = 'assets/images/div_logos/' + filename;
-            document.getElementById('p-logo').style.opacity = '1';
-        }
-
-        function handleImage(input, target) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('p-' + target).src = e.target.result;
-                    document.getElementById('p-' + target).style.opacity = '1';
-                };
-                reader.readAsDataURL(input.files[0]);
+        function syncColor(el, prop) {
+            const val = el.value;
+            document.getElementById('poster-canvas').style.setProperty('--' + prop, val);
+            if (el.type === 'color') {
+                document.getElementById('hex-' + prop).value = val;
+            } else {
+                document.getElementById('in-' + prop).value = val;
             }
         }
 
-        function updateEffects() {
-            document.getElementById('ov-grain').style.display = document.getElementById('eff-grain').checked ? 'block' : 'none';
-            document.getElementById('ov-vignette').style.display = document.getElementById('eff-vignette').checked ? 'block' : 'none';
-            document.getElementById('ov-scan').style.display = document.getElementById('eff-scan').checked ? 'block' : 'none';
+        function syncText(input, displayId) {
+            const display = document.getElementById(displayId);
+            if (display) {
+                display.textContent = input.value;
+            }
         }
 
-        function exportPoster() {
-            const btn = document.getElementById('btn-export');
+        function syncInput(display, inputId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = display.textContent;
+            }
+        }
+
+        function adjustFontSize(id, delta) {
+            const el = document.getElementById(id);
+            const style = window.getComputedStyle(el);
+            const size = parseFloat(style.fontSize);
+            el.style.fontSize = (size + delta) + 'px';
+        }
+
+        function triggerUpload(target) {
+            activeTarget = target;
+            document.getElementById('global-uploader').click();
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) applyImage(file, activeTarget);
+        }
+
+        function applyImage(file, target) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = document.getElementById('p-' + target);
+                img.src = ev.target.result;
+                img.style.opacity = '1';
+                img.style.filter = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- Drag & Drop ---
+        function handleDragOver(e) {
+            e.preventDefault();
+            const zone = e.target.closest('.drop-zone');
+            if (zone) zone.classList.add('drop-zone-active');
+        }
+
+        function handleDragLeave(e) {
+            const zone = e.target.closest('.drop-zone');
+            if (zone) zone.classList.remove('drop-zone-active');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const zone = e.target.closest('.drop-zone');
+            if (zone) {
+                zone.classList.remove('drop-zone-active');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    applyImage(file, zone.dataset.target);
+                }
+            }
+        }
+
+        // --- Asset Chooser ---
+        function openAssetChooser(target) {
+            activeTarget = target;
+            const grid = document.getElementById('asset-grid');
+            grid.innerHTML = divLogos.map(name => `
+                <div class="asset-card" onclick="selectAsset('${name}')">
+                    <img src="assets/images/div_logos/${name}">
+                    <span class="text-[8px] font-mono text-gray-500 uppercase">${name.replace('.png', '')}</span>
+                </div>
+            `).join('');
+            document.getElementById('modal-assets').classList.add('active');
+        }
+
+        function selectAsset(name) {
+            const img = document.getElementById('p-' + activeTarget);
+            img.src = 'assets/images/div_logos/' + name;
+            img.style.opacity = '1';
+            closeModal('assets');
+        }
+
+        // --- Image Manipulation ---
+        function adjustImg(target, type, delta) {
+            const state = imgStates[target];
+            if (type === 'scale') state.scale = Math.max(0.1, state.scale + delta);
+            updateImgTransform(target);
+        }
+
+        function updateImgTransform(target) {
+            const el = document.getElementById('p-' + target);
+            el.style.transform = `scale(${imgStates[target].scale}) translate(${imgStates[target].x}px, ${imgStates[target].y}px)`;
+        }
+
+        // --- Zoom ---
+        function adjustZoom(delta) {
+            currentZoom = Math.min(Math.max(0.2, currentZoom + delta), 2);
+            document.getElementById('poster-scaler').style.transform = `scale(${currentZoom})`;
+            document.getElementById('zoom-level').textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        // --- Export ---
+        function openExportModal() { document.getElementById('modal-export').classList.add('active'); }
+        function closeModal(id) { document.getElementById('modal-' + id).classList.remove('active'); }
+
+        function setExportFormat(f) {
+            exportFormat = f;
+            document.querySelectorAll('.export-opt').forEach(b => {
+                b.classList.toggle('active', b.textContent.toLowerCase() === f);
+                b.classList.toggle('bg-bw-gold/10', b.textContent.toLowerCase() === f);
+                b.classList.toggle('border-bw-gold/30', b.textContent.toLowerCase() === f);
+            });
+        }
+
+        function setExportQuality(q) {
+            exportQuality = q;
+            document.querySelectorAll('.export-qual').forEach((b, i) => {
+                const isActive = (i + 1) === q;
+                b.classList.toggle('active', isActive);
+                b.querySelector('i').classList.toggle('hidden', !isActive);
+            });
+        }
+
+        async function doExport() {
+            const btn = document.getElementById('btn-do-export');
             btn.disabled = true;
-            btn.textContent = 'GENERIERE...';
+            btn.textContent = translations[localStorage.getItem('lang') || 'de']['poster.generating'];
 
             const scaler = document.getElementById('poster-scaler');
             const prevTransform = scaler.style.transform;
             scaler.style.transform = 'scale(1)';
 
-            html2canvas(document.getElementById('poster-canvas'), {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: null,
-                logging: false
-            }).then(canvas => {
+            try {
+                const canvas = await html2canvas(document.getElementById('poster-canvas'), {
+                    scale: exportQuality * 2,
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false
+                });
+
                 const link = document.createElement('a');
-                link.download = `bwrp-poster-${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.download = `BWRP_Poster_${Date.now()}.${exportFormat}`;
+                link.href = canvas.toDataURL(`image/${exportFormat}`, 0.9);
                 link.click();
-                btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="save"></i> EXPORTIEREN';
-                scaler.style.transform = prevTransform;
-                lucide.createIcons();
-            });
+            } catch (err) {
+                console.error(err);
+                alert("Export failed!");
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'START EXPORT';
+            scaler.style.transform = prevTransform;
+            closeModal('export');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => lucide.createIcons(), 500);
-            updateColors();
+            
+            // Re-init i18n
+            if (typeof setLanguage === 'function') {
+                setLanguage(localStorage.getItem('lang') || 'de');
+            }
         });
     </script>
 </body>
