@@ -4,10 +4,10 @@
 const AssetService = {
     // We are abandoning the complex Cloudflare prefix proxies.
     // Instead, we use RoProxy (the community standard) and a couple of fallbacks just in case.
+    // Completely removed RoProxy. Using CorsProxy as primary.
     proxies: [
-        "direct-roproxy", // Primary: Uses RoProxy directly
-        "https://corsproxy.io/?", // Fallback 1
-        "https://api.allorigins.win/raw?url=" // Fallback 2
+        "https://corsproxy.io/?", // Primary
+        "https://api.allorigins.win/raw?url=" // Fallback
     ],
 
     async fetchWithFallbacks(targetUrl, isRobloxApi = true) {
@@ -15,16 +15,8 @@ const AssetService = {
 
         for (const proxy of this.proxies) {
             try {
-                let fetchUrl = targetUrl;
-
-                // If using our primary RoProxy method, we just swap the domain name.
-                if (proxy === "direct-roproxy" && isRobloxApi) {
-                    fetchUrl = targetUrl.replace('roblox.com', 'roproxy.com');
-                }
-                // Otherwise, use standard proxy prefixing
-                else if (proxy !== "direct-roproxy") {
-                    fetchUrl = `${proxy}${encodeURIComponent(targetUrl)}`;
-                }
+                // Wrap the target URL with the proxy prefix
+                const fetchUrl = `${proxy}${encodeURIComponent(targetUrl)}`;
 
                 const response = await fetch(fetchUrl, {
                     referrerPolicy: "no-referrer",
@@ -41,6 +33,7 @@ const AssetService = {
         }
         throw lastError;
     },
+
 
     async getAvatarMetadata(userId) {
         // We request the standard Roblox URL, and let fetchWithFallbacks handle the RoProxy conversion
