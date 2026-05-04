@@ -642,12 +642,12 @@
             btn.disabled = true;
 
             try {
-                const proxy = "https://corsproxy.io/?";
+                const proxies = ["https://corsproxy.io/?", "https://api.allorigins.win/raw?url=", "https://api.codetabs.com/v1/proxy?quest="];
 
                 // 1. Set Headshot (Portrait 1) via Proxy for CORS compliance
                 const headshotUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userId=${id}&size=420x420&format=Png&isCircular=false`;
                 const p1 = document.getElementById('p-side-1');
-                p1.src = `${proxy}${encodeURIComponent(headshotUrl)}`;
+                p1.src = `${proxies[0]}${encodeURIComponent(headshotUrl)}`;
                 p1.classList.add('loaded');
                 document.getElementById('zone-side-1').classList.add('has-img');
 

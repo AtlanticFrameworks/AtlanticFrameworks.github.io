@@ -10,7 +10,26 @@ class AvatarRenderer {
         this.controls = null;
         this.model = null;
         this.isInitialized = false;
-        this.proxy = "https://corsproxy.io/?";
+        // Robust list of proxies to bypass CORS and CSP restrictions
+        this.proxies = [
+            "https://corsproxy.io/?",
+            "https://api.allorigins.win/raw?url=",
+            "https://api.codetabs.com/v1/proxy?quest="
+        ];
+    }
+
+    async fetchProxied(targetUrl) {
+        for (const proxyBase of this.proxies) {
+            try {
+                const fullUrl = `${proxyBase}${encodeURIComponent(targetUrl)}`;
+                const response = await fetch(fullUrl);
+                if (response.ok) return response;
+            } catch (e) {
+                console.warn(`Proxy ${proxyBase} failed, trying next...`, e);
+            }
+        }
+        // Last resort: direct fetch (will likely fail CORS but good for local dev)
+        return fetch(targetUrl);
     }
 
     init(containerId) {
@@ -70,12 +89,13 @@ class AvatarRenderer {
 
         try {
             // 1. Fetch 3D Metadata
-            const metaResp = await fetch(`${this.proxy}${encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`)}`);
+            const metaResp = await this.fetchProxied(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`);
             const metaData = await metaResp.json();
             if (!metaData.imageUrl) throw new Error("No 3D image URL");
+            if (metaData.state !== "Completed") throw new Error("3D avatar not ready. Try again in a few seconds.");
 
             // 2. Fetch Scene JSON
-            const sceneResp = await fetch(`${this.proxy}${encodeURIComponent(metaData.imageUrl)}`);
+            const sceneResp = await this.fetchProxied(metaData.imageUrl);
             const sceneData = await sceneResp.json();
 
             // 3. Load Assets
@@ -85,14 +105,20 @@ class AvatarRenderer {
             // Set crossOrigin for texture loading
             mtlLoader.setCrossOrigin('anonymous');
 
-            const mtl = await new Promise((resolve, reject) => {
-                mtlLoader.load(`${this.proxy}${encodeURIComponent(sceneData.mtl)}`, resolve, undefined, reject);
+            const mtl = await new Promise(async (resolve, reject) => {
+                const url = sceneData.mtl;
+                // Since MTLLoader.load doesn't natively support our async proxy list, 
+                // we pre-fetch the blob if possible, or just use the first proxy
+                const mtlUrl = `${this.proxies[0]}${encodeURIComponent(url)}`;
+                mtlLoader.load(mtlUrl, resolve, undefined, reject);
             });
             mtl.preload();
 
             objLoader.setMaterials(mtl);
             this.model = await new Promise((resolve, reject) => {
-                objLoader.load(`${this.proxy}${encodeURIComponent(sceneData.obj)}`, resolve, undefined, reject);
+                const url = sceneData.obj;
+                const objUrl = `${this.proxies[0]}${encodeURIComponent(url)}`;
+                objLoader.load(objUrl, resolve, undefined, reject);
             });
 
             // Center and Scale
