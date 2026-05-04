@@ -6,8 +6,7 @@ const AssetService = {
     // Instead, we use RoProxy (the community standard) and a couple of fallbacks just in case.
     // Completely removed RoProxy. Using CorsProxy as primary.
     proxies: [
-        // Let's make AllOrigins the primary proxy for now
-        "https://api.allorigins.win/raw?url="
+        "https://roblox-char-proxy-5pnqnpplw-batuatakanerol-5232s-projects.vercel.app/"
     ],
 
     async fetchWithFallbacks(targetUrl, isRobloxApi = true) {
@@ -56,13 +55,16 @@ const AssetService = {
     },
 
     getProxiedUrl(url) {
-        // Prevent double-proxying if the URL already has corsproxy
-        if (url.includes('corsproxy.io')) {
+        // Grab the primary proxy from your array at the top of the file
+        const activeProxy = this.proxies[0];
+
+        // Prevent double-proxying if the URL already has the active proxy attached
+        if (url.includes(activeProxy)) {
             return url;
         }
 
-        // Wrap the entire original URL with CorsProxy.io
-        return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+        // Wrap the entire original URL with your active proxy
+        return `${activeProxy}${encodeURIComponent(url)}`;
     },
 
     async fetchProxied(url, options = {}) {
