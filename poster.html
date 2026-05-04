@@ -50,6 +50,23 @@
             font-family: 'Inter', sans-serif;
         }
 
+        @media (max-width: 768px) {
+            body { overflow: auto; height: auto; }
+            main { flex-direction: column !important; overflow: visible !important; }
+            .sidebar-panel { 
+                position: fixed !important; 
+                top: 0; 
+                bottom: 0; 
+                left: 0; 
+                width: 300px !important; 
+                z-index: 200 !important; 
+                height: 100vh !important; 
+                box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+            }
+            #poster-scaler { transform-origin: top center; margin-top: 20px; }
+            .preview-container { min-height: 100vh; padding: 40px 10px !important; display: flex; justify-content: center; }
+        }
+
         /* --- TACTICAL UI --- */
         .sidebar-panel { background: #0f0f12; border-right: 1px solid rgba(255,255,255,0.05); box-shadow: 10px 0 30px rgba(0,0,0,0.5); position: relative; z-index: 50; }
         .input-tactical { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; color: white; font-size: 0.75rem; width: 100%; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
@@ -265,7 +282,7 @@
 
     <main class="flex-1 flex overflow-hidden pt-20">
         <!-- Sidebar -->
-        <aside class="w-80 sidebar-panel flex flex-col h-full z-10">
+        <aside class="w-80 sidebar-panel flex flex-col h-full z-20 transition-transform duration-300 md:translate-x-0 relative">
             <div class="p-5 border-b border-bw-border bg-black/20">
                 <h2 class="font-display font-bold text-lg uppercase tracking-widest text-white" data-i18n="poster.editor">SYSTEM EDITOR</h2>
                 <span class="font-mono text-[9px] text-bw-gold/60 border border-bw-gold/20 px-1.5 py-0.5">V4.2 FINAL</span>
@@ -386,6 +403,11 @@
                 <div class="pb-10"></div>
             </div>
 
+            <!-- Mobile Toggle -->
+            <button onclick="toggleSidebar()" class="md:hidden absolute -right-12 top-20 bg-bw-panel border border-bw-border p-3 rounded-r-xl text-bw-gold shadow-xl z-50">
+                <i id="sidebar-icon" data-lucide="settings-2"></i>
+            </button>
+
             <div class="p-5 border-t border-bw-border bg-black/40">
                 <button onclick="openExportModal()" class="tactical-notch w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-3">
                     <i data-lucide="save" class="w-5 h-5"></i>
@@ -394,8 +416,11 @@
             </div>
         </aside>
 
+        <!-- Mobile Backdrop -->
+        <div id="mobile-backdrop" class="fixed inset-0 bg-black/60 z-[150] hidden md:hidden" onclick="toggleSidebar()"></div>
+
         <!-- Preview Area -->
-        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')] bg-repeat">
+        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')] bg-repeat preview-container">
             <div class="absolute inset-0 bg-black/80 pointer-events-none"></div>
             
             <!-- Zoom Controls -->
@@ -539,6 +564,35 @@
     <script src="assets/js/i18n.js"></script>
     <script>
         let currentZoom = 0.65;
+        let sidebarOpen = true;
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('aside');
+            const icon = document.getElementById('sidebar-icon');
+            const backdrop = document.getElementById('mobile-backdrop');
+            sidebarOpen = !sidebarOpen;
+            
+            if (sidebarOpen) {
+                sidebar.style.transform = 'translateX(0)';
+                icon.setAttribute('data-lucide', 'settings-2');
+                if (window.innerWidth < 768) backdrop.classList.remove('hidden');
+            } else {
+                sidebar.style.transform = 'translateX(-100%)';
+                icon.setAttribute('data-lucide', 'chevron-right');
+                if (window.innerWidth < 768) backdrop.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Adjust zoom for mobile on load
+        if (window.innerWidth < 768) {
+            currentZoom = (window.innerWidth - 40) / 800;
+            document.addEventListener('DOMContentLoaded', () => {
+                adjustZoom(0); // Set initial mobile zoom
+                if (window.innerWidth < 768) toggleSidebar(); // Start closed on mobile
+            });
+        }
+
         let activeTarget = null;
         let exportFormat = 'png';
         let exportQuality = 1;
