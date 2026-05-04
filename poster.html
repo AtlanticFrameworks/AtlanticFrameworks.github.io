@@ -139,11 +139,12 @@
         .asset-card:hover { border-color: var(--bw-gold); background: rgba(226,176,7,0.1); }
         .asset-card img { width: 100%; aspect-ratio: 1; object-fit: contain; margin-bottom: 8px; }
 
-        /* Image Control Menu */
+        /* Image Control Menu - Only Upload Remains */
         .img-controls { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.9); border: 1px solid var(--bw-gold); display: flex; gap: 8px; padding: 8px; z-index: 1000; opacity: 0; transition: opacity 0.2s; pointer-events: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .side-image-wrapper:hover .img-controls, .character-container:hover .img-controls, .bottom-logo-wrapper:hover .img-controls { opacity: 1; }
         .ctrl-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; border-radius: 2px; }
         .ctrl-btn:hover { background: var(--bw-gold); color: black; }
+        .ctrl-btn.zoom-btn { display: none; } /* Hide zoom buttons from canvas */
 
         /* Empty State */
         .drop-zone::after { 
@@ -277,6 +278,33 @@
                     </div>
                 </section>
 
+                <!-- Image Transformations -->
+                <section class="space-y-4">
+                    <label class="label-tactical">Bild-Steuerung (Zoom)</label>
+                    <div class="space-y-4 bg-black/20 p-3 border border-white/5">
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Hauptcharakter</span><span id="val-main" class="text-[9px] text-bw-gold">1.0x</span></div>
+                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('main', this.value)">
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Portrait 1</span><span id="val-side-1" class="text-[9px] text-bw-gold">1.0x</span></div>
+                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('side-1', this.value)">
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Portrait 2</span><span id="val-side-2" class="text-[9px] text-bw-gold">1.0x</span></div>
+                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('side-2', this.value)">
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Portrait 3</span><span id="val-side-3" class="text-[9px] text-bw-gold">1.0x</span></div>
+                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('side-3', this.value)">
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center"><span class="text-[9px] text-gray-500 uppercase font-mono">Verbandslogo</span><span id="val-logo" class="text-[9px] text-bw-gold">1.0x</span></div>
+                            <input type="range" min="0.1" max="3" step="0.01" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-bw-gold" oninput="updateImgScale('logo', this.value)">
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Assets -->
                 <section class="space-y-4">
                     <label class="label-tactical" data-i18n="poster.assets">Visuelle Assets</label>
@@ -362,7 +390,6 @@
                             <div class="side-image-wrapper drop-zone" data-target="side-1" id="zone-side-1">
                                 <img id="p-side-1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="img-editable" onclick="triggerUpload('side-1')">
                                 <div class="img-controls">
-                                    <button class="ctrl-btn" onclick="adjustImg('side-1', 'scale', 0.1)"><i data-lucide="zoom-in" class="w-3 h-3"></i></button>
                                     <button class="ctrl-btn" onclick="triggerUpload('side-1')"><i data-lucide="upload" class="w-3 h-3"></i></button>
                                 </div>
                             </div>
@@ -380,8 +407,6 @@
                         <div class="character-container drop-zone" data-target="main" id="zone-main" onclick="triggerUpload('main')">
                             <img id="p-main" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="character-img">
                             <div class="img-controls">
-                                <button class="ctrl-btn" onclick="adjustImg('main', 'scale', 0.1); event.stopPropagation();"><i data-lucide="zoom-in" class="w-3 h-3"></i></button>
-                                <button class="ctrl-btn" onclick="adjustImg('main', 'scale', -0.1); event.stopPropagation();"><i data-lucide="zoom-out" class="w-3 h-3"></i></button>
                                 <button class="ctrl-btn" onclick="triggerUpload('main'); event.stopPropagation();"><i data-lucide="upload" class="w-3 h-3"></i></button>
                             </div>
                         </div>
@@ -600,14 +625,21 @@
             closeModal('assets');
         }
 
+        function updateImgScale(target, val) {
+            imgStates[target].scale = parseFloat(val);
+            const img = document.getElementById('p-' + target);
+            if (img) img.style.transform = `scale(${val})`;
+            const valLabel = document.getElementById('val-' + target);
+            if (valLabel) valLabel.textContent = parseFloat(val).toFixed(2) + 'x';
+            saveState();
+        }
+
         function adjustImg(target, type, delta) {
             const state = imgStates[target];
             if (type === 'scale') {
                 state.scale = Math.max(0.1, state.scale + delta);
-                const img = document.getElementById('p-' + target);
-                img.style.transform = `scale(${state.scale})`;
+                updateImgScale(target, state.scale);
             }
-            saveState();
         }
 
         function adjustZoom(delta) {
@@ -734,6 +766,12 @@
             for (const target in imgStates) {
                 const img = document.getElementById('p-' + target);
                 if (img) img.style.transform = `scale(${imgStates[target].scale})`;
+                
+                // Update Sidebar Sliders
+                const slider = document.querySelector(`input[oninput*="updateImgScale('${target}'"]`);
+                if (slider) slider.value = imgStates[target].scale;
+                const valLabel = document.getElementById('val-' + target);
+                if (valLabel) valLabel.textContent = parseFloat(imgStates[target].scale).toFixed(2) + 'x';
             }
 
             // Load Zoom
