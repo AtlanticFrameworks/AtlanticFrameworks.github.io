@@ -25,27 +25,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'bw-gold': '#E2B007',
-                        'bw-dark': '#050505',
-                        'bw-panel': '#0f0f12',
-                        'bw-border': 'rgba(255,255,255,0.05)',
-                        'tac-red': '#ef4444'
-                    },
-                    fontFamily: {
-                        display: ['Oswald', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'Roboto Mono', 'monospace'],
-                        sans: ['Inter', 'sans-serif'],
-                        poster: ['Montserrat', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
         body {
@@ -663,10 +642,12 @@
             btn.disabled = true;
 
             try {
-                // 1. Set Headshot (Portrait 1)
+                const proxy = "https://api.allorigins.win/raw?url=";
+
+                // 1. Set Headshot (Portrait 1) via Proxy for CORS compliance
                 const headshotUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userId=${id}&size=420x420&format=Png&isCircular=false`;
                 const p1 = document.getElementById('p-side-1');
-                p1.src = headshotUrl;
+                p1.src = `${proxy}${encodeURIComponent(headshotUrl)}`;
                 p1.classList.add('loaded');
                 document.getElementById('zone-side-1').classList.add('has-img');
 

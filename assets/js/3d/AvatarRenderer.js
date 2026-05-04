@@ -79,15 +79,16 @@ class AvatarRenderer {
         }
 
         try {
-            // 1. Fetch 3D Data URL from Roblox
-            // Note: In a real environment, you might need a CORS proxy for these
-            const metaResp = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`);
+            const proxy = "https://api.allorigins.win/raw?url=";
+            
+            // 1. Fetch 3D Data URL from Roblox via Proxy
+            const metaResp = await fetch(`${proxy}${encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`)}`);
             const metaData = await metaResp.json();
             
             if (!metaData.imageUrl) throw new Error("No 3D image URL found");
 
-            // 2. Fetch the actual Scene JSON
-            const sceneResp = await fetch(metaData.imageUrl);
+            // 2. Fetch the actual Scene JSON via Proxy
+            const sceneResp = await fetch(`${proxy}${encodeURIComponent(metaData.imageUrl)}`);
             const sceneData = await sceneResp.json();
 
             // 3. Load MTL and OBJ
@@ -100,13 +101,13 @@ class AvatarRenderer {
             mtlLoader.setResourcePath(''); 
             
             const mtl = await new Promise((resolve, reject) => {
-                mtlLoader.load(sceneData.mtl, resolve, undefined, reject);
+                mtlLoader.load(`${proxy}${encodeURIComponent(sceneData.mtl)}`, resolve, undefined, reject);
             });
             mtl.preload();
 
             objLoader.setMaterials(mtl);
             this.model = await new Promise((resolve, reject) => {
-                objLoader.load(sceneData.obj, resolve, undefined, reject);
+                objLoader.load(`${proxy}${encodeURIComponent(sceneData.obj)}`, resolve, undefined, reject);
             });
 
             // Center and Scale Model
