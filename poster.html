@@ -600,9 +600,9 @@
                 <div class="space-y-3">
                     <label class="text-[9px] text-gray-500 uppercase font-mono">Qualität / Auflösung</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button onclick="setExportQuality(1)" class="export-qual active p-3 border border-bw-gold/30 bg-bw-gold/10 text-[10px] font-bold uppercase text-white">HD</button>
-                        <button onclick="setExportQuality(2)" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">2K</button>
-                        <button onclick="setExportQuality(4)" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">4K</button>
+                        <button onclick="setExportQuality(1)" class="export-qual active p-3 border border-bw-gold/30 bg-bw-gold/10 text-[10px] font-bold uppercase text-white">HD (1x)</button>
+                        <button onclick="setExportQuality(2)" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">2K (2x)</button>
+                        <button onclick="setExportQuality(4)" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">4K (4x)</button>
                     </div>
                 </div>
 
@@ -890,26 +890,41 @@
                 }
 
                 // 2. Capture using onclone for zero-side-effects
+                // We use the element's actual dimensions to ensure the aspect ratio is 1:1 with the website
+                const exportWidth = canvasEl.offsetWidth;
+                const exportHeight = canvasEl.offsetHeight;
+
                 const canvas = await html2canvas(canvasEl, { 
                     scale: exportQuality, 
                     useCORS: true, 
                     backgroundColor: null,
                     logging: false,
-                    width: 800,
-                    height: 1200,
-                    windowWidth: 800,
-                    windowHeight: 1200,
+                    width: exportWidth,
+                    height: exportHeight,
+                    windowWidth: exportWidth,
+                    windowHeight: exportHeight,
                     onclone: (clonedDoc) => {
                         const clonedCanvas = clonedDoc.getElementById('poster-canvas');
                         const clonedScaler = clonedDoc.getElementById('poster-scaler');
+                        // Reset body in clone to prevent padding/margin shifts
+                        clonedDoc.body.style.margin = '0';
+                        clonedDoc.body.style.padding = '0';
                         
                         // Reset scaler in clone for 1:1 capture
-                        if (clonedScaler) clonedScaler.style.transform = 'none';
+                        if (clonedScaler) {
+                            clonedScaler.style.transform = 'none';
+                            clonedScaler.style.margin = '0';
+                            clonedScaler.style.padding = '0';
+                            clonedScaler.style.width = exportWidth + 'px';
+                            clonedScaler.style.height = exportHeight + 'px';
+                        }
                         
                         // Style resets
                         clonedCanvas.style.transform = 'none';
                         clonedCanvas.style.position = 'relative';
                         clonedCanvas.style.margin = '0';
+                        clonedCanvas.style.top = '0';
+                        clonedCanvas.style.left = '0';
                         
                         // Force CSS Variables (sometimes lost in clone)
                         const rootStyles = getComputedStyle(canvasEl);
