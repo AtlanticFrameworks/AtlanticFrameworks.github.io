@@ -31,8 +31,8 @@ const CONTENT_SECURITY_POLICY = [
   "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com https://tr.rbxcdn.com https://*.rbxcdn.com https://api.allorigins.win https://corsproxy.io https://api.codetabs.com",
-  "connect-src 'self' https://unpkg.com https://discord.com https://api.codetabs.com https://api.allorigins.win https://corsproxy.io https://groups.roblox.com https://thumbnails.roblox.com https://apis.roblox.com",
+  "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com https://tr.rbxcdn.com https://*.rbxcdn.com https://api.allorigins.win https://corsproxy.io https://api.codetabs.com https://thumbnails.roproxy.com https://*.roproxy.com",
+  "connect-src 'self' https://unpkg.com https://discord.com https://api.codetabs.com https://api.allorigins.win https://corsproxy.io https://groups.roblox.com https://thumbnails.roblox.com https://apis.roblox.com https://thumbnails.roproxy.com https://*.roproxy.com",
   "frame-src 'none'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -43,12 +43,12 @@ const CONTENT_SECURITY_POLICY = [
 
 // ── Security headers injected on every response ───────────────────────────────
 const SECURITY_HEADERS = {
-  'Content-Security-Policy':   CONTENT_SECURITY_POLICY,
+  'Content-Security-Policy': CONTENT_SECURITY_POLICY,
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-  'X-Content-Type-Options':    'nosniff',
-  'X-Frame-Options':           'DENY',
-  'Referrer-Policy':           'strict-origin-when-cross-origin',
-  'Permissions-Policy':        'geolocation=(), camera=(), microphone=()',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'geolocation=(), camera=(), microphone=()',
 };
 
 // ── Helper: is this an HTML response? ────────────────────────────────────────
@@ -64,34 +64,34 @@ export default {
 
     // --- ROBLOX PROXY ROUTE ---
     if (url.pathname.startsWith('/proxy/roblox/')) {
-        const targetUrl = request.url.split('/proxy/roblox/')[1];
-        if (targetUrl) {
-            const decodedUrl = decodeURIComponent(targetUrl);
-            try {
-                const proxyResp = await fetch(decodedUrl, {
-                    headers: { 
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                const proxyHeaders = new Headers(proxyResp.headers);
-                proxyHeaders.set('Access-Control-Allow-Origin', '*');
-                proxyHeaders.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-                proxyHeaders.delete('X-Frame-Options');
-                
-                // If Roblox returned an error (like 403), we still return it with CORS headers so the client can read the JSON error
-                return new Response(proxyResp.body, { 
-                    status: proxyResp.status, 
-                    headers: proxyHeaders 
-                });
-            } catch (err) {
-                return new Response(JSON.stringify({ error: 'Proxy fetch failed' }), { 
-                    status: 502, 
-                    headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
-                });
+      const targetUrl = request.url.split('/proxy/roblox/')[1];
+      if (targetUrl) {
+        const decodedUrl = decodeURIComponent(targetUrl);
+        try {
+          const proxyResp = await fetch(decodedUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'application/json'
             }
+          });
+
+          const proxyHeaders = new Headers(proxyResp.headers);
+          proxyHeaders.set('Access-Control-Allow-Origin', '*');
+          proxyHeaders.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+          proxyHeaders.delete('X-Frame-Options');
+
+          // If Roblox returned an error (like 403), we still return it with CORS headers so the client can read the JSON error
+          return new Response(proxyResp.body, {
+            status: proxyResp.status,
+            headers: proxyHeaders
+          });
+        } catch (err) {
+          return new Response(JSON.stringify({ error: 'Proxy fetch failed' }), {
+            status: 502,
+            headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
+          });
         }
+      }
     }
 
     // Subrequests from Cloudflare Workers do NOT re-trigger this worker,
@@ -123,9 +123,9 @@ export default {
     newHeaders.delete('X-Powered-By');
 
     return new Response(response.body, {
-      status:     response.status,
+      status: response.status,
       statusText: response.statusText,
-      headers:    newHeaders,
+      headers: newHeaders,
     });
   },
 };
