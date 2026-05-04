@@ -513,6 +513,7 @@
 
         function syncColor(el, prop) {
             document.getElementById('poster-canvas').style.setProperty('--' + prop, el.value);
+            saveState();
         }
 
         function syncText(input, displayId) {
@@ -525,6 +526,7 @@
                     display.style.fontSize = length > 8 ? (baseSize * (8/length)) + 'px' : '';
                 }
             }
+            saveState();
         }
 
         function syncInput(display, inputId) {
@@ -547,6 +549,8 @@
                     img.src = ev.target.result;
                     img.classList.add('loaded');
                     if (zone) zone.classList.add('has-img');
+                    if (activeTarget === 'logo') closeModal('assets');
+                    saveState();
                 };
                 reader.readAsDataURL(file);
             }
@@ -603,12 +607,14 @@
                 const img = document.getElementById('p-' + target);
                 img.style.transform = `scale(${state.scale})`;
             }
+            saveState();
         }
 
         function adjustZoom(delta) {
             currentZoom = Math.min(Math.max(0.2, currentZoom + delta), 2);
             document.getElementById('poster-scaler').style.transform = `scale(${currentZoom})`;
             document.getElementById('zoom-level').textContent = Math.round(currentZoom * 100) + '%';
+            saveState();
         }
 
         function closeModal(id) { document.getElementById('modal-' + id).classList.remove('active'); }
@@ -636,7 +642,107 @@
             closeModal('export');
         }
 
+        function updateEffects() {
+            document.getElementById('ov-grain').style.display = document.getElementById('eff-grain').checked ? 'block' : 'none';
+            document.getElementById('ov-vignette').style.display = document.getElementById('eff-vignette').checked ? 'block' : 'none';
+            document.getElementById('ov-scan').style.display = document.getElementById('eff-scan').checked ? 'block' : 'none';
+            saveState();
+        }
+
+        function saveState() {
+            const state = {
+                inputs: {
+                    rank: document.getElementById('in-rank').value,
+                    callsign: document.getElementById('in-callsign').value,
+                    watermark: document.getElementById('in-watermark').value,
+                    unit: document.getElementById('in-unit').value,
+                    specialty: document.getElementById('in-specialty').value,
+                    desc: document.getElementById('in-desc').value
+                },
+                colors: {
+                    inner: document.getElementById('in-bg-inner').value,
+                    outer: document.getElementById('in-bg-outer').value,
+                    text: document.getElementById('in-text-main').value,
+                    accent: document.getElementById('in-accent').value
+                },
+                effects: {
+                    grain: document.getElementById('eff-grain').checked,
+                    vignette: document.getElementById('eff-vignette').checked,
+                    scan: document.getElementById('eff-scan').checked
+                },
+                images: {
+                    main: document.getElementById('p-main').src,
+                    side1: document.getElementById('p-side-1').src,
+                    side2: document.getElementById('p-side-2').src,
+                    side3: document.getElementById('p-side-3').src,
+                    logo: document.getElementById('p-logo').src
+                },
+                imgStates: imgStates,
+                zoom: currentZoom
+            };
+            try {
+                localStorage.setItem('bwrp_poster_state', JSON.stringify(state));
+            } catch (e) {
+                console.warn("Storage limit exceeded, images may not be saved.");
+            }
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('bwrp_poster_state');
+            if (!saved) return;
+            const state = JSON.parse(saved);
+
+            // Load Inputs
+            for (const [key, val] of Object.entries(state.inputs)) {
+                const el = document.getElementById('in-' + key);
+                if (el) {
+                    el.value = val;
+                    syncText(el, key === 'rank' ? 'p-rank' : key === 'callsign' ? 'p-callsign' : key === 'watermark' ? 'p-watermark' : key === 'unit' ? 'p-unit' : key === 'specialty' ? 'p-specialty' : 'p-desc');
+                }
+            }
+
+            // Load Colors
+            document.getElementById('in-bg-inner').value = state.colors.inner;
+            document.getElementById('in-bg-outer').value = state.colors.outer;
+            document.getElementById('in-text-main').value = state.colors.text;
+            document.getElementById('in-accent').value = state.colors.accent;
+            syncColor(document.getElementById('in-bg-inner'), 'bg-inner');
+            syncColor(document.getElementById('in-bg-outer'), 'bg-outer');
+            syncColor(document.getElementById('in-text-main'), 'text-main');
+            syncColor(document.getElementById('in-accent'), 'accent-color');
+
+            // Load Effects
+            document.getElementById('eff-grain').checked = state.effects.grain;
+            document.getElementById('eff-vignette').checked = state.effects.vignette;
+            document.getElementById('eff-scan').checked = state.effects.scan;
+            updateEffects();
+
+            // Load Images
+            for (const [key, src] of Object.entries(state.images)) {
+                const id = key === 'side1' ? 'p-side-1' : key === 'side2' ? 'p-side-2' : key === 'side3' ? 'p-side-3' : 'p-' + key;
+                const img = document.getElementById(id);
+                if (img && src && !src.includes('AQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')) {
+                    img.src = src;
+                    img.classList.add('loaded');
+                    const zone = document.getElementById('zone-' + (id.replace('p-', '')));
+                    if (zone) zone.classList.add('has-img');
+                }
+            }
+
+            // Load Image Transforms
+            Object.assign(imgStates, state.imgStates);
+            for (const target in imgStates) {
+                const img = document.getElementById('p-' + target);
+                if (img) img.style.transform = `scale(${imgStates[target].scale})`;
+            }
+
+            // Load Zoom
+            currentZoom = state.zoom;
+            adjustZoom(0);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            loadState();
             setTimeout(() => lucide.createIcons(), 500);
         });
     </script>
