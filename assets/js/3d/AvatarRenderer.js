@@ -10,31 +10,27 @@ class AvatarRenderer {
         this.controls = null;
         this.model = null;
         this.isInitialized = false;
+        this.proxy = "https://corsproxy.io/?";
     }
 
     init(containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        // Scene Setup
         this.scene = new THREE.Scene();
-        
-        // Camera Setup
         this.camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
         this.camera.position.set(0, 0, 10);
 
-        // Renderer Setup
         this.renderer = new THREE.WebGLRenderer({ 
             antialias: true, 
             alpha: true,
-            preserveDrawingBuffer: true // Required for toDataURL
+            preserveDrawingBuffer: true 
         });
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         container.appendChild(this.renderer.domElement);
 
-        // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         this.scene.add(ambientLight);
 
@@ -42,7 +38,6 @@ class AvatarRenderer {
         directionalLight.position.set(5, 10, 7.5);
         this.scene.add(directionalLight);
 
-        // Controls
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
@@ -51,7 +46,6 @@ class AvatarRenderer {
 
         this.isInitialized = true;
         this.animate();
-
         window.addEventListener('resize', () => this.onWindowResize(container));
     }
 
@@ -72,98 +66,76 @@ class AvatarRenderer {
 
     async loadAvatar(userId) {
         if (!this.isInitialized) return;
-
-        // Clear existing model
-        if (this.model) {
-            this.scene.remove(this.model);
-        }
+        if (this.model) this.scene.remove(this.model);
 
         try {
-            const proxy = "https://api.allorigins.win/raw?url=";
-            
-            // 1. Fetch 3D Data URL from Roblox via Proxy
-            const metaResp = await fetch(`${proxy}${encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`)}`);
+            // 1. Fetch 3D Metadata
+            const metaResp = await fetch(`${this.proxy}${encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`)}`);
             const metaData = await metaResp.json();
-            
-            if (!metaData.imageUrl) throw new Error("No 3D image URL found");
+            if (!metaData.imageUrl) throw new Error("No 3D image URL");
 
-            // 2. Fetch the actual Scene JSON via Proxy
-            const sceneResp = await fetch(`${proxy}${encodeURIComponent(metaData.imageUrl)}`);
+            // 2. Fetch Scene JSON
+            const sceneResp = await fetch(`${this.proxy}${encodeURIComponent(metaData.imageUrl)}`);
             const sceneData = await sceneResp.json();
 
-            // 3. Load MTL and OBJ
+            // 3. Load Assets
             const mtlLoader = new THREE.MTLLoader();
             const objLoader = new THREE.OBJLoader();
-
-            // Roblox OBJ/MTL files are usually base64 or direct URLs in the JSON
-            // For simplicity in this expert template, we assume standard URL loading
-            // We'll need to set the texture path if provided
-            mtlLoader.setResourcePath(''); 
             
+            // Set crossOrigin for texture loading
+            mtlLoader.setCrossOrigin('anonymous');
+
             const mtl = await new Promise((resolve, reject) => {
-                mtlLoader.load(`${proxy}${encodeURIComponent(sceneData.mtl)}`, resolve, undefined, reject);
+                mtlLoader.load(`${this.proxy}${encodeURIComponent(sceneData.mtl)}`, resolve, undefined, reject);
             });
             mtl.preload();
 
             objLoader.setMaterials(mtl);
             this.model = await new Promise((resolve, reject) => {
-                objLoader.load(`${proxy}${encodeURIComponent(sceneData.obj)}`, resolve, undefined, reject);
+                objLoader.load(`${this.proxy}${encodeURIComponent(sceneData.obj)}`, resolve, undefined, reject);
             });
 
-            // Center and Scale Model
+            // Center and Scale
             const box = new THREE.Box3().setFromObject(this.model);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
             
-            this.model.position.x += (this.model.position.x - center.x);
-            this.model.position.y += (this.model.position.y - center.y);
-            this.model.position.z += (this.model.position.z - center.z);
+            this.model.position.sub(center);
             
-            // Auto-scale to fit
             const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 5 / maxDim;
+            const scale = 6 / maxDim; // Slightly larger fit
             this.model.scale.set(scale, scale, scale);
 
             this.scene.add(this.model);
-            
-            // Reset Camera to Front
             this.camera.position.set(0, 0, 10);
             this.controls.reset();
-
             return true;
         } catch (err) {
-            console.error("Failed to load Roblox Avatar:", err);
+            console.error("Avatar Loading Error:", err);
             return false;
         }
     }
 
-    getSnapshot() {
-        this.renderer.render(this.scene, this.camera);
-        return this.renderer.domElement.toDataURL("image/png");
-    }
-
     async captureAngles() {
         if (!this.model) return null;
-
         const angles = {};
+        const originalPos = this.camera.position.clone();
 
-        // 1. Back View
+        // Back
         this.camera.position.set(0, 0, -10);
         this.camera.lookAt(0, 0, 0);
         this.renderer.render(this.scene, this.camera);
         angles.back = this.renderer.domElement.toDataURL("image/png");
 
-        // 2. Side View
+        // Side
         this.camera.position.set(10, 0, 0);
         this.camera.lookAt(0, 0, 0);
         this.renderer.render(this.scene, this.camera);
         angles.side = this.renderer.domElement.toDataURL("image/png");
 
-        // Reset to Front
-        this.camera.position.set(0, 0, 10);
+        // Restore
+        this.camera.position.copy(originalPos);
         this.camera.lookAt(0, 0, 0);
-        this.controls.reset();
-
         return angles;
     }
 }
