@@ -889,8 +889,12 @@
                     snapshot3D = canvas3D.toDataURL("image/png");
                 }
 
-                // 2. Capture using onclone for zero-side-effects
                 // We use the element's actual dimensions to ensure the aspect ratio is 1:1 with the website
+                const scaler = document.getElementById('poster-scaler');
+                const originalTransform = scaler.style.transform;
+                // Temporarily unscale the live DOM so html2canvas reads unscaled bounding rects (prevents text shift)
+                scaler.style.transform = 'none';
+                
                 const exportWidth = canvasEl.offsetWidth;
                 const exportHeight = canvasEl.offsetHeight;
 
@@ -903,56 +907,70 @@
                     height: exportHeight,
                     windowWidth: exportWidth,
                     windowHeight: exportHeight,
+                    scrollX: 0,
+                    scrollY: 0,
                     onclone: (clonedDoc) => {
-                        const clonedCanvas = clonedDoc.getElementById('poster-canvas');
-                        const clonedScaler = clonedDoc.getElementById('poster-scaler');
-                        // Reset body in clone to prevent padding/margin shifts
-                        clonedDoc.body.style.margin = '0';
-                        clonedDoc.body.style.padding = '0';
-                        
-                        // Reset scaler in clone for 1:1 capture
-                        if (clonedScaler) {
-                            clonedScaler.style.transform = 'none';
-                            clonedScaler.style.margin = '0';
-                            clonedScaler.style.padding = '0';
-                            clonedScaler.style.width = exportWidth + 'px';
-                            clonedScaler.style.height = exportHeight + 'px';
-                        }
-                        
-                        // Style resets
-                        clonedCanvas.style.transform = 'none';
-                        clonedCanvas.style.position = 'relative';
-                        clonedCanvas.style.margin = '0';
-                        clonedCanvas.style.top = '0';
-                        clonedCanvas.style.left = '0';
-                        
-                        // Force CSS Variables (sometimes lost in clone)
-                        const rootStyles = getComputedStyle(canvasEl);
-                        clonedCanvas.style.setProperty('--bg-inner', rootStyles.getPropertyValue('--bg-inner'));
-                        clonedCanvas.style.setProperty('--bg-outer', rootStyles.getPropertyValue('--bg-outer'));
-                        clonedCanvas.style.setProperty('--accent-color', rootStyles.getPropertyValue('--accent-color'));
-                        clonedCanvas.style.setProperty('--text-main', rootStyles.getPropertyValue('--text-main'));
-
-                        // 3D Injection
-                        if (snapshot3D) {
-                            const cloned3DContainer = clonedDoc.getElementById('avatar-3d-canvas');
-                            cloned3DContainer.style.display = 'block';
-                            const img3D = clonedDoc.createElement('img');
-                            img3D.src = snapshot3D;
-                            img3D.style.position = 'absolute';
-                            img3D.style.inset = '0';
-                            img3D.style.width = '100%';
-                            img3D.style.height = '100%';
-                            img3D.style.objectFit = 'contain';
-                            cloned3DContainer.innerHTML = '';
-                            cloned3DContainer.appendChild(img3D);
+                        return new Promise((resolve) => {
+                            const clonedCanvas = clonedDoc.getElementById('poster-canvas');
+                            const clonedScaler = clonedDoc.getElementById('poster-scaler');
+                            // Reset body in clone to prevent padding/margin shifts
+                            clonedDoc.body.style.margin = '0';
+                            clonedDoc.body.style.padding = '0';
                             
-                            // Hide fallback
-                            const clonedFallback = clonedDoc.getElementById('p-main');
-                            if (clonedFallback) clonedFallback.style.display = 'none';
-                        }
+                            // Reset scaler in clone for 1:1 capture
+                            if (clonedScaler) {
+                                clonedScaler.style.transform = 'none';
+                                clonedScaler.style.margin = '0';
+                                clonedScaler.style.padding = '0';
+                                clonedScaler.style.width = exportWidth + 'px';
+                                clonedScaler.style.height = exportHeight + 'px';
+                            }
+                            
+                            // Style resets
+                            clonedCanvas.style.transform = 'none';
+                            clonedCanvas.style.position = 'relative';
+                            clonedCanvas.style.margin = '0';
+                            clonedCanvas.style.top = '0';
+                            clonedCanvas.style.left = '0';
+                            
+                            // Force CSS Variables (sometimes lost in clone)
+                            const rootStyles = getComputedStyle(canvasEl);
+                            clonedCanvas.style.setProperty('--bg-inner', rootStyles.getPropertyValue('--bg-inner'));
+                            clonedCanvas.style.setProperty('--bg-outer', rootStyles.getPropertyValue('--bg-outer'));
+                            clonedCanvas.style.setProperty('--accent-color', rootStyles.getPropertyValue('--accent-color'));
+                            clonedCanvas.style.setProperty('--text-main', rootStyles.getPropertyValue('--text-main'));
+
+                            // 3D Injection
+                            if (snapshot3D) {
+                                const cloned3DContainer = clonedDoc.getElementById('avatar-3d-canvas');
+                                cloned3DContainer.style.display = 'block';
+                                const img3D = clonedDoc.createElement('img');
+                                img3D.style.position = 'absolute';
+                                img3D.style.inset = '0';
+                                img3D.style.width = '100%';
+                                img3D.style.height = '100%';
+                                img3D.style.objectFit = 'contain';
+                                
+                                img3D.onload = () => {
+                                    cloned3DContainer.innerHTML = '';
+                                    cloned3DContainer.appendChild(img3D);
+                                    resolve();
+                                };
+                                img3D.onerror = resolve; // Continue even if it fails
+                                img3D.src = snapshot3D;
+                                
+                                // Hide fallback
+                                const clonedFallback = clonedDoc.getElementById('p-main');
+                                if (clonedFallback) clonedFallback.style.display = 'none';
+                            } else {
+                                resolve();
+                            }
+                        });
                     }
                 });
+                
+                // Restore the original scale
+                scaler.style.transform = originalTransform;
                 
                 const link = document.createElement('a');
                 link.download = `BWRP_Poster_${Date.now()}.png`;
