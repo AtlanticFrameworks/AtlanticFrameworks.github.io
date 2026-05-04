@@ -68,6 +68,15 @@ class AvatarRenderer {
         }
     }
 
+    getCdnUrl(hash) {
+        if (!hash) return "";
+        let i = 31;
+        for (let t = 0; t < hash.length; t++) {
+            i ^= hash.charCodeAt(t);
+        }
+        return `https://t${i % 8}.rbxcdn.com/${hash}`;
+    }
+
     async loadAvatar(userId) {
         if (!this.isInitialized) return;
         if (this.model) this.scene.remove(this.model);
@@ -83,26 +92,31 @@ class AvatarRenderer {
             const sceneResp = await this.fetchProxied(metaData.imageUrl);
             const sceneData = await sceneResp.json();
 
-            // 3. Load Assets
+            // 3. Resolve OBJ and MTL URLs
+            const objUrl = AssetService.getProxiedUrl(this.getCdnUrl(sceneData.obj));
+            const mtlUrl = AssetService.getProxiedUrl(this.getCdnUrl(sceneData.mtl));
+
+            // 4. Load Materials with Texture Interception
             const mtlLoader = new THREE.MTLLoader();
-            const objLoader = new THREE.OBJLoader();
-            
-            // Set crossOrigin for texture loading
             mtlLoader.setCrossOrigin('anonymous');
 
-            const mtl = await new Promise(async (resolve, reject) => {
-                const url = sceneData.mtl;
-                // Since MTLLoader.load doesn't natively support our async proxy list, 
-                // we pre-fetch the blob if possible, or just use the first proxy
-                const mtlUrl = AssetService.getProxiedUrl(url);
-                mtlLoader.load(mtlUrl, resolve, undefined, reject);
+            const mtlTextResp = await this.fetchProxied(this.getCdnUrl(sceneData.mtl));
+            let mtlText = await mtlTextResp.text();
+
+            // Replace texture hashes in MTL with proxied CDN URLs
+            sceneData.textures.forEach(hash => {
+                const proxiedTextureUrl = AssetService.getProxiedUrl(this.getCdnUrl(hash));
+                mtlText = mtlText.split(hash).join(proxiedTextureUrl);
             });
+
+            const mtl = mtlLoader.parse(mtlText);
             mtl.preload();
 
+            // 5. Load OBJ
+            const objLoader = new THREE.OBJLoader();
             objLoader.setMaterials(mtl);
+            
             this.model = await new Promise((resolve, reject) => {
-                const url = sceneData.obj;
-                const objUrl = AssetService.getProxiedUrl(url);
                 objLoader.load(objUrl, resolve, undefined, reject);
             });
 

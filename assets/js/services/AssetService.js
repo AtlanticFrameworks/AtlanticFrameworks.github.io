@@ -9,16 +9,25 @@ const AssetService = {
     ],
 
     getProxiedUrl(url) {
-        // Returns the first proxy URL for loaders that don't support async retry
-        return `${this.proxies[0]}${encodeURIComponent(url)}`;
+        const proxy = this.proxies[0];
+        const useEncoding = proxy.endsWith('?') || proxy.endsWith('=');
+        return useEncoding ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${url}`;
     },
 
     async fetchProxied(url, options = {}) {
         let lastError;
         for (const proxy of this.proxies) {
             try {
-                const proxyUrl = `${proxy}${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl, options);
+                // If proxy ends with '?' or '=', use encodeURIComponent. Otherwise, append raw (for internal proxies)
+                const useEncoding = proxy.endsWith('?') || proxy.endsWith('=');
+                const proxyUrl = useEncoding ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${url}`;
+                
+                const response = await fetch(proxyUrl, {
+                    ...options,
+                    referrerPolicy: "no-referrer",
+                    cache: "no-cache"
+                });
+                
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response;
             } catch (e) {
