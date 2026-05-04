@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poster Generator | BWRP SYSTEM</title>
 
-    <!-- Google Fonts: Inter, Oswald & Roboto Mono -->
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,7 +50,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* --- TACTICAL UI (Rest of Site Style) --- */
+        /* --- TACTICAL UI --- */
         .sidebar-panel {
             background: #0f0f12;
             border-right: 1px solid rgba(255,255,255,0.05);
@@ -58,18 +58,9 @@
             position: relative;
         }
 
-        .sidebar-panel::after {
-            content: '';
-            position: absolute;
-            top: 0; right: 0; bottom: 0;
-            width: 1px;
-            background: linear-gradient(to bottom, transparent, rgba(226,176,7,0.2), transparent);
-        }
-
         .input-tactical {
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 0;
             padding: 10px 12px;
             color: white;
             font-size: 0.75rem;
@@ -82,7 +73,6 @@
             border-color: #E2B007;
             background: rgba(226,176,7,0.05);
             outline: none;
-            box-shadow: 0 0 10px rgba(226,176,7,0.1);
         }
 
         .label-tactical {
@@ -106,8 +96,8 @@
 
         /* --- POSTER CORE --- */
         #poster-canvas {
-            --bg-inner: #3a3a3a;
-            --bg-outer: #0a0a0a;
+            --bg-inner: #ff6b00;
+            --bg-outer: #1a0500;
             --accent-color: #E2B007;
             
             width: 800px;
@@ -116,97 +106,66 @@
             position: relative;
             overflow: hidden;
             flex-shrink: 0;
+            font-family: 'Montserrat', sans-serif;
         }
 
-        /* Overlays */
-        .poster-overlay-grain {
-            position: absolute; inset: 0;
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjY1IiBsb3VnaD0iMiIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1Ii8+PC9zdmc+');
-            opacity: 0.3; pointer-events: none; z-index: 45;
-        }
-
-        .poster-overlay-vignette {
-            position: absolute; inset: 0;
-            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.7) 100%);
-            pointer-events: none; z-index: 40;
-        }
-
-        .poster-overlay-scanlines {
-            position: absolute; inset: 0;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%);
-            background-size: 100% 4px;
-            pointer-events: none; z-index: 42;
-        }
-
-        /* Layout Elements */
         .poster-content {
             position: absolute; inset: 0;
+            padding: 45px;
             display: flex; flex-direction: column;
             z-index: 10;
         }
 
-        /* Layout 1: Vanguard (Original) */
-        [data-layout="vanguard"] .poster-content { padding: 60px; }
-        [data-layout="vanguard"] .poster-top { margin-bottom: auto; }
-        [data-layout="vanguard"] .poster-callsign { font-size: 11rem; font-family: 'Oswald'; font-weight: 800; line-height: 0.8; margin-left: -8px; }
-        [data-layout="vanguard"] .character-container { bottom: 300px; height: 800px; }
+        /* FX Overlays */
+        .poster-overlay-grain { position: absolute; inset: 0; background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjY1IiBsb3VnaD0iMiIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1Ii8+PC9zdmc+'); opacity: 0.3; pointer-events: none; z-index: 45; }
+        .poster-overlay-vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.7) 100%); pointer-events: none; z-index: 40; }
+        .poster-overlay-scanlines { position: absolute; inset: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%); background-size: 100% 4px; pointer-events: none; z-index: 42; }
 
-        /* Layout 2: Dossier */
+        /* --- LAYOUT 1: VANGUARD --- */
+        [data-layout="vanguard"] .poster-top-subtitle { color: var(--accent-color); font-weight: 800; letter-spacing: 0.15em; font-size: 1.1rem; text-transform: uppercase; margin-bottom: -5px; z-index: 2; }
+        [data-layout="vanguard"] .poster-callsign { font-family: 'Oswald', sans-serif; font-size: 14rem; font-weight: 700; color: var(--accent-color); line-height: 0.85; text-transform: uppercase; margin-left: -5px; z-index: 1; opacity: 0.95; letter-spacing: -0.02em; }
+        [data-layout="vanguard"] .poster-watermark { color: var(--accent-color); font-weight: 700; font-size: 1rem; letter-spacing: 0.08em; margin-top: 15px; opacity: 0.8; z-index: 2; }
+        [data-layout="vanguard"] .character-container { position: absolute; top: 180px; left: 0; right: 0; bottom: 320px; display: flex; justify-content: center; align-items: flex-end; z-index: 20; }
+        [data-layout="vanguard"] .poster-side-images { position: absolute; right: 45px; top: 120px; display: flex; flex-direction: column; gap: 20px; z-index: 30; }
+        [data-layout="vanguard"] .side-image-wrapper { width: 170px; height: 230px; border: 3px solid var(--accent-color); border-radius: 12px; overflow: hidden; background-color: rgba(0,0,0,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
+        [data-layout="vanguard"] .side-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        [data-layout="vanguard"] .poster-bottom-section { position: absolute; bottom: 45px; left: 45px; right: 45px; z-index: 30; }
+        [data-layout="vanguard"] .bottom-title-small { color: var(--accent-color); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+        [data-layout="vanguard"] .bottom-title-large { color: white; font-weight: 800; font-size: 3.8rem; line-height: 1; text-transform: uppercase; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); letter-spacing: -0.01em; }
+        [data-layout="vanguard"] .divider-container { display: flex; align-items: center; margin-bottom: 20px; gap: 12px; width: 85%; }
+        [data-layout="vanguard"] .divider-line { height: 2px; background-color: var(--accent-color); flex-grow: 1; }
+        [data-layout="vanguard"] .divider-line.short { flex-grow: 0; width: 60px; }
+        [data-layout="vanguard"] .divider-icon { color: var(--accent-color); font-size: 1.5rem; line-height: 1; }
+        [data-layout="vanguard"] .bottom-content-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; }
+        [data-layout="vanguard"] .bottom-description { color: var(--accent-color); font-size: 1.05rem; line-height: 1.6; font-weight: 600; flex: 1; text-transform: uppercase; text-align: justify; }
+        [data-layout="vanguard"] .bottom-logo { width: 130px; height: 130px; object-fit: contain; flex-shrink: 0; }
+
+        /* --- OTHER LAYOUTS --- */
         [data-layout="dossier"] .poster-content { padding: 0; display: grid; grid-template-columns: 1fr 350px; }
-        [data-layout="dossier"] .character-container { position: relative; height: 100%; bottom: 0; width: 100%; align-items: center; justify-content: flex-start; left: -50px; }
-        [data-layout="dossier"] .poster-main-info { background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-left: 1px solid rgba(255,255,255,0.1); padding: 60px 40px; display: flex; flex-direction: column; height: 100%; z-index: 35; }
-        [data-layout="dossier"] .poster-callsign { font-size: 5rem; margin-bottom: 20px; border-bottom: 4px solid var(--accent-color); padding-bottom: 10px; width: fit-content; }
-        [data-layout="dossier"] .poster-top { display: none; }
-        [data-layout="dossier"] .poster-bottom-info { position: static; width: 100%; padding: 0; }
-        [data-layout="dossier"] .info-grid { grid-template-columns: 1fr; }
-
-        /* Layout 3: Cinematic */
-        [data-layout="cinematic"] .poster-content { padding: 60px; justify-content: flex-end; }
-        [data-layout="cinematic"] .poster-callsign { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-90deg); font-size: 18rem; opacity: 0.05; width: 1200px; text-align: center; white-space: nowrap; }
-        [data-layout="cinematic"] .character-container { bottom: 0; height: 1000px; z-index: 15; transform: translateX(100px); }
-        [data-layout="cinematic"] .poster-bottom-info { z-index: 40; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-
-        /* Layout 4: Propaganda */
-        [data-layout="propaganda"] .poster-content { padding: 80px; align-items: center; text-align: center; }
-        [data-layout="propaganda"] .poster-callsign { font-size: 10rem; margin-top: 40px; text-shadow: 0 10px 0 var(--accent-color), 0 20px 0 rgba(0,0,0,0.5); }
-        [data-layout="propaganda"] .character-container { bottom: 0; height: 700px; transform: scale(1.2); }
-        [data-layout="propaganda"] .info-grid { grid-template-columns: 1fr; }
-        [data-layout="propaganda"] .info-divider { justify-content: center; }
-
-        /* Layout 5: Technical */
-        [data-layout="technical"] .poster-content { padding: 40px; }
+        [data-layout="dossier"] .character-container { position: absolute; inset: 0; width: 60%; height: 100%; display: flex; align-items: center; justify-content: center; left: -100px; }
+        [data-layout="dossier"] .poster-bottom-section { position: absolute; right: 0; top: 0; bottom: 0; width: 350px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-left: 1px solid rgba(255,255,255,0.1); padding: 60px 40px; display: flex; flex-direction: column; z-index: 35; }
+        
         [data-layout="technical"] #poster-canvas { background: #0a0c10; background-image: radial-gradient(circle, #1a202c 1px, transparent 1px); background-size: 40px 40px; }
-        [data-layout="technical"] .poster-callsign { font-family: 'JetBrains Mono'; font-size: 4rem; position: absolute; right: 40px; top: 40px; border: 1px solid var(--accent-color); padding: 10px 20px; }
-        [data-layout="technical"] .character-container { left: 40px; justify-content: flex-start; height: 900px; filter: contrast(1.5) brightness(0.8) sepia(1) hue-rotate(180deg); opacity: 0.6; }
-        [data-layout="technical"] .poster-bottom-info { width: 300px; left: auto; right: 40px; bottom: 40px; background: rgba(0,0,0,0.8); padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* Common Components */
-        .character-img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 30px 50px rgba(0,0,0,0.9)); transition: all 0.3s; }
-        .info-logo { width: 120px; height: 120px; object-fit: contain; }
-
-        /* Preset Buttons */
-        .layout-card {
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.02);
-            padding: 10px;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        /* Common */
+        .character-img { max-height: 100%; max-width: 100%; object-fit: contain; transition: all 0.3s; }
+        .layout-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); padding: 10px; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; }
         .layout-card:hover { border-color: #E2B007; background: rgba(226,176,7,0.05); }
         .layout-card.active { border-color: #E2B007; background: rgba(226,176,7,0.1); }
         .layout-thumb { width: 100%; height: 60px; background: #000; border-radius: 2px; position: relative; overflow: hidden; }
 
-        /* Utility */
-        .tactical-notch {
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
-        }
+        .tactical-notch { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%); }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #E2B007; }
+
+        select.input-tactical {
+            appearance: none;
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImrgbagyMjYsMTc2LDcsMC41KSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik02IDlsNiA2IDYtNiIvPjwvc3ZnPg==");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+        }
     </style>
 </head>
 
@@ -220,7 +179,7 @@
             <div class="p-5 border-b border-bw-border bg-black/20">
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="font-display font-bold text-lg uppercase tracking-widest text-white">SYSTEM EDITOR</h2>
-                    <span class="font-mono text-[9px] text-bw-gold/60 border border-bw-gold/20 px-1.5 py-0.5">POSTER GEN V3</span>
+                    <span class="font-mono text-[9px] text-bw-gold/60 border border-bw-gold/20 px-1.5 py-0.5">V3.6 ALPHA</span>
                 </div>
             </div>
 
@@ -237,96 +196,106 @@
                             <div class="layout-thumb"><div class="absolute left-2 inset-y-2 w-4 bg-white/20"></div><div class="absolute right-2 inset-y-2 w-8 bg-bw-gold/40"></div></div>
                             <span class="text-[9px] font-bold uppercase text-center">Dossier</span>
                         </div>
-                        <div onclick="setLayout('cinematic')" id="lay-cinematic" class="layout-card">
-                            <div class="layout-thumb"><div class="absolute inset-0 bg-white/5"></div><div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-2 bg-bw-gold/20 rotate-45"></div></div>
-                            <span class="text-[9px] font-bold uppercase text-center">Cinematic</span>
-                        </div>
-                        <div onclick="setLayout('propaganda')" id="lay-propaganda" class="layout-card">
-                            <div class="layout-thumb"><div class="absolute inset-x-4 top-1/2 -translate-y-1/2 h-8 bg-bw-gold/30"></div></div>
-                            <span class="text-[9px] font-bold uppercase text-center">Propaganda</span>
-                        </div>
-                        <div onclick="setLayout('technical')" id="lay-technical" class="layout-card">
-                            <div class="layout-thumb" style="background-image: radial-gradient(#222 1px, transparent 1px); background-size: 10px 10px;"></div>
-                            <span class="text-[9px] font-bold uppercase text-center">Technical</span>
-                        </div>
                     </div>
                 </section>
 
-                <!-- Color Presets -->
-                <section>
-                    <label class="label-tactical">Einsatzgebiet / Farbprofil</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="setPreset('heer')" class="p-2 border border-white/5 hover:border-bw-gold transition-colors flex flex-col items-center gap-1">
-                            <div class="w-full h-1 bg-[#4a5d23]"></div>
-                            <span class="text-[8px] font-bold uppercase">Heer</span>
-                        </button>
-                        <button onclick="setPreset('ksk')" class="p-2 border border-white/5 hover:border-bw-gold transition-colors flex flex-col items-center gap-1">
-                            <div class="w-full h-1 bg-[#8b0000]"></div>
-                            <span class="text-[8px] font-bold uppercase">KSK</span>
-                        </button>
-                        <button onclick="setPreset('marine')" class="p-2 border border-white/5 hover:border-bw-gold transition-colors flex flex-col items-center gap-1">
-                            <div class="w-full h-1 bg-[#002366]"></div>
-                            <span class="text-[8px] font-bold uppercase">Marine</span>
-                        </button>
-                        <button onclick="setPreset('luftwaffe')" class="p-2 border border-white/5 hover:border-bw-gold transition-colors flex flex-col items-center gap-1">
-                            <div class="w-full h-1 bg-[#5d8aa8]"></div>
-                            <span class="text-[8px] font-bold uppercase">Luft</span>
-                        </button>
-                        <button onclick="setPreset('feldjaeger')" class="p-2 border border-white/5 hover:border-bw-gold transition-colors flex flex-col items-center gap-1">
-                            <div class="w-full h-1 bg-[#ffffff]"></div>
-                            <span class="text-[8px] font-bold uppercase">FJg</span>
-                        </button>
-                        <button onclick="openColorPicker()" class="p-2 border border-white/5 hover:border-bw-gold transition-colors flex flex-col items-center gap-1">
-                            <div class="w-full h-1 bg-gradient-to-r from-red-500 via-green-500 to-blue-500"></div>
-                            <span class="text-[8px] font-bold uppercase">Custom</span>
-                        </button>
-                    </div>
-                    <input type="color" id="custom-accent" class="hidden" oninput="setCustomAccent(this.value)">
-                </section>
-
-                <!-- Data Entry -->
+                <!-- Color Config -->
                 <section class="space-y-4">
-                    <label class="label-tactical">Identifikationsdaten</label>
+                    <label class="label-tactical">Hintergrund-Styling</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Innenfarbe</span>
+                            <input type="color" id="in-bg-inner" value="#ff6b00" class="w-full h-8 bg-transparent border border-white/10 rounded cursor-pointer" oninput="updateColors()">
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Außenfarbe</span>
+                            <input type="color" id="in-bg-outer" value="#1a0500" class="w-full h-8 bg-transparent border border-white/10 rounded cursor-pointer" oninput="updateColors()">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Text Data -->
+                <section class="space-y-4">
+                    <label class="label-tactical">Typografie-Daten</label>
                     <div class="space-y-3">
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Dienstgrad</span>
-                            <input type="text" id="in-rank" value="Obegefreiter" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Oberer Untertitel</span>
+                            <input type="text" id="in-top-subtitle" value="RANG / TITEL" class="input-tactical" oninput="updatePoster()">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Rufzeichen / Name</span>
-                            <input type="text" id="in-callsign" value="GHOST" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Haupt-Rufzeichen</span>
+                            <input type="text" id="in-main-title" value="RUFZEICHEN" class="input-tactical" oninput="updatePoster()">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Einheit / Zug</span>
-                            <input type="text" id="in-unit" value="2. Zug / 3. Gruppe" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Wasserzeichen</span>
+                            <input type="text" id="in-watermark" value="@DEIN_NAME" class="input-tactical" oninput="updatePoster()">
+                        </div>
+                        <div class="pt-2 border-t border-white/5"></div>
+                        <div>
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Unterer Untertitel</span>
+                            <input type="text" id="in-bottom-subtitle" value="EINHEIT / TRUPP" class="input-tactical" oninput="updatePoster()">
                         </div>
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Tätigkeitsbezeichnung</span>
-                            <input type="text" id="in-title" value="Scharfschütze" class="input-tactical" oninput="updatePoster()">
+                            <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Unterer Haupttitel</span>
+                            <input type="text" id="in-bottom-title" value="SPEZIALEINHEIT" class="input-tactical" oninput="updatePoster()">
                         </div>
                         <div>
                             <span class="text-[9px] text-gray-500 uppercase font-mono block mb-1">Missionsbeschreibung</span>
-                            <textarea id="in-desc" rows="3" class="input-tactical resize-none" oninput="updatePoster()">PRÄZISIONSSCHÜTZE DER ELITE-KLASSE. SPEZIALISIERT AUF VERDECKTE OPERATIONEN UND LANGSTRECKEN-AUFKLÄRUNG IN FEINDLICHEM GEBIET.</textarea>
+                            <textarea id="in-description" rows="5" class="input-tactical resize-none" oninput="updatePoster()">GIB EINE KURZE BESCHREIBUNG DER ROLLE, SPEZIALISIERUNGEN UND DES HINTERGRUNDS DES CHARAKTERS EIN.</textarea>
                         </div>
                     </div>
                 </section>
 
-                <!-- Asset Management -->
+                <!-- Logo Presets -->
                 <section class="space-y-4">
-                    <label class="label-tactical">Visuelle Assets</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="document.getElementById('up-char').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[10px] font-bold uppercase flex flex-col items-center gap-1">
-                            <i data-lucide="user" class="w-4 h-4"></i> Charakter
-                        </button>
-                        <button onclick="document.getElementById('up-logo').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[10px] font-bold uppercase flex flex-col items-center gap-1">
-                            <i data-lucide="shield" class="w-4 h-4"></i> Verband
+                    <label class="label-tactical">Verbandslogo</label>
+                    <select id="sel-logo" class="input-tactical" onchange="setLogoPreset(this.value)">
+                        <option value="">-- Logo Wählen --</option>
+                        <option value="ABC Abwehrtruppe.png">ABC Abwehrtruppe</option>
+                        <option value="Bundeswehr Verband.png">Bundeswehr Verband</option>
+                        <option value="Bundeswehr.png">Bundeswehr</option>
+                        <option value="Feldjäger.png">Feldjäger</option>
+                        <option value="KSK.png">KSK</option>
+                        <option value="Karriere Center.png">Karriere Center</option>
+                        <option value="Logistiktruppe.png">Logistiktruppe</option>
+                        <option value="MAD.png">MAD</option>
+                        <option value="Marine.png">Marine</option>
+                        <option value="Militärgericht.png">Militärgericht</option>
+                        <option value="Militärmusikkorps.png">Militärmusikkorps</option>
+                        <option value="Raider.png">Raider</option>
+                        <option value="Sanitätsdienst.png">Sanitätsdienst</option>
+                        <option value="UN.png">UN</option>
+                        <option value="Wachbataillon.png">Wachbataillon</option>
+                    </select>
+                    <div class="flex items-center gap-2">
+                        <button onclick="document.getElementById('up-logo').click()" class="flex-1 py-2 border border-white/10 hover:bg-white/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
+                            <i data-lucide="upload" class="w-3 h-3"></i> Eigenes Logo
                         </button>
                     </div>
-                    <input type="file" id="up-char" class="hidden" accept="image/*" onchange="handleImage(this, 'char')">
+                </section>
+
+                <!-- Asset Uploads -->
+                <section class="space-y-4">
+                    <label class="label-tactical">Visuelle Assets</label>
+                    <div class="space-y-3">
+                        <button onclick="document.getElementById('up-main').click()" class="w-full py-2 border border-bw-gold/20 hover:bg-bw-gold/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i> Hauptcharakter
+                        </button>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="document.getElementById('up-side-1').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[8px] uppercase">Bild 1</button>
+                            <button onclick="document.getElementById('up-side-2').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[8px] uppercase">Bild 2</button>
+                            <button onclick="document.getElementById('up-side-3').click()" class="py-2 border border-white/10 hover:bg-white/5 text-[8px] uppercase">Bild 3</button>
+                        </div>
+                    </div>
+                    <!-- Hidden Inputs -->
+                    <input type="file" id="up-main" class="hidden" accept="image/*" onchange="handleImage(this, 'main')">
+                    <input type="file" id="up-side-1" class="hidden" accept="image/*" onchange="handleImage(this, 'side-1')">
+                    <input type="file" id="up-side-2" class="hidden" accept="image/*" onchange="handleImage(this, 'side-2')">
+                    <input type="file" id="up-side-3" class="hidden" accept="image/*" onchange="handleImage(this, 'side-3')">
                     <input type="file" id="up-logo" class="hidden" accept="image/*" onchange="handleImage(this, 'logo')">
                 </section>
 
-                <!-- System Overlays -->
+                <!-- Post-Processing -->
                 <section class="space-y-3 bg-white/5 p-3">
                     <label class="label-tactical">Post-Processing</label>
                     <div class="flex items-center justify-between">
@@ -346,68 +315,57 @@
                 <div class="pb-10"></div>
             </div>
 
-            <!-- Footer Action -->
             <div class="p-5 border-t border-bw-border bg-black/40">
-                <button id="btn-export" onclick="exportPoster()" class="tactical-notch w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(226,176,7,0.3)]">
-                    <i data-lucide="save" class="w-5 h-5"></i>
-                    DATEI SPEICHERN
+                <button id="btn-export" onclick="exportPoster()" class="tactical-notch w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-3">
+                    <i data-lucide="save" class="w-5 h-5"></i> EXPORTIEREN
                 </button>
             </div>
         </aside>
 
         <!-- Preview Area -->
-        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')] bg-repeat bg-fixed">
+        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')]">
             <div class="absolute inset-0 bg-black/60 pointer-events-none"></div>
             
-            <!-- Floating Controls -->
-            <div class="absolute top-6 right-6 z-20 flex items-center gap-2">
-                <div class="bg-bw-panel border border-bw-border p-2 flex items-center gap-4 px-4 shadow-2xl">
-                    <span class="font-mono text-[10px] text-gray-500 uppercase">Vorschau Skalierung</span>
-                    <div class="flex items-center gap-3">
-                        <button onclick="adjustZoom(-0.1)" class="text-gray-400 hover:text-white"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>
-                        <span id="zoom-level" class="text-xs font-mono font-bold w-12 text-center text-bw-gold">65%</span>
-                        <button onclick="adjustZoom(0.1)" class="text-gray-400 hover:text-white"><i data-lucide="plus-circle" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- The Canvas -->
             <div id="poster-scaler" style="transform: scale(0.65);">
                 <div id="poster-canvas" data-layout="vanguard">
-                    <!-- FX Layers -->
                     <div id="ov-grain" class="poster-overlay-grain"></div>
                     <div id="ov-scan" class="poster-overlay-scanlines"></div>
                     <div id="ov-vignette" class="poster-overlay-vignette"></div>
 
                     <div class="poster-content">
-                        <div class="poster-top">
-                            <span id="p-rank" class="poster-rank-tag">OBEGEFREITER</span>
-                            <div id="p-watermark" class="poster-watermark">ATLANTIC STUDIOS // BWRP // CLASSIFIED</div>
-                        </div>
+                        <!-- Top -->
+                        <div class="poster-top-subtitle" id="p-top-subtitle">RANG / TITEL</div>
+                        <h1 id="p-main-title" class="poster-callsign">RUFZEICHEN</h1>
+                        <div class="poster-watermark" id="p-watermark">@DEIN_NAME</div>
 
-                        <h1 id="p-callsign" class="poster-callsign">GHOST</h1>
+                        <!-- Side Images -->
+                        <div class="poster-side-images">
+                            <div class="side-image-wrapper"><img id="p-side-1" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTcwIiBoZWlnaHQ9IjIzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+PC9zdmc+"></div>
+                            <div class="side-image-wrapper"><img id="p-side-2" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTcwIiBoZWlnaHQ9IjIzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+PC9zdmc+"></div>
+                            <div class="side-image-wrapper"><img id="p-side-3" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTcwIiBoZWlnaHQ9IjIzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+PC9zdmc+"></div>
+                        </div>
 
                         <!-- Character -->
                         <div class="character-container">
-                            <img id="p-char-img" src="assets/images/logo.png" class="character-img" style="opacity: 0.05; filter: grayscale(1) blur(10px);">
-                            <div id="char-placeholder" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div class="text-center p-10 border border-white/5 bg-black/20 backdrop-blur-sm">
-                                    <i data-lucide="upload-cloud" class="w-12 h-12 text-bw-gold/20 mx-auto mb-4"></i>
-                                    <p class="text-[10px] font-mono text-white/30 uppercase tracking-[0.3em]">Kein Asset Geladen</p>
-                                </div>
-                            </div>
+                            <img id="p-main" class="character-img" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjgwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=">
                         </div>
 
-                        <!-- Info Section -->
-                        <div class="poster-bottom-info">
-                            <div class="poster-main-info">
-                                <div id="p-unit" class="info-unit">2. ZUG / 3. GRUPPE</div>
-                                <div id="p-title" class="info-title">SCHARFSCHÜTZE</div>
-                                <div class="info-divider"></div>
-                                <div class="info-grid">
-                                    <p id="p-desc" class="info-desc">PRÄZISIONSSCHÜTZE DER ELITE-KLASSE. SPEZIALISIERT AUF VERDECKTE OPERATIONEN UND LANGSTRECKEN-AUFKLÄRUNG IN FEINDLICHEM GEBIET.</p>
-                                    <img id="p-logo-img" src="assets/images/logo.png" class="info-logo">
+                        <!-- Bottom Section -->
+                        <div class="poster-bottom-section">
+                            <div class="bottom-title-small" id="p-bottom-subtitle">EINHEIT / TRUPP</div>
+                            <div class="bottom-title-large" id="p-bottom-title">SPEZIALEINHEIT</div>
+                            
+                            <div class="divider-container">
+                                <div class="divider-line short"></div>
+                                <div class="divider-icon">★</div> 
+                                <div class="divider-line"></div>
+                            </div>
+
+                            <div class="bottom-content-row">
+                                <div class="bottom-description" id="p-description">
+                                    GIB EINE KURZE BESCHREIBUNG DER ROLLE, SPEZIALISIERUNGEN UND DES HINTERGRUNDS DES CHARAKTERS EIN.
                                 </div>
+                                <img id="p-logo" class="bottom-logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMwIiBoZWlnaHQ9IjEzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48L3N2Zz4=">
                             </div>
                         </div>
                     </div>
@@ -416,63 +374,41 @@
         </section>
     </main>
 
-    <div id="footer-container"></div>
-
     <script src="assets/js/components.js"></script>
     <script>
-        let currentZoom = 0.65;
-        const poster = document.getElementById('poster-canvas');
-        
-        function setLayout(layout) {
-            poster.setAttribute('data-layout', layout);
-            // Update UI
+        function setLayout(l) {
+            document.getElementById('poster-canvas').setAttribute('data-layout', l);
             document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('active'));
-            document.getElementById('lay-' + layout).classList.add('active');
+            document.getElementById('lay-' + l).classList.add('active');
         }
 
-        function setPreset(type) {
-            const presets = {
-                heer: { inner: '#4a5d23', outer: '#1a220a', accent: '#E2B007' },
-                ksk: { inner: '#400000', outer: '#100000', accent: '#ef4444' },
-                marine: { inner: '#002366', outer: '#000814', accent: '#00bfff' },
-                luftwaffe: { inner: '#2b4d70', outer: '#0d1a26', accent: '#add8e6' },
-                feldjaeger: { inner: '#333333', outer: '#0a0a0a', accent: '#ffffff' }
-            };
-
-            const p = presets[type];
-            poster.style.setProperty('--bg-inner', p.inner);
-            poster.style.setProperty('--bg-outer', p.outer);
-            poster.style.setProperty('--accent-color', p.accent);
-        }
-
-        function openColorPicker() {
-            document.getElementById('custom-accent').click();
-        }
-
-        function setCustomAccent(color) {
-            poster.style.setProperty('--accent-color', color);
+        function updateColors() {
+            const canvas = document.getElementById('poster-canvas');
+            canvas.style.setProperty('--bg-inner', document.getElementById('in-bg-inner').value);
+            canvas.style.setProperty('--bg-outer', document.getElementById('in-bg-outer').value);
         }
 
         function updatePoster() {
-            document.getElementById('p-rank').textContent = document.getElementById('in-rank').value;
-            document.getElementById('p-callsign').textContent = document.getElementById('in-callsign').value;
-            document.getElementById('p-unit').textContent = document.getElementById('in-unit').value;
-            document.getElementById('p-title').textContent = document.getElementById('in-title').value;
-            document.getElementById('p-desc').textContent = document.getElementById('in-desc').value;
+            document.getElementById('p-top-subtitle').textContent = document.getElementById('in-top-subtitle').value;
+            document.getElementById('p-main-title').textContent = document.getElementById('in-main-title').value;
+            document.getElementById('p-watermark').textContent = document.getElementById('in-watermark').value;
+            document.getElementById('p-bottom-subtitle').textContent = document.getElementById('in-bottom-subtitle').value;
+            document.getElementById('p-bottom-title').textContent = document.getElementById('in-bottom-title').value;
+            document.getElementById('p-description').textContent = document.getElementById('in-description').value;
+        }
+
+        function setLogoPreset(filename) {
+            if (!filename) return;
+            document.getElementById('p-logo').src = 'assets/images/div_logos/' + filename;
+            document.getElementById('p-logo').style.opacity = '1';
         }
 
         function handleImage(input, target) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (target === 'char') {
-                        document.getElementById('p-char-img').src = e.target.result;
-                        document.getElementById('p-char-img').style.opacity = '1';
-                        document.getElementById('p-char-img').style.filter = 'drop-shadow(0 30px 50px rgba(0,0,0,0.9))';
-                        document.getElementById('char-placeholder').style.display = 'none';
-                    } else {
-                        document.getElementById('p-logo-img').src = e.target.result;
-                    }
+                reader.onload = (e) => {
+                    document.getElementById('p-' + target).src = e.target.result;
+                    document.getElementById('p-' + target).style.opacity = '1';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -484,55 +420,36 @@
             document.getElementById('ov-scan').style.display = document.getElementById('eff-scan').checked ? 'block' : 'none';
         }
 
-        function adjustZoom(delta) {
-            currentZoom = Math.min(Math.max(0.1, currentZoom + delta), 1);
-            document.getElementById('poster-scaler').style.transform = `scale(${currentZoom})`;
-            document.getElementById('zoom-level').textContent = Math.round(currentZoom * 100) + '%';
-        }
-
         function exportPoster() {
             const btn = document.getElementById('btn-export');
-            const originalHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="animate-spin" data-lucide="loader"></i> GENERIERE...';
-            lucide.createIcons();
+            btn.textContent = 'GENERIERE...';
 
             const scaler = document.getElementById('poster-scaler');
             const prevTransform = scaler.style.transform;
             scaler.style.transform = 'scale(1)';
 
-            html2canvas(poster, {
+            html2canvas(document.getElementById('poster-canvas'), {
                 scale: 2,
                 useCORS: true,
                 backgroundColor: null,
-                logging: false,
-                windowWidth: 800,
-                windowHeight: 1200
+                logging: false
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `BWRP_POSTER_${document.getElementById('in-callsign').value.toUpperCase()}.png`;
-                link.href = canvas.toDataURL('image/png', 1.0);
+                link.download = `bwrp-poster-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
                 link.click();
-
                 btn.disabled = false;
-                btn.innerHTML = originalHtml;
-                scaler.style.transform = prevTransform;
-                lucide.createIcons();
-            }).catch(err => {
-                console.error(err);
-                alert('Export-Fehler: ' + err.message);
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
+                btn.innerHTML = '<i data-lucide="save"></i> EXPORTIEREN';
                 scaler.style.transform = prevTransform;
                 lucide.createIcons();
             });
         }
 
-        // Initialize Lucide
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => lucide.createIcons(), 500);
+            updateColors();
         });
     </script>
 </body>
-
 </html>
