@@ -21,6 +21,7 @@ const AssetChooserService = {
                 </div>
             `).join('');
         }
+        this.updateActiveAssetsList();
     },
 
     open(target) {
@@ -37,6 +38,7 @@ const AssetChooserService = {
             img.classList.add('loaded');
             if (zone) zone.classList.add('has-img');
             ModalService.close('assets');
+            this.updateActiveAssetsList();
             if (window.UIStateService) UIStateService.saveToStorage();
         }
     },
@@ -65,6 +67,7 @@ const AssetChooserService = {
                 img.classList.add('loaded');
                 if (zone) zone.classList.add('has-img');
                 if (target === 'logo') ModalService.close('assets');
+                this.updateActiveAssetsList();
                 if (window.UIStateService) UIStateService.saveToStorage();
             }
         };
@@ -118,8 +121,45 @@ const AssetChooserService = {
                 UIStateService.toggle3D(false);
             }
             
+            this.updateActiveAssetsList();
             if (window.UIStateService) UIStateService.saveToStorage();
         }
+    },
+
+    updateActiveAssetsList() {
+        const list = document.getElementById('active-assets-list');
+        if (!list) return;
+
+        const targets = {
+            'main': 'Hauptcharakter',
+            'logo': 'Verbandslogo',
+            'side-1': 'Portrait 1',
+            'side-2': 'Portrait 2',
+            'side-3': 'Portrait 3'
+        };
+
+        let html = '';
+        Object.entries(targets).forEach(([id, label]) => {
+            const zone = document.getElementById('zone-' + id);
+            if (zone && zone.classList.contains('has-img')) {
+                html += `
+                    <div class="flex items-center justify-between bg-white/5 p-2 rounded border border-white/5 group hover:bg-white/10 transition-all">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 bg-bw-gold/10 rounded flex items-center justify-center">
+                                <i data-lucide="image" class="w-3 h-3 text-bw-gold"></i>
+                            </div>
+                            <span class="text-[9px] font-mono text-gray-300 uppercase tracking-tighter">${label}</span>
+                        </div>
+                        <button onclick="AssetChooserService.removeImage('${id}')" class="text-gray-600 hover:text-red-500 transition-colors p-1">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                `;
+            }
+        });
+
+        list.innerHTML = html || `<div class="text-[8px] text-gray-600 italic text-center py-4 border border-dashed border-white/5 rounded">Keine aktiven Bilder</div>`;
+        if (window.lucide) lucide.createIcons();
     }
 };
 

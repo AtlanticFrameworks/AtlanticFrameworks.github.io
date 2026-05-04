@@ -436,6 +436,8 @@
                         <button onclick="AssetChooserService.triggerUpload('main')" class="w-full py-2 border border-white/10 hover:bg-white/5 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
                             <i data-lucide="user" class="w-4 h-4"></i> <span data-i18n="poster.main_char">Hauptcharakter</span>
                         </button>
+
+                        <div id="active-assets-list" class="space-y-2 mt-4 pt-4 border-t border-white/5"></div>
                     </div>
                 </section>
 
@@ -512,21 +514,18 @@
                                 <img id="p-side-1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="img-editable" onclick="AssetChooserService.triggerUpload('side-1')">
                                 <div class="img-controls">
                                     <button class="ctrl-btn" onclick="AssetChooserService.triggerUpload('side-1')"><i data-lucide="upload" class="w-3 h-3"></i></button>
-                                    <button class="ctrl-btn hover:text-red-500" onclick="AssetChooserService.removeImage('side-1'); event.stopPropagation();"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                 </div>
                             </div>
                             <div class="side-image-wrapper drop-zone" data-target="side-2" id="zone-side-2">
                                 <img id="p-side-2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="img-editable" onclick="AssetChooserService.triggerUpload('side-2')">
                                 <div class="img-controls">
                                     <button class="ctrl-btn" onclick="AssetChooserService.triggerUpload('side-2')"><i data-lucide="upload" class="w-3 h-3"></i></button>
-                                    <button class="ctrl-btn hover:text-red-500" onclick="AssetChooserService.removeImage('side-2'); event.stopPropagation();"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                 </div>
                             </div>
                             <div class="side-image-wrapper drop-zone" data-target="side-3" id="zone-side-3">
                                 <img id="p-side-3" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="img-editable" onclick="AssetChooserService.triggerUpload('side-3')">
                                 <div class="img-controls">
                                     <button class="ctrl-btn" onclick="AssetChooserService.triggerUpload('side-3')"><i data-lucide="upload" class="w-3 h-3"></i></button>
-                                    <button class="ctrl-btn hover:text-red-500" onclick="AssetChooserService.removeImage('side-3'); event.stopPropagation();"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -537,7 +536,6 @@
                             <img id="p-main" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="character-img relative z-10 pointer-events-none opacity-0">
                             <div class="img-controls">
                                 <button class="ctrl-btn" onclick="AssetChooserService.triggerUpload('main'); event.stopPropagation();"><i data-lucide="upload" class="w-3 h-3"></i></button>
-                                <button class="ctrl-btn hover:text-red-500" onclick="AssetChooserService.removeImage('main'); event.stopPropagation();"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                 <button class="ctrl-btn" onclick="UIStateService.toggle3D(true)"><i data-lucide="box" class="w-3 h-3"></i></button>
                             </div>
                         </div>
@@ -559,7 +557,6 @@
                                         <img id="p-logo" src="assets/images/div_logos/Bundeswehr.png" class="img-editable loaded" onclick="AssetChooserService.open('logo'); event.stopPropagation();">
                                         <div class="img-controls">
                                             <button class="ctrl-btn" onclick="AssetChooserService.open('logo'); event.stopPropagation();"><i data-lucide="upload" class="w-3 h-3"></i></button>
-                                            <button class="ctrl-btn hover:text-red-500" onclick="AssetChooserService.removeImage('logo'); event.stopPropagation();"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                         </div>
                                     </div>
                                     <div id="p-desc" class="bottom-description text-editable" contenteditable="true" onblur="UIStateService.syncInput(this, 'in-desc')">
