@@ -6,8 +6,8 @@ const AssetService = {
     // Instead, we use RoProxy (the community standard) and a couple of fallbacks just in case.
     // Completely removed RoProxy. Using CorsProxy as primary.
     proxies: [
-        "https://corsproxy.io/?", // Primary
-        "https://api.allorigins.win/raw?url=" // Fallback
+        // Let's make AllOrigins the primary proxy for now
+        "https://api.allorigins.win/raw?url="
     ],
 
     async fetchWithFallbacks(targetUrl, isRobloxApi = true) {
