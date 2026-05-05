@@ -24,6 +24,7 @@ export interface Env {
   ROBLOX_UNIVERSE_ID:  string;   // Roblox Universe ID
   ROBLOX_PLACE_ID:     string;   // Main place ID for server list
   ROBLOX_CLOUD_KEY:    string;   // Roblox Open Cloud API Key
+  ROBLOX_POSTER_AUTH:  string;   // Roblox OAuth client secret for thumbnail:read (client ID: 4476395122713340611)
   DOCS_TOTP_SECRET:    string;   // Base32 TOTP secret for /api/docs access
   ENVIRONMENT:         string;
 }

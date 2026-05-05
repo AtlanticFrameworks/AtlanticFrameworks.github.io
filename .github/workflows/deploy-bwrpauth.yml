@@ -32,3 +32,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: worker
+          secrets: |
+            ROBLOX_POSTER_AUTH
+        env:
+          ROBLOX_POSTER_AUTH: ${{ secrets.ROBLOX_POSTER_AUTH }}

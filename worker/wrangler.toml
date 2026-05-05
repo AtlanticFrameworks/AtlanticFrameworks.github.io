@@ -29,3 +29,5 @@ ROBLOX_PLACE_ID    = "136750166564584"   # Main Game Place (for server list)
 # DISCORD_WEBHOOK_URL  → your webhook URL
 # ROBLOX_CLOUD_KEY     → Roblox Open Cloud API Key (create at create.roblox.com/dashboard/credentials)
 #                         Required Scopes: universe-messaging-service:publish, universe.restrictions:write
+# ROBLOX_POSTER_AUTH   → Roblox OAuth client secret for thumbnail:read (client ID: 4476395122713340611)
+#                         Injected automatically from GitHub Actions secret ROBLOX_POSTER_AUTH on deploy

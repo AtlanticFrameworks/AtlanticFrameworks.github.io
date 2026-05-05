@@ -4,6 +4,43 @@ import { json, err } from '../middleware/auth.js';
 const ROBLOX_USERS_API  = 'https://users.roblox.com/v1';
 const ROBLOX_GROUPS_API = 'https://groups.roblox.com/v1';
 const ROBLOX_GAMES_API  = 'https://games.roblox.com/v1';
+const ROBLOX_OAUTH_URL  = 'https://apis.roblox.com/oauth/v1/token';
+const THUMBNAIL_CLIENT_ID = '4476395122713340611';
+
+// Module-level token cache (lives for the Worker instance lifetime)
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+async function getOAuthToken(env: Env): Promise<string> {
+  const now = Date.now();
+  if (cachedToken && cachedToken.expiresAt > now + 30_000) {
+    return cachedToken.value;
+  }
+
+  const body = new URLSearchParams({
+    grant_type:    'client_credentials',
+    client_id:     THUMBNAIL_CLIENT_ID,
+    client_secret: env.ROBLOX_POSTER_AUTH,
+    scope:         'thumbnail:read',
+  });
+
+  const res = await fetch(ROBLOX_OAUTH_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    body.toString(),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`OAuth token request failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+
+  const data = await res.json() as { access_token: string; expires_in: number };
+  cachedToken = {
+    value:     data.access_token,
+    expiresAt: now + data.expires_in * 1000,
+  };
+  return cachedToken.value;
+}
 
 type UsernameResult =
   | { type: 'found';    userId: string }
@@ -205,7 +242,7 @@ export class RobloxController {
   }
 
   // GET /api/roblox/thumbnail/3d?userId=XXX  — public, no auth required
-  // Proxies thumbnails.roblox.com with minimal headers to avoid datacenter IP blocks.
+  // Uses Roblox OAuth client credentials (thumbnail:read scope) to authenticate.
   static async get3dThumbnail(request: Request, env: Env): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const { searchParams } = new URL(request.url);
@@ -213,7 +250,13 @@ export class RobloxController {
     if (!userId || !/^\d+$/.test(userId)) return err('Ungültige userId', 400, origin);
 
     try {
-      const res = await robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`);
+      const token = await getOAuthToken(env);
+      const res = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept':        'application/json',
+        },
+      });
       if (!res.ok) return err(`Roblox thumbnail API returned ${res.status}`, 502, origin);
       return json(await res.json(), 200, origin);
     } catch (e) {
