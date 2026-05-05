@@ -13,13 +13,14 @@
 
 // ── CSP ──────────────────────────────────────────────────────────────────────
 //
-// Sources identified by static analysis of the repo (2026-04-28):
+// Sources identified by static analysis of the repo (2026-05-06):
 //   Scripts : cdn.tailwindcss.com, unpkg.com (lucide), cdn.jsdelivr.net (driver.js)
 //   Styles  : fonts.googleapis.com, cdn.jsdelivr.net (driver.js)
 //   Fonts   : fonts.gstatic.com
-//   Images  : self, data:, www.roblox.com, thumbnails.roblox.com
-//   Connect : self (bwrp.net/api), discord.com (widget), roblox APIs,
-//             public CORS proxies used in main.js (codetabs, allorigins, corsproxy.io)
+//   Images  : self, data:, www.roblox.com, thumbnails.roblox.com, *.rbxcdn.com
+//   Connect : self (bwrp.net/api), discord.com (widget), groups/thumbnails/apis.roblox.com
+//             — all public CORS proxies and roproxy.com removed (3D thumbnails now use
+//               OAuth client credentials via bwrpauth worker)
 //
 // 'unsafe-inline' for scripts/styles is required because:
 //   • Every page has inline <script> blocks for tailwind.config
@@ -31,8 +32,8 @@ const CONTENT_SECURITY_POLICY = [
   "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com https://tr.rbxcdn.com https://*.rbxcdn.com https://api.allorigins.win https://corsproxy.io https://api.codetabs.com https://thumbnails.roproxy.com https://*.roproxy.com https://roblox-char-proxy-5pnqnpplw-batuatakanerol-5232s-projects.vercel.app",
-  "connect-src 'self' https://unpkg.com https://discord.com https://api.codetabs.com https://api.allorigins.win https://corsproxy.io https://groups.roblox.com https://thumbnails.roblox.com https://apis.roblox.com https://thumbnails.roproxy.com https://*.roproxy.com https://roblox-char-proxy-5pnqnpplw-batuatakanerol-5232s-projects.vercel.app",
+  "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com https://tr.rbxcdn.com https://*.rbxcdn.com",
+  "connect-src 'self' https://unpkg.com https://discord.com https://groups.roblox.com https://thumbnails.roblox.com https://apis.roblox.com",
   "frame-src 'none'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -60,43 +61,6 @@ function isHtmlResponse(response) {
 // ── Main handler ──────────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-
-    // --- ROBLOX PROXY ROUTE ---
-    if (url.pathname.startsWith('/proxy/roblox/')) {
-      const targetUrl = request.url.split('/proxy/roblox/')[1];
-      if (targetUrl) {
-        const decodedUrl = decodeURIComponent(targetUrl);
-        try {
-          // Minimal headers only — Sec-Fetch-* and browser-like headers trigger
-          // Roblox's WAF. Use the same pattern as RobloxController in bwrpauth.
-          const proxyResp = await fetch(decodedUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-              'Accept': 'application/json, text/plain, */*',
-              'Accept-Language': 'en-US,en;q=0.9',
-            }
-          });
-
-          const proxyHeaders = new Headers(proxyResp.headers);
-          proxyHeaders.set('Access-Control-Allow-Origin', '*');
-          proxyHeaders.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-          proxyHeaders.delete('X-Frame-Options');
-
-          // If Roblox returned an error (like 403), we still return it with CORS headers so the client can read the JSON error
-          return new Response(proxyResp.body, {
-            status: proxyResp.status,
-            headers: proxyHeaders
-          });
-        } catch (err) {
-          return new Response(JSON.stringify({ error: 'Proxy fetch failed' }), {
-            status: 502,
-            headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }
-          });
-        }
-      }
-    }
-
     // Subrequests from Cloudflare Workers do NOT re-trigger this worker,
     // so fetch(request) goes directly to the GitHub Pages origin.
     let response;
