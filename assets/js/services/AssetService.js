@@ -63,40 +63,106 @@ const AssetService = {
         throw lastError || new Error("All proxies failed");
     },
 
-    async getAvatarMetadata(userId) {
-        // Try the bwrpauth worker's thumbnail proxy first — it uses minimal headers
-        // that bypass Roblox's datacenter-IP block, unlike all public CORS proxies.
-        try {
-            const resp = await fetch(`/api/roblox/thumbnail/3d?userId=${userId}`);
-            if (resp.ok) {
-                const data = await resp.json();
-                if (data.imageUrl) return data;
+    // Fetch 3D avatar metadata with multi-strategy retry.
+    //
+    // Why not fetchWithFallbacks?
+    //   fetchWithFallbacks wraps every URL inside a proxy service, so the
+    //   request still originates from a Cloudflare/datacenter IP → Roblox 403.
+    //
+    // Strategy A — Internal bwrpauth worker (/api/roblox/thumbnail/3d):
+    //   Server-to-server with minimal headers. Works if Roblox hasn't blocked
+    //   that specific Cloudflare egress IP.
+    //
+    // Strategy B — Direct roproxy.com from the browser:
+    //   thumbnails.roproxy.com is a CORS-enabled Roblox proxy. Calling it
+    //   DIRECTLY (no wrapper) means the request originates from the user's
+    //   residential IP, bypassing Roblox's datacenter block entirely.
+    //
+    // Retry loop handles state:"Pending" — Roblox generates 3D thumbnails
+    // asynchronously; the first request often returns Pending, then Completed
+    // a few seconds later.
+    async getAvatarMetadata(userId, onStatus = null) {
+        const MAX_ATTEMPTS  = 4;
+        const RETRY_DELAY   = 2500; // ms between retries
+
+        for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            if (attempt > 0) {
+                const msg = `Warte auf 3D-Thumbnail... (${attempt}/${MAX_ATTEMPTS - 1})`;
+                if (onStatus) onStatus(msg);
+                console.log(`[AssetService] ${msg}`);
+                await new Promise(r => setTimeout(r, RETRY_DELAY));
             }
-        } catch (e) {
-            console.warn('[AssetService] Internal 3D thumbnail proxy failed, falling back:', e);
+
+            // ── Strategy A: internal worker proxy ────────────────────────────
+            try {
+                const resp = await fetch(`/api/roblox/thumbnail/3d?userId=${userId}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.state === 'Completed' && data.imageUrl) return data;
+                    if (data.state === 'Pending') {
+                        console.log('[AssetService] Worker proxy: state Pending, will retry');
+                        // fall through to strategy B, then retry loop
+                    }
+                } else {
+                    console.warn(`[AssetService] Worker proxy returned ${resp.status}`);
+                }
+            } catch (e) {
+                console.warn('[AssetService] Worker proxy exception:', e.message);
+            }
+
+            // ── Strategy B: direct roproxy.com from browser ──────────────────
+            // The request comes from the user's IP, not a datacenter. roproxy.com
+            // provides Access-Control-Allow-Origin:* for exactly this use case.
+            try {
+                const resp = await fetch(
+                    `https://thumbnails.roproxy.com/v1/users/avatar-3d?userId=${userId}`,
+                    { cache: 'no-cache' }
+                );
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.state === 'Completed' && data.imageUrl) return data;
+                    if (data.state === 'Pending') {
+                        console.log('[AssetService] roproxy.com: state Pending, will retry');
+                        continue; // retry whole loop after delay
+                    }
+                    // state === 'Error' or unexpected — no point retrying
+                    console.warn('[AssetService] roproxy.com: unexpected state:', data.state);
+                    break;
+                } else {
+                    console.warn(`[AssetService] roproxy.com returned ${resp.status}`);
+                }
+            } catch (e) {
+                // CORS error or network failure — roproxy.com may be down
+                console.warn('[AssetService] roproxy.com exception:', e.message);
+            }
         }
 
-        // Fallback: generic proxy chain
-        const url = `https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`;
-        const resp = await this.fetchWithFallbacks(url, true);
-        const data = await resp.json();
-        if (!data.imageUrl) throw new Error("No 3D image URL");
-        return data;
+        throw new Error('3D-Avatar konnte nicht geladen werden. Bitte erneut versuchen.');
     },
 
     async getHeadshot(userId) {
-        // Try the bwrpauth worker's headshot proxy first
+        // Strategy A: internal worker proxy
         try {
             const resp = await fetch(`/api/roblox/thumbnail/headshot?userId=${userId}&size=420x420`);
             if (resp.ok) {
                 const json = await resp.json();
-                if (json.data?.[0]) return json.data[0].imageUrl;
+                if (json.data?.[0]?.imageUrl) return json.data[0].imageUrl;
             }
-        } catch (e) {
-            console.warn('[AssetService] Internal headshot proxy failed, falling back:', e);
-        }
+        } catch (e) {}
 
-        // Fallback: generic proxy chain
+        // Strategy B: direct roproxy.com from browser (user's IP, CORS-enabled)
+        try {
+            const resp = await fetch(
+                `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`,
+                { cache: 'no-cache' }
+            );
+            if (resp.ok) {
+                const json = await resp.json();
+                if (json.data?.[0]?.imageUrl) return json.data[0].imageUrl;
+            }
+        } catch (e) {}
+
+        // Strategy C: generic proxy chain (last resort)
         const url = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
         const resp = await this.fetchWithFallbacks(url, true);
         const json = await resp.json();

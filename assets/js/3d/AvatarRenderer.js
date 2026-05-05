@@ -101,7 +101,7 @@ class AvatarRenderer {
     }
 
     // ─── Main load pipeline ───────────────────────────────────────────────────
-    async loadAvatar(userId) {
+    async loadAvatar(userId, onStatus = null) {
         if (!this.isInitialized) return false;
         if (this.model) {
             this.scene.remove(this.model);
@@ -109,10 +109,11 @@ class AvatarRenderer {
         }
 
         try {
-            // Step 1 — Fetch metadata via our bwrpauth worker (avoids datacenter IP block).
-            // AssetService.getAvatarMetadata() tries /api/roblox/thumbnail/3d first,
-            // then falls back to public proxy chain.
-            const metaData = await AssetService.getAvatarMetadata(userId);
+            // Step 1 — Fetch metadata. AssetService.getAvatarMetadata() tries:
+            //   A) /api/roblox/thumbnail/3d  (internal worker, server-to-server)
+            //   B) thumbnails.roproxy.com    (direct browser fetch, user's IP)
+            // Retries up to 4× with 2.5 s delay to handle "Pending" state.
+            const metaData = await AssetService.getAvatarMetadata(userId, onStatus);
 
             if (metaData.state !== 'Completed') {
                 throw new Error(

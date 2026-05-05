@@ -26,9 +26,11 @@ const ExportService = {
         let wrapper = null;
 
         try {
-            // ── 1. Snapshot the WebGL canvas NOW, before any DOM work ────────────
-            // (WebGL buffers are cleared after each frame unless preserveDrawingBuffer
-            //  is set – which AvatarRenderer already does – but grab it up-front anyway.)
+            // ── 1. Read live dimensions and state ────────────────────────────────
+            const exportWidth  = posterEl.offsetWidth;
+            const exportHeight = posterEl.offsetHeight;
+
+            // Snapshot the WebGL canvas NOW, before any DOM work
             let snapshot3D = null;
             const webglCanvas  = document.querySelector('#avatar-3d-canvas canvas');
             const container3D  = document.getElementById('avatar-3d-canvas');
@@ -37,9 +39,6 @@ const ExportService = {
             }
 
             // ── 2. Read computed styles from the LIVE poster ─────────────────────
-            // getComputedStyle resolves CSS vars to real values (e.g. var(--bg-inner)
-            // → "rgb(255,107,0)"). Inlining these on the clone guarantees html2canvas
-            // sees the right colours even if it can't resolve vars itself.
             const liveCS = getComputedStyle(posterEl);
             const cssVars = {
                 '--bg-inner':     liveCS.getPropertyValue('--bg-inner').trim(),
@@ -49,22 +48,16 @@ const ExportService = {
                 '--font-main':    liveCS.getPropertyValue('--font-main').trim() || 'Oswald',
                 '--font-body':    liveCS.getPropertyValue('--font-body').trim() || 'Montserrat',
             };
-            // background is a fully-resolved shorthand (gradient with real colour values)
             const resolvedBg = liveCS.background;
 
             // ── 3. Create an isolated off-screen container ───────────────────────
-            // position:fixed + left:-9999px takes the element completely outside:
-            //   • the scaler's CSS transform context
-            //   • the preview container's overflow:hidden clipping
-            //   • the page scroll offset
-            // html2canvas reads this element as if it's a standalone 800×1200 block.
             wrapper = document.createElement('div');
             wrapper.style.cssText = [
                 'position:fixed',
                 'left:-9999px',
                 'top:0',
-                'width:800px',
-                'height:1200px',
+                `width:${exportWidth}px`,
+                `height:${exportHeight}px`,
                 'overflow:hidden',
                 'z-index:-9999',
                 'pointer-events:none',
@@ -73,11 +66,9 @@ const ExportService = {
             // ── 4. Deep-clone the poster ─────────────────────────────────────────
             const clone = posterEl.cloneNode(true);
 
-            // Reset any inline transform that may have been set (shouldn't be any,
-            // but be explicit). Strip only transform-related inline styles.
             clone.style.transform      = 'none';
-            clone.style.width          = '800px';
-            clone.style.height         = '1200px';
+            clone.style.width          = `${exportWidth}px`;
+            clone.style.height         = `${exportHeight}px`;
             clone.style.position       = 'relative';
             clone.style.overflow       = 'hidden';
             clone.style.flexShrink     = '0';
@@ -86,12 +77,10 @@ const ExportService = {
             Object.entries(cssVars).forEach(([k, v]) => { if (v) clone.style.setProperty(k, v); });
             clone.style.background = resolvedBg;
 
-            // Preserve the data-layout attribute (cloneNode copies it, but be explicit)
+            // Preserve the data-layout attribute
             clone.setAttribute('data-layout', posterEl.getAttribute('data-layout') || 'vanguard');
 
             // ── 5. Strip contenteditable from every element in the clone ─────────
-            // html2canvas has known rendering offsets on contenteditable nodes:
-            // browsers add internal selection/padding that shifts text in captures.
             clone.querySelectorAll('[contenteditable]').forEach(el => {
                 el.removeAttribute('contenteditable');
             });
@@ -115,23 +104,17 @@ const ExportService = {
             document.body.appendChild(wrapper);
 
             // ── 7. Let the browser paint the clone ───────────────────────────────
-            // 200ms: enough for Google Fonts already in the cache to repaint on the
-            // clone, and for the 3D snapshot <img> to decode.
             await new Promise(r => setTimeout(r, 200));
 
             // ── 8. Capture ───────────────────────────────────────────────────────
-            // Do NOT set windowWidth / windowHeight — let html2canvas use the real
-            // viewport dimensions. Setting them to 800/1200 causes html2canvas to
-            // recalculate ALL absolute positions as if the screen is 800×1200,
-            // which is what broke text positioning in the old approach.
             const captured = await html2canvas(clone, {
                 scale:           quality,
                 useCORS:         true,
                 allowTaint:      false,
                 backgroundColor: null,
                 logging:         false,
-                width:           800,
-                height:          1200,
+                width:           exportWidth,
+                height:          exportHeight,
                 scrollX:         0,
                 scrollY:         0,
             });

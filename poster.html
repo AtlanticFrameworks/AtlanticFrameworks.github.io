@@ -691,9 +691,9 @@
                 p1.classList.add('loaded');
                 document.getElementById('zone-side-1').classList.add('has-img');
 
-                // Main slot — 3D model
+                // Main slot — 3D model (onStatus receives retry messages from getAvatarMetadata)
                 setStatus('Lade 3D-Modell...');
-                const success = await avatar3D.loadAvatar(id);
+                const success = await avatar3D.loadAvatar(id, setStatus);
 
                 if (success) {
                     UIStateService.toggle3D(true);
