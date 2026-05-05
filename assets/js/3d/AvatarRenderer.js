@@ -3,7 +3,7 @@
  * Three.js handler for Roblox 3D Avatars.
  *
  * Implements the strict workflow required by thumbnails.roblox.com:
- *   Step 1 → /api/roblox/thumbnail/3d (our auth worker, bypasses datacenter IP block)
+ *   Step 1 → /api/roblox/thumbnail/3d (bwrpauth worker, authenticated via Roblox OAuth)
  *   Step 2 → Direct CDN fetch of scene JSON (rbxcdn.com has CORS headers)
  *   Step 3 → getCdnUrl(hash) per-asset CDN routing — NEVER a single base URL
  *   Step 4 → LoadingManager.setURLModifier() texture interception + transparent=false fix
@@ -109,9 +109,7 @@ class AvatarRenderer {
         }
 
         try {
-            // Step 1 — Fetch metadata. AssetService.getAvatarMetadata() tries:
-            //   A) /api/roblox/thumbnail/3d  (internal worker, server-to-server)
-            //   B) thumbnails.roproxy.com    (direct browser fetch, user's IP)
+            // Step 1 — Fetch metadata via bwrpauth worker (OAuth-authenticated).
             // Retries up to 4× with 2.5 s delay to handle "Pending" state.
             const metaData = await AssetService.getAvatarMetadata(userId, onStatus);
 
