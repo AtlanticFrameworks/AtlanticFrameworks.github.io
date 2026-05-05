@@ -19,6 +19,7 @@ import { RolesController }      from './controllers/RolesController.js';
 import { NotesController }      from './controllers/NotesController.js';
 import { DiscordController }    from './controllers/DiscordController.js';
 import { FriedenszeitController } from './controllers/FriedenszeitController.js';
+import { PosterAuthController }   from './controllers/PosterAuthController.js';
 import { renderDocs }           from './utils/docs.js';
 import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
@@ -210,6 +211,9 @@ const ROUTES: Route[] = [
   route('GET',  '/api/shifts/analytics', ShiftController.analytics as Handler),
   route('GET',  '/api/shifts/all',       ShiftController.all       as Handler),
 
+  // ── Poster OAuth (public — poster generator login) ───────────────────────
+  route('POST', '/api/poster/auth/exchange', PosterAuthController.exchangeCode as UserlessHandler, true),
+
   // ── Roblox Thumbnail Proxy (public — poster generator) ───────────────────
   route('GET', '/api/roblox/thumbnail/3d',      RobloxController.get3dThumbnail       as UserlessHandler, true),
   route('GET', '/api/roblox/thumbnail/headshot', RobloxController.getHeadshotThumbnail as UserlessHandler, true),
@@ -291,7 +295,7 @@ export default {
 
     // ── Rate Limiting ───────────────────────────────────────────────────────────
     // Auth endpoints: 10 req / 60 s per IP (brute-force protection)
-    if (url.pathname === '/api/auth/login' || url.pathname === '/api/auth/refresh') {
+    if (url.pathname === '/api/auth/login' || url.pathname === '/api/auth/refresh' || url.pathname === '/api/poster/auth/exchange') {
       const limited = await checkRateLimit(env, ip, 'auth', 10, 60);
       if (limited) return limited;
     }
