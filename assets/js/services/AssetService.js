@@ -8,34 +8,59 @@ const AssetService = {
         "https://api.allorigins.win/raw?url="
     ],
 
+    /**
+     * Maps a roblox.com URL to a roproxy.com URL
+     */
+    mapToRoProxy(url) {
+        try {
+            const u = new URL(url);
+            if (u.hostname.endsWith('roblox.com')) {
+                u.hostname = u.hostname.replace('roblox.com', 'roproxy.com');
+                return u.toString();
+            }
+        } catch (e) {}
+        return url;
+    },
+
     async fetchWithFallbacks(targetUrl, isRobloxApi = true) {
         let lastError;
+        
+        // Try roproxy first if it's a roblox API
+        let urlsToTry = [];
+        if (isRobloxApi && targetUrl.includes('roblox.com')) {
+            urlsToTry.push(this.mapToRoProxy(targetUrl));
+        }
+        urlsToTry.push(targetUrl);
 
         for (const proxy of this.proxies) {
-            try {
-                let fetchUrl;
+            for (const url of urlsToTry) {
+                try {
+                    let fetchUrl;
+                    
+                    // Always encode for external proxies. 
+                    // For bwrp.net, we also encode now to be safe with query params.
+                    fetchUrl = `${proxy}${encodeURIComponent(url)}`;
 
-                // For bwrp.net proxy, we append the raw URL (it expects raw URL after the path)
-                if (proxy.includes('bwrp.net')) {
-                    fetchUrl = `${proxy}${targetUrl}`;
-                } else {
-                    fetchUrl = `${proxy}${encodeURIComponent(targetUrl)}`;
+                    const response = await fetch(fetchUrl, {
+                        referrerPolicy: "no-referrer",
+                        cache: "no-cache"
+                    });
+
+                    if (!response.ok) {
+                        // If it's a 403 or 401, it's a proxy/block issue, try next
+                        console.warn(`[AssetService] Proxy ${proxy} returned ${response.status} for ${url}`);
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    return response;
+
+                } catch (e) {
+                    lastError = e;
+                    continue;
                 }
-
-                const response = await fetch(fetchUrl, {
-                    referrerPolicy: "no-referrer",
-                    cache: "no-cache"
-                });
-
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response;
-
-            } catch (e) {
-                console.warn(`[AssetService] Proxy ${proxy} failed, trying next...`, e);
-                lastError = e;
             }
         }
-        throw lastError;
+        throw lastError || new Error("All proxies failed");
     },
 
     async getAvatarMetadata(userId) {
@@ -60,11 +85,13 @@ const AssetService = {
         const activeProxy = this.proxies[0];
         if (url.includes(activeProxy)) return url;
 
-        // Same logic as fetch: raw append for bwrp, encode for others
-        if (activeProxy.includes('bwrp.net')) {
-            return `${activeProxy}${url}`;
+        // Use RoProxy for roblox.com domains if possible
+        let targetUrl = url;
+        if (url.includes('roblox.com')) {
+            targetUrl = this.mapToRoProxy(url);
         }
-        return `${activeProxy}${encodeURIComponent(url)}`;
+
+        return `${activeProxy}${encodeURIComponent(targetUrl)}`;
     },
 
     async fetchProxied(url, options = {}) {

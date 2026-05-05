@@ -136,7 +136,10 @@ class AvatarRenderer {
             this.controls.reset();
             return true;
         } catch (err) {
-            console.error("Avatar Loading Error:", err);
+            console.error("[AvatarRenderer] Loading Error:", err);
+            if (err.message.includes("HTTP 403")) {
+                console.error("[AvatarRenderer] Roblox is blocking the current proxy. Try again later or check proxy status.");
+            }
             return false;
         }
     }
