@@ -4,20 +4,20 @@ import { json, err, getCookie, setCookie, clearCookie, getIP, auditLog } from '.
 
 export class AuthController {
   static async login(request: Request, env: Env): Promise<Response> {
-    let body: { code?: string; redirect_uri?: string; hwid?: string };
+    let body: { code?: string; redirect_uri?: string };
     try { body = await request.json(); } catch { return err('Ungültiger JSON-Body'); }
 
-    const { code, redirect_uri, hwid } = body;
+    const { code, redirect_uri } = body;
     if (!code) return err('Fehlender OAuth-Code');
-    if (!hwid) return err('Fehlender Geräte-Fingerabdruck (HWID)');
 
     const svc = new AuthService(env);
     try {
+      const ip     = getIP(request);
       const roblox = await svc.exchangeCode(code, redirect_uri ?? 'https://bwrp.net/team');
       const role   = await svc.getRobloxRole(roblox.robloxId);
       if (!role)   return err('Zugriff verweigert: Rang unzureichend oder kein Gruppenmitglied', 403);
 
-      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, hwid);
+      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, ip);
       const cookies = await svc.createSession(user, request);
 
       await auditLog(env.DATABASE, user.id, 'LOGIN', 'sessions', undefined, { ip: getIP(request) }, getIP(request));

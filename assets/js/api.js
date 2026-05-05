@@ -87,10 +87,10 @@ class ApiClient {
 
     // ── Auth Endpoints ────────────────────────────────────────────────────────
 
-    async login(code, redirectUri, hwid) {
+    async login(code, redirectUri) {
         const res = await this._request('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ code, redirect_uri: redirectUri, hwid }),
+            body: JSON.stringify({ code, redirect_uri: redirectUri }),
         });
         return { ok: res.ok, data: await res.json() };
     }
@@ -165,7 +165,7 @@ class ApiClient {
     // ── Management Endpoints ──────────────────────────────────────────────────
 
     async getStaffManagement()          { return this.get('/mgmt/users'); }
-    async resetStaffHwid(id)            { return this.patch(`/mgmt/users/${id}/hwid-reset`, {}); }
+    async resetStaffIp(id)              { return this.patch(`/mgmt/users/${id}/ip-reset`, {}); }
     async updateStaffRole(id, role)     { return this.patch(`/mgmt/users/${id}/role`, { role }); }
     async getUserActivity(id)           { return this.get(`/mgmt/users/${id}/activity`); }
 

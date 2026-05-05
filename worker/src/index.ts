@@ -232,7 +232,7 @@ const ROUTES: Route[] = [
 
   // ── Team Management (ADMIN+) ──────────────────────────────────────────────
   route('GET',    '/api/mgmt/users',                      ManagementController.listStaff      as Handler),
-  route('PATCH',  '/api/mgmt/users/:id/hwid-reset',       ManagementController.resetHwid      as Handler),
+  route('PATCH',  '/api/mgmt/users/:id/ip-reset',         ManagementController.resetIp        as Handler),
   route('PATCH',  '/api/mgmt/users/:id/role',             ManagementController.updateRole     as Handler),
   route('GET',    '/api/mgmt/users/:id/activity',         ManagementController.getUserActivity as Handler),
 

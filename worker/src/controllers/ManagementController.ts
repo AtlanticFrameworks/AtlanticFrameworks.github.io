@@ -19,7 +19,7 @@ export class ManagementController {
     if (bad) return bad;
 
     const rows = await env.DATABASE.prepare(`
-      SELECT id, roblox_id, username, avatar_url, role, hwid, last_seen, created_at
+      SELECT id, roblox_id, username, avatar_url, role, ip, last_seen, created_at
       FROM users
       ORDER BY created_at DESC
     `).all();
@@ -48,7 +48,7 @@ export class ManagementController {
       role: r.role,
       last_seen: r.last_seen,
       created_at: r.created_at,
-      hwidLocked: !!r.hwid,
+      ipLocked: !!r.ip,
       customRoles: rolesByUser.get(r.id) ?? [],
     }));
 
@@ -138,8 +138,8 @@ export class ManagementController {
     }, 200, origin);
   }
 
-  // ── PATCH /api/mgmt/users/:id/hwid-reset ────────────────────────────────
-  static async resetHwid(request: Request, env: Env, user: JWTPayload, params: Record<string, string>): Promise<Response> {
+  // ── PATCH /api/mgmt/users/:id/ip-reset ──────────────────────────────────
+  static async resetIp(request: Request, env: Env, user: JWTPayload, params: Record<string, string>): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const bad = ManagementController.checkAccess(user, origin);
     if (bad) return bad;
@@ -147,16 +147,16 @@ export class ManagementController {
     const targetId = parseInt(params.id);
     if (isNaN(targetId) || targetId <= 0) return err('Ungültige User-ID', 400, origin);
 
-    const existing = await env.DATABASE.prepare('SELECT id, username, hwid FROM users WHERE id = ?').bind(targetId).first<{ id: number; username: string; hwid: string }>();
+    const existing = await env.DATABASE.prepare('SELECT id, username, ip FROM users WHERE id = ?').bind(targetId).first<{ id: number; username: string; ip: string }>();
     if (!existing) return err('User nicht gefunden', 404, origin);
 
-    if (!existing.hwid) return err('HWID ist bereits zurückgesetzt', 400, origin);
+    if (!existing.ip) return err('IP-Sperre ist bereits zurückgesetzt', 400, origin);
 
-    await env.DATABASE.prepare('UPDATE users SET hwid = NULL WHERE id = ?').bind(targetId).run();
-    await auditLog(env.DATABASE, Number(user.sub), 'MGMT_RESET_HWID', 'users', String(targetId), { username: existing.username }, getIP(request));
-    new DiscordService(env).sendMonitoringAlert('Staff HWID Reset', `**${user.username}** hat die HWID-Sperre für **${existing.username}** (ID: ${targetId}) aufgehoben.`).catch(() => {});
+    await env.DATABASE.prepare('UPDATE users SET ip = NULL WHERE id = ?').bind(targetId).run();
+    await auditLog(env.DATABASE, Number(user.sub), 'MGMT_RESET_IP', 'users', String(targetId), { username: existing.username }, getIP(request));
+    new DiscordService(env).sendMonitoringAlert('Staff IP Reset', `**${user.username}** hat die IP-Sperre für **${existing.username}** (ID: ${targetId}) aufgehoben.`).catch(() => {});
 
-    return json({ success: true, message: `HWID-Sperre von ${existing.username} aufgehoben.` }, 200, origin);
+    return json({ success: true, message: `IP-Sperre von ${existing.username} aufgehoben.` }, 200, origin);
   }
 
   // ── PATCH /api/mgmt/users/:id/role ───────────────────────────────────────

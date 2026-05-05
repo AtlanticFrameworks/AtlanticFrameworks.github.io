@@ -56,21 +56,21 @@ export class AuthService {
     } catch { return null; }
   }
 
-  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, hwid: string): Promise<UserRow> {
-    const existing = await this.env.DATABASE.prepare('SELECT id, hwid FROM users WHERE roblox_id = ?').bind(robloxId).first<{ id: number; hwid: string | null }>();
+  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, ip: string): Promise<UserRow> {
+    const existing = await this.env.DATABASE.prepare('SELECT id, ip FROM users WHERE roblox_id = ?').bind(robloxId).first<{ id: number; ip: string | null }>();
 
     if (existing) {
-      if (existing.hwid && existing.hwid !== hwid) {
-        throw new Error('Login von einem anderen Gerät abgelehnt. HWID stimmt nicht überein.');
+      if (existing.ip && existing.ip !== ip) {
+        throw new Error('Login von einer anderen IP-Adresse abgelehnt.');
       }
-      const newHwid = existing.hwid ? existing.hwid : hwid;
+      const lockedIp = existing.ip ? existing.ip : ip;
       await this.env.DATABASE
-        .prepare(`UPDATE users SET username=?, avatar_url=?, role=?, hwid=?, last_seen=datetime('now') WHERE id=?`)
-        .bind(username, avatarUrl, role, newHwid, existing.id).run();
+        .prepare(`UPDATE users SET username=?, avatar_url=?, role=?, ip=?, last_seen=datetime('now') WHERE id=?`)
+        .bind(username, avatarUrl, role, lockedIp, existing.id).run();
     } else {
       await this.env.DATABASE
-        .prepare(`INSERT INTO users (roblox_id, username, avatar_url, role, hwid, last_seen) VALUES (?, ?, ?, ?, ?, datetime('now'))`)
-        .bind(robloxId, username, avatarUrl, role, hwid).run();
+        .prepare(`INSERT INTO users (roblox_id, username, avatar_url, role, ip, last_seen) VALUES (?, ?, ?, ?, ?, datetime('now'))`)
+        .bind(robloxId, username, avatarUrl, role, ip).run();
     }
 
     const user = await this.env.DATABASE.prepare('SELECT * FROM users WHERE roblox_id = ?').bind(robloxId).first<UserRow>();

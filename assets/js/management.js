@@ -47,7 +47,7 @@ function renderStaffManagement(staffList) {
     const rows = staffList.map(s => {
         const lastSeen = s.last_seen ? new Date(s.last_seen).toLocaleDateString('de-DE') : 'Unbekannt';
 
-        const hwidStatus = s.hwidLocked
+        const hwidStatus = s.ipLocked
             ? '<span class="text-tac-amber flex items-center justify-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Gesperrt</span>'
             : '<span class="text-tac-green flex items-center justify-center gap-1"><i data-lucide="unlock" class="w-3 h-3"></i> Offen</span>';
 
@@ -91,9 +91,9 @@ function renderStaffManagement(staffList) {
                         title="Aktivität anzeigen">
                         <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="resetHwidPrompt(${s.id}, '${s.username}')"
+                    <button onclick="resetIpPrompt(${s.id}, '${s.username}')"
                         class="px-2 py-1 border border-tac-border text-tac-muted hover:text-tac-amber hover:border-tac-amber/50 transition-colors"
-                        title="HWID-Sperre aufheben">
+                        title="IP-Sperre aufheben">
                         <i data-lucide="monitor-off" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -105,12 +105,12 @@ function renderStaffManagement(staffList) {
     lucide.createIcons({ nodes: [tbody] });
 }
 
-// ── HWID Reset ─────────────────────────────────────────────────────────────────
+// ── IP Reset ───────────────────────────────────────────────────────────────────
 
-function resetHwidPrompt(id, username) {
-    if (!confirm(`HWID-Sperre für ${username} aufheben?`)) return;
-    window.api.resetStaffHwid(id)
-        .then(() => { showStatus?.(`HWID für ${username} zurückgesetzt.`, 'success'); loadStaffManagement(); })
+function resetIpPrompt(id, username) {
+    if (!confirm(`IP-Sperre für ${username} aufheben?`)) return;
+    window.api.resetStaffIp(id)
+        .then(() => { showStatus?.(`IP-Sperre für ${username} zurückgesetzt.`, 'success'); loadStaffManagement(); })
         .catch(e => showStatus?.(`Fehler: ${e.message}`, 'error'));
 }
 

@@ -46,7 +46,7 @@ export interface UserRow {
   username:   string;
   avatar_url: string | null;
   role:       Role;
-  hwid:       string | null;
+  ip:         string | null;
   last_seen:  string | null;
   created_at: string;
 }
