@@ -3,8 +3,9 @@
  */
 const AssetService = {
     proxies: [
-        // Added /api/proxy?url= to the end of your Vercel domain
-        "https://roblox-char-proxy-5pnqnpplw-batuatakanerol-5232s-projects.vercel.app/api/proxy?url="
+        "https://bwrp.net/proxy/roblox/",
+        "https://corsproxy.io/?",
+        "https://api.allorigins.win/raw?url="
     ],
 
     async fetchWithFallbacks(targetUrl, isRobloxApi = true) {
@@ -12,8 +13,14 @@ const AssetService = {
 
         for (const proxy of this.proxies) {
             try {
-                // Wrap the target URL with the proxy prefix
-                const fetchUrl = `${proxy}${encodeURIComponent(targetUrl)}`;
+                let fetchUrl;
+
+                // For bwrp.net proxy, we append the raw URL (it expects raw URL after the path)
+                if (proxy.includes('bwrp.net')) {
+                    fetchUrl = `${proxy}${targetUrl}`;
+                } else {
+                    fetchUrl = `${proxy}${encodeURIComponent(targetUrl)}`;
+                }
 
                 const response = await fetch(fetchUrl, {
                     referrerPolicy: "no-referrer",
@@ -31,9 +38,7 @@ const AssetService = {
         throw lastError;
     },
 
-
     async getAvatarMetadata(userId) {
-        // We request the standard Roblox URL, and let fetchWithFallbacks handle the RoProxy conversion
         const url = `https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`;
         const resp = await this.fetchWithFallbacks(url, true);
         const data = await resp.json();
@@ -43,7 +48,6 @@ const AssetService = {
     },
 
     async getHeadshot(userId) {
-        // Note: avatar-headshot uses userIds (plural)
         const url = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
         const resp = await this.fetchWithFallbacks(url, true);
         const json = await resp.json();
@@ -53,15 +57,13 @@ const AssetService = {
     },
 
     getProxiedUrl(url) {
-        // Grab the primary proxy from your array at the top of the file
         const activeProxy = this.proxies[0];
+        if (url.includes(activeProxy)) return url;
 
-        // Prevent double-proxying if the URL already has the active proxy attached
-        if (url.includes(activeProxy)) {
-            return url;
+        // Same logic as fetch: raw append for bwrp, encode for others
+        if (activeProxy.includes('bwrp.net')) {
+            return `${activeProxy}${url}`;
         }
-
-        // Wrap the entire original URL with your active proxy
         return `${activeProxy}${encodeURIComponent(url)}`;
     },
 

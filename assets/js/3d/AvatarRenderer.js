@@ -14,9 +14,7 @@ class AvatarRenderer {
     }
 
     async fetchProxied(url, options) {
-        // Convert the URL using your existing AssetService, then use native fetch
-        const proxiedUrl = AssetService.getProxiedUrl(url);
-        return fetch(proxiedUrl, options);
+        return AssetService.fetchWithFallbacks(url, true);
     }
 
     init(containerId) {
