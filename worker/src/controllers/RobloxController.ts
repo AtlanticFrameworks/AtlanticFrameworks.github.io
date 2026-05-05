@@ -204,6 +204,43 @@ export class RobloxController {
     }
   }
 
+  // GET /api/roblox/thumbnail/3d?userId=XXX  — public, no auth required
+  // Proxies thumbnails.roblox.com with minimal headers to avoid datacenter IP blocks.
+  static async get3dThumbnail(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    if (!userId || !/^\d+$/.test(userId)) return err('Ungültige userId', 400, origin);
+
+    try {
+      const res = await robloxFetch(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`);
+      if (!res.ok) return err(`Roblox thumbnail API returned ${res.status}`, 502, origin);
+      return json(await res.json(), 200, origin);
+    } catch (e) {
+      return err('3D-Thumbnail-Abruf fehlgeschlagen: ' + (e as Error).message, 502, origin);
+    }
+  }
+
+  // GET /api/roblox/thumbnail/headshot?userId=XXX&size=420x420  — public, no auth required
+  static async getHeadshotThumbnail(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const size   = searchParams.get('size') ?? '420x420';
+    if (!userId || !/^\d+$/.test(userId)) return err('Ungültige userId', 400, origin);
+    if (!/^\d+x\d+$/.test(size))          return err('Ungültige size', 400, origin);
+
+    try {
+      const res = await robloxFetch(
+        `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=${size}&format=Png&isCircular=false`,
+      );
+      if (!res.ok) return err(`Roblox thumbnail API returned ${res.status}`, 502, origin);
+      return json(await res.json(), 200, origin);
+    } catch (e) {
+      return err('Headshot-Abruf fehlgeschlagen: ' + (e as Error).message, 502, origin);
+    }
+  }
+
   // GET /api/roblox/servers  – Live server list (uses Place ID, not Universe ID)
   static async getServers(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';

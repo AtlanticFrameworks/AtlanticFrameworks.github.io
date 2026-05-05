@@ -64,19 +64,42 @@ const AssetService = {
     },
 
     async getAvatarMetadata(userId) {
+        // Try the bwrpauth worker's thumbnail proxy first — it uses minimal headers
+        // that bypass Roblox's datacenter-IP block, unlike all public CORS proxies.
+        try {
+            const resp = await fetch(`/api/roblox/thumbnail/3d?userId=${userId}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.imageUrl) return data;
+            }
+        } catch (e) {
+            console.warn('[AssetService] Internal 3D thumbnail proxy failed, falling back:', e);
+        }
+
+        // Fallback: generic proxy chain
         const url = `https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`;
         const resp = await this.fetchWithFallbacks(url, true);
         const data = await resp.json();
-
         if (!data.imageUrl) throw new Error("No 3D image URL");
         return data;
     },
 
     async getHeadshot(userId) {
+        // Try the bwrpauth worker's headshot proxy first
+        try {
+            const resp = await fetch(`/api/roblox/thumbnail/headshot?userId=${userId}&size=420x420`);
+            if (resp.ok) {
+                const json = await resp.json();
+                if (json.data?.[0]) return json.data[0].imageUrl;
+            }
+        } catch (e) {
+            console.warn('[AssetService] Internal headshot proxy failed, falling back:', e);
+        }
+
+        // Fallback: generic proxy chain
         const url = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
         const resp = await this.fetchWithFallbacks(url, true);
         const json = await resp.json();
-
         if (!json.data || !json.data[0]) throw new Error("Headshot not found");
         return json.data[0].imageUrl;
     },

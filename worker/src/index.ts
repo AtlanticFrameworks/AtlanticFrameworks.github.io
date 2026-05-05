@@ -210,6 +210,10 @@ const ROUTES: Route[] = [
   route('GET',  '/api/shifts/analytics', ShiftController.analytics as Handler),
   route('GET',  '/api/shifts/all',       ShiftController.all       as Handler),
 
+  // ── Roblox Thumbnail Proxy (public — poster generator) ───────────────────
+  route('GET', '/api/roblox/thumbnail/3d',      RobloxController.get3dThumbnail       as UserlessHandler, true),
+  route('GET', '/api/roblox/thumbnail/headshot', RobloxController.getHeadshotThumbnail as UserlessHandler, true),
+
   // ── Roblox Proxy ─────────────────────────────────────────────────────────
   route('GET', '/api/roblox/player/:identifier',          RobloxController.getPlayer        as Handler),
   route('GET', '/api/roblox/servers',                     RobloxController.getServers       as Handler),

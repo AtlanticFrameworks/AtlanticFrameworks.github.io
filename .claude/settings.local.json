@@ -18,7 +18,8 @@
       "Bash(grep -n \"tailwind\\\\|cdn\\\\|CDN\" /c/Users/batua/Documents/Projekte/BWRPWebsite/*.html)",
       "Bash(npm install:*)",
       "Bash(curl -sI https://bwrp.net/)",
-      "Bash(grep -n \"initDatabase\\\\|enterDashboard\\\\|loadFragment\\\\|loadDashboard\" /c/Users/batua/Documents/Projekte/BWRPWebsite/assets/js/*.js /c/Users/batua/Documents/Projekte/BWRPWebsite/team.html)"
+      "Bash(grep -n \"initDatabase\\\\|enterDashboard\\\\|loadFragment\\\\|loadDashboard\" /c/Users/batua/Documents/Projekte/BWRPWebsite/assets/js/*.js /c/Users/batua/Documents/Projekte/BWRPWebsite/team.html)",
+      "Bash(xargs grep:*)"
     ]
   }
 }
