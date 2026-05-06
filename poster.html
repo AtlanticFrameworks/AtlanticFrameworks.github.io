@@ -45,52 +45,45 @@
         }
 
         @media (max-width: 768px) {
-            body { overflow: hidden; height: 100vh; }
-            main { flex-direction: column !important; height: 100vh; }
+            body { overflow: hidden; height: 100vh; position: fixed; width: 100%; }
+            main { flex-direction: column !important; height: 100vh; padding-bottom: 70px; }
             
-            /* Sidebar as a Bottom Sheet */
+            /* Tabbed Mobile View */
             .sidebar-panel { 
+                display: none;
                 position: fixed !important; 
-                bottom: 0; 
-                left: 0; 
-                right: 0;
-                top: auto !important;
+                inset: 0;
+                bottom: 70px !important;
                 width: 100% !important; 
-                height: 80vh !important;
-                z-index: 500 !important; 
-                transform: translateY(100%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                border-radius: 24px 24px 0 0;
-                border-top: 2px solid rgba(226,176,7,0.3);
-                box-shadow: 0 -20px 50px rgba(0,0,0,0.9);
+                height: calc(100vh - 70px) !important;
+                z-index: 50 !important; 
+                border-radius: 0;
+                border: none;
+                background: #0f0f12;
+                overflow-y: auto;
             }
-            .sidebar-panel.open { transform: translateY(0); }
+            .sidebar-panel.active-tab { display: block; }
             
             .preview-container { 
+                display: none;
                 flex: 1; 
-                height: 100%;
+                height: calc(100vh - 70px) !important;
                 padding: 10px !important; 
-                display: flex; 
                 justify-content: center; 
                 align-items: center;
                 overflow: hidden;
+                background: #050505;
             }
+            .preview-container.active-tab { display: flex; }
 
             #poster-scaler { 
                 transform-origin: center center;
-                margin-top: -60px; /* Offset for bottom nav */
             }
 
             /* Larger touch targets for mobile */
-            input[type="range"] {
-                height: 20px !important;
-            }
-            .input-tactical {
-                padding: 14px !important;
-                font-size: 0.9rem !important;
-            }
+            input[type="range"] { height: 24px !important; }
+            .input-tactical { padding: 14px !important; font-size: 0.9rem !important; }
             
-            /* Hide the floating toggle button, we'll use the bottom nav */
             #mobile-floating-toggle { display: none !important; }
         }
 
@@ -102,14 +95,13 @@
             left: 0;
             right: 0;
             height: 70px;
-            background: rgba(15,15,18,0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 400;
-            padding: 0 20px;
+            background: #0f0f12;
+            border-top: 1px solid rgba(226,176,7,0.2);
+            z-index: 500;
+            padding: 0 10px;
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
         }
 
         @media (max-width: 768px) {
@@ -117,28 +109,34 @@
         }
 
         .mobile-nav-btn {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 4px;
             color: #6b7280;
-            transition: all 0.3s;
+            height: 100%;
+            transition: all 0.2s;
+            position: relative;
         }
-        .mobile-nav-btn.active { color: var(--bw-gold); }
-        .mobile-nav-btn i { width: 24px; height: 24px; }
-        .mobile-nav-btn span { font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; }
+        .mobile-nav-btn.active { color: #E2B007; }
+        .mobile-nav-btn.active::after { content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 2px; background: #E2B007; box-shadow: 0 0 10px #E2B007; }
+        .mobile-nav-btn i { width: 20px; height: 20px; }
+        .mobile-nav-btn span { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'JetBrains Mono'; }
 
-        /* Handle for the bottom sheet */
-        .sheet-handle {
-            width: 40px;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            margin: 10px auto 20px;
-            display: none;
-        }
-        @media (max-width: 768px) {
-            .sheet-handle { display: block; }
+        .export-btn-mobile {
+            width: 54px;
+            height: 54px;
+            background: #E2B007;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(226,176,7,0.4);
+            transform: translateY(-20px);
+            border: 4px solid #0f0f12;
+            color: black !important;
         }
 
         /* --- TACTICAL UI --- */
@@ -614,23 +612,23 @@
 
             <!-- Mobile Bottom Nav -->
             <nav class="mobile-nav">
-                <button onclick="toggleSidebar()" class="mobile-nav-btn" id="nav-settings">
+                <button onclick="switchMobileTab('preview')" class="mobile-nav-btn active" id="nav-preview">
+                    <i data-lucide="eye"></i>
+                    <span>Preview</span>
+                </button>
+                <button onclick="switchMobileTab('config')" class="mobile-nav-btn" id="nav-config">
                     <i data-lucide="settings"></i>
-                    <span data-i18n="poster.editor">Settings</span>
+                    <span>Config</span>
+                </button>
+                <button onclick="ModalService.open('export')" class="mobile-nav-btn">
+                    <div class="export-btn-mobile">
+                        <i data-lucide="download"></i>
+                    </div>
+                    <span class="mt-[-10px]">Export</span>
                 </button>
                 <button onclick="AssetChooserService.open('main')" class="mobile-nav-btn">
                     <i data-lucide="user"></i>
-                    <span data-i18n="poster.main_char">Avatar</span>
-                </button>
-                <button onclick="ModalService.open('export')" class="mobile-nav-btn">
-                    <div class="w-12 h-12 bg-bw-gold rounded-full flex items-center justify-center -mt-8 shadow-lg shadow-bw-gold/20 border-4 border-bw-dark">
-                        <i data-lucide="download" class="text-black"></i>
-                    </div>
-                    <span class="mt-1" data-i18n="poster.export">Export</span>
-                </button>
-                <button onclick="AssetChooserService.open('logo')" class="mobile-nav-btn">
-                    <i data-lucide="shield"></i>
-                    <span data-i18n="poster.logo">Logo</span>
+                    <span>Avatar</span>
                 </button>
                 <button onclick="UIStateService.resetAll()" class="mobile-nav-btn">
                     <i data-lucide="rotate-ccw"></i>
@@ -655,7 +653,7 @@
         <div id="mobile-backdrop" class="fixed inset-0 bg-black/60 z-[150] hidden md:hidden" onclick="toggleSidebar()"></div>
 
         <!-- Preview Area -->
-        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')] bg-repeat preview-container">
+        <section class="flex-1 relative flex items-center justify-center overflow-hidden p-10 bg-[url('assets/images/pattern.png')] bg-repeat preview-container active-tab">
             <div class="absolute inset-0 bg-black/80 pointer-events-none"></div>
             
             <!-- Zoom Controls -->
@@ -1023,19 +1021,40 @@
             }
         }
 
+        function switchMobileTab(tab) {
+            const preview = document.querySelector('.preview-container');
+            const sidebar = document.querySelector('.sidebar-panel');
+            const navPreview = document.getElementById('nav-preview');
+            const navConfig  = document.getElementById('nav-config');
+
+            if (tab === 'preview') {
+                preview.classList.add('active-tab');
+                sidebar.classList.remove('active-tab');
+                navPreview.classList.add('active');
+                navConfig.classList.remove('active');
+            } else {
+                preview.classList.remove('active-tab');
+                sidebar.classList.add('active-tab');
+                navPreview.classList.remove('active');
+                navConfig.classList.add('active');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Initialize mobile tab
+        if (window.innerWidth < 768) {
+            document.addEventListener('DOMContentLoaded', () => {
+                switchMobileTab('preview');
+            });
+        }
+
         function toggleSidebar() {
+            // No longer used on mobile as we use tabs, but keeping for desktop compatibility
             const sidebar = document.getElementById('main-sidebar');
             const icon    = document.getElementById('sidebar-icon');
-            const isOpen  = sidebar.classList.contains('open');
-            
-            if (isOpen) {
-                sidebar.classList.remove('open');
-                if (icon) icon.setAttribute('data-lucide', 'settings-2');
-            } else {
-                sidebar.classList.add('open');
-                if (icon) icon.setAttribute('data-lucide', 'x');
+            if (window.innerWidth >= 768) {
+                UIStateService.toggleSidebar();
             }
-            lucide.createIcons();
         }
 
         function setLayout(layoutId) {
