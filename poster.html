@@ -233,18 +233,9 @@
 
                     <!-- Logged-out state -->
                     <div id="roblox-login-row">
-                        <button onclick="loginWithRoblox()" class="w-full py-2 bg-bw-gold/10 border border-bw-gold/30 text-bw-gold text-[10px] font-bold uppercase flex items-center justify-center gap-2 hover:bg-bw-gold/20 transition-colors mb-3">
+                        <button onclick="loginWithRoblox()" class="w-full py-2 bg-bw-gold/10 border border-bw-gold/30 text-bw-gold text-[10px] font-bold uppercase flex items-center justify-center gap-2 hover:bg-bw-gold/20 transition-colors">
                             <i data-lucide="log-in" class="w-3 h-3"></i> MIT ROBLOX ANMELDEN
                         </button>
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="flex-1 h-px bg-white/10"></div>
-                            <span class="text-[8px] font-mono text-gray-600 uppercase">oder manuell</span>
-                            <div class="flex-1 h-px bg-white/10"></div>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="roblox-user-id" placeholder="User ID / Username" class="input-tactical flex-1">
-                            <button onclick="fetchRobloxAvatar()" class="bg-bw-gold text-black px-3 py-1 text-[10px] font-bold uppercase hover:bg-white transition-colors">Fetch</button>
-                        </div>
                     </div>
 
                     <!-- Logged-in state -->
@@ -259,10 +250,7 @@
                                 <button onclick="logoutRoblox()" class="text-[8px] font-mono text-gray-600 hover:text-red-400 border border-white/5 hover:border-red-500/30 px-2 py-1 transition-colors uppercase">Abmelden</button>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="roblox-user-id-alt" placeholder="Andere User ID" class="input-tactical flex-1">
-                            <button onclick="fetchRobloxAvatar()" class="bg-bw-gold text-black px-3 py-1 text-[10px] font-bold uppercase hover:bg-white transition-colors">Fetch</button>
-                        </div>
+                        <button onclick="fetchRobloxAvatar()" class="w-full bg-bw-gold text-black py-2 text-[10px] font-bold uppercase hover:bg-white transition-colors">Avatar Aktualisieren</button>
                     </div>
 
                     <p id="roblox-status" class="text-[8px] font-mono italic" style="color:#6b7280">Holt 3D Modell &amp; Portraits direkt von Roblox.</p>
@@ -724,8 +712,7 @@
             sessionStorage.removeItem('poster_roblox_user');
             document.getElementById('roblox-loggedin-row').classList.add('hidden');
             document.getElementById('roblox-login-row').classList.remove('hidden');
-            document.getElementById('roblox-user-id').value = '';
-            document.getElementById('roblox-status').textContent = 'Holt 3D Modell & Portraits direkt von Roblox.';
+            document.getElementById('roblox-status').textContent = 'Melde dich an, um dein 3D Modell zu laden.';
             document.getElementById('roblox-status').style.color = '#6b7280';
         }
 
@@ -733,7 +720,6 @@
             document.getElementById('roblox-login-row').classList.add('hidden');
             document.getElementById('roblox-loggedin-row').classList.remove('hidden');
             document.getElementById('roblox-username-display').textContent = username;
-            document.getElementById('roblox-user-id-alt').value = '';
         }
 
         function getActiveUserContext() {
@@ -741,10 +727,9 @@
             if (loggedIn) {
                 const stored = sessionStorage.getItem('poster_roblox_user');
                 const session = stored ? JSON.parse(stored) : {};
-                const altId = document.getElementById('roblox-user-id-alt').value.trim();
-                return { userId: altId || session.userId, token: altId ? null : (session.accessToken ?? null) };
+                return { userId: session.userId, token: session.accessToken ?? null };
             }
-            return { userId: document.getElementById('roblox-user-id').value.trim(), token: null };
+            return { userId: null, token: null };
         }
 
         async function handleOAuthCallback() {
@@ -814,7 +799,7 @@
 
         async function fetchRobloxAvatar() {
             const { userId: id, token } = getActiveUserContext();
-            if (!id) return alert("Bitte User ID eingeben.");
+            if (!id) return loginWithRoblox();
 
             const btn       = document.querySelector('button[onclick="fetchRobloxAvatar()"]:not(.hidden)') ?? document.querySelector('button[onclick="fetchRobloxAvatar()"]');
             const statusEl  = document.getElementById('roblox-status');
