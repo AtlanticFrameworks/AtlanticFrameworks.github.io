@@ -167,14 +167,18 @@ class AvatarRenderer {
             // Some materials get re-created during mesh assembly — fix again
             this._fixTransparency(this.model);
 
-            // Center model: average Box3 bounds (mirrors AABB centering in the docs)
+            // Center model and scale it to fit the view.
+            // Scale must be applied first; the position offset is -s*center so that
+            // the world-space bounding box center lands exactly at the origin.
+            // (Setting position = -center then scale = s would land the center at
+            //  center*(s-1), which for large Roblox units pushes the model off-screen.)
             const box    = new THREE.Box3().setFromObject(this.model);
             const center = box.getCenter(new THREE.Vector3());
             const size   = box.getSize(new THREE.Vector3());
-            this.model.position.sub(center);
-
             const maxDim = Math.max(size.x, size.y, size.z);
-            this.model.scale.setScalar(6 / maxDim);
+            const s      = 6 / maxDim;
+            this.model.scale.setScalar(s);
+            this.model.position.set(-center.x * s, -center.y * s, -center.z * s);
 
             this.scene.add(this.model);
 
