@@ -8,10 +8,10 @@ const UIStateService = {
         exportFormat: 'png',
         exportQuality: 1,
         imgStates: { 
-            main: { scale: 1, x: 0, y: 0 }, 
-            'side-1': { scale: 1, x: 0, y: 0 }, 
-            'side-2': { scale: 1, x: 0, y: 0 }, 
-            'side-3': { scale: 1, x: 0, y: 0 }, 
+            main: { scale: 1.93, x: -21, y: 153 }, 
+            'side-1': { scale: 1.39, x: 6, y: -2 }, 
+            'side-2': { scale: 1.55, x: 10, y: 60 }, 
+            'side-3': { scale: 1.74, x: -2, y: 72 }, 
             logo: { scale: 1, x: 0, y: 0 } 
         }
     },
