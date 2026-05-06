@@ -148,7 +148,14 @@ const translations = {
         "poster.print": "Druck (300 DPI)",
         "poster.font_family": "Schriftart",
         "poster.font_size": "Größe",
-        "poster.alignment": "Ausrichtung"
+        "poster.alignment": "Ausrichtung",
+        "poster.roblox.title": "Roblox Charakter Importieren",
+        "poster.roblox.login": "MIT ROBLOX ANMELDEN",
+        "poster.roblox.logged_in_as": "Angemeldet als",
+        "poster.roblox.reload": "AVATAR NEU LADEN",
+        "poster.roblox.status_default": "Melde dich an, um dein 3D Modell zu laden.",
+        "poster.roblox.relogin": "Relogin",
+        "poster.roblox.logout": "Abmelden"
     },
     en: {
         "nav.home": "Home",
@@ -299,7 +306,14 @@ const translations = {
         "poster.print": "Print (300 DPI)",
         "poster.font_family": "Font Family",
         "poster.font_size": "Size",
-        "poster.alignment": "Alignment"
+        "poster.alignment": "Alignment",
+        "poster.roblox.title": "Import Roblox Character",
+        "poster.roblox.login": "LOGIN WITH ROBLOX",
+        "poster.roblox.logged_in_as": "Logged in as",
+        "poster.roblox.reload": "RELOAD AVATAR",
+        "poster.roblox.status_default": "Login to load your 3D model.",
+        "poster.roblox.relogin": "Relogin",
+        "poster.roblox.logout": "Logout"
     }
 };
 
