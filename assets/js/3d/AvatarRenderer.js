@@ -15,6 +15,7 @@ class AvatarRenderer {
         this.renderer   = null;
         this.controls   = null;
         this.model      = null;
+        this.modelPivot = null; // Group that holds model with 180° Y base rotation
         this.isInitialized = false;
         this.aabb       = null; // stored from scene JSON for camera reference
     }
@@ -103,9 +104,10 @@ class AvatarRenderer {
     // ─── Main load pipeline ───────────────────────────────────────────────────
     async loadAvatar(userId, onStatus = null, accessToken = null) {
         if (!this.isInitialized) return false;
-        if (this.model) {
-            this.scene.remove(this.model);
-            this.model = null;
+        if (this.modelPivot) {
+            this.scene.remove(this.modelPivot);
+            this.model      = null;
+            this.modelPivot = null;
         }
 
         try {
@@ -170,8 +172,6 @@ class AvatarRenderer {
             // Center model and scale it to fit the view.
             // Scale must be applied first; the position offset is -s*center so that
             // the world-space bounding box center lands exactly at the origin.
-            // (Setting position = -center then scale = s would land the center at
-            //  center*(s-1), which for large Roblox units pushes the model off-screen.)
             const box    = new THREE.Box3().setFromObject(this.model);
             const center = box.getCenter(new THREE.Vector3());
             const size   = box.getSize(new THREE.Vector3());
@@ -180,7 +180,13 @@ class AvatarRenderer {
             this.model.scale.setScalar(s);
             this.model.position.set(-center.x * s, -center.y * s, -center.z * s);
 
-            this.scene.add(this.model);
+            // Roblox OBJ exports face -Z; wrap in a pivot rotated 180° on Y so the
+            // avatar faces the camera (which is at +Z). Slider controls rotate the
+            // inner model, leaving the base orientation intact.
+            this.modelPivot = new THREE.Group();
+            this.modelPivot.rotation.y = Math.PI;
+            this.modelPivot.add(this.model);
+            this.scene.add(this.modelPivot);
 
             // Reset to front view
             this._setCameraFront();
@@ -205,6 +211,8 @@ class AvatarRenderer {
 
     /**
      * Called by the ROT-X / ROT-Y sliders in the sidebar.
+     * Rotates the inner model relative to the 180° base rotation in modelPivot,
+     * so 0° always means "facing front" regardless of the base orientation.
      * @param {number} xDeg  X-axis rotation in degrees (forward/back tilt)
      * @param {number} yDeg  Y-axis rotation in degrees (left/right spin)
      */
@@ -228,34 +236,51 @@ class AvatarRenderer {
 
     // ─── Portrait capture ─────────────────────────────────────────────────────
     /**
-     * Portrait 2 → back view  (camera behind the avatar)
-     * Portrait 3 → 45° right-side view  (front-right diagonal)
+     * Renders two portrait captures and returns them as data-URLs.
+     * Portrait 2 → back view  (camera at -Z, looks at avatar's back)
+     * Portrait 3 → right-front diagonal view
+     *
+     * Temporarily resizes the renderer to a portrait aspect ratio so the
+     * captures fit the 170×230 side-image slots without excessive letterboxing.
      */
     async captureAngles() {
-        if (!this.model) return null;
+        if (!this.modelPivot) return null;
 
-        const originalPos = this.camera.position.clone();
-        const dist        = 10;
-        const angles      = {};
+        // Compute world-space bounding box (after pivot rotation + scale)
+        const box  = new THREE.Box3().setFromObject(this.modelPivot);
+        const size = box.getSize(new THREE.Vector3());
 
-        // Back view
+        // Distance to frame the full body height with a 20% margin
+        const vFovHalf = THREE.MathUtils.degToRad(45 / 2);
+        const dist = (size.y / 2) / Math.tan(vFovHalf) * 1.2;
+
+        // Temporarily render at portrait dimensions to match the side slots (170:230)
+        const origSize = new THREE.Vector2();
+        this.renderer.getSize(origSize);
+        this.renderer.setSize(370, 500);
+        this.camera.aspect = 370 / 500;
+        this.camera.updateProjectionMatrix();
+
+        const angles = {};
+
+        // Back view — camera is on the -Z side, avatar faces +Z so camera sees the back
         this.camera.position.set(0, 0, -dist);
         this.camera.lookAt(0, 0, 0);
         this.renderer.render(this.scene, this.camera);
         angles.back = this.renderer.domElement.toDataURL('image/png');
 
-        // 45° right-side (front-right diagonal)
+        // Right-front diagonal view
         const a = Math.PI / 4;
         this.camera.position.set(Math.sin(a) * dist, 0, Math.cos(a) * dist);
         this.camera.lookAt(0, 0, 0);
         this.renderer.render(this.scene, this.camera);
         angles.side = this.renderer.domElement.toDataURL('image/png');
 
-        // Restore
-        this.camera.position.copy(originalPos);
-        this.camera.lookAt(0, 0, 0);
-        this.controls.target.set(0, 0, 0);
-        this.controls.update();
+        // Restore renderer size and camera aspect, then return to front view
+        this.renderer.setSize(origSize.x, origSize.y);
+        this.camera.aspect = origSize.x / origSize.y;
+        this.camera.updateProjectionMatrix();
+        this._setCameraFront();
 
         return angles;
     }

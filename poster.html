@@ -254,7 +254,10 @@
                                 <span class="text-[8px] text-gray-500 font-mono uppercase block">Angemeldet als</span>
                                 <span id="roblox-username-display" class="text-[11px] text-bw-gold font-bold font-mono"></span>
                             </div>
-                            <button onclick="logoutRoblox()" class="text-[8px] font-mono text-gray-600 hover:text-red-400 border border-white/5 hover:border-red-500/30 px-2 py-1 transition-colors uppercase">Abmelden</button>
+                            <div class="flex gap-1">
+                                <button onclick="fetchRobloxAvatar()" title="Charakter neu laden" class="text-[8px] font-mono text-gray-600 hover:text-bw-gold border border-white/5 hover:border-bw-gold/30 px-2 py-1 transition-colors uppercase flex items-center gap-1"><i data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>Reload</button>
+                                <button onclick="logoutRoblox()" class="text-[8px] font-mono text-gray-600 hover:text-red-400 border border-white/5 hover:border-red-500/30 px-2 py-1 transition-colors uppercase">Abmelden</button>
+                            </div>
                         </div>
                         <div class="flex gap-2">
                             <input type="text" id="roblox-user-id-alt" placeholder="Andere User ID" class="input-tactical flex-1">
@@ -363,7 +366,7 @@
                             <div class="mt-2 pt-2 border-t border-white/5 space-y-2">
                                 <div class="flex items-center justify-between">
                                     <span class="text-[8px] text-bw-gold/60 font-mono uppercase tracking-widest">3D Rotation</span>
-                                    <button onclick="avatar3D.resetOrientation()" class="text-[7px] font-mono text-gray-600 hover:text-bw-gold border border-white/5 hover:border-bw-gold/30 px-1.5 py-0.5 transition-colors uppercase">Reset</button>
+                                    <button onclick="avatar3D.resetOrientation()" title="Rotation zurücksetzen" class="text-gray-600 hover:text-bw-gold border border-white/5 hover:border-bw-gold/30 p-0.5 transition-colors"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <span class="text-[8px] text-gray-500 w-8">ROT-Y</span>
@@ -759,25 +762,27 @@
             UIStateService.init();
             setTimeout(() => lucide.createIcons(), 500);
 
-            // Restore previous session
+            // Handle OAuth redirect callback (takes priority — also loads the avatar)
+            if (window.location.search.includes('code=')) {
+                await handleOAuthCallback();
+                return;
+            }
+
+            // Restore previous session and auto-reload the avatar
             const stored = sessionStorage.getItem('poster_roblox_user');
             if (stored) {
                 try {
                     const { userId, username } = JSON.parse(stored);
                     setLoggedInState(userId, username);
+                    await fetchRobloxAvatar();
                 } catch { sessionStorage.removeItem('poster_roblox_user'); }
-            }
-
-            // Handle OAuth redirect callback
-            if (window.location.search.includes('code=')) {
-                await handleOAuthCallback();
             }
         });
 
         function update3DRotation() {
             const ry = parseFloat(document.getElementById('sl-rot-y')?.value ?? 0);
             const rx = parseFloat(document.getElementById('sl-rot-x')?.value ?? 0);
-            if (window.avatar3D) avatar3D.setModelRotation(rx, ry);
+            avatar3D.setModelRotation(rx, ry);
             document.getElementById('val-rot-y').textContent = Math.round(ry) + '°';
             document.getElementById('val-rot-x').textContent = Math.round(rx) + '°';
         }
