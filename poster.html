@@ -947,6 +947,7 @@
 
                 if (success) {
                     UIStateService.toggle3D(true);
+                    UIStateService.refreshTransforms();
                     document.getElementById('zone-main').classList.add('has-img');
 
                     // Reset rotation sliders

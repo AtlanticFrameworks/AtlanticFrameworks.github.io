@@ -2,7 +2,7 @@
  * UIStateService - Handles the state of the poster editor UI
  */
 const UIStateService = {
-    GoldStandards: { 
+    CHARACTER_DEFAULTS: { 
         main: { scale: 1.93, x: -21, y: 153 }, 
         'side-1': { scale: 1.39, x: 6, y: -2 }, 
         'side-2': { scale: 1.55, x: 10, y: 60 }, 
@@ -32,8 +32,88 @@ const UIStateService = {
             this.adjustZoom(0);
         }
         
-        // Ensure UI reflects the state on first load
+        // Ensure UI reflects the state on first load (especially if storage was empty)
+        this.syncAllInputs();
         this.refreshTransforms();
+    },
+
+    resetAll() {
+        // 1. Reset transforms to defaults
+        for (const target in this.state.imgStates) {
+            this.state.imgStates[target] = { scale: 1, x: 0, y: 0 };
+        }
+
+        // 2. Reset other UI state to defaults
+        this.state.currentZoom = 0.65;
+        this.state.exportFormat = 'png';
+        this.state.exportQuality = 1;
+
+        // 3. Reset HTML inputs to their default values (hardcoded defaults)
+        const defaults = {
+            rank: "Obegefreiter",
+            callsign: "GHOST",
+            callsign_size: "14",
+            watermark: "@BWRP_SYSTEM",
+            unit: "2. ZUG / 3. GRUPPE",
+            specialty: "SCHARFSCHÜTZE",
+            desc: "ELITE-SCHARFSCHÜTZE MIT TAKTISCHER EXPERTISE IN VERDECKTEN OPERATIONEN UND LANGSTRECKEN-AUFKLÄRUNG.",
+            'bg-inner': "#ff6b00",
+            'bg-outer': "#1a0500",
+            'text-main': "#ffffff",
+            accent: "#E2B007"
+        };
+
+        for (const [id, val] of Object.entries(defaults)) {
+            const el = document.getElementById('in-' + id);
+            if (el) {
+                el.value = val;
+                if (id === 'callsign_size') {
+                    this.updateFontSize('p-callsign', val);
+                } else if (id.startsWith('bg-') || id === 'accent' || id === 'text-main') {
+                    this.syncColor(el, id === 'accent' ? 'accent-color' : id);
+                } else {
+                    this.syncText(el, 'p-' + id);
+                }
+            }
+        }
+
+        // Reset Effects
+        if (document.getElementById('eff-grain')) document.getElementById('eff-grain').checked = true;
+        if (document.getElementById('eff-vignette')) document.getElementById('eff-vignette').checked = true;
+        if (document.getElementById('eff-scan')) document.getElementById('eff-scan').checked = true;
+        this.updateEffects();
+
+        // 4. Finalize
+        this.refreshTransforms();
+        this.saveToStorage();
+        
+        // Reload page or just update UI? User said "standard values"
+        // Most robust is to just update UI and save.
+    },
+
+    syncAllInputs() {
+        // Sync text inputs
+        const textInputs = ['rank', 'callsign', 'watermark', 'unit', 'specialty', 'desc'];
+        textInputs.forEach(key => {
+            const el = document.getElementById('in-' + key);
+            if (el) this.syncText(el, 'p-' + key);
+        });
+
+        // Sync colors
+        const colorInputs = [
+            { id: 'in-bg-inner', prop: 'bg-inner' },
+            { id: 'in-bg-outer', prop: 'bg-outer' },
+            { id: 'in-text-main', prop: 'text-main' },
+            { id: 'in-accent', prop: 'accent-color' }
+        ];
+        colorInputs.forEach(c => {
+            const el = document.getElementById(c.id);
+            if (el) this.syncColor(el, c.prop);
+        });
+
+        // Sync font size
+        const sizeSlider = document.querySelector('input[oninput*="updateFontSize("]');
+        if (sizeSlider) this.updateFontSize('p-callsign', sizeSlider.value);
     },
 
     toggle3D(show) {
@@ -227,11 +307,18 @@ const UIStateService = {
     refreshTransforms() {
         for (const target in this.state.imgStates) {
             const img = document.getElementById('p-' + target);
-            const constant = this.GoldStandards[target];
+            const constant = this.CHARACTER_DEFAULTS[target];
             const normalized = this.state.imgStates[target];
 
             if (img && constant) {
-                // Calculation: Multiplicative for Scale, Additive for X/Y
+                /**
+                 * FEATURE: Value Normalization (Backend vs. Frontend)
+                 * 
+                 * Multiplicative Properties (Zoom):
+                 *   Actual = Backend Constant * Frontend Input (Normalized Scale)
+                 * Additive Properties (Position):
+                 *   Actual = Backend Constant + Frontend Input (Normalized Offset)
+                 */
                 const actualScale = constant.scale * normalized.scale;
                 const actualX = constant.x + normalized.x;
                 const actualY = constant.y + normalized.y;
