@@ -101,6 +101,28 @@ const AssetChooserService = {
         UIStateService.saveToStorage();
     },
 
+    resetTransform(target) {
+        const defaults = {
+            main:     { scale: 1.93, x: -21, y: 153 },
+            'side-1': { scale: 1.39, x: 6, y: -2 },
+            'side-2': { scale: 1.55, x: 10, y: 60 },
+            'side-3': { scale: 1.74, x: -2, y: 72 },
+            logo:     { scale: 1.0, x: 0, y: 0 }
+        };
+        const d = defaults[target];
+        if (!d) return;
+
+        this.updateImgTransform(target, 'scale', d.scale);
+        this.updateImgTransform(target, 'x', d.x);
+        this.updateImgTransform(target, 'y', d.y);
+
+        // Sync Sliders
+        ['scale', 'x', 'y'].forEach(type => {
+            const slider = document.querySelector(`input[oninput*="updateImgTransform('${target}', '${type}'"]`);
+            if (slider) slider.value = d[type];
+        });
+    },
+
     adjustImg(target, type, delta) {
         const state = UIStateService.state.imgStates[target];
         if (type === 'scale') {
