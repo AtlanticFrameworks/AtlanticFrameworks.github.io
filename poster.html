@@ -23,7 +23,7 @@
     <!-- Services -->
     <script src="assets/js/services/AssetService.js"></script>
     <script src="assets/js/services/ModalService.js"></script>
-    <script src="assets/js/services/ExportService.js"></script>
+    <!-- <script src="assets/js/services/ExportService.js"></script> -->
     <script src="assets/js/services/UIStateService.js"></script>
     <script src="assets/js/services/AssetChooserService.js"></script>
     
@@ -620,12 +620,7 @@
                     <i data-lucide="settings"></i>
                     <span>Config</span>
                 </button>
-                <button onclick="ModalService.open('export')" class="mobile-nav-btn">
-                    <div class="export-btn-mobile">
-                        <i data-lucide="download"></i>
-                    </div>
-                    <span class="mt-[-10px]">Export</span>
-                </button>
+                <!-- Export Button Removed -->
                 <button onclick="AssetChooserService.open('main')" class="mobile-nav-btn">
                     <i data-lucide="user"></i>
                     <span>Avatar</span>
@@ -641,12 +636,7 @@
                 <i id="sidebar-icon" data-lucide="settings-2"></i>
             </button>
 
-            <div class="p-5 border-t border-bw-border bg-black/40">
-                <button onclick="ModalService.open('export')" class="tactical-notch w-full bg-bw-gold text-black py-4 font-display font-bold text-lg hover:bg-white transition-all flex items-center justify-center gap-3">
-                    <i data-lucide="save" class="w-5 h-5"></i>
-                    <span data-i18n="poster.export">EXPORTIEREN</span>
-                </button>
-            </div>
+            <!-- Export Button Removed -->
         </aside>
 
         <!-- Mobile Backdrop -->
@@ -766,44 +756,7 @@
         </div>
     </div>
 
-    <!-- Export Modal -->
-    <div id="modal-export" class="modal-overlay">
-        <div class="modal-box w-[400px]">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xs font-bold text-bw-gold uppercase tracking-widest">Datei Exportieren</h3>
-                <button onclick="ModalService.close('export')" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            
-            <div class="space-y-6">
-                <div class="space-y-3">
-                    <label class="text-[9px] text-gray-500 uppercase font-mono">Format</label>
-                    <div class="grid grid-cols-1 gap-2">
-                        <button class="export-opt active bg-bw-gold/10 border border-bw-gold/30 p-3 text-[10px] font-bold uppercase text-white flex justify-between items-center">
-                            PNG (Empfohlen) <i data-lucide="check" class="w-3 h-3 text-bw-gold"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <label class="text-[9px] text-gray-500 uppercase font-mono">Qualität / Auflösung</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="setExportQuality(1)" id="q-1" class="export-qual active p-3 border border-bw-gold/30 bg-bw-gold/10 text-[10px] font-bold uppercase text-white">HD (1x)</button>
-                        <button onclick="setExportQuality(2)" id="q-2" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">2K (2x)</button>
-                        <button onclick="setExportQuality(4)" id="q-4" class="export-qual p-3 border border-white/10 hover:border-bw-gold/30 text-[10px] font-bold uppercase text-gray-400">4K (4x)</button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2 pt-2">
-                    <button id="btn-do-export" onclick="doExport()" class="w-full py-4 bg-bw-gold text-black text-xs font-black uppercase tracking-tighter hover:bg-white transition-colors">
-                        Export Starten
-                    </button>
-                    <button onclick="ModalService.close('export')" class="w-full py-3 border border-white/10 text-[10px] font-bold uppercase hover:bg-white/5 text-gray-400">
-                        Abbrechen
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Export Modal Removed -->
 
     <input type="file" id="global-uploader" class="hidden" accept="image/*" onchange="AssetChooserService.handleFileSelect(event)">
 
@@ -1000,6 +953,7 @@
             }
         }
 
+        /*
         async function doExport() {
             await ExportService.export({
                 format: UIStateService.state.exportFormat,
@@ -1021,6 +975,7 @@
                 active.classList.remove('border-white/10', 'text-gray-400');
             }
         }
+        */
 
         function switchMobileTab(tab) {
             const preview = document.querySelector('.preview-container');
