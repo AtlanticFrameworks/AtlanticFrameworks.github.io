@@ -687,7 +687,7 @@
                 client_id:     POSTER_CLIENT_ID,
                 redirect_uri:  POSTER_REDIRECT_URI,
                 response_type: 'code',
-                scope:         'openid profile',
+                scope:         'openid profile thumbnail:read',
             });
             window.location.href = `https://apis.roblox.com/oauth/v1/authorize?${params}`;
         }
@@ -708,15 +708,15 @@
             document.getElementById('roblox-user-id-alt').value = '';
         }
 
-        function getActiveUserId() {
+        function getActiveUserContext() {
             const loggedIn = !document.getElementById('roblox-loggedin-row').classList.contains('hidden');
             if (loggedIn) {
-                const altId = document.getElementById('roblox-user-id-alt').value.trim();
-                if (altId) return altId;
                 const stored = sessionStorage.getItem('poster_roblox_user');
-                if (stored) return JSON.parse(stored).userId;
+                const session = stored ? JSON.parse(stored) : {};
+                const altId = document.getElementById('roblox-user-id-alt').value.trim();
+                return { userId: altId || session.userId, token: altId ? null : (session.accessToken ?? null) };
             }
-            return document.getElementById('roblox-user-id').value.trim();
+            return { userId: document.getElementById('roblox-user-id').value.trim(), token: null };
         }
 
         async function handleOAuthCallback() {
@@ -738,9 +738,9 @@
                     body:    JSON.stringify({ code }),
                 });
                 if (!res.ok) throw new Error(`Server-Fehler (${res.status})`);
-                const { userId, username } = await res.json();
+                const { userId, username, accessToken } = await res.json();
 
-                sessionStorage.setItem('poster_roblox_user', JSON.stringify({ userId, username }));
+                sessionStorage.setItem('poster_roblox_user', JSON.stringify({ userId, username, accessToken }));
                 setLoggedInState(userId, username);
                 statusEl.textContent = `Angemeldet — Avatar wird geladen...`;
                 statusEl.style.color = '#E2B007';
@@ -783,7 +783,7 @@
         }
 
         async function fetchRobloxAvatar() {
-            const id = getActiveUserId();
+            const { userId: id, token } = getActiveUserContext();
             if (!id) return alert("Bitte User ID eingeben.");
 
             const btn       = document.querySelector('button[onclick="fetchRobloxAvatar()"]:not(.hidden)') ?? document.querySelector('button[onclick="fetchRobloxAvatar()"]');
@@ -807,7 +807,7 @@
 
                 // Main slot — 3D model (onStatus receives retry messages from getAvatarMetadata)
                 setStatus('Lade 3D-Modell...');
-                const success = await avatar3D.loadAvatar(id, setStatus);
+                const success = await avatar3D.loadAvatar(id, setStatus, token);
 
                 if (success) {
                     UIStateService.toggle3D(true);

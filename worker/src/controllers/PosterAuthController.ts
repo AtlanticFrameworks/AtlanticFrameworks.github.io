@@ -68,6 +68,7 @@ export class PosterAuthController {
       userId:      userInfo.sub,
       username:    userInfo.preferred_username ?? userInfo.nickname ?? userInfo.name,
       displayName: userInfo.name,
+      accessToken: tokens.access_token,
     }, 200, origin);
   }
 }

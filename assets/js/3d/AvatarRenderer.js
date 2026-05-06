@@ -101,7 +101,7 @@ class AvatarRenderer {
     }
 
     // ─── Main load pipeline ───────────────────────────────────────────────────
-    async loadAvatar(userId, onStatus = null) {
+    async loadAvatar(userId, onStatus = null, accessToken = null) {
         if (!this.isInitialized) return false;
         if (this.model) {
             this.scene.remove(this.model);
@@ -111,7 +111,7 @@ class AvatarRenderer {
         try {
             // Step 1 — Fetch metadata via bwrpauth worker (OAuth-authenticated).
             // Retries up to 4× with 2.5 s delay to handle "Pending" state.
-            const metaData = await AssetService.getAvatarMetadata(userId, onStatus);
+            const metaData = await AssetService.getAvatarMetadata(userId, onStatus, accessToken);
 
             if (metaData.state !== 'Completed') {
                 throw new Error(

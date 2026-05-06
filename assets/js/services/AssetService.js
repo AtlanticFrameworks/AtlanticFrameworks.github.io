@@ -9,10 +9,11 @@ const AssetService = {
 
     // Fetch 3D avatar metadata with retry for the "Pending" state.
     //
-    // Roblox generates 3D thumbnails asynchronously — the first response often
-    // has state:"Pending". We retry up to MAX_ATTEMPTS times with a short delay.
-    // Authentication is handled entirely by the bwrpauth worker via OAuth.
-    async getAvatarMetadata(userId, onStatus = null) {
+    // When a Roblox OAuth access token is provided (from the poster login flow,
+    // thumbnail:read scope), the request is made directly to thumbnails.roblox.com
+    // from the browser — bypassing the worker proxy entirely.
+    // Without a token, falls back to the bwrpauth worker (/api/roblox/thumbnail/3d).
+    async getAvatarMetadata(userId, onStatus = null, accessToken = null) {
         const MAX_ATTEMPTS = 4;
         const RETRY_DELAY  = 2500; // ms
 
@@ -25,7 +26,16 @@ const AssetService = {
             }
 
             try {
-                const resp = await fetch(`/api/roblox/thumbnail/3d?userId=${userId}`);
+                let resp;
+                if (accessToken) {
+                    resp = await fetch(
+                        `https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                    );
+                } else {
+                    resp = await fetch(`/api/roblox/thumbnail/3d?userId=${userId}`);
+                }
+
                 if (resp.ok) {
                     const data = await resp.json();
                     if (data.state === 'Completed' && data.imageUrl) return data;
@@ -36,7 +46,7 @@ const AssetService = {
                     console.warn('[AssetService] unexpected state:', data.state);
                     break;
                 } else {
-                    console.warn(`[AssetService] worker returned ${resp.status}`);
+                    console.warn(`[AssetService] thumbnail request returned ${resp.status}`);
                 }
             } catch (e) {
                 console.warn('[AssetService] fetch exception:', e.message);
