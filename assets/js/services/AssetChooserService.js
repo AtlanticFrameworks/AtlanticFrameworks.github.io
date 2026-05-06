@@ -82,52 +82,28 @@ const AssetChooserService = {
         if (type === 'x') state.x = parseInt(val);
         if (type === 'y') state.y = parseInt(val);
         
-        const transformStr = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
-        
-        // Update 2D Image
-        const img = document.getElementById('p-' + target);
-        if (img) img.style.transform = transformStr;
-
-        // Update 3D Canvas (If this is the main target)
-        const canvas3d = document.getElementById('avatar-3d-canvas');
-        if (target === 'main' && canvas3d) {
-            canvas3d.style.transform = transformStr;
-        }
-        
-        const label = document.getElementById(`val-${target}-${type}`);
-        if (label) {
-            label.textContent = type === 'scale' ? parseFloat(val).toFixed(2) + 'x' : val + 'px';
-        }
+        UIStateService.refreshTransforms();
         UIStateService.saveToStorage();
     },
 
     resetTransform(target) {
-        const defaults = {
-            main:     { scale: 1.93, x: -21, y: 153 },
-            'side-1': { scale: 1.39, x: 6, y: -2 },
-            'side-2': { scale: 1.55, x: 10, y: 60 },
-            'side-3': { scale: 1.74, x: -2, y: 72 },
-            logo:     { scale: 1.0, x: 0, y: 0 }
-        };
-        const d = defaults[target];
-        if (!d) return;
+        const state = UIStateService.state.imgStates[target];
+        if (!state) return;
 
-        this.updateImgTransform(target, 'scale', d.scale);
-        this.updateImgTransform(target, 'x', d.x);
-        this.updateImgTransform(target, 'y', d.y);
+        state.scale = 1;
+        state.x = 0;
+        state.y = 0;
 
-        // Sync Sliders
-        ['scale', 'x', 'y'].forEach(type => {
-            const slider = document.querySelector(`input[oninput*="updateImgTransform('${target}', '${type}'"]`);
-            if (slider) slider.value = d[type];
-        });
+        UIStateService.refreshTransforms();
+        UIStateService.saveToStorage();
     },
 
     adjustImg(target, type, delta) {
         const state = UIStateService.state.imgStates[target];
         if (type === 'scale') {
             state.scale = Math.max(0.1, state.scale + delta);
-            this.updateImgTransform(target, 'scale', state.scale);
+            UIStateService.refreshTransforms();
+            UIStateService.saveToStorage();
         }
     },
 

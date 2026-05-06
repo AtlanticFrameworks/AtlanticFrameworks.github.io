@@ -2,16 +2,25 @@
  * UIStateService - Handles the state of the poster editor UI
  */
 const UIStateService = {
+    GoldStandards: { 
+        main: { scale: 1.93, x: -21, y: 153 }, 
+        'side-1': { scale: 1.39, x: 6, y: -2 }, 
+        'side-2': { scale: 1.55, x: 10, y: 60 }, 
+        'side-3': { scale: 1.74, x: -2, y: 72 }, 
+        logo: { scale: 1, x: 0, y: 0 } 
+    },
+
     state: {
         currentZoom: 0.65,
         sidebarOpen: true,
         exportFormat: 'png',
         exportQuality: 1,
+        // UI uses normalized values: scale 1.0 = standard, x/y 0 = standard
         imgStates: { 
-            main: { scale: 1.93, x: -21, y: 153 }, 
-            'side-1': { scale: 1.39, x: 6, y: -2 }, 
-            'side-2': { scale: 1.55, x: 10, y: 60 }, 
-            'side-3': { scale: 1.74, x: -2, y: 72 }, 
+            main: { scale: 1, x: 0, y: 0 }, 
+            'side-1': { scale: 1, x: 0, y: 0 }, 
+            'side-2': { scale: 1, x: 0, y: 0 }, 
+            'side-3': { scale: 1, x: 0, y: 0 }, 
             logo: { scale: 1, x: 0, y: 0 } 
         }
     },
@@ -21,8 +30,10 @@ const UIStateService = {
         if (window.innerWidth < 768) {
             this.state.currentZoom = (window.innerWidth - 40) / 800;
             this.adjustZoom(0);
-            this.toggleSidebar(false);
         }
+        
+        // Ensure UI reflects the state on first load
+        this.refreshTransforms();
     },
 
     toggle3D(show) {
@@ -216,15 +227,34 @@ const UIStateService = {
     refreshTransforms() {
         for (const target in this.state.imgStates) {
             const img = document.getElementById('p-' + target);
-            if (img) {
-                const s = this.state.imgStates[target];
-                img.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.scale})`;
+            const constant = this.GoldStandards[target];
+            const normalized = this.state.imgStates[target];
+
+            if (img && constant) {
+                // Calculation: Multiplicative for Scale, Additive for X/Y
+                const actualScale = constant.scale * normalized.scale;
+                const actualX = constant.x + normalized.x;
+                const actualY = constant.y + normalized.y;
+
+                const transformStr = `translate(${actualX}px, ${actualY}px) scale(${actualScale})`;
+                img.style.transform = transformStr;
+
+                // Also update 3D canvas if main
+                const canvas3d = document.getElementById('avatar-3d-canvas');
+                if (target === 'main' && canvas3d) {
+                    canvas3d.style.transform = transformStr;
+                }
             }
+
+            // Sync Sliders & Labels with Normalized values
             ['scale', 'x', 'y'].forEach(type => {
                 const slider = document.querySelector(`input[oninput*="updateImgTransform('${target}', '${type}'"]`);
-                if (slider) slider.value = this.state.imgStates[target][type];
+                if (slider) slider.value = normalized[type];
+                
                 const label = document.getElementById(`val-${target}-${type}`);
-                if (label) label.textContent = type === 'scale' ? parseFloat(this.state.imgStates[target][type]).toFixed(2) + 'x' : this.state.imgStates[target][type] + 'px';
+                if (label) {
+                    label.textContent = type === 'scale' ? normalized[type].toFixed(2) + 'x' : normalized[type] + 'px';
+                }
             });
         }
     }
