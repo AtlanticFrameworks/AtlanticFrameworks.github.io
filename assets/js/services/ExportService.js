@@ -1,43 +1,33 @@
 /**
  * ExportService – Handles high-resolution poster export.
- *
- * Strategy: temporarily remove the poster-scaler CSS transform so html2canvas
- * sees the poster at its true 800×1200px layout size (avoiding the 0.65 scale
- * that would otherwise shrink the captured area). We use html2canvas's native
- * onclone callback — rather than a DIY off-screen clone — so that position
- * calculations for all child elements are correct. Two fixups are applied in
- * onclone: (1) replace the WebGL canvas with a static snapshot, and (2)
- * pre-render each loaded image onto a <canvas> with proper object-fit:contain
- * math, since html2canvas 1.4.1 does not implement that CSS property.
  */
 const ExportService = {
 
     async export(options) {
         const {
-            format    = 'png',
-            quality   = 2,
-            btnId     = 'btn-do-export',
+            format = 'png',
+            quality = 2,
+            btnId = 'btn-do-export',
             onStart,
             onComplete,
         } = options;
 
-        const btn      = document.getElementById(btnId);
+        const btn = document.getElementById(btnId);
         const posterEl = document.getElementById('poster-canvas');
-        const scaler   = document.getElementById('poster-scaler');
+        const scaler = document.getElementById('poster-scaler');
         if (!posterEl) return;
 
         if (onStart) onStart();
         if (btn) { btn.disabled = true; btn.textContent = 'EXPORTING...'; }
 
         // Save and remove the scaler transform so html2canvas sees posterEl at
-        // its real layout dimensions (800×1200), not the 0.65-scaled visual size.
+        // its real layout dimensions (800x1200), not the 0.65-scaled visual size.
         const origTransform = scaler ? scaler.style.transform : null;
         if (scaler) scaler.style.transform = 'none';
 
         try {
             // ── 1. Read live dimensions ───────────────────────────────────────────
-            // offsetWidth/offsetHeight are unaffected by CSS transforms on parents.
-            const exportWidth  = posterEl.offsetWidth;
+            const exportWidth = posterEl.offsetWidth;
             const exportHeight = posterEl.offsetHeight;
 
             // ── 2. Snapshot the WebGL canvas NOW (before any DOM changes) ─────────
@@ -45,7 +35,6 @@ const ExportService = {
             const webglCanvas = document.querySelector('#avatar-3d-canvas canvas');
             const container3D = document.getElementById('avatar-3d-canvas');
             if (webglCanvas && container3D && container3D.style.display !== 'none') {
-                // preserveDrawingBuffer:true in AvatarRenderer ensures this works
                 snapshot3D = webglCanvas.toDataURL('image/png');
             }
 
@@ -55,69 +44,62 @@ const ExportService = {
 
             // ── 4. Capture ────────────────────────────────────────────────────────
             const captured = await html2canvas(posterEl, {
-                scale:           quality,
-                useCORS:         true,
-                allowTaint:      false,
+                scale: quality,
+                useCORS: true,
+                allowTaint: false,
                 backgroundColor: null,
-                logging:         false,
-                width:           exportWidth,
-                height:          exportHeight,
-                scrollX:         0,
-                scrollY:         0,
+                logging: false,
+                width: exportWidth,
+                height: exportHeight,
+                scrollX: 0,
+                scrollY: 0,
 
                 onclone(clonedDoc, clonedEl) {
-                    // ── (a) Replace WebGL canvas with the static snapshot ─────────
+                    // ── (a) Replace WebGL canvas with background-image div ─────────
+                    // Avoids <img> object-fit bugs in html2canvas.
                     const clone3D = clonedEl.querySelector('#avatar-3d-canvas');
                     if (clone3D) {
                         clone3D.innerHTML = '';
                         if (snapshot3D) {
                             clone3D.style.display = 'block';
-                            const img3D = clonedDoc.createElement('img');
-                            img3D.src = snapshot3D;
-                            img3D.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
-                            clone3D.appendChild(img3D);
+                            const div3D = clonedDoc.createElement('div');
+                            div3D.style.cssText = `width:100%;height:100%;background-image:url("${snapshot3D}");background-size:100% 100%;background-position:center;background-repeat:no-repeat;display:block;`;
+                            clone3D.appendChild(div3D);
                         } else {
                             clone3D.style.display = 'none';
                         }
                     }
 
-                    // ── (b) Fix object-fit:contain for images ─────────────────────
-                    // html2canvas 1.4.1 ignores object-fit and stretches images to
-                    // fill their element box. We pre-draw each loaded image onto a
-                    // <canvas> using the correct contain-fit math so html2canvas
-                    // captures already-correct pixels without needing object-fit.
+                    // ── (b) Fix object-fit & transform bugs for side images ─────────
+                    // Instead of a manual <canvas> that clashes with CSS transforms, 
+                    // we replace the images with styled <div> elements.
                     const liveImages = posterEl.querySelectorAll('img.img-editable, img.character-img');
                     liveImages.forEach(liveImg => {
-                        if (!liveImg.complete || !liveImg.naturalWidth) return;
+                        if (!liveImg.complete || !liveImg.src) return;
 
                         const cloneImg = clonedEl.querySelector('#' + liveImg.id);
                         if (!cloneImg) return;
 
-                        const wrapper = liveImg.closest('.side-image-wrapper, .bottom-logo-wrapper, .character-container');
-                        if (!wrapper) return;
+                        // Check if original image was using cover or contain
+                        const computedStyle = window.getComputedStyle(liveImg);
+                        const isCover = computedStyle.objectFit === 'cover' || computedStyle.objectFit === 'none';
 
-                        const cW = wrapper.offsetWidth;
-                        const cH = wrapper.offsetHeight;
+                        const div = clonedDoc.createElement('div');
+                        div.id = liveImg.id;
+                        div.className = liveImg.className;
 
-                        // Compute contain-fit scale and centering offsets
-                        const s    = Math.min(cW / liveImg.naturalWidth, cH / liveImg.naturalHeight);
-                        const rW   = liveImg.naturalWidth  * s;
-                        const rH   = liveImg.naturalHeight * s;
-                        const xOff = (cW - rW) / 2;
-                        const yOff = (cH - rH) / 2;
+                        // Copy all inline styles (this correctly transfers pan/zoom transforms!)
+                        div.style.cssText = liveImg.style.cssText;
+                        div.style.width = computedStyle.width !== 'auto' ? computedStyle.width : '100%';
+                        div.style.height = computedStyle.height !== 'auto' ? computedStyle.height : '100%';
 
-                        // Draw image at correct size onto a canvas in the cloned document
-                        const cvs = clonedDoc.createElement('canvas');
-                        cvs.width  = cW;
-                        cvs.height = cH;
-                        cvs.getContext('2d').drawImage(liveImg, xOff, yOff, rW, rH);
+                        // Delegate cropping logic entirely to background-image
+                        div.style.backgroundImage = `url("${liveImg.src}")`;
+                        div.style.backgroundSize = isCover ? 'cover' : 'contain';
+                        div.style.backgroundPosition = computedStyle.objectPosition || 'center';
+                        div.style.backgroundRepeat = 'no-repeat';
 
-                        // Copy styles and carry over any user transform (scale/translate from sliders)
-                        cvs.className = liveImg.className;
-                        cvs.style.cssText = `display:block;width:${cW}px;height:${cH}px;`;
-                        if (liveImg.style.transform) cvs.style.transform = liveImg.style.transform;
-
-                        cloneImg.replaceWith(cvs);
+                        cloneImg.replaceWith(div);
                     });
 
                     // Strip contenteditable from every element in the clone
@@ -130,7 +112,7 @@ const ExportService = {
             // ── 5. Download ───────────────────────────────────────────────────────
             const link = document.createElement('a');
             link.download = `BWRP_Poster_${Date.now()}.${format}`;
-            link.href     = captured.toDataURL(`image/${format}`, 1.0);
+            link.href = captured.toDataURL(`image/${format}`, 1.0);
             link.click();
 
         } catch (err) {
