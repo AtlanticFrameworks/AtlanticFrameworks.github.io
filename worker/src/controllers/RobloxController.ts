@@ -84,6 +84,8 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
 
 // POST /v1/usernames/users — no CSRF required (designed as server-to-server).
 // Minimal headers only: spoofed browser UA on POST endpoints triggers Roblox WAF.
+// Falls back to GET /v1/users?username= if the POST endpoint returns an error
+// (Roblox occasionally rate-limits or 403s Workers on the POST endpoint).
 async function resolveUsername(_env: Env, username: string): Promise<UsernameResult> {
   try {
     const res = await fetch(`${ROBLOX_USERS_API}/usernames/users`, {
@@ -106,12 +108,33 @@ async function resolveUsername(_env: Env, username: string): Promise<UsernameRes
       return { type: 'notFound' };
     }
 
-    const body = await res.text().catch(() => '');
-    console.error(`[Roblox] username POST ${res.status}: ${body.slice(0, 200)}`);
-    return { type: 'apiError', status: res.status, message: body.slice(0, 200) || `Roblox ${res.status}`, debugUrl: 'v1/usernames/users' };
+    // POST failed — fall back to the GET search endpoint
+    console.warn(`[Roblox] username POST ${res.status}, falling back to GET search`);
   } catch (e) {
-    console.error('[Roblox] username lookup threw:', (e as Error).message);
-    return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: 'v1/usernames/users' };
+    console.warn('[Roblox] username POST threw, falling back to GET search:', (e as Error).message);
+  }
+
+  // Fallback: GET /v1/users/search?keyword= (no CSRF, no WAF issues)
+  try {
+    const searchRes = await fetch(
+      `${ROBLOX_USERS_API}/users/search?keyword=${encodeURIComponent(username)}&limit=10`,
+      { headers: { 'Accept': 'application/json' } },
+    );
+    if (searchRes.ok) {
+      const data = await searchRes.json() as { data: Array<{ id: number; name: string }> };
+      const exact = data.data?.find(u => u.name.toLowerCase() === username.toLowerCase());
+      if (exact) {
+        console.log(`[Roblox] Resolved "${username}" via search fallback → ${exact.id}`);
+        return { type: 'found', userId: String(exact.id) };
+      }
+      return { type: 'notFound' };
+    }
+    const body = await searchRes.text().catch(() => '');
+    console.error(`[Roblox] username search fallback ${searchRes.status}: ${body.slice(0, 200)}`);
+    return { type: 'apiError', status: searchRes.status, message: body.slice(0, 200) || `Roblox ${searchRes.status}`, debugUrl: 'v1/users/search' };
+  } catch (e) {
+    console.error('[Roblox] username search fallback threw:', (e as Error).message);
+    return { type: 'apiError', status: 500, message: (e as Error).message, debugUrl: 'v1/users/search' };
   }
 }
 

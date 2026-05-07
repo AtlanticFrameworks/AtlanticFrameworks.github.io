@@ -34,7 +34,12 @@ export class AuthController {
         user: { id: user.id, username: user.username, role: user.role, avatarUrl: user.avatar_url },
       }), { status: 200, headers: loginHeaders });
     } catch (e) {
-      return err((e as Error).message, 500, env.ALLOWED_ORIGIN ?? 'https://bwrp.net');
+      const message = (e as Error).message;
+      // IP lock rejection is a client-caused 403, not a server error
+      if (message === 'Login von einer anderen IP-Adresse abgelehnt.') {
+        return err(message, 403, env.ALLOWED_ORIGIN ?? 'https://bwrp.net');
+      }
+      return err(message, 500, env.ALLOWED_ORIGIN ?? 'https://bwrp.net');
     }
   }
 
