@@ -3,6 +3,23 @@ import type { Env } from '../types/index.js';
 const CLOUD_BASE = 'https://apis.roblox.com';
 
 /**
+ * Convert an ISO 8601 duration string (e.g. "P7D", "PT2H30M") to the
+ * protobuf Duration format that Roblox Cloud v2 expects: "{seconds}s".
+ * Returns null if the string cannot be parsed.
+ */
+function iso8601ToProtoSeconds(iso: string): string | null {
+  const m = iso.match(
+    /^P(?:(\d+(?:\.\d+)?)Y)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)W)?(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/,
+  );
+  if (!m) return null;
+  const [, y=0, mo=0, w=0, d=0, h=0, min=0, s=0] = m.map(v => parseFloat(v ?? '0') || 0);
+  const total = Math.round(
+    s + min * 60 + h * 3600 + d * 86400 + w * 604800 + mo * 2592000 + y * 31536000,
+  );
+  return total > 0 ? `${total}s` : null;
+}
+
+/**
  * RobloxCloudService – Handles communication with Roblox Open Cloud APIs
  * Docs: https://create.roblox.com/docs/open-cloud
  */
@@ -75,13 +92,13 @@ export class RobloxCloudService {
       excludeAltAccounts: false,
       inherited: true,
     };
-    if (duration) gameJoinRestriction.duration = duration;
+    if (duration) {
+      // Roblox Cloud v2 expects protobuf Duration format ("86400s"), not ISO 8601 ("P1D").
+      const proto = iso8601ToProtoSeconds(duration);
+      if (proto) gameJoinRestriction.duration = proto;
+    }
 
-    // Roblox Cloud v2 PATCH requires updateMask to know which fields to write.
-    // Without it the API ignores `duration` and defaults to a permanent ban.
-    const urlWithMask = `${url}?updateMask=gameJoinRestriction`;
-
-    const res = await fetch(urlWithMask, {
+    const res = await fetch(url, {
       method: 'PATCH',
       headers: {
         'x-api-key': this.apiKey,
@@ -103,7 +120,7 @@ export class RobloxCloudService {
     this.requireKey();
 
     const url = `${CLOUD_BASE}/cloud/v2/universes/${this.universeId}/user-restrictions/${userId}`;
-    const res = await fetch(`${url}?updateMask=gameJoinRestriction`, {
+    const res = await fetch(url, {
       method: 'PATCH',
       headers: {
         'x-api-key': this.apiKey,
