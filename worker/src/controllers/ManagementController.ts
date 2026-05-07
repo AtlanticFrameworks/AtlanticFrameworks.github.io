@@ -147,8 +147,13 @@ export class ManagementController {
     const targetId = parseInt(params.id);
     if (isNaN(targetId) || targetId <= 0) return err('Ungültige User-ID', 400, origin);
 
-    const existing = await env.DATABASE.prepare('SELECT id, username, ip FROM users WHERE id = ?').bind(targetId).first<{ id: number; username: string; ip: string }>();
+    const existing = await env.DATABASE.prepare('SELECT id, username, role, ip FROM users WHERE id = ?').bind(targetId).first<{ id: number; username: string; role: string; ip: string }>();
     if (!existing) return err('User nicht gefunden', 404, origin);
+
+    // Cannot reset IP lock for users of equal or higher rank (unless OWNER)
+    if (user.role !== 'OWNER' && ROLE_RANK[existing.role as keyof typeof ROLE_RANK] >= ROLE_RANK[user.role]) {
+      return err('Du kannst die IP-Sperre dieses Nutzers nicht zurücksetzen, da sein Rang zu hoch ist.', 403, origin);
+    }
 
     if (!existing.ip) return err('IP-Sperre ist bereits zurückgesetzt', 400, origin);
 

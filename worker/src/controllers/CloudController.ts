@@ -78,8 +78,8 @@ export class CloudController {
         issuedAt: new Date().toISOString(),
       });
 
-      await auditLog(env.DATABASE, Number(user.sub), 'CLOUD_BAN', 'users', String(targetRobloxId), { targetUsername, reason, durationDays }, getIP(request));
-      new DiscordService(env).sendCloudBan({ issuedBy: user.username, targetUsername: targetUsername ?? String(targetRobloxId), targetId: targetRobloxId, reason, displayReason: displayReason || reason, durationDays: durationDays ?? null }).catch(e => console.error('[Discord] ban webhook:', (e as Error).message));
+      await auditLog(env.DATABASE, Number(user.sub), 'CLOUD_BAN', 'users', String(targetRobloxId), { targetUsername, reason, durationIso }, getIP(request));
+      new DiscordService(env).sendCloudBan({ issuedBy: user.username, targetUsername: targetUsername ?? String(targetRobloxId), targetId: targetRobloxId, reason, displayReason: displayReason || reason, durationDays: durationIso ?? null }).catch(e => console.error('[Discord] ban webhook:', (e as Error).message));
 
       return json({ success: true, message: `${targetUsername ?? targetRobloxId} wurde gesperrt.` }, 200, origin);
     } catch (e) {

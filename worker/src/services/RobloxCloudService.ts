@@ -68,24 +68,26 @@ export class RobloxCloudService {
     const { userId, reason, displayReason, duration } = params;
     const url = `${CLOUD_BASE}/cloud/v2/universes/${this.universeId}/user-restrictions/${userId}`;
 
-    const body: Record<string, unknown> = {
-      gameJoinRestriction: {
-        active: true,
-        privateReason: reason,
-        displayReason: displayReason,
-        excludeAltAccounts: false,
-        inherited: true,
-      },
+    const gameJoinRestriction: Record<string, unknown> = {
+      active: true,
+      privateReason: reason,
+      displayReason: displayReason,
+      excludeAltAccounts: false,
+      inherited: true,
     };
-    if (duration) (body.gameJoinRestriction as any).duration = duration;
+    if (duration) gameJoinRestriction.duration = duration;
 
-    const res = await fetch(url, {
+    // Roblox Cloud v2 PATCH requires updateMask to know which fields to write.
+    // Without it the API ignores `duration` and defaults to a permanent ban.
+    const urlWithMask = `${url}?updateMask=gameJoinRestriction`;
+
+    const res = await fetch(urlWithMask, {
       method: 'PATCH',
       headers: {
         'x-api-key': this.apiKey,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ gameJoinRestriction }),
     });
 
     if (!res.ok) {
@@ -101,7 +103,7 @@ export class RobloxCloudService {
     this.requireKey();
 
     const url = `${CLOUD_BASE}/cloud/v2/universes/${this.universeId}/user-restrictions/${userId}`;
-    const res = await fetch(url, {
+    const res = await fetch(`${url}?updateMask=gameJoinRestriction`, {
       method: 'PATCH',
       headers: {
         'x-api-key': this.apiKey,

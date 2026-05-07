@@ -168,8 +168,13 @@ export class RolesController {
     const roleId = parseInt(body.roleId);
     if (isNaN(roleId) || roleId <= 0) return err('Ungültige Rollen-ID', 400, o);
 
-    const targetUser = await env.DATABASE.prepare('SELECT id, username FROM users WHERE id = ?').bind(userId).first<{ id: number; username: string }>();
+    const targetUser = await env.DATABASE.prepare('SELECT id, username, role FROM users WHERE id = ?').bind(userId).first<{ id: number; username: string; role: string }>();
     if (!targetUser) return err('User nicht gefunden', 404, o);
+
+    // Cannot assign roles to users of equal or higher rank (unless OWNER)
+    if (user.role !== 'OWNER' && ROLE_RANK[targetUser.role as keyof typeof ROLE_RANK] >= ROLE_RANK[user.role]) {
+      return err('Du kannst diesem Nutzer keine Rollen zuweisen, da sein Rang zu hoch ist.', 403, o);
+    }
 
     const role = await env.DATABASE.prepare('SELECT id, name FROM roles WHERE id = ?').bind(roleId).first<{ id: number; name: string }>();
     if (!role) return err('Rolle nicht gefunden', 404, o);
@@ -192,6 +197,14 @@ export class RolesController {
     const userId = parseInt(params.userId);
     const roleId = parseInt(params.roleId);
     if (isNaN(userId) || isNaN(roleId)) return err('Ungültige ID', 400, o);
+
+    // Cannot remove roles from users of equal or higher rank (unless OWNER)
+    if (user.role !== 'OWNER') {
+      const targetUser = await env.DATABASE.prepare('SELECT role FROM users WHERE id = ?').bind(userId).first<{ role: string }>();
+      if (targetUser && ROLE_RANK[targetUser.role as keyof typeof ROLE_RANK] >= ROLE_RANK[user.role]) {
+        return err('Du kannst diesem Nutzer keine Rollen entziehen, da sein Rang zu hoch ist.', 403, o);
+      }
+    }
 
     await env.DATABASE.prepare(
       'DELETE FROM user_roles WHERE user_id = ? AND role_id = ?'

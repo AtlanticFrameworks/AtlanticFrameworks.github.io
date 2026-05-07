@@ -34,6 +34,15 @@ export class DiscordService {
     });
   }
 
+  private async sendGame(payload: object): Promise<void> {
+    if (!this.env.GAME_DISCORD_WEBHOOK) return;
+    await fetch(this.env.GAME_DISCORD_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  }
+
   // ── Case Embed ────────────────────────────────────────────────────────────
 
   async sendCaseEmbed(c: CaseRow, moderatorName: string): Promise<void> {
@@ -84,7 +93,7 @@ export class DiscordService {
   async sendCloudKick(opts: {
     issuedBy: string; targetUsername: string; targetId: string | number; reason: string;
   }): Promise<void> {
-    await this.send({ embeds: [{
+    await this.sendGame({ embeds: [{
       title:  '🦵  Player Kicked (Open Cloud)',
       color:  0xF59E0B,
       fields: [
@@ -100,10 +109,10 @@ export class DiscordService {
 
   async sendCloudBan(opts: {
     issuedBy: string; targetUsername: string; targetId: string | number;
-    reason: string; displayReason: string; durationDays: number | null;
+    reason: string; displayReason: string; durationDays: string | null;
   }): Promise<void> {
-    const duration = opts.durationDays ? `${opts.durationDays} Tag(e)` : '**Permanent**';
-    await this.send({ embeds: [{
+    const duration = opts.durationDays ? `\`${opts.durationDays}\`` : '**Permanent**';
+    await this.sendGame({ embeds: [{
       title:  '🔨  Player Banned (Open Cloud)',
       color:  0xEF4444,
       fields: [
@@ -122,7 +131,7 @@ export class DiscordService {
   async sendCloudUnban(opts: {
     issuedBy: string; targetUsername: string; targetId: string | number;
   }): Promise<void> {
-    await this.send({ embeds: [{
+    await this.sendGame({ embeds: [{
       title:  '✅  Player Unbanned (Open Cloud)',
       color:  0x10B981,
       fields: [
@@ -185,7 +194,7 @@ export class DiscordService {
 
   // ── Monitoring Alert (Role Ping) ──────────────────────────────────────────
   async sendMonitoringAlert(title: string, message: string, color = 0xF59E0B): Promise<void> {
-    await this.send({
+    await this.sendGame({
       content: '<@&1421218443822108832>',
       embeds: [{
         title:       `🖥️ MONITORING: ${title}`,
