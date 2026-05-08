@@ -193,19 +193,27 @@ function renderAssignDropdown(selectedUsername) {
                        <span class="text-zinc-600">Nicht zugewiesen</span>`}
                 <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-600 ml-auto flex-shrink-0"></i>
             </button>
-            <div id="assign-dd-menu" class="hidden absolute top-full left-0 right-0 z-50 bg-tac-panel border border-tac-border shadow-xl mt-0.5 max-h-48 overflow-y-auto">
-                <div class="p-1.5 border-b border-tac-border">
-                    <input type="text" id="assign-dd-search" placeholder="Suchen..."
-                        oninput="filterAssignDropdown(this.value)"
-                        class="w-full bg-tac-dark border border-tac-border px-2 py-1.5 font-mono text-[10px] text-white placeholder-zinc-600 outline-none focus:border-tac-amber transition-colors">
-                </div>
-                <div id="assign-dd-list">
-                    ${buildAssignOptions(current, '')}
-                </div>
-            </div>
         </div>`;
 
-    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [wrapper] });
+    // Create or update menu in body to avoid clipping by modal clip-path
+    let menu = document.getElementById('assign-dd-menu');
+    if (!menu) {
+        menu = document.createElement('div');
+        menu.id = 'assign-dd-menu';
+        menu.className = 'hidden fixed z-[10000] bg-tac-panel border border-tac-border shadow-xl mt-0.5 max-h-48 overflow-y-auto';
+        document.body.appendChild(menu);
+    }
+    menu.innerHTML = `
+        <div class="p-1.5 border-b border-tac-border">
+            <input type="text" id="assign-dd-search" placeholder="Suchen..."
+                oninput="filterAssignDropdown(this.value)"
+                class="w-full bg-tac-dark border border-tac-border px-2 py-1.5 font-mono text-[10px] text-white placeholder-zinc-600 outline-none focus:border-tac-amber transition-colors">
+        </div>
+        <div id="assign-dd-list">
+            ${buildAssignOptions(current, '')}
+        </div>`;
+
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [wrapper, menu] });
 
     // Close on outside click
     setTimeout(() => {
@@ -236,10 +244,20 @@ function buildAssignOptions(selectedUsername, filter) {
 
 function toggleAssignDropdown() {
     const menu = document.getElementById('assign-dd-menu');
-    if (!menu) return;
-    menu.classList.toggle('hidden');
-    if (!menu.classList.contains('hidden')) {
+    const btn = document.getElementById('assign-dd-btn');
+    if (!menu || !btn) return;
+    
+    const isHidden = menu.classList.contains('hidden');
+    
+    if (isHidden) {
+        const rect = btn.getBoundingClientRect();
+        menu.style.top = `${rect.bottom}px`;
+        menu.style.left = `${rect.left}px`;
+        menu.style.width = `${rect.width}px`;
+        menu.classList.remove('hidden');
         setTimeout(() => document.getElementById('assign-dd-search')?.focus(), 50);
+    } else {
+        menu.classList.add('hidden');
     }
 }
 
@@ -260,9 +278,9 @@ function selectAssignUser(username) {
 
 function closeAssignDropdownOnOutside(e) {
     const root = document.getElementById('assign-dd-root');
-    if (root && !root.contains(e.target)) {
-        const menu = document.getElementById('assign-dd-menu');
-        if (menu) menu.classList.add('hidden');
+    const menu = document.getElementById('assign-dd-menu');
+    if (root && !root.contains(e.target) && menu && !menu.contains(e.target)) {
+        menu.classList.add('hidden');
     }
 }
 
