@@ -8,6 +8,11 @@ binding       = "DATABASE"
 database_name = "bwrp-staff"
 database_id   = "37a5af46-793a-40e1-a497-d338e92bdd5e"
 
+[[d1_databases]]
+binding       = "DEV_DATABASE"
+database_name = "bwrp_dev_db"
+database_id   = "11914c7a-0149-45f0-8655-803d330396ed"
+
 # Worker Route: handles /api/* on bwrp.net → enables HttpOnly cookies on same domain
 # Set this up in: Cloudflare Dashboard → Workers & Pages → bwrpauth → Settings → Triggers → Add Route
 # Pattern: bwrp.net/api/*  |  Zone: bwrp.net
