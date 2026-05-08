@@ -10,7 +10,8 @@ const ALLOWED_ROLES = [
     "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
     "Head Game Moderator", "Game Moderator"
 ];
-const REDIRECT_URI = window.location.origin + window.location.pathname;
+// Allow pages to override the redirect URI before loading this script (e.g. /dev → must use /team).
+const REDIRECT_URI = window.BWRP_OAUTH_REDIRECT ?? (window.location.origin + window.location.pathname);
 
 // ─── Toast System ───────────────────────────────────────────────────────────
 function dismissToast(id) {

@@ -298,7 +298,7 @@
                     Mit Roblox anmelden
                 </button>
                 <p class="text-center font-mono text-[10px] text-tac-muted mt-2">
-                    Rang-Anforderung: <span class="text-tac-amber">Game Mod+</span>
+                    Rang-Anforderung: <span class="text-tac-amber">Developer+</span>
                 </p>
             </div>
 
@@ -787,16 +787,13 @@ MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
     <!-- ================================================
          SCRIPTS
     ================================================= -->
+    <!-- Set OAuth redirect before auth.js reads it -->
+    <script>window.BWRP_OAUTH_REDIRECT = window.location.origin + '/team';</script>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/dev.js"></script>
 
     <script>
-        // ── Auth Config ───────────────────────────────────────────────────────────
-        // Always redirect to /team — the only URI registered in the Roblox OAuth app.
-        // After landing on /team with ?code=, auth.js checks bwrp_oauth_return and
-        // forwards the code back to /dev automatically.
-        const REDIRECT_URI = window.location.origin + '/team';
 
         const ALLOWED_ROLES = [
             'Group Owner', 'Ownership Team', 'Projektleitung', 'Developer'
