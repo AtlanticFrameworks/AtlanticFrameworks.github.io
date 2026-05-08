@@ -173,6 +173,7 @@ export function renderDocs(_env: Env): Response {
         <a href="#notes"      class="nav-link"><i data-lucide="file-text"   class="w-3.5 h-3.5 shrink-0"></i>Staff Notes<span class="nav-count">4</span></a>
         <a href="#maintenance" class="nav-link"><i data-lucide="hammer"     class="w-3.5 h-3.5 shrink-0"></i>Maintenance<span class="nav-count">2</span></a>
         <a href="#discord"    class="nav-link"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0"></i>Discord<span class="nav-count">2</span></a>
+        <a href="#dev"         class="nav-link"><i data-lucide="terminal"   class="w-3.5 h-3.5 shrink-0"></i>Dev Portal<span class="nav-count">8</span></a>
         <a href="#db"         class="nav-link"><i data-lucide="database"   class="w-3.5 h-3.5 shrink-0"></i>Database<span class="nav-count">13</span></a>
     </nav>
 
@@ -1962,6 +1963,155 @@ export function renderDocs(_env: Env): Response {
                     <div class="ep-body px-6 py-5 bg-black/20">
                         <div class="try-panel">
                             <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/discord/test" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ DEV PORTAL ════════════════════════════════════════════ -->
+        <section id="dev" class="mb-12 scroll-mt-20">
+            <div class="section-divider">
+                <i data-lucide="terminal" class="w-4 h-4 text-tac-amber shrink-0"></i>
+                <h3>Dev Portal</h3>
+                <div class="line"></div>
+            </div>
+            <div class="space-y-2">
+                <!-- GET /dev/tasks -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/tasks</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List all development tasks</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/dev/tasks" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POST /dev/tasks -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/tasks</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Create a new development task</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/dev/tasks" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "title": "New Task", "description": "...", "status": "TODO", "priority": "MEDIUM" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PATCH /dev/tasks/:id -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-patch px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">PATCH</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/tasks/<span class="text-tac-amber">:id</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Update a development task</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="Task ID..." /><button class="try-run" data-path="/dev/tasks/{v}" data-method="PATCH" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "status": "DONE" }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELETE /dev/tasks/:id -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-delete px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">DELETE</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/tasks/<span class="text-tac-amber">:id</span></code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Delete a development task</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><input class="try-input" placeholder="Task ID..." /><button class="try-run" data-path="/dev/tasks/{v}" data-method="DELETE" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GET /dev/logs -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/logs</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List development logs</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/dev/logs" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POST /dev/logs -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/logs</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Create a new development log entry</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/dev/logs" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4"><textarea class="try-body-area" placeholder='{ "message": "Log message..." }'></textarea></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GET /dev/users -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-get px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">GET</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/users</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">List registered dev portal users</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/dev/users" data-method="GET" onclick="tryIt(this)">Run</button></div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POST /dev/users/sync -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/dev/users/sync</code>
+                        <span class="font-mono text-[10px] text-zinc-500 flex-1 min-w-0 truncate">Sync current user to dev portal registry</span>
+                        <span class="auth-user px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">Any Auth</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20">
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><button class="try-run" data-path="/dev/users/sync" data-method="POST" onclick="tryIt(this)">Run</button></div>
                             <div class="try-output"><pre></pre></div>
                         </div>
                     </div>
