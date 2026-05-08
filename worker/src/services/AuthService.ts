@@ -66,11 +66,11 @@ export class AuthService {
     } catch { return null; }
   }
 
-  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, ip: string): Promise<UserRow> {
+  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, ip: string, isDev: boolean = false): Promise<UserRow> {
     const existing = await this.env.DATABASE.prepare('SELECT id, ip FROM users WHERE roblox_id = ?').bind(robloxId).first<{ id: number; ip: string | null }>();
 
     if (existing) {
-      if (existing.ip && existing.ip !== ip) {
+      if (!isDev && existing.ip && existing.ip !== ip) {
         throw new Error('Login von einer anderen IP-Adresse abgelehnt.');
       }
       const lockedIp = existing.ip ? existing.ip : ip;

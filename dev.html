@@ -807,8 +807,10 @@ MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
     <!-- ================================================
          SCRIPTS
     ================================================= -->
-    <!-- Set OAuth redirect before auth.js reads it -->
-    <script>window.BWRP_OAUTH_REDIRECT = window.location.origin + '/team';</script>
+    <script>
+        window.BWRP_OAUTH_REDIRECT = window.location.origin + '/team';
+        window.BWRP_IS_DEV = true;
+    </script>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/dev.js"></script>

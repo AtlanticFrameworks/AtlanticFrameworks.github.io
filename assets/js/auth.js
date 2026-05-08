@@ -201,7 +201,7 @@ async function checkOAuthCallback() {
     showStatus('TOKEN WIRD AUSGETAUSCHT...', 'loading');
 
     try {
-        const { ok, data } = await window.api.login(code, REDIRECT_URI);
+        const { ok, data } = await window.api.login(code, REDIRECT_URI, window.BWRP_IS_DEV || false);
         if (!ok) throw new Error(data?.error || 'OAuth-Handshake fehlgeschlagen');
         if (!data.success || !data.user) throw new Error('Ungültige OAuth-Antwort');
 

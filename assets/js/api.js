@@ -87,10 +87,10 @@ class ApiClient {
 
     // ── Auth Endpoints ────────────────────────────────────────────────────────
 
-    async login(code, redirectUri) {
+    async login(code, redirectUri, isDev = false) {
         const res = await this._request('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ code, redirect_uri: redirectUri }),
+            body: JSON.stringify({ code, redirect_uri: redirectUri, isDev }),
         });
         return { ok: res.ok, data: await res.json() };
     }

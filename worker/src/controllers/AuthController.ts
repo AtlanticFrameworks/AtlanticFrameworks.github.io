@@ -4,10 +4,10 @@ import { json, err, getCookie, setCookie, clearCookie, getIP, auditLog } from '.
 
 export class AuthController {
   static async login(request: Request, env: Env): Promise<Response> {
-    let body: { code?: string; redirect_uri?: string };
+    let body: { code?: string; redirect_uri?: string; isDev?: boolean };
     try { body = await request.json(); } catch { return err('Ungültiger JSON-Body'); }
 
-    const { code, redirect_uri } = body;
+    const { code, redirect_uri, isDev } = body;
     if (!code) return err('Fehlender OAuth-Code');
 
     const svc = new AuthService(env);
@@ -17,7 +17,7 @@ export class AuthController {
       const role   = await svc.getRobloxRole(roblox.robloxId);
       if (!role)   return err('Zugriff verweigert: Rang unzureichend oder kein Gruppenmitglied', 403);
 
-      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, ip);
+      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, ip, isDev);
       const cookies = await svc.createSession(user, request);
 
       await auditLog(env.DATABASE, user.id, 'LOGIN', 'sessions', undefined, { ip: getIP(request) }, getIP(request));
