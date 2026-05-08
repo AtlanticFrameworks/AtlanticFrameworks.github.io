@@ -181,6 +181,15 @@ async function checkOAuthCallback() {
     const code = urlParams.get('code');
     if (!code) return;
 
+    // If OAuth was started from a different page (e.g. /dev), forward the code there.
+    const returnPath = localStorage.getItem('bwrp_oauth_return');
+    if (returnPath && returnPath !== window.location.pathname) {
+        localStorage.removeItem('bwrp_oauth_return');
+        window.location.replace(returnPath + '?code=' + encodeURIComponent(code));
+        return;
+    }
+    localStorage.removeItem('bwrp_oauth_return');
+
     window.history.replaceState({}, document.title, window.location.pathname);
 
     const step1 = document.getElementById('step-1');
