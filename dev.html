@@ -319,7 +319,7 @@
     <div id="dev-portal" class="hidden h-screen w-full flex">
 
         <!-- ── Sidebar ──────────────────────────────────────────────────────── -->
-        <aside class="w-56 flex-shrink-0 bg-tac-panel border-r border-tac-border flex flex-col h-full">
+        <aside id="sidebar" class="w-56 flex-shrink-0 bg-tac-panel border-r border-tac-border flex flex-col h-full fixed inset-y-0 left-0 z-50 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
 
             <!-- Sidebar Header -->
             <div class="px-4 py-5 border-b border-tac-border">
@@ -374,6 +374,9 @@
             </div>
         </aside>
 
+        <!-- Sidebar Backdrop -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
         <!-- ── Main Content ──────────────────────────────────────────────────── -->
         <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
 
@@ -381,6 +384,9 @@
             <header
                 class="flex-shrink-0 border-b border-tac-border bg-tac-panel px-6 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
+                    <button id="sidebar-toggle" class="md:hidden text-white hover:text-tac-amber p-1" onclick="toggleSidebar()">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
                     <div class="w-1.5 h-1.5 rounded-full bg-tac-green pulse-dot"></div>
                     <span class="font-mono text-[10px] text-tac-muted tracking-widest"
                         id="dev-tab-label">AUFGABEN</span>
@@ -915,7 +921,25 @@ MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
             const lbl = document.getElementById('dev-tab-label');
             if (lbl) lbl.textContent = tabLabels[tabId] ?? tabId.toUpperCase();
             if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // Close sidebar on mobile after navigation
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
         };
+
+        // ── Sidebar Toggle ────────────────────────────────────────────────────────
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('-translate-x-full');
+                backdrop.classList.toggle('hidden');
+            }
+        }
 
         // ── OAuth helpers (expected by auth.js) ───────────────────────────────────
         function startRobloxOAuth() {
