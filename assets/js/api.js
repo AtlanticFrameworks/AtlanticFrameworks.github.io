@@ -223,6 +223,8 @@ class ApiClient {
     }
     async getDevLogs()                   { return this.get('/dev/logs'); }
     async createDevLog(data)             { return this.post('/dev/logs', data); }
+    async getDevUsers()                  { return this.get('/dev/users'); }
+    async syncDevUser(data)              { return this.post('/dev/users/sync', data); }
 }
 
 class ApiError extends Error {

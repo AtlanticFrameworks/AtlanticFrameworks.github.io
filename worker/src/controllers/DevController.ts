@@ -1,4 +1,4 @@
-import type { Env, JWTPayload, DevTaskRow, DevServerLogRow } from '../types/index.js';
+import type { Env, JWTPayload, DevTaskRow, DevServerLogRow, DevPortalUserRow } from '../types/index.js';
 import { json, err } from '../middleware/auth.js';
 import { ROLE_RANK } from '../types/index.js';
 
@@ -133,5 +133,36 @@ export class DevController {
     ).bind(action.trim(), user.username, Number(user.sub), status, notes).first<DevServerLogRow>();
 
     return json({ log: result }, 201, o);
+  }
+
+  // ─── GET /api/dev/users ───────────────────────────────────────────────────────
+  static async listUsers(_req: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const o = DevController.origin(env);
+    if (ROLE_RANK[user.role] < ROLE_RANK['TRAINEE']) return err('Keine Berechtigung', 403, o);
+
+    const result = await env.DATABASE.prepare(
+      'SELECT * FROM dev_portal_users ORDER BY username ASC'
+    ).all<DevPortalUserRow>();
+
+    return json({ users: result.results ?? [] }, 200, o);
+  }
+
+  // ─── POST /api/dev/users/sync ─────────────────────────────────────────────────
+  // Called on every successful login to keep the users table up to date.
+  static async syncUser(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const o = DevController.origin(env);
+    const body: any = await request.json().catch(() => ({}));
+    const avatar_url = typeof body.avatar_url === 'string' ? body.avatar_url : '';
+
+    await env.DATABASE.prepare(`
+      INSERT INTO dev_portal_users (roblox_id, username, avatar_url, first_seen, last_seen)
+      VALUES (?, ?, ?, datetime('now'), datetime('now'))
+      ON CONFLICT(roblox_id) DO UPDATE SET
+        username   = excluded.username,
+        avatar_url = excluded.avatar_url,
+        last_seen  = datetime('now')
+    `).bind(user.robloxId, user.username, avatar_url).run();
+
+    return json({ success: true }, 200, o);
   }
 }

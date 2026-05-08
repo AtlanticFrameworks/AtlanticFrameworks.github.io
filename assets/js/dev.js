@@ -4,6 +4,39 @@
 // ─── Kanban Board ────────────────────────────────────────────────────────────
 
 let devTasks = [];
+let devUsers = []; // cache of dev_portal_users for dropdown + headshots
+
+async function loadDevUsers() {
+    try {
+        const data = await window.api.getDevUsers();
+        devUsers = data.users ?? [];
+        renderUsersTab();
+    } catch (e) {
+        console.warn('[Dev] Users laden fehlgeschlagen:', e);
+    }
+}
+
+function getUserByUsername(username) {
+    return devUsers.find(u => u.username === username) ?? null;
+}
+
+function renderUsersTab() {
+    const grid = document.getElementById('users-grid');
+    if (!grid) return;
+    if (devUsers.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center font-mono text-xs text-tac-muted py-10">KEINE NUTZER GEFUNDEN</p>`;
+        return;
+    }
+    grid.innerHTML = devUsers.map(u => `
+        <div class="bg-tac-panel border border-tac-border p-4 flex items-center gap-3 hover:border-tac-amber/40 transition-colors">
+            <img src="${escHtml(u.avatar_url || '')}" onerror="this.style.display='none'" alt=""
+                class="w-10 h-10 rounded border border-tac-border flex-shrink-0 bg-tac-dark">
+            <div class="min-w-0">
+                <p class="font-mono text-xs text-white truncate">${escHtml(u.username)}</p>
+                <p class="font-mono text-[9px] text-zinc-600 mt-0.5">Zuletzt: ${fmtDate(u.last_seen)}</p>
+            </div>
+        </div>`).join('');
+}
 
 async function loadTasks() {
     const container = document.getElementById('kanban-board');
@@ -62,7 +95,11 @@ function buildTaskCard(task) {
             <span class="font-mono text-[9px] px-1.5 py-0.5 border ${pColor} uppercase flex-shrink-0">${task.priority}</span>
         </div>
         ${task.description ? `<p class="font-mono text-[10px] text-tac-muted mb-2 leading-relaxed">${escHtml(task.description)}</p>` : ''}
-        ${task.assigned_to ? `<p class="font-mono text-[9px] text-zinc-500 mb-2"><i data-lucide="user" class="w-3 h-3 inline mr-1"></i>${escHtml(task.assigned_to)}</p>` : ''}
+        ${task.assigned_to ? (() => {
+            const u = getUserByUsername(task.assigned_to);
+            const img = u?.avatar_url ? `<img src="${escHtml(u.avatar_url)}" onerror="this.src=''" class="w-4 h-4 rounded-full border border-tac-border inline-block mr-1 align-middle">` : `<i data-lucide="user" class="w-3 h-3 inline mr-1"></i>`;
+            return `<p class="font-mono text-[9px] text-zinc-400 mb-2 flex items-center gap-1">${img}${escHtml(task.assigned_to)}</p>`;
+        })() : ''}
         <div class="flex items-center justify-between mt-2 pt-2 border-t border-tac-border">
             <p class="font-mono text-[9px] text-zinc-600">${escHtml(task.created_by_username)} · ${fmtDate(task.created_at)}</p>
             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -108,6 +145,7 @@ function openNewTask(defaultStatus = 'todo') {
     document.getElementById('task-priority-input').value = 'medium';
     document.getElementById('task-assigned-input').value = '';
     document.getElementById('task-status-input').value = defaultStatus;
+    renderAssignDropdown('');
     document.getElementById('task-modal').classList.remove('hidden');
     document.getElementById('task-modal').classList.add('flex');
     document.getElementById('task-title-input').focus();
@@ -123,6 +161,7 @@ function openEditTask(id) {
     document.getElementById('task-priority-input').value = task.priority;
     document.getElementById('task-assigned-input').value = task.assigned_to ?? '';
     document.getElementById('task-status-input').value = task.status;
+    renderAssignDropdown(task.assigned_to ?? '');
     document.getElementById('task-modal').classList.remove('hidden');
     document.getElementById('task-modal').classList.add('flex');
     document.getElementById('task-title-input').focus();
@@ -131,6 +170,100 @@ function openEditTask(id) {
 function closeTaskModal() {
     document.getElementById('task-modal').classList.add('hidden');
     document.getElementById('task-modal').classList.remove('flex');
+}
+
+// ─── Custom User Assign Dropdown ─────────────────────────────────────────────
+
+function renderAssignDropdown(selectedUsername) {
+    const wrapper = document.getElementById('assign-dropdown-wrapper');
+    if (!wrapper) return;
+
+    const current = selectedUsername || '';
+    const selectedUser = getUserByUsername(current);
+
+    wrapper.innerHTML = `
+        <div class="relative" id="assign-dd-root">
+            <button type="button" onclick="toggleAssignDropdown()"
+                class="w-full flex items-center gap-2 bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-left hover:border-tac-amber/60 transition-colors focus:outline-none focus:border-tac-amber"
+                id="assign-dd-btn">
+                ${selectedUser
+                    ? `<img src="${escHtml(selectedUser.avatar_url)}" onerror="this.style.display='none'" class="w-5 h-5 rounded-full border border-tac-border flex-shrink-0">
+                       <span class="text-white">${escHtml(selectedUser.username)}</span>`
+                    : `<i data-lucide="user" class="w-4 h-4 text-zinc-600 flex-shrink-0"></i>
+                       <span class="text-zinc-600">Nicht zugewiesen</span>`}
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-600 ml-auto flex-shrink-0"></i>
+            </button>
+            <div id="assign-dd-menu" class="hidden absolute top-full left-0 right-0 z-50 bg-tac-panel border border-tac-border shadow-xl mt-0.5 max-h-48 overflow-y-auto">
+                <div class="p-1.5 border-b border-tac-border">
+                    <input type="text" id="assign-dd-search" placeholder="Suchen..."
+                        oninput="filterAssignDropdown(this.value)"
+                        class="w-full bg-tac-dark border border-tac-border px-2 py-1.5 font-mono text-[10px] text-white placeholder-zinc-600 outline-none focus:border-tac-amber transition-colors">
+                </div>
+                <div id="assign-dd-list">
+                    ${buildAssignOptions(current, '')}
+                </div>
+            </div>
+        </div>`;
+
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [wrapper] });
+
+    // Close on outside click
+    setTimeout(() => {
+        document.addEventListener('click', closeAssignDropdownOnOutside, { once: false });
+    }, 0);
+}
+
+function buildAssignOptions(selectedUsername, filter) {
+    const items = [{ username: '', avatar_url: '', roblox_id: '' }, ...devUsers]
+        .filter(u => !filter || u.username.toLowerCase().includes(filter.toLowerCase()));
+
+    return items.map(u => {
+        const isSelected = u.username === selectedUsername;
+        if (!u.username) {
+            return `<button type="button" onclick="selectAssignUser('')"
+                class="w-full flex items-center gap-2 px-3 py-2 font-mono text-[10px] text-zinc-500 hover:bg-tac-card hover:text-white transition-colors ${isSelected ? 'bg-tac-card' : ''}">
+                <i data-lucide="user-x" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                <span>Nicht zugewiesen</span>
+            </button>`;
+        }
+        return `<button type="button" onclick="selectAssignUser('${escHtml(u.username)}')"
+            class="w-full flex items-center gap-2 px-3 py-2 font-mono text-[10px] hover:bg-tac-card transition-colors ${isSelected ? 'bg-tac-card text-tac-amber' : 'text-zinc-300'}">
+            <img src="${escHtml(u.avatar_url || '')}" onerror="this.style.display='none'" class="w-5 h-5 rounded-full border border-tac-border flex-shrink-0 bg-tac-dark">
+            <span>${escHtml(u.username)}</span>
+        </button>`;
+    }).join('');
+}
+
+function toggleAssignDropdown() {
+    const menu = document.getElementById('assign-dd-menu');
+    if (!menu) return;
+    menu.classList.toggle('hidden');
+    if (!menu.classList.contains('hidden')) {
+        setTimeout(() => document.getElementById('assign-dd-search')?.focus(), 50);
+    }
+}
+
+function filterAssignDropdown(query) {
+    const list = document.getElementById('assign-dd-list');
+    const selected = document.getElementById('task-assigned-input')?.value ?? '';
+    if (list) list.innerHTML = buildAssignOptions(selected, query);
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [list] });
+}
+
+function selectAssignUser(username) {
+    const input = document.getElementById('task-assigned-input');
+    if (input) input.value = username;
+    renderAssignDropdown(username);
+    const menu = document.getElementById('assign-dd-menu');
+    if (menu) menu.classList.add('hidden');
+}
+
+function closeAssignDropdownOnOutside(e) {
+    const root = document.getElementById('assign-dd-root');
+    if (root && !root.contains(e.target)) {
+        const menu = document.getElementById('assign-dd-menu');
+        if (menu) menu.classList.add('hidden');
+    }
 }
 
 async function saveTask() {
@@ -224,25 +357,94 @@ async function saveLog() {
 
 // ─── Discord Changelog Generator ─────────────────────────────────────────────
 
+// In-memory list of feature objects: { name: string, details: string }
+let clAddedFeatures   = [];
+let clRemovedFeatures = [];
+
+function addClFeature(type) {
+    if (type === 'added')   clAddedFeatures.push({ name: '', details: '' });
+    else                    clRemovedFeatures.push({ name: '', details: '' });
+    renderClFeatures();
+    updateChangelogPreview();
+}
+
+function removeClFeature(type, index) {
+    if (type === 'added')   clAddedFeatures.splice(index, 1);
+    else                    clRemovedFeatures.splice(index, 1);
+    renderClFeatures();
+    updateChangelogPreview();
+}
+
+function onClFeatureChange(type, index, field, value) {
+    const arr = type === 'added' ? clAddedFeatures : clRemovedFeatures;
+    if (arr[index]) arr[index][field] = value;
+    updateChangelogPreview();
+}
+
+function renderClFeatures() {
+    renderClFeatureList('cl-added-list',   clAddedFeatures,   'added',   'tac-green');
+    renderClFeatureList('cl-removed-list', clRemovedFeatures, 'removed', 'tac-red');
+}
+
+function renderClFeatureList(containerId, features, type, accentColor) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (features.length === 0) {
+        el.innerHTML = `<p class="font-mono text-[9px] text-zinc-600 py-2 text-center">Keine Features hinzugefügt</p>`;
+        return;
+    }
+    el.innerHTML = features.map((f, i) => `
+        <div class="border border-tac-border bg-tac-dark p-2.5 space-y-2">
+            <div class="flex items-center gap-2">
+                <span class="font-mono text-[9px] text-${accentColor} flex-shrink-0">${type === 'added' ? '+' : '-'}</span>
+                <input type="text" value="${escHtml(f.name)}" placeholder="Kurzname des Features..."
+                    oninput="onClFeatureChange('${type}',${i},'name',this.value)"
+                    class="flex-1 bg-tac-panel border border-tac-border px-2 py-1 font-mono text-[10px] text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                <button type="button" onclick="removeClFeature('${type}',${i})"
+                    class="p-1 text-zinc-600 hover:text-tac-red transition-colors flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <textarea rows="2" placeholder="Details (eine pro Zeile)..."
+                oninput="onClFeatureChange('${type}',${i},'details',this.value)"
+                class="w-full bg-tac-panel border border-tac-border px-2 py-1 font-mono text-[10px] text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors resize-none">${escHtml(f.details)}</textarea>
+        </div>`).join('');
+}
+
 function updateChangelogPreview() {
-    const title       = document.getElementById('cl-title').value.trim()   || '{Update_Title}';
-    const addedRaw    = document.getElementById('cl-added').value.trim();
-    const removedRaw  = document.getElementById('cl-removed').value.trim();
-    const discordId   = document.getElementById('cl-discord-id').value.trim() || '{DiscordId}';
-    const roleId1     = document.getElementById('cl-role1').value.trim()   || '{RoleId1}';
-    const roleId2     = document.getElementById('cl-role2').value.trim()   || '{RoleId2}';
+    const title     = document.getElementById('cl-title')?.value.trim()    || '{Update_Title}';
+    const discordId = document.getElementById('cl-discord-id')?.value.trim() || '{DiscordId}';
+    const roleId1   = document.getElementById('cl-role1')?.value.trim()    || '{RoleId1}';
+    const roleId2   = document.getElementById('cl-role2')?.value.trim()    || '{RoleId2}';
 
-    const addedLines    = addedRaw   ? addedRaw.split('\n').map(l => l.trim()).filter(Boolean) : [];
-    const removedLines  = removedRaw ? removedRaw.split('\n').map(l => l.trim()).filter(Boolean) : [];
+    let diffContent = '';
 
-    const addedBlock   = addedLines.map(l => `  * ${l}`).join('\n');
-    const removedBlock = removedLines.map(l => `  * ${l}`).join('\n');
+    clAddedFeatures.forEach(f => {
+        const name = f.name.trim() || '{Feature Name}';
+        diffContent += `+ ${name}\n`;
+        const details = f.details.split('\n').map(l => l.trim()).filter(Boolean);
+        details.forEach(d => { diffContent += `  * ${d}\n`; });
+    });
 
-    let output = `## ${title}\n-# Ping: <@&1237422623928094854> \n\n\`\`\`diff\n`;
-    if (addedLines.length > 0)   output += `+ Added Feature\n${addedBlock}\n`;
-    if (addedLines.length > 0 && removedLines.length > 0) output += '\n';
-    if (removedLines.length > 0) output += `- Removed Feature\n${removedBlock}\n`;
-    output += `MfG <@${discordId}> | <@&${roleId1}> u. <@&${roleId2}>\n\`\`\``;
+    if (clAddedFeatures.length > 0 && clRemovedFeatures.length > 0) diffContent += ' \n';
+
+    clRemovedFeatures.forEach(f => {
+        const name = f.name.trim() || '{Feature Name}';
+        diffContent += `- ${name}\n`;
+        const details = f.details.split('\n').map(l => l.trim()).filter(Boolean);
+        details.forEach(d => { diffContent += `  * ${d}\n`; });
+    });
+
+    const output =
+        `## ${title}\n` +
+        `-# Ping: <@&1237422623928094854>\n` +
+        ` \n` +
+        `\`\`\`diff\n` +
+        diffContent +
+        ` \n` +
+        `\`\`\`\n` +
+        ` \n` +
+        `MfG <@${discordId}> | <@&${roleId1}> u. <@&${roleId2}>`;
 
     const previewEl = document.getElementById('cl-preview');
     if (previewEl) previewEl.textContent = output;
@@ -299,7 +501,8 @@ window.showDevTab = function(tabId) {
     }
     localStorage.setItem('bwrp_dev_active_tab', tabId);
 
-    if (tabId === 'logs') loadServerLogs();
+    if (tabId === 'logs')  loadServerLogs();
+    if (tabId === 'users') renderUsersTab();
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -319,8 +522,11 @@ function fmtDate(iso) {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 window.devPortal = {
-    loadTasks, loadServerLogs, openNewTask, openEditTask, closeTaskModal, saveTask,
+    loadTasks, loadDevUsers, loadServerLogs, renderUsersTab,
+    openNewTask, openEditTask, closeTaskModal, saveTask,
     moveTask, deleteTask, openNewLog, closeLogModal, saveLog,
     updateChangelogPreview, copyChangelog, loadDiscordLink, saveDiscordId,
+    addClFeature, removeClFeature, renderClFeatures,
+    renderAssignDropdown, selectAssignUser,
     showDevTab: window.showDevTab,
 };

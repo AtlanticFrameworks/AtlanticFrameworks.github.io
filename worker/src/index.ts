@@ -268,6 +268,8 @@ const ROUTES: Route[] = [
   route('DELETE', '/api/dev/tasks/:id',    DevController.deleteTask   as Handler),
   route('GET',    '/api/dev/logs',         DevController.listLogs     as Handler),
   route('POST',   '/api/dev/logs',         DevController.createLog    as Handler),
+  route('GET',  '/api/dev/users',           DevController.listUsers as Handler),
+  route('POST', '/api/dev/users/sync',      DevController.syncUser  as Handler),
 
   // ── Database Management (OWNER only) ──────────────────────────────────────
   route('GET',    '/api/db/stats',                        DatabaseController.stats             as Handler),

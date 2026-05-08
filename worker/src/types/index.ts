@@ -166,3 +166,12 @@ export interface DevServerLogRow {
   notes: string;
   created_at: string;
 }
+
+export interface DevPortalUserRow {
+  id:         number;
+  roblox_id:  string;
+  username:   string;
+  avatar_url: string;
+  first_seen: string;
+  last_seen:  string;
+}
