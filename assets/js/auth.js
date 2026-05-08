@@ -202,7 +202,19 @@ async function checkOAuthCallback() {
 
     try {
         const { ok, data } = await window.api.login(code, REDIRECT_URI, window.BWRP_IS_DEV || false);
-        if (!ok) throw new Error(data?.error || 'OAuth-Handshake fehlgeschlagen');
+        if (!ok) {
+            let msg = data?.error || 'OAuth-Handshake fehlgeschlagen';
+            if (data?.details) {
+                const details = data.details;
+                if (typeof details === 'object') {
+                    const desc = details.error_description || details.error || JSON.stringify(details);
+                    msg += ` (${desc})`;
+                } else {
+                    msg += ` (${details})`;
+                }
+            }
+            throw new Error(msg);
+        }
         if (!data.success || !data.user) throw new Error('Ungültige OAuth-Antwort');
 
         const { id: targetUserId, username: targetUsername, role: userRole, avatarUrl } = data.user;

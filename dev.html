@@ -292,7 +292,7 @@
 
             <!-- STEP 1: OAuth -->
             <div id="step-1">
-                <button onclick="localStorage.setItem('bwrp_oauth_return','/dev');startRobloxOAuth()" id="btn-oauth"
+                <button onclick="startRobloxOAuth()" id="btn-oauth"
                     class="w-full bg-white text-black font-display font-bold py-4 uppercase tracking-widest hover:bg-tac-amber transition-all flex items-center justify-center gap-3 clip-both group mb-3">
                     <i data-lucide="gamepad-2" class="w-5 h-5"></i>
                     Mit Roblox anmelden
@@ -814,7 +814,6 @@ MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
          SCRIPTS
     ================================================= -->
     <script>
-        window.BWRP_OAUTH_REDIRECT = window.location.origin + '/team';
         window.BWRP_IS_DEV = true;
     </script>
     <script src="assets/js/api.js"></script>
