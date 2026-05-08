@@ -27,7 +27,17 @@ export class AuthService {
       grant_type: 'authorization_code', code, redirect_uri: redirectUri,
     });
     const tokenRes  = await fetch(ROBLOX_TOKEN_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
-    if (!tokenRes.ok) throw new Error(`Token-Austausch fehlgeschlagen`);
+    if (!tokenRes.ok) {
+      const text = await tokenRes.text().catch(() => '');
+      let errorMsg = `HTTP ${tokenRes.status}`;
+      try {
+        const data = JSON.parse(text);
+        errorMsg = data.error_description || data.error || errorMsg;
+      } catch {
+        if (text) errorMsg = text.slice(0, 100);
+      }
+      throw new Error(`Token-Austausch fehlgeschlagen: ${errorMsg}`);
+    }
     const { access_token } = await tokenRes.json() as { access_token: string };
 
     const userRes = await fetch(ROBLOX_USERINFO, { headers: { Authorization: `Bearer ${access_token}` } });
