@@ -200,7 +200,8 @@ function renderAssignDropdown(selectedUsername) {
     if (!menu) {
         menu = document.createElement('div');
         menu.id = 'assign-dd-menu';
-        menu.className = 'hidden fixed z-[10000] bg-tac-panel border border-tac-border shadow-xl mt-0.5 max-h-48 overflow-y-auto';
+        menu.className = 'hidden fixed bg-tac-panel border border-tac-border shadow-xl mt-0.5 max-h-48 overflow-y-auto';
+        menu.style.zIndex = '10000';
         document.body.appendChild(menu);
     }
     menu.innerHTML = `
