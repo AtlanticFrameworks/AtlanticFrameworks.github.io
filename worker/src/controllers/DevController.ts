@@ -20,7 +20,7 @@ export class DevController {
   // ─── GET /api/dev/tasks ───────────────────────────────────────────────────────
   static async listTasks(_req: Request, env: Env, user: JWTPayload): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['TRAINEE']) return err('Keine Berechtigung', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const result = await env.DEV_DATABASE.prepare(
       'SELECT * FROM dev_tasks ORDER BY created_at DESC'
@@ -32,7 +32,7 @@ export class DevController {
   // ─── POST /api/dev/tasks ──────────────────────────────────────────────────────
   static async createTask(request: Request, env: Env, user: JWTPayload): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['MOD']) return err('Keine Berechtigung – MOD+ erforderlich', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const body: any = await request.json().catch(() => ({}));
     const { title, description = '', priority = 'medium', assigned_to = '' } = body;
@@ -56,7 +56,7 @@ export class DevController {
   // ─── PATCH /api/dev/tasks/:id ─────────────────────────────────────────────────
   static async updateTask(request: Request, env: Env, user: JWTPayload, params: Record<string, string>): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['TRAINEE']) return err('Keine Berechtigung', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const id = Number(params.id);
     if (isNaN(id)) return err('Ungültige Task-ID', 400, o);
@@ -88,7 +88,7 @@ export class DevController {
   // ─── DELETE /api/dev/tasks/:id ────────────────────────────────────────────────
   static async deleteTask(_req: Request, env: Env, user: JWTPayload, params: Record<string, string>): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['MOD']) return err('Keine Berechtigung – MOD+ erforderlich', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const id = Number(params.id);
     if (isNaN(id)) return err('Ungültige Task-ID', 400, o);
@@ -105,7 +105,7 @@ export class DevController {
   // ─── GET /api/dev/logs ────────────────────────────────────────────────────────
   static async listLogs(_req: Request, env: Env, user: JWTPayload): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['TRAINEE']) return err('Keine Berechtigung', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const result = await env.DEV_DATABASE.prepare(
       'SELECT * FROM dev_server_logs ORDER BY created_at DESC LIMIT 100'
@@ -117,7 +117,7 @@ export class DevController {
   // ─── POST /api/dev/logs ───────────────────────────────────────────────────────
   static async createLog(request: Request, env: Env, user: JWTPayload): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['MOD']) return err('Keine Berechtigung – MOD+ erforderlich', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const body: any = await request.json().catch(() => ({}));
     const { action, status = 'COMPLETED', notes = '' } = body;
@@ -138,7 +138,7 @@ export class DevController {
   // ─── GET /api/dev/users ───────────────────────────────────────────────────────
   static async listUsers(_req: Request, env: Env, user: JWTPayload): Promise<Response> {
     const o = DevController.origin(env);
-    if (ROLE_RANK[user.role] < ROLE_RANK['TRAINEE']) return err('Keine Berechtigung', 403, o);
+    if (user.role !== 'OWNER' && user.role !== 'DEV') return err('Keine Berechtigung', 403, o);
 
     const result = await env.DEV_DATABASE.prepare(
       'SELECT * FROM dev_portal_users ORDER BY username ASC'

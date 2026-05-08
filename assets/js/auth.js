@@ -8,7 +8,7 @@ const GROUP_ID = 34246821;
 const ALLOWED_ROLES = [
     "Group Owner", "Ownership Team", "Projektleitung", "Projektverwaltung", "Management",
     "Teamverwaltung", "Head Administrator", "Administrator", "Junior Administrator",
-    "Head Game Moderator", "Game Moderator"
+    "Head Game Moderator", "Game Moderator", "Developer"
 ];
 // Allow pages to override the redirect URI before loading this script (e.g. /dev → must use /team).
 const REDIRECT_URI = window.BWRP_OAUTH_REDIRECT ?? (window.location.origin + window.location.pathname);

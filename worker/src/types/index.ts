@@ -2,7 +2,7 @@
 // Types & Interfaces for BWRP Worker
 // ============================================================
 
-export type Role = 'OWNER' | 'ADMIN' | 'MOD' | 'TRAINEE';
+export type Role = 'OWNER' | 'ADMIN' | 'MOD' | 'TRAINEE' | 'DEV';
 export type CaseType = 'WARN' | 'KICK' | 'BAN' | 'PERMBAN';
 export type ShiftStatus = 'ACTIVE' | 'ENDED';
 
@@ -11,6 +11,7 @@ export const ROLE_RANK: Record<Role, number> = {
   ADMIN:   3,
   MOD:     2,
   TRAINEE: 1,
+  DEV:     0,
 };
 
 // Cloudflare Worker Env Bindings

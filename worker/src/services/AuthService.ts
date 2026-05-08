@@ -16,6 +16,7 @@ const ALLOWED_ROLES: Record<string, Role> = {
   'Junior Administrator': 'TRAINEE',
   'Head Game Moderator':  'MOD',
   'Game Moderator':       'MOD',
+  'Developer':            'DEV',
 };
 
 export class AuthService {
