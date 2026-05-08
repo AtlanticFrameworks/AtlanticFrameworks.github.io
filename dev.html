@@ -432,7 +432,7 @@
                                     <span id="count-todo"
                                         class="font-mono text-[9px] text-zinc-600 border border-tac-border px-1.5 py-0.5">0</span>
                                 </div>
-                                <div id="todo-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2">
+                                <div id="todo-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'todo')">
                                     <!-- tasks injected by JS -->
                                 </div>
                                 <button onclick="openNewTask('todo')"
@@ -453,7 +453,7 @@
                                     <span id="count-inprogress"
                                         class="font-mono text-[9px] text-zinc-600 border border-tac-border px-1.5 py-0.5">0</span>
                                 </div>
-                                <div id="inprogress-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2">
+                                <div id="inprogress-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'inprogress')">
                                     <!-- tasks injected by JS -->
                                 </div>
                                 <button onclick="openNewTask('inprogress')"
@@ -474,7 +474,7 @@
                                     <span id="count-done"
                                         class="font-mono text-[9px] text-zinc-600 border border-tac-border px-1.5 py-0.5">0</span>
                                 </div>
-                                <div id="done-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2">
+                                <div id="done-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'done')">
                                     <!-- tasks injected by JS -->
                                 </div>
                                 <button onclick="openNewTask('done')"

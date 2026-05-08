@@ -86,8 +86,18 @@ function buildTaskCard(task) {
     const pColor = priorityColors[task.priority] ?? priorityColors.medium;
 
     const div = document.createElement('div');
-    div.className = 'bg-tac-dark border border-tac-border p-3 group hover:border-tac-amber/40 transition-colors';
+    div.className = 'bg-tac-dark border border-tac-border p-3 group hover:border-tac-amber/40 transition-colors cursor-move';
     div.dataset.taskId = task.id;
+    div.draggable = true;
+
+    div.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', task.id);
+        div.classList.add('opacity-50');
+    });
+
+    div.addEventListener('dragend', () => {
+        div.classList.remove('opacity-50');
+    });
 
     div.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
@@ -122,6 +132,24 @@ async function moveTask(id, newStatus) {
         window.auth?.showToast('Status-Änderung fehlgeschlagen', 'error', 3000);
     }
 }
+
+window.onDragOver = function(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('bg-tac-card/20');
+};
+
+window.onDragLeave = function(e) {
+    e.currentTarget.classList.remove('bg-tac-card/20');
+};
+
+window.onDrop = function(e, status) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('bg-tac-card/20');
+    const taskId = e.dataTransfer.getData('text/plain');
+    if (taskId) {
+        moveTask(Number(taskId), status);
+    }
+};
 
 async function deleteTask(id) {
     if (!confirm('Task wirklich löschen?')) return;
