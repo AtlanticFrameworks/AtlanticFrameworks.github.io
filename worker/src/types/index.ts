@@ -143,3 +143,26 @@ export interface AuthContext {
   request: Request;
   env: Env;
 }
+
+export interface DevTaskRow {
+  id: number;
+  title: string;
+  description: string;
+  status: 'todo' | 'inprogress' | 'done';
+  priority: 'low' | 'medium' | 'high';
+  created_by_id: number | null;
+  created_by_username: string;
+  assigned_to: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DevServerLogRow {
+  id: number;
+  action: string;
+  developer_name: string;
+  developer_id: number | null;
+  status: string;
+  notes: string;
+  created_at: string;
+}

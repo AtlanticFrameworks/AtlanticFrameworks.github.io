@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Portal | BWRP</title>
+    <meta name="description" content="Internes Developer Portal für BWRP. Nur für autorisierte Mitarbeiter.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="/assets/images/logo.png">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #08080a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 0;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e2a800;
+        }
+
+        /* === CLIP PATHS === */
+        .clip-tl {
+            clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+        }
+
+        .clip-br {
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+        }
+
+        .clip-both {
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+        }
+
+        /* === HUD CORNERS === */
+        .hud-corners {
+            position: relative;
+        }
+
+        .hud-corners::before,
+        .hud-corners::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-color: #e2a800;
+            border-style: solid;
+            opacity: 0.5;
+        }
+
+        .hud-corners::before {
+            top: 0;
+            left: 0;
+            border-width: 2px 0 0 2px;
+        }
+
+        .hud-corners::after {
+            bottom: 0;
+            right: 0;
+            border-width: 0 2px 2px 0;
+        }
+
+        /* === CRT SUBTLE === */
+        .crt-overlay::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* === BRACKET HOVER EFFECT === */
+        .bracket-hover {
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .bracket-hover::before {
+            content: '[';
+            position: absolute;
+            left: 0;
+            color: #e2a800;
+            opacity: 0;
+            transform: translateX(4px);
+            transition: all 0.2s;
+        }
+
+        .bracket-hover::after {
+            content: ']';
+            position: absolute;
+            right: 0;
+            color: #e2a800;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.2s;
+        }
+
+        .bracket-hover:hover::before {
+            opacity: 1;
+            transform: translateX(-10px);
+        }
+
+        .bracket-hover:hover::after {
+            opacity: 1;
+            transform: translateX(10px);
+        }
+
+        /* === CURSOR BLINK === */
+        .cursor-blink::after {
+            content: '█';
+            color: #e2a800;
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* === Selection === */
+        ::selection {
+            background: #e2a800;
+            color: black;
+        }
+
+        /* === NAV ACTIVE GLOW === */
+        .nav-active {
+            box-shadow: inset 3px 0 0 #e2a800, inset 0 0 20px rgba(226, 168, 0, 0.07);
+        }
+
+        /* === TOAST === */
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        /* === PULSE DOT === */
+        .pulse-dot {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .pulse-dot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            background: currentColor;
+            opacity: 0.4;
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* === CONTEXT MENU === */
+        #context-menu {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            min-width: 180px;
+            background: #111114;
+            border: 1px solid rgba(226, 168, 0, 0.4);
+            box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.5);
+            animation: cm-reveal 0.15s ease-out;
+        }
+
+        @keyframes cm-reveal {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .cm-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #d4d4d8;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cm-item:hover {
+            background: rgba(226, 168, 0, 0.1);
+            color: #e2a800;
+            padding-left: 18px;
+        }
+
+        .cm-item i {
+            width: 14px;
+            height: 14px;
+            opacity: 0.6;
+        }
+
+        /* Kanban columns scroll */
+        .kanban-col {
+            min-height: 200px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body class="bg-tac-dark text-zinc-300 font-sans h-screen overflow-hidden crt-overlay bg-grid-pattern">
+
+    <!-- ================================================
+         TOAST CONTAINER
+    ================================================= -->
+    <div id="toast-container" aria-live="polite"></div>
+
+    <!-- ================================================
+         AUTH GATE
+    ================================================= -->
+    <div id="login-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-tac-dark bg-grid-pattern">
+        <!-- Ambient glow -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-tac-amber/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative w-full max-w-md px-6 py-10 hud-corners">
+            <!-- Extra corner decorations -->
+            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-tac-amber opacity-50"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-tac-amber opacity-50"></div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full border border-tac-border bg-tac-panel mb-5 relative">
+                    <i data-lucide="code-2" class="w-9 h-9 text-tac-amber"></i>
+                    <div class="absolute inset-0 rounded-full border border-tac-amber/20 animate-ping opacity-30"></div>
+                </div>
+                <h1 class="font-display text-3xl font-bold uppercase tracking-[0.2em] text-white">
+                    DEV <span class="text-tac-amber">PORTAL</span>
+                </h1>
+                <p class="font-mono text-[10px] text-tac-muted tracking-widest mt-1 cursor-blink" id="typewriter-el"></p>
+            </div>
+
+            <!-- Terminal Status Block -->
+            <div class="bg-black/60 border border-tac-border p-4 font-mono text-xs mb-6" id="login-terminal">
+                <p class="text-tac-green">&gt; SERVER: ONLINE</p>
+                <p class="text-tac-green">&gt; VERBINDUNG: AUFGEBAUT</p>
+                <p class="text-tac-amber mt-1">&gt; WARTE AUF OPERATOR-ZUGANGSDATEN...</p>
+            </div>
+
+            <!-- STEP 1: OAuth -->
+            <div id="step-1">
+                <button onclick="startRobloxOAuth()" id="btn-oauth"
+                    class="w-full bg-white text-black font-display font-bold py-4 uppercase tracking-widest hover:bg-tac-amber transition-all flex items-center justify-center gap-3 clip-both group mb-3">
+                    <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                    Mit Roblox anmelden
+                </button>
+                <p class="text-center font-mono text-[10px] text-tac-muted mt-2">
+                    Rang-Anforderung: <span class="text-tac-amber">Game Mod+</span>
+                </p>
+            </div>
+
+            <!-- STEP 2: Verifying animation -->
+            <div id="step-2" class="hidden flex flex-col items-center justify-center space-y-4 py-6">
+                <i data-lucide="loader-2" class="w-10 h-10 text-tac-amber animate-spin"></i>
+                <p class="font-mono text-sm text-tac-amber cursor-blink" id="verify-text">AUTHENTIFIZIERUNG LÄUFT</p>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="status-msg" class="mt-5 text-xs font-mono hidden text-center"></div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         DEV PORTAL (shown after auth)
+    ================================================= -->
+    <div id="dev-portal" class="hidden h-screen w-full flex">
+
+        <!-- ── Sidebar ──────────────────────────────────────────────────────── -->
+        <aside class="w-56 flex-shrink-0 bg-tac-panel border-r border-tac-border flex flex-col h-full">
+
+            <!-- Sidebar Header -->
+            <div class="px-4 py-5 border-b border-tac-border">
+                <div class="flex items-center gap-2 mb-1">
+                    <i data-lucide="code-2" class="w-4 h-4 text-tac-amber flex-shrink-0"></i>
+                    <span class="font-display font-bold text-sm uppercase tracking-widest text-white">DEV PORTAL</span>
+                </div>
+                <p class="font-mono text-[9px] text-tac-muted tracking-widest">BWRP DEVELOPMENT</p>
+            </div>
+
+            <!-- User Info -->
+            <div class="px-4 py-3 border-b border-tac-border flex items-center gap-2">
+                <img id="user-avatar" src="" alt="Avatar" class="w-7 h-7 rounded-full border border-tac-border flex-shrink-0">
+                <div class="min-w-0">
+                    <p id="user-name" class="font-mono text-[10px] text-white truncate">—</p>
+                    <p id="user-rank" class="font-mono text-[9px] text-tac-amber truncate">—</p>
+                </div>
+            </div>
+
+            <!-- Nav Items -->
+            <nav class="flex-1 py-2 overflow-y-auto">
+                <button onclick="showDevTab('tasks')" data-tab="tasks"
+                    class="dev-nav-btn w-full flex items-center gap-3 px-4 py-2.5 font-mono text-xs uppercase tracking-wider border-l-2 transition-all text-zinc-500 border-transparent hover:text-zinc-300">
+                    <i data-lucide="kanban" class="w-4 h-4 flex-shrink-0"></i>
+                    AUFGABEN
+                </button>
+                <button onclick="showDevTab('logs')" data-tab="logs"
+                    class="dev-nav-btn w-full flex items-center gap-3 px-4 py-2.5 font-mono text-xs uppercase tracking-wider border-l-2 transition-all text-zinc-500 border-transparent hover:text-zinc-300">
+                    <i data-lucide="scroll-text" class="w-4 h-4 flex-shrink-0"></i>
+                    SERVER LOGS
+                </button>
+                <button onclick="showDevTab('changelog')" data-tab="changelog"
+                    class="dev-nav-btn w-full flex items-center gap-3 px-4 py-2.5 font-mono text-xs uppercase tracking-wider border-l-2 transition-all text-zinc-500 border-transparent hover:text-zinc-300">
+                    <i data-lucide="bot" class="w-4 h-4 flex-shrink-0"></i>
+                    CHANGELOG-GEN
+                </button>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="px-4 py-3 border-t border-tac-border">
+                <button onclick="window.auth?.logout()"
+                    class="w-full flex items-center gap-2 font-mono text-[10px] text-tac-muted hover:text-tac-red transition-colors uppercase tracking-wider">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    Abmelden
+                </button>
+            </div>
+        </aside>
+
+        <!-- ── Main Content ──────────────────────────────────────────────────── -->
+        <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+
+            <!-- Top Bar -->
+            <header class="flex-shrink-0 border-b border-tac-border bg-tac-panel px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-1.5 h-1.5 rounded-full bg-tac-green pulse-dot"></div>
+                    <span class="font-mono text-[10px] text-tac-muted tracking-widest" id="dev-tab-label">AUFGABEN</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="font-mono text-[9px] text-zinc-600 tracking-wider">BWRP DEV PORTAL v1.0</span>
+                    <span class="font-mono text-[9px] text-tac-muted" id="dev-clock">--:-- UHR</span>
+                </div>
+            </header>
+
+            <!-- Tab Contents -->
+            <div class="flex-1 overflow-hidden">
+
+                <!-- ── Tab: Tasks (Kanban) ─────────────────────────────────── -->
+                <div id="dev-tab-tasks" class="dev-tab-content hidden h-full flex flex-col">
+                    <!-- Kanban Header -->
+                    <div class="flex-shrink-0 px-6 py-4 border-b border-tac-border flex items-center justify-between">
+                        <div>
+                            <h2 class="font-display font-bold text-lg uppercase tracking-wider text-white">Aufgaben</h2>
+                            <p class="font-mono text-[10px] text-tac-muted mt-0.5">Kanban-Board für Entwicklungsaufgaben</p>
+                        </div>
+                        <button onclick="openNewTask()"
+                            class="flex items-center gap-2 px-4 py-2 bg-tac-amber/10 border border-tac-amber/30 text-tac-amber font-mono text-xs uppercase tracking-wider hover:bg-tac-amber hover:text-black transition-all">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            NEUER TASK
+                        </button>
+                    </div>
+
+                    <!-- Kanban Board -->
+                    <div id="kanban-board" class="flex-1 overflow-x-auto overflow-y-hidden px-6 py-4">
+                        <div class="flex gap-4 h-full min-w-[700px]">
+
+                            <!-- TODO Column -->
+                            <div class="flex-1 flex flex-col bg-tac-panel border border-tac-border min-w-0">
+                                <div class="flex items-center justify-between px-3 py-2.5 border-b border-tac-border bg-tac-card">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                                        <span class="font-mono text-[10px] uppercase tracking-wider text-zinc-400">TODO</span>
+                                    </div>
+                                    <span id="count-todo" class="font-mono text-[9px] text-zinc-600 border border-tac-border px-1.5 py-0.5">0</span>
+                                </div>
+                                <div id="todo-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2">
+                                    <!-- tasks injected by JS -->
+                                </div>
+                                <button onclick="openNewTask('todo')"
+                                    class="flex items-center gap-1.5 px-3 py-2 font-mono text-[9px] text-zinc-600 hover:text-tac-amber transition-colors border-t border-tac-border">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> TASK HINZUFÜGEN
+                                </button>
+                            </div>
+
+                            <!-- IN PROGRESS Column -->
+                            <div class="flex-1 flex flex-col bg-tac-panel border border-tac-border min-w-0">
+                                <div class="flex items-center justify-between px-3 py-2.5 border-b border-tac-border bg-tac-card">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-tac-amber"></span>
+                                        <span class="font-mono text-[10px] uppercase tracking-wider text-zinc-400">IN ARBEIT</span>
+                                    </div>
+                                    <span id="count-inprogress" class="font-mono text-[9px] text-zinc-600 border border-tac-border px-1.5 py-0.5">0</span>
+                                </div>
+                                <div id="inprogress-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2">
+                                    <!-- tasks injected by JS -->
+                                </div>
+                                <button onclick="openNewTask('inprogress')"
+                                    class="flex items-center gap-1.5 px-3 py-2 font-mono text-[9px] text-zinc-600 hover:text-tac-amber transition-colors border-t border-tac-border">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> TASK HINZUFÜGEN
+                                </button>
+                            </div>
+
+                            <!-- DONE Column -->
+                            <div class="flex-1 flex flex-col bg-tac-panel border border-tac-border min-w-0">
+                                <div class="flex items-center justify-between px-3 py-2.5 border-b border-tac-border bg-tac-card">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-tac-green"></span>
+                                        <span class="font-mono text-[10px] uppercase tracking-wider text-zinc-400">FERTIG</span>
+                                    </div>
+                                    <span id="count-done" class="font-mono text-[9px] text-zinc-600 border border-tac-border px-1.5 py-0.5">0</span>
+                                </div>
+                                <div id="done-tasks" class="kanban-col flex-1 overflow-y-auto p-2 space-y-2">
+                                    <!-- tasks injected by JS -->
+                                </div>
+                                <button onclick="openNewTask('done')"
+                                    class="flex items-center gap-1.5 px-3 py-2 font-mono text-[9px] text-zinc-600 hover:text-tac-amber transition-colors border-t border-tac-border">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> TASK HINZUFÜGEN
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Tab: Server Logs ────────────────────────────────────── -->
+                <div id="dev-tab-logs" class="dev-tab-content hidden h-full flex flex-col">
+                    <!-- Logs Header -->
+                    <div class="flex-shrink-0 px-6 py-4 border-b border-tac-border flex items-center justify-between">
+                        <div>
+                            <h2 class="font-display font-bold text-lg uppercase tracking-wider text-white">Server Logs</h2>
+                            <p class="font-mono text-[10px] text-tac-muted mt-0.5">Letzte 100 Server-Aktionen</p>
+                        </div>
+                        <button onclick="openNewLog()"
+                            class="flex items-center gap-2 px-4 py-2 bg-tac-amber/10 border border-tac-amber/30 text-tac-amber font-mono text-xs uppercase tracking-wider hover:bg-tac-amber hover:text-black transition-all">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            EINTRAG ERSTELLEN
+                        </button>
+                    </div>
+
+                    <!-- Logs Table -->
+                    <div class="flex-1 overflow-y-auto px-6 py-4">
+                        <table class="w-full border border-tac-border">
+                            <thead>
+                                <tr class="border-b border-tac-border bg-tac-card">
+                                    <th class="px-4 py-2.5 text-left font-mono text-[9px] text-tac-muted uppercase tracking-wider">Aktion</th>
+                                    <th class="px-4 py-2.5 text-left font-mono text-[9px] text-tac-muted uppercase tracking-wider">Entwickler</th>
+                                    <th class="px-4 py-2.5 text-left font-mono text-[9px] text-tac-muted uppercase tracking-wider">Zeitpunkt</th>
+                                    <th class="px-4 py-2.5 text-left font-mono text-[9px] text-tac-muted uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-8 text-center font-mono text-xs text-tac-muted">LADE...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── Tab: Changelog Generator ───────────────────────────── -->
+                <div id="dev-tab-changelog" class="dev-tab-content hidden h-full overflow-y-auto">
+                    <div class="px-6 py-4 border-b border-tac-border">
+                        <h2 class="font-display font-bold text-lg uppercase tracking-wider text-white">Discord Changelog Generator</h2>
+                        <p class="font-mono text-[10px] text-tac-muted mt-0.5">Generiere formatierte Changelog-Nachrichten für Discord</p>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        <!-- Form Column -->
+                        <div class="space-y-4">
+
+                            <!-- Discord Link Section -->
+                            <div class="bg-tac-panel border border-tac-border p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="font-mono text-[10px] text-tac-muted uppercase tracking-wider">Discord ID verknüpfen</p>
+                                    <span id="discord-linked-badge" class="hidden font-mono text-[9px] text-tac-green border border-tac-green/30 px-2 py-0.5">VERKNÜPFT</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="discord-link-input" placeholder="Deine Discord User-ID..."
+                                        class="flex-1 bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                                    <button onclick="saveDiscordId()"
+                                        class="px-4 py-2 bg-tac-amber/10 border border-tac-amber/30 text-tac-amber font-mono text-xs uppercase hover:bg-tac-amber hover:text-black transition-all">
+                                        SPEICHERN
+                                    </button>
+                                </div>
+                                <p class="font-mono text-[9px] text-zinc-600 mt-2">Die ID wird lokal gespeichert und füllt den Generator automatisch aus.</p>
+                            </div>
+
+                            <!-- Changelog Form -->
+                            <div class="bg-tac-panel border border-tac-border p-4 space-y-4">
+                                <p class="font-mono text-[10px] text-tac-muted uppercase tracking-wider border-b border-tac-border pb-2">Changelog-Felder</p>
+
+                                <!-- Title -->
+                                <div>
+                                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Update-Titel</label>
+                                    <input type="text" id="cl-title" placeholder="z.B. Trident Update 1.3"
+                                        oninput="updateChangelogPreview()"
+                                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                                </div>
+
+                                <!-- Added -->
+                                <div>
+                                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Hinzugefügte Features <span class="text-zinc-600">(eine pro Zeile)</span></label>
+                                    <textarea id="cl-added" rows="4" placeholder="Neues Feature A&#10;Neues Feature B"
+                                        oninput="updateChangelogPreview()"
+                                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors resize-none"></textarea>
+                                </div>
+
+                                <!-- Removed -->
+                                <div>
+                                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Entfernte Features <span class="text-zinc-600">(eine pro Zeile)</span></label>
+                                    <textarea id="cl-removed" rows="3" placeholder="Altes Feature X&#10;Altes Feature Y"
+                                        oninput="updateChangelogPreview()"
+                                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors resize-none"></textarea>
+                                </div>
+
+                                <!-- Hidden Discord ID (auto-populated) -->
+                                <input type="hidden" id="cl-discord-id">
+
+                                <!-- Role IDs -->
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Rolle 1 ID</label>
+                                        <input type="text" id="cl-role1" placeholder="Role ID..."
+                                            oninput="updateChangelogPreview()"
+                                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                                    </div>
+                                    <div>
+                                        <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Rolle 2 ID</label>
+                                        <input type="text" id="cl-role2" placeholder="Role ID..."
+                                            oninput="updateChangelogPreview()"
+                                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Column -->
+                        <div class="flex flex-col gap-4">
+                            <div class="bg-tac-panel border border-tac-border flex-1 flex flex-col">
+                                <div class="flex items-center justify-between px-4 py-3 border-b border-tac-border">
+                                    <p class="font-mono text-[10px] text-tac-muted uppercase tracking-wider">Live-Vorschau</p>
+                                    <button onclick="copyChangelog()"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-tac-amber/10 border border-tac-amber/30 text-tac-amber font-mono text-[9px] uppercase hover:bg-tac-amber hover:text-black transition-all">
+                                        <i data-lucide="copy" class="w-3 h-3"></i>
+                                        KOPIEREN
+                                    </button>
+                                </div>
+                                <div class="flex-1 p-4 overflow-y-auto">
+                                    <pre id="cl-preview" class="font-mono text-xs text-zinc-300 whitespace-pre-wrap break-words leading-relaxed"></pre>
+                                </div>
+                            </div>
+
+                            <!-- Format Info -->
+                            <div class="bg-tac-panel border border-tac-border/50 p-4">
+                                <p class="font-mono text-[9px] text-zinc-600 uppercase mb-2">Output-Format</p>
+                                <pre class="font-mono text-[9px] text-zinc-500 whitespace-pre-wrap leading-relaxed">## {Update_Title}
+-# Ping: &lt;@&1237422623928094854&gt;
+
+```diff
++ Added Feature
+  * Feature A
+- Removed Feature
+  * Feature X
+MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
+```</pre>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================================================
+         TASK MODAL
+    ================================================= -->
+    <div id="task-modal" class="fixed inset-0 z-[9500] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-sm" onclick="closeTaskModal()"></div>
+        <div class="relative bg-tac-panel border border-tac-border shadow-2xl w-full max-w-md mx-4 p-6 clip-both">
+            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-amber to-transparent opacity-30"></div>
+
+            <div class="flex items-center gap-3 mb-5 border-b border-tac-border pb-4">
+                <i data-lucide="kanban" class="w-4 h-4 text-tac-amber"></i>
+                <h3 id="task-modal-title" class="font-display font-bold text-white uppercase tracking-wider text-sm">NEUER TASK</h3>
+            </div>
+
+            <input type="hidden" id="task-id">
+
+            <div class="space-y-4">
+                <!-- Title -->
+                <div>
+                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Titel <span class="text-tac-red">*</span></label>
+                    <input type="text" id="task-title-input" placeholder="Task-Titel..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Beschreibung</label>
+                    <textarea id="task-desc-input" rows="3" placeholder="Optionale Beschreibung..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors resize-none"></textarea>
+                </div>
+
+                <!-- Priority & Status row -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Priorität</label>
+                        <select id="task-priority-input"
+                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white focus:border-tac-amber outline-none transition-colors">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Status</label>
+                        <select id="task-status-input"
+                            class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white focus:border-tac-amber outline-none transition-colors">
+                            <option value="todo">Todo</option>
+                            <option value="inprogress">In Arbeit</option>
+                            <option value="done">Fertig</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Assigned To -->
+                <div>
+                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Zugewiesen an</label>
+                    <input type="text" id="task-assigned-input" placeholder="Benutzername..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeTaskModal()"
+                        class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white transition-colors uppercase">ABBRECHEN</button>
+                    <button onclick="saveTask()"
+                        class="flex-1 font-mono text-xs py-2.5 bg-tac-amber text-black font-bold hover:bg-amber-400 transition-colors uppercase flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i> SPEICHERN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         LOG MODAL
+    ================================================= -->
+    <div id="log-modal" class="fixed inset-0 z-[9500] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-sm" onclick="closeLogModal()"></div>
+        <div class="relative bg-tac-panel border border-tac-border shadow-2xl w-full max-w-md mx-4 p-6 clip-both">
+            <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-amber to-transparent opacity-30"></div>
+
+            <div class="flex items-center gap-3 mb-5 border-b border-tac-border pb-4">
+                <i data-lucide="scroll-text" class="w-4 h-4 text-tac-amber"></i>
+                <h3 class="font-display font-bold text-white uppercase tracking-wider text-sm">NEUER LOG-EINTRAG</h3>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Action -->
+                <div>
+                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Aktion <span class="text-tac-red">*</span></label>
+                    <input type="text" id="log-action-input" placeholder="z.B. Server neugestartet..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors">
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Status</label>
+                    <select id="log-status-input"
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white focus:border-tac-amber outline-none transition-colors">
+                        <option value="COMPLETED">COMPLETED</option>
+                        <option value="FAILED">FAILED</option>
+                        <option value="PENDING">PENDING</option>
+                    </select>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block font-mono text-[9px] text-tac-muted uppercase mb-1.5">Notizen</label>
+                    <textarea id="log-notes-input" rows="3" placeholder="Optionale Notizen..."
+                        class="w-full bg-tac-dark border border-tac-border px-3 py-2 font-mono text-xs text-white placeholder-zinc-600 focus:border-tac-amber outline-none transition-colors resize-none"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeLogModal()"
+                        class="flex-1 font-mono text-xs py-2.5 border border-tac-border text-tac-muted hover:text-white transition-colors uppercase">ABBRECHEN</button>
+                    <button onclick="saveLog()"
+                        class="flex-1 font-mono text-xs py-2.5 bg-tac-amber text-black font-bold hover:bg-amber-400 transition-colors uppercase flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i> SPEICHERN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         SCRIPTS
+    ================================================= -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/dev.js"></script>
+
+    <script>
+        // ── Auth Config ───────────────────────────────────────────────────────────
+        const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+        const ALLOWED_ROLES = [
+            'Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung',
+            'Management', 'Teamverwaltung', 'Head Administrator', 'Administrator',
+            'Junior Administrator', 'Head Game Moderator', 'Game Moderator'
+        ];
+
+        // ── DOM References ────────────────────────────────────────────────────────
+        const gate      = document.getElementById('login-gate');
+        const devPortal = document.getElementById('dev-portal');
+        const statusMsg = document.getElementById('status-msg');
+
+        // ── Typewriter ────────────────────────────────────────────────────────────
+        (function () {
+            const text = 'DEVELOPER TERMINAL // ZUGANG BESCHRÄNKT';
+            const el   = document.getElementById('typewriter-el');
+            if (el) {
+                el.textContent = '';
+                let i = 0;
+                function type() {
+                    if (i < text.length) { el.textContent += text[i++]; setTimeout(type, 45); }
+                }
+                setTimeout(type, 600);
+            }
+        })();
+
+        // ── Init ──────────────────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (typeof auth !== 'undefined') {
+                auth.checkOAuthCallback();
+                auth.checkSession();
+            }
+        });
+
+        // ── enterDashboard ────────────────────────────────────────────────────────
+        function enterDashboard(username, rank, avatarUrl) {
+            window.currentRole = rank;
+
+            // Populate user info in sidebar
+            const avatarEl = document.getElementById('user-avatar');
+            const nameEl   = document.getElementById('user-name');
+            const rankEl   = document.getElementById('user-rank');
+            if (avatarEl) avatarEl.src = avatarUrl ?? '';
+            if (nameEl)   nameEl.textContent  = username;
+            if (rankEl)   rankEl.textContent   = rank;
+
+            // Reveal portal, hide gate
+            gate.style.transition = 'opacity 0.5s ease';
+            gate.style.opacity    = '0';
+            setTimeout(() => gate.classList.add('hidden'), 500);
+            devPortal.classList.remove('hidden');
+            devPortal.classList.add('animate-fade-in');
+
+            // Init Lucide icons
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Start clock
+            startDevClock();
+
+            // Restore active tab or default to tasks
+            const savedTab = localStorage.getItem('bwrp_dev_active_tab') ?? 'tasks';
+            showDevTab(savedTab);
+
+            // Load initial data
+            loadTasks();
+            loadDiscordLink();
+            updateChangelogPreview();
+
+            // Start rank verification
+            if (typeof startRankVerification === 'function') startRankVerification();
+        }
+
+        // ── Dev Clock ─────────────────────────────────────────────────────────────
+        function startDevClock() {
+            const el = document.getElementById('dev-clock');
+            if (!el) return;
+            function tick() {
+                const now = new Date();
+                el.textContent = now.toLocaleTimeString('de-DE', {
+                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                    hour12: false, timeZone: 'Europe/Berlin'
+                }) + ' UHR';
+            }
+            tick();
+            setInterval(tick, 1000);
+        }
+
+        // Update tab label in header when tab changes
+        const tabLabels = { tasks: 'AUFGABEN', logs: 'SERVER LOGS', changelog: 'CHANGELOG-GEN' };
+        const _origShowDevTab = window.showDevTab;
+        window.showDevTab = function(tabId) {
+            _origShowDevTab(tabId);
+            const lbl = document.getElementById('dev-tab-label');
+            if (lbl) lbl.textContent = tabLabels[tabId] ?? tabId.toUpperCase();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        };
+
+        // ── OAuth helpers (expected by auth.js) ───────────────────────────────────
+        function startRobloxOAuth() {
+            if (typeof auth !== 'undefined' && auth.startRobloxOAuth) {
+                auth.startRobloxOAuth(REDIRECT_URI, ALLOWED_ROLES);
+            }
+        }
+
+        function showStatus(msg, type) {
+            if (!statusMsg) return;
+            statusMsg.classList.remove('hidden', 'text-tac-red', 'text-tac-green', 'text-tac-amber');
+            statusMsg.classList.add(type === 'error' ? 'text-tac-red' : type === 'success' ? 'text-tac-green' : 'text-tac-amber');
+            statusMsg.textContent = msg;
+        }
+    </script>
+</body>
+</html>

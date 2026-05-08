@@ -210,6 +210,19 @@ class ApiClient {
 
     async sendDiscordAnnouncement(data) { return this.post('/discord/announce', data); }
     async testDiscordWebhook()          { return this.post('/discord/test', {}); }
+
+    // ── Dev Portal Endpoints ──────────────────────────────────────────────────
+
+    async getDevTasks()                  { return this.get('/dev/tasks'); }
+    async createDevTask(data)            { return this.post('/dev/tasks', data); }
+    async updateDevTask(id, data)        { return this.patch(`/dev/tasks/${id}`, data); }
+    async deleteDevTask(id) {
+        const res = await this.fetch(`/dev/tasks/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+    async getDevLogs()                   { return this.get('/dev/logs'); }
+    async createDevLog(data)             { return this.post('/dev/logs', data); }
 }
 
 class ApiError extends Error {

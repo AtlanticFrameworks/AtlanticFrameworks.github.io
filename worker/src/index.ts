@@ -18,6 +18,7 @@ import { ManagementController } from './controllers/ManagementController.js';
 import { RolesController }      from './controllers/RolesController.js';
 import { NotesController }      from './controllers/NotesController.js';
 import { DiscordController }    from './controllers/DiscordController.js';
+import { DevController }        from './controllers/DevController.js';
 import { FriedenszeitController } from './controllers/FriedenszeitController.js';
 import { PosterAuthController }   from './controllers/PosterAuthController.js';
 import { renderDocs }           from './utils/docs.js';
@@ -259,6 +260,14 @@ const ROUTES: Route[] = [
   // ── Discord (ADMIN+) ─────────────────────────────────────────────────────
   route('POST',   '/api/discord/announce',                DiscordController.announce as Handler),
   route('POST',   '/api/discord/test',                    DiscordController.test     as Handler),
+
+  // ── Dev Portal ────────────────────────────────────────────────────────────
+  route('GET',    '/api/dev/tasks',        DevController.listTasks    as Handler),
+  route('POST',   '/api/dev/tasks',        DevController.createTask   as Handler),
+  route('PATCH',  '/api/dev/tasks/:id',    DevController.updateTask   as Handler),
+  route('DELETE', '/api/dev/tasks/:id',    DevController.deleteTask   as Handler),
+  route('GET',    '/api/dev/logs',         DevController.listLogs     as Handler),
+  route('POST',   '/api/dev/logs',         DevController.createLog    as Handler),
 
   // ── Database Management (OWNER only) ──────────────────────────────────────
   route('GET',    '/api/db/stats',                        DatabaseController.stats             as Handler),
