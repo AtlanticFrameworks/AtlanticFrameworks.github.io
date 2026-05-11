@@ -132,7 +132,7 @@ export class StaffController {
     const ALLOWED_ROLES = [
       'Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung', 'Management',
       'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator',
-      'Head Game Moderator', 'Game Moderator',
+      'Head Game Moderator', 'Game Moderator', 'Developer',
     ];
 
     try {
