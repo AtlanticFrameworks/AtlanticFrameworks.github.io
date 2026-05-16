@@ -143,11 +143,13 @@ export class DiscordService {
   // ── Game Moderation Ban (GAME_MODERATIONS_WEBHOOK) ───────────────────────
 
   async sendGameModerationBan(opts: {
-    targetUsername: string;
     targetId: string | number;
+    targetUsername: string;
+    targetDisplayName: string;
+    targetAvatarUrl: string;
+    targetCreated: string;
     durationIso: string | null;
     reason: string;
-    displayReason: string;
     previousCases: CaseRow[];
     moderatorUsername: string;
     moderatorAvatar: string | null;
@@ -155,7 +157,18 @@ export class DiscordService {
     if (!this.env.GAME_MODERATIONS_WEBHOOK) return;
 
     const isPerm = !opts.durationIso;
-    const durationLabel = isPerm ? '**Permanent**' : `\`${formatIso8601DurationLabel(opts.durationIso!)}\``;
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const now = new Date();
+    const caseId = `GP-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+    const punishmentLabel = isPerm
+      ? 'Permanent Ban'
+      : `Temp. Ban · ${formatIso8601DurationLabel(opts.durationIso!)}`;
+
+    const createdLabel = opts.targetCreated
+      ? new Date(opts.targetCreated).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      : '–';
 
     const prevText = opts.previousCases.length === 0
       ? '*None*'
@@ -163,26 +176,36 @@ export class DiscordService {
           `\`${c.type}\` — ${c.reason} *(${c.created_at.slice(0, 10)})*`
         ).join('\n');
 
+    const embed: Record<string, unknown> = {
+      color:  isPerm ? 0x7F1D1D : 0xEF4444,
+      author: {
+        name:     opts.targetUsername,
+        ...(opts.targetAvatarUrl ? { icon_url: opts.targetAvatarUrl } : {}),
+      },
+      title: `Moderation | ${caseId}`,
+      ...(opts.targetAvatarUrl ? { thumbnail: { url: opts.targetAvatarUrl } } : {}),
+      fields: [
+        { name: 'User ID',              value: String(opts.targetId),    inline: true  },
+        { name: 'Display Name',         value: opts.targetDisplayName,   inline: true  },
+        { name: 'Account Created',      value: createdLabel,             inline: true  },
+        { name: 'Reason',               value: opts.reason,              inline: true  },
+        { name: 'Punishment',           value: punishmentLabel,          inline: true  },
+        { name: 'Previous Moderations', value: prevText,                 inline: false },
+      ],
+      footer: {
+        text: `Moderator: ${opts.moderatorUsername}`,
+        ...(opts.moderatorAvatar ? { icon_url: opts.moderatorAvatar } : {}),
+      },
+      timestamp: now.toISOString(),
+    };
+
     await fetch(this.env.GAME_MODERATIONS_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        embeds: [{
-          title:  isPerm ? '☠️  Player Permanently Banned' : '🔨  Player Temporarily Banned',
-          color:  isPerm ? 0x7F1D1D : 0xEF4444,
-          fields: [
-            { name: 'Player',                value: `**${opts.targetUsername}** · \`${opts.targetId}\``, inline: true },
-            { name: 'Duration',              value: durationLabel,                                        inline: true },
-            { name: 'Internal Reason',       value: opts.reason,                                          inline: false },
-            { name: 'Display Reason',        value: opts.displayReason,                                   inline: true },
-            { name: 'Previous Moderations',  value: prevText,                                             inline: false },
-          ],
-          footer: {
-            text:     `Moderator: ${opts.moderatorUsername}`,
-            icon_url: opts.moderatorAvatar ?? undefined,
-          },
-          timestamp: new Date().toISOString(),
-        }],
+        username:   'BWRP Moderation',
+        avatar_url: 'https://bwrp.net/assets/images/logo.png',
+        embeds: [embed],
       }),
     });
   }

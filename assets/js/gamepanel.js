@@ -278,7 +278,11 @@ async function executeGpBan() {
     btn.textContent = 'SPERRT...'; btn.disabled = true;
 
     try {
-        await window.api.cloudBan(gpCurrentPlayer.id, gpCurrentPlayer.username, privateR, displayR, durationIso);
+        await window.api.cloudBan(gpCurrentPlayer.id, gpCurrentPlayer.username, privateR, displayR, durationIso, {
+            targetDisplayName: gpCurrentPlayer.displayName || gpCurrentPlayer.username,
+            targetAvatarUrl:   gpCurrentPlayer.avatarUrl  || '',
+            targetCreated:     gpCurrentPlayer.created    || '',
+        });
         showStatus('Spieler gesperrt', 'success');
         closeGpModal('modal-gp-ban');
         document.getElementById('gp-ban-reason').value = '';

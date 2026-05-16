@@ -54,7 +54,8 @@ export class CloudController {
     if (ROLE_RANK[user.role] < ROLE_RANK['MOD']) return err('Keine Berechtigung', 403, origin);
 
     const body: any = await request.json().catch(() => ({}));
-    const { targetRobloxId, targetUsername, reason, displayReason, durationIso } = body;
+    const { targetRobloxId, targetUsername, reason, displayReason, durationIso,
+            targetDisplayName, targetAvatarUrl, targetCreated } = body;
     if (!targetRobloxId || !reason) return err('targetRobloxId und reason sind Pflichtfelder', 400, origin);
     if (isNaN(Number(targetRobloxId)) || Number(targetRobloxId) <= 0) return err('targetRobloxId muss eine gültige Roblox-ID sein', 400, origin);
     if (durationIso !== undefined && durationIso !== null && (typeof durationIso !== 'string' || !/^P/.test(durationIso))) return err('durationIso muss eine ISO 8601 Dauer sein (z.B. P7D, PT2H)', 400, origin);
@@ -89,14 +90,16 @@ export class CloudController {
           env.DATABASE.prepare('SELECT username, avatar_url FROM users WHERE id = ?').bind(Number(user.sub)).first<{ username: string; avatar_url: string | null }>(),
         ]);
         await discord.sendGameModerationBan({
-          targetUsername:    targetUsername ?? String(targetRobloxId),
-          targetId:          targetRobloxId,
-          durationIso:       durationIso ?? null,
+          targetId:           targetRobloxId,
+          targetUsername:     targetUsername     ?? String(targetRobloxId),
+          targetDisplayName:  targetDisplayName  ?? targetUsername ?? String(targetRobloxId),
+          targetAvatarUrl:    targetAvatarUrl    ?? '',
+          targetCreated:      targetCreated      ?? '',
+          durationIso:        durationIso        ?? null,
           reason,
-          displayReason:     displayReason || reason,
-          previousCases:     prevCasesResult.results ?? [],
-          moderatorUsername: moderatorUser?.username ?? user.username,
-          moderatorAvatar:   moderatorUser?.avatar_url ?? null,
+          previousCases:      prevCasesResult.results ?? [],
+          moderatorUsername:  moderatorUser?.username ?? user.username,
+          moderatorAvatar:    moderatorUser?.avatar_url ?? null,
         });
       } catch (e) {
         console.error('[Discord] moderation ban webhook:', (e as Error).message);
