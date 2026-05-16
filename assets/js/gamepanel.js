@@ -137,9 +137,13 @@ async function gpLoadRestriction(userId) {
     }
 }
 
-// Parses ISO 8601 duration string (e.g. "P30D", "P1Y2M3DT4H5M6S") → milliseconds
+// Parses ISO 8601 duration string (e.g. "P30D", "P1Y2M3DT4H5M6S") or
+// protobuf Duration format (e.g. "172800s") returned by Roblox Cloud API → milliseconds
 function parseIso8601Duration(duration) {
     if (!duration) return null;
+    // Protobuf Duration format: "<seconds>s" (returned by Roblox Cloud v2 API)
+    const protoMatch = duration.match(/^(\d+(?:\.\d+)?)s$/);
+    if (protoMatch) return parseFloat(protoMatch[1]) * 1000;
     const m = duration.match(/^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/);
     if (!m) return null;
     const years   = parseInt(m[1] || 0);

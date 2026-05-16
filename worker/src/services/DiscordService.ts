@@ -1,5 +1,19 @@
 import type { Env, CaseRow, ShiftRow } from '../types/index.js';
 
+function formatIso8601DurationLabel(iso: string): string {
+  const m = iso.match(/^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/);
+  if (!m) return iso;
+  const parts: string[] = [];
+  if (m[1]) parts.push(`${m[1]}y`);
+  if (m[2]) parts.push(`${m[2]}mo`);
+  if (m[3]) parts.push(`${m[3]}w`);
+  if (m[4]) parts.push(`${m[4]}d`);
+  if (m[5]) parts.push(`${m[5]}h`);
+  if (m[6]) parts.push(`${m[6]}m`);
+  if (m[7]) parts.push(`${m[7]}s`);
+  return parts.length ? parts.join(' ') : iso;
+}
+
 const TYPE_COLOR: Record<string, number> = {
   WARN:    0xE2A800,
   KICK:    0x3B82F6,
@@ -124,6 +138,53 @@ export class DiscordService {
       ],
       footer: { text: 'BWRP Game Panel' }, timestamp: new Date().toISOString(),
     }] });
+  }
+
+  // ── Game Moderation Ban (GAME_MODERATIONS_WEBHOOK) ───────────────────────
+
+  async sendGameModerationBan(opts: {
+    targetUsername: string;
+    targetId: string | number;
+    durationIso: string | null;
+    reason: string;
+    displayReason: string;
+    previousCases: CaseRow[];
+    moderatorUsername: string;
+    moderatorAvatar: string | null;
+  }): Promise<void> {
+    if (!this.env.GAME_MODERATIONS_WEBHOOK) return;
+
+    const isPerm = !opts.durationIso;
+    const durationLabel = isPerm ? '**Permanent**' : `\`${formatIso8601DurationLabel(opts.durationIso!)}\``;
+
+    const prevText = opts.previousCases.length === 0
+      ? '*None*'
+      : opts.previousCases.slice(0, 10).map(c =>
+          `\`${c.type}\` — ${c.reason} *(${c.created_at.slice(0, 10)})*`
+        ).join('\n');
+
+    await fetch(this.env.GAME_MODERATIONS_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [{
+          title:  isPerm ? '☠️  Player Permanently Banned' : '🔨  Player Temporarily Banned',
+          color:  isPerm ? 0x7F1D1D : 0xEF4444,
+          fields: [
+            { name: 'Player',                value: `**${opts.targetUsername}** · \`${opts.targetId}\``, inline: true },
+            { name: 'Duration',              value: durationLabel,                                        inline: true },
+            { name: 'Internal Reason',       value: opts.reason,                                          inline: false },
+            { name: 'Display Reason',        value: opts.displayReason,                                   inline: true },
+            { name: 'Previous Moderations',  value: prevText,                                             inline: false },
+          ],
+          footer: {
+            text:     `Moderator: ${opts.moderatorUsername}`,
+            icon_url: opts.moderatorAvatar ?? undefined,
+          },
+          timestamp: new Date().toISOString(),
+        }],
+      }),
+    });
   }
 
   // ── Cloud Unban ───────────────────────────────────────────────────────────

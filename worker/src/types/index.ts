@@ -22,6 +22,7 @@ export interface Env {
   ROBLOX_AUTH_SECRET:  string;
   DISCORD_WEBHOOK_URL: string;
   GAME_DISCORD_WEBHOOK: string;
+  GAME_MODERATIONS_WEBHOOK?: string;
   ALLOWED_ORIGIN:      string;
   ROBLOX_GROUP_ID:     string;
   ROBLOX_UNIVERSE_ID:  string;   // Roblox Universe ID

@@ -1,4 +1,4 @@
-import type { Env, JWTPayload } from '../types/index.js';
+import type { Env, JWTPayload, CaseRow } from '../types/index.js';
 import { json, err, auditLog, getIP } from '../middleware/auth.js';
 import { RobloxCloudService } from '../services/RobloxCloudService.js';
 import { DiscordService } from '../services/DiscordService.js';
@@ -79,7 +79,23 @@ export class CloudController {
       });
 
       await auditLog(env.DATABASE, Number(user.sub), 'CLOUD_BAN', 'users', String(targetRobloxId), { targetUsername, reason, durationIso }, getIP(request));
-      new DiscordService(env).sendCloudBan({ issuedBy: user.username, targetUsername: targetUsername ?? String(targetRobloxId), targetId: targetRobloxId, reason, displayReason: displayReason || reason, durationDays: durationIso ?? null }).catch(e => console.error('[Discord] ban webhook:', (e as Error).message));
+
+      const [prevCasesResult, moderatorUser] = await Promise.all([
+        env.DATABASE.prepare('SELECT * FROM cases WHERE target_roblox_id = ? ORDER BY created_at DESC LIMIT 10').bind(String(targetRobloxId)).all<CaseRow>(),
+        env.DATABASE.prepare('SELECT username, avatar_url FROM users WHERE id = ?').bind(Number(user.sub)).first<{ username: string; avatar_url: string | null }>(),
+      ]);
+      const discord = new DiscordService(env);
+      discord.sendCloudBan({ issuedBy: user.username, targetUsername: targetUsername ?? String(targetRobloxId), targetId: targetRobloxId, reason, displayReason: displayReason || reason, durationDays: durationIso ?? null }).catch(e => console.error('[Discord] ban webhook:', (e as Error).message));
+      discord.sendGameModerationBan({
+        targetUsername:    targetUsername ?? String(targetRobloxId),
+        targetId:          targetRobloxId,
+        durationIso:       durationIso ?? null,
+        reason,
+        displayReason:     displayReason || reason,
+        previousCases:     prevCasesResult.results ?? [],
+        moderatorUsername: moderatorUser?.username ?? user.username,
+        moderatorAvatar:   moderatorUser?.avatar_url ?? null,
+      }).catch(e => console.error('[Discord] moderation ban webhook:', (e as Error).message));
 
       return json({ success: true, message: `${targetUsername ?? targetRobloxId} wurde gesperrt.` }, 200, origin);
     } catch (e) {
