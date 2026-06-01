@@ -230,6 +230,7 @@ const ROUTES: Route[] = [
   route('POST', '/api/cloud/ban',                         CloudController.ban            as Handler),
   route('POST', '/api/cloud/unban',                       CloudController.unban          as Handler),
   route('GET',  '/api/cloud/restriction/:userId',         CloudController.getRestriction as Handler),
+  route('POST', '/api/cloud/create-code',                 CloudController.createCode     as UserlessHandler, true),
 
   // ── Team Management (ADMIN+) ──────────────────────────────────────────────
   route('GET',    '/api/mgmt/users',                      ManagementController.listStaff      as Handler),

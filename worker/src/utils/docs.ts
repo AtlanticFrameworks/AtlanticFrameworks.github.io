@@ -167,7 +167,7 @@ export function renderDocs(_env: Env): Response {
         <a href="#moderation" class="nav-link"><i data-lucide="gavel"      class="w-3.5 h-3.5 shrink-0"></i>Moderation<span class="nav-count">4</span></a>
         <a href="#shifts"     class="nav-link"><i data-lucide="clock"      class="w-3.5 h-3.5 shrink-0"></i>Shifts<span class="nav-count">5</span></a>
         <a href="#roblox"     class="nav-link"><i data-lucide="database"   class="w-3.5 h-3.5 shrink-0"></i>Roblox Proxy<span class="nav-count">4</span></a>
-        <a href="#cloud"      class="nav-link"><i data-lucide="cloud"      class="w-3.5 h-3.5 shrink-0"></i>Open Cloud<span class="nav-count">4</span></a>
+        <a href="#cloud"      class="nav-link"><i data-lucide="cloud"      class="w-3.5 h-3.5 shrink-0"></i>Open Cloud<span class="nav-count">5</span></a>
         <a href="#mgmt"       class="nav-link"><i data-lucide="shield-check" class="w-3.5 h-3.5 shrink-0"></i>Management<span class="nav-count">4</span></a>
         <a href="#roles"      class="nav-link"><i data-lucide="user-plus"  class="w-3.5 h-3.5 shrink-0"></i>Roles & Perms<span class="nav-count">8</span></a>
         <a href="#notes"      class="nav-link"><i data-lucide="file-text"   class="w-3.5 h-3.5 shrink-0"></i>Staff Notes<span class="nav-count">4</span></a>
@@ -197,7 +197,7 @@ export function renderDocs(_env: Env): Response {
             <span class="text-tac-muted">|</span>
             <span class="text-tac-muted">BASE: <span class="text-white">https://bwrp.net/api</span></span>
             <span class="text-zinc-500">|</span>
-            <span class="text-tac-amber font-bold">59 ENDPOINTS</span>
+            <span class="text-tac-amber font-bold">60 ENDPOINTS</span>
         </div>
         <div id="clock" class="font-mono text-[10px] text-tac-muted tabular-nums"></div>
     </div>
@@ -1600,6 +1600,55 @@ export function renderDocs(_env: Env): Response {
                                 <input class="try-input" placeholder="Roblox User ID (numeric)..." />
                                 <span class="try-label" style="margin-left:auto"></span>
                                 <button class="try-run" data-path="/cloud/restriction/{v}" data-method="GET" onclick="tryIt(this)">Run</button>
+                            </div>
+                            <div class="try-output"><pre></pre></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POST /cloud/create-code -->
+                <div class="ep">
+                    <div class="ep-header p-4 flex flex-wrap items-center gap-2.5" onclick="toggle(this.parentElement)">
+                        <span class="m-post px-2.5 py-0.5 font-mono text-[10px] font-bold border uppercase tracking-wider">POST</span>
+                        <code class="font-mono text-[13px] font-semibold text-white">/cloud/create-code</code>
+                        <span class="font-mono text-[10px] text-tac-muted flex-1 min-w-0 truncate">Create an authorization code for a player and team via MessagingService</span>
+                        <span class="auth-admin px-2 py-0.5 text-[9px] font-mono border uppercase tracking-wider">OWNER</span>
+                        <i data-lucide="chevron-down" class="ep-chevron w-4 h-4 text-tac-muted shrink-0"></i>
+                    </div>
+                    <div class="ep-body px-6 py-5 bg-black/20 space-y-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest mb-2">Request Headers</p>
+                                <table class="param-table mb-4">
+                                    <thead><tr><th>Header</th><th>Type</th><th>Req</th></tr></thead>
+                                    <tbody>
+                                        <tr><td class="param-name">Authorization</td><td class="param-type">string</td><td class="param-opt">opt*</td><td class="param-desc"><code>Bearer &lt;BOT_API_KEY&gt;</code> (skips cookie auth)</td></tr>
+                                    </tbody>
+                                </table>
+                                <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest mb-2">Request Body (JSON)</p>
+                                <table class="param-table">
+                                    <thead><tr><th>Field</th><th>Type</th><th>Req</th></tr></thead>
+                                    <tbody>
+                                        <tr><td class="param-name">playerName</td><td class="param-type">string</td><td class="param-req">YES</td></tr>
+                                        <tr><td class="param-name">teamName</td><td class="param-type">string</td><td class="param-req">YES</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <p class="font-mono text-[9px] text-tac-muted uppercase tracking-widest">Response 200</p>
+                                    <button class="copy-btn font-mono text-[9px] text-tac-muted hover:text-white uppercase transition-colors">Copy</button>
+                                </div>
+                                <pre class="text-tac-green"><code>{
+  "success": true,
+  "message": "Code für Player1 im Team LSPD erstellt."
+}</code></pre>
+                            </div>
+                        </div>
+                        <div class="try-panel">
+                            <div class="try-panel-header"><span>Try it</span><span class="try-label" style="margin-left:auto"></span><button class="try-run" data-path="/cloud/create-code" data-method="POST" onclick="tryIt(this)">Run</button></div>
+                            <div class="px-4 pb-4">
+                                <textarea class="try-body-area" placeholder='{ "playerName": "Player1", "teamName": "LSPD" }'></textarea>
                             </div>
                             <div class="try-output"><pre></pre></div>
                         </div>

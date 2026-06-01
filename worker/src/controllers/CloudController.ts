@@ -1,5 +1,5 @@
 import type { Env, JWTPayload, CaseRow } from '../types/index.js';
-import { json, err, auditLog, getIP } from '../middleware/auth.js';
+import { json, err, auditLog, getIP, requireAuth } from '../middleware/auth.js';
 import { RobloxCloudService } from '../services/RobloxCloudService.js';
 import { DiscordService } from '../services/DiscordService.js';
 import { ROLE_RANK } from '../types/index.js';
@@ -231,6 +231,74 @@ export class CloudController {
         message: `Restart-Signal gesendet. ${allProtected.length} Server sind geschützt.`,
         protectedJobIds: allProtected,
       }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
+
+  // ─── POST /api/cloud/create-code ───────────────────────────────────────────
+  /**
+   * Sends a createcode signal via MessagingService.
+   * Body: { playerName, teamName }
+   */
+  static async createCode(request: Request, env: Env, _user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+
+    let issuer = 'System';
+    let userId = 0;
+
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      const expectedKey = (env as any).BOT_API_KEY || env.JWT_SECRET;
+      if (token !== expectedKey) {
+        return err('Ungültiges Bot-Token', 401, origin);
+      }
+      issuer = 'Discord Bot';
+    } else {
+      const auth = await requireAuth(request, env);
+      if (auth instanceof Response) return auth;
+      const user = auth as JWTPayload;
+      if (ROLE_RANK[user.role] < ROLE_RANK['OWNER']) return err('Keine Berechtigung', 403, origin);
+      issuer = user.username;
+      userId = Number(user.sub);
+    }
+
+    const body: any = await request.json().catch(() => ({}));
+    const { playerName, teamName } = body;
+    if (!playerName || !teamName) return err('playerName und teamName sind Pflichtfelder', 400, origin);
+
+    try {
+      const placeId = env.ROBLOX_PLACE_ID;
+      if (!placeId) return err('ROBLOX_PLACE_ID nicht konfiguriert', 503, origin);
+
+      const serverRes = await fetch(`https://games.roblox.com/v1/games/${placeId}/servers/Public?sortOrder=Desc&limit=10&excludeFullGames=false`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept': 'application/json'
+        }
+      });
+      if (!serverRes.ok) return err('Konnte Roblox-Server-API nicht erreichen', 502, origin);
+      const serverData = await serverRes.json() as any;
+      if (!serverData.data || serverData.data.length === 0) return err('Kein aktiver Server gefunden, Code kann nicht erstellt werden.', 404, origin);
+      
+      const targetJobId = serverData.data[0].id;
+
+      const cloud = new RobloxCloudService(env);
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:       'createcode',
+        jobId:      targetJobId,
+        playerName: playerName,
+        teamName:   teamName,
+        issuedBy:   issuer,
+        issuedAt:   new Date().toISOString(),
+      });
+
+      if (userId !== 0) {
+        await auditLog(env.DATABASE, userId, 'CLOUD_CREATECODE', 'cloud', undefined, { playerName, teamName, targetJobId }, getIP(request));
+      }
+
+      return json({ success: true, message: `Code für ${playerName} im Team ${teamName} erstellt und an Server ${targetJobId.slice(0, 8)} gesendet.` }, 200, origin);
     } catch (e) {
       return err((e as Error).message, 503, origin);
     }
