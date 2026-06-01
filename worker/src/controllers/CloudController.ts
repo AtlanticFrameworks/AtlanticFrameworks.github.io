@@ -285,12 +285,12 @@ export class CloudController {
         await auditLog(env.DATABASE, userId, 'CLOUD_CREATECODE', 'cloud', undefined, { playerName, teamName, actionId }, getIP(request));
       }
 
-      // Poll KV for up to 10 seconds
+      // Poll D1 for up to 10 seconds (Global strong consistency)
       let attempts = 0;
       while (attempts < 10) {
-        const result: any = await env.CALLBACKS.get(actionId, "json");
+        const result: any = await env.DATABASE.prepare("SELECT * FROM callbacks WHERE actionId = ?").bind(actionId).first();
         if (result) {
-          if (result.success) {
+          if (result.success === 1) {
             return json({ success: true, message: `Code für ${playerName} im Team ${teamName} erstellt: ${result.code}`, code: result.code }, 200, origin);
           } else {
             return err(result.errorMessage || 'Code generation failed in-game', 400, origin);
@@ -327,7 +327,16 @@ export class CloudController {
 
     if (!actionId) return err('Missing actionId', 400, origin);
 
-    await env.CALLBACKS.put(actionId, JSON.stringify({ success, code, errorMessage }), { expirationTtl: 60 });
+    // Save result to D1 (Instant global consistency)
+    await env.DATABASE.prepare(
+      "INSERT INTO callbacks (actionId, success, code, errorMessage, created_at) VALUES (?, ?, ?, ?, ?)"
+    ).bind(
+      actionId, 
+      success ? 1 : 0, 
+      code || null, 
+      errorMessage || null, 
+      Date.now()
+    ).run();
 
     return json({ success: true }, 200, origin);
   }
