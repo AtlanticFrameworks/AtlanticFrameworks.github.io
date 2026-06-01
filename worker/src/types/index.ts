@@ -16,6 +16,7 @@ export const ROLE_RANK: Record<Role, number> = {
 
 // Cloudflare Worker Env Bindings
 export interface Env {
+  CALLBACKS:           KVNamespace;
   DATABASE:            D1Database;
   DEV_DATABASE:        D1Database;
   JWT_SECRET:          string;

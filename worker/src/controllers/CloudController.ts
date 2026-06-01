@@ -269,25 +269,12 @@ export class CloudController {
     if (!playerName || !teamName) return err('playerName und teamName sind Pflichtfelder', 400, origin);
 
     try {
-      const placeId = env.ROBLOX_PLACE_ID;
-      if (!placeId) return err('ROBLOX_PLACE_ID nicht konfiguriert', 503, origin);
-
-      const serverRes = await fetch(`https://games.roblox.com/v1/games/${placeId}/servers/Public?sortOrder=Desc&limit=10&excludeFullGames=false`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          'Accept': 'application/json'
-        }
-      });
-      if (!serverRes.ok) return err('Konnte Roblox-Server-API nicht erreichen', 502, origin);
-      const serverData = await serverRes.json() as any;
-      if (!serverData.data || serverData.data.length === 0) return err('Kein aktiver Server gefunden, Code kann nicht erstellt werden.', 404, origin);
-      
-      const targetJobId = serverData.data[0].id;
+      const actionId = crypto.randomUUID();
 
       const cloud = new RobloxCloudService(env);
       await cloud.publishMessage('StaffPanelUpdates', {
         type:       'createcode',
-        jobId:      targetJobId,
+        actionId:   actionId,
         playerName: playerName,
         teamName:   teamName,
         issuedBy:   issuer,
@@ -295,12 +282,53 @@ export class CloudController {
       });
 
       if (userId !== 0) {
-        await auditLog(env.DATABASE, userId, 'CLOUD_CREATECODE', 'cloud', undefined, { playerName, teamName, targetJobId }, getIP(request));
+        await auditLog(env.DATABASE, userId, 'CLOUD_CREATECODE', 'cloud', undefined, { playerName, teamName, actionId }, getIP(request));
       }
 
-      return json({ success: true, message: `Code für ${playerName} im Team ${teamName} erstellt und an Server ${targetJobId.slice(0, 8)} gesendet.` }, 200, origin);
+      // Poll KV for up to 10 seconds
+      let attempts = 0;
+      while (attempts < 10) {
+        const result: any = await env.CALLBACKS.get(actionId, "json");
+        if (result) {
+          if (result.success) {
+            return json({ success: true, message: `Code für ${playerName} im Team ${teamName} erstellt: ${result.code}`, code: result.code }, 200, origin);
+          } else {
+            return err(result.errorMessage || 'Code generation failed in-game', 400, origin);
+          }
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        attempts++;
+      }
+
+      return err('Timeout: Keine Antwort vom Roblox-Server erhalten', 504, origin);
     } catch (e) {
       return err((e as Error).message, 503, origin);
     }
+  }
+
+  /**
+   * Endpoint for the Roblox server to post the callback result.
+   */
+  static async callback(request: Request, env: Env, _user: any): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+
+    // Verify authentication from Roblox Server (using the cloud key)
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return err('Unauthorized', 401, origin);
+    }
+    const token = authHeader.slice(7);
+    if (token !== env.ROBLOX_CLOUD_KEY) {
+      return err('Invalid key', 401, origin);
+    }
+
+    const body: any = await request.json().catch(() => ({}));
+    const { actionId, success, code, errorMessage } = body;
+
+    if (!actionId) return err('Missing actionId', 400, origin);
+
+    await env.CALLBACKS.put(actionId, JSON.stringify({ success, code, errorMessage }), { expirationTtl: 60 });
+
+    return json({ success: true }, 200, origin);
   }
 }
