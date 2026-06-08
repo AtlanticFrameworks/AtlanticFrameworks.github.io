@@ -90,6 +90,7 @@
   `;
 
   function injectDOM() {
+    if (document.getElementById('cmd-overlay')) return;
     const style = document.createElement('style');
     style.textContent = STYLES;
     document.head.appendChild(style);
@@ -121,7 +122,6 @@
         </div>
       </div>`;
     document.body.appendChild(el);
-    console.log('[CMD] DOM ready');
   }
 
   // ── Session helpers ───────────────────────────────────────────────────────
@@ -166,7 +166,6 @@
     renderSuggestions('');
     setTimeout(() => inp.focus(), 50);
     startTimer();
-    console.log('[CMD] command view. accounts:', session.accounts.length, '/ services:', session.services.length);
   }
 
   // ── Timer ─────────────────────────────────────────────────────────────────
@@ -188,7 +187,6 @@
   async function authenticate(code) {
     const errEl = document.getElementById('cmd-totp-error');
     errEl.textContent = 'VERIFIZIERUNG...';
-    console.log('[CMD] auth attempt');
     try {
       const r = await fetch(`${API_BASE}/cmd/auth`, {
         method: 'POST',
@@ -197,7 +195,6 @@
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) {
-        console.warn('[CMD] auth rejected:', d.error);
         errEl.textContent = d.error || 'Fehler';
         const ti = document.getElementById('cmd-totp-input');
         ti.value = ''; ti.focus();
@@ -207,8 +204,6 @@
         fetch(`${API_BASE}/cmd/users`,        { headers: { Authorization: `Bearer ${d.token}` } }),
         fetch(`${API_BASE}/cmd/serverstatus`, { headers: { Authorization: `Bearer ${d.token}` } }),
       ]);
-      if (!uRes.ok) console.warn('[CMD] /cmd/users failed', uRes.status);
-      if (!sRes.ok) console.warn('[CMD] /cmd/serverstatus failed', sRes.status);
       const uData = uRes.ok ? await uRes.json().catch(() => ({})) : {};
       const sData = sRes.ok ? await sRes.json().catch(() => ({})) : {};
       session = {
@@ -217,10 +212,8 @@
         accounts:    uData.users     || [],
         services:    sData.services  || [],
       };
-      console.log('[CMD] session ok. accounts:', session.accounts.map(a => a.username), 'services:', session.services);
       showCommandView();
     } catch (e) {
-      console.error('[CMD] auth error:', e);
       errEl.textContent = 'Netzwerkfehler';
       document.getElementById('cmd-totp-input').focus();
     }
@@ -308,7 +301,7 @@
     currentSuggestions = getSuggestions(raw);
     selectedIdx = -1;
     const box = document.getElementById('cmd-suggestions');
-    if (!box) { console.error('[CMD] #cmd-suggestions missing'); return; }
+    if (!box) return;
 
     if (!currentSuggestions.length) { box.innerHTML = ''; return; }
 
@@ -347,8 +340,6 @@
     if (!el) return;
     el.className  = ok === null ? 'pending' : ok ? 'ok' : 'err';
     el.textContent = msg;
-    if (ok === false) console.warn('[CMD] result error:', msg);
-    if (ok === true)  console.log('[CMD]  result ok:', msg);
   }
 
   // ── API + executors ───────────────────────────────────────────────────────
@@ -364,10 +355,8 @@
       let data   = {};
       try { data = JSON.parse(text); } catch (_) {}
       const msg  = data.message || data.error || text || '?';
-      console.log('[CMD] API', method, path, '→', res.status, msg);
       return { ok: res.ok, message: msg };
     } catch (e) {
-      console.error('[CMD] fetch threw:', e);
       return { ok: false, message: e.message };
     }
   }
@@ -376,24 +365,24 @@
     'reset-ipaccess':  async ([u]) => {
       const user = resolveAccount(u);
       if (!user) return { ok: false, message: `"${u || '?'}" nicht gefunden.` };
-      return api('PATCH', `/cmd/users/${user.id}/reset-ip`, null);
+      return api('PATCH', `/cmd/users/${encodeURIComponent(user.id)}/reset-ip`, null);
     },
     'set-role': async ([u, role]) => {
       const user = resolveAccount(u);
       if (!user) return { ok: false, message: `"${u || '?'}" nicht gefunden.` };
       const r = (role || '').toUpperCase();
       if (!ROLES.includes(r)) return { ok: false, message: `Ungültige Rolle: ${r}` };
-      return api('PATCH', `/cmd/users/${user.id}/role`, { role: r });
+      return api('PATCH', `/cmd/users/${encodeURIComponent(user.id)}/role`, { role: r });
     },
     'clear-sessions': async ([u]) => {
       const user = resolveAccount(u);
       if (!user) return { ok: false, message: `"${u || '?'}" nicht gefunden.` };
-      return api('DELETE', `/cmd/users/${user.id}/sessions`, null);
+      return api('DELETE', `/cmd/users/${encodeURIComponent(user.id)}/sessions`, null);
     },
     'delete-user': async ([u]) => {
       const user = resolveAccount(u);
       if (!user) return { ok: false, message: `"${u || '?'}" nicht gefunden.` };
-      return api('DELETE', `/cmd/users/${user.id}`, null);
+      return api('DELETE', `/cmd/users/${encodeURIComponent(user.id)}`, null);
     },
     'kick-player':    async ([id, ...r]) => id ? api('POST', '/cmd/cloud/kick',    { robloxId: id, reason: r.join(' ') || 'Admin kick' }) : { ok: false, message: 'robloxId fehlt.' },
     'ban-player':     async ([id, ...r]) => id ? api('POST', '/cmd/cloud/ban',     { robloxId: id, reason: r.join(' ') || 'Admin ban'  }) : { ok: false, message: 'robloxId fehlt.' },
@@ -413,7 +402,6 @@
   };
 
   async function run(raw) {
-    console.log('[CMD] run:', JSON.stringify(raw));
     if (!raw.trim()) return;
     if (!sessionValid()) { showResult(false, 'Session abgelaufen.'); return; }
 
@@ -439,7 +427,6 @@
         renderSuggestions('');
       }
     } catch (e) {
-      console.error('[CMD] executor threw:', e);
       showResult(false, e.message);
     }
   }
@@ -456,7 +443,6 @@
       return;
     }
     if (e.target.id === 'cmd-input') {
-      console.log('[CMD] input:', JSON.stringify(e.target.value));
       renderSuggestions(e.target.value);
       clearResult();
     }
@@ -506,7 +492,6 @@
       selectSuggestion(selectedIdx >= 0 ? selectedIdx : 0);
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      console.log('[CMD] Enter. selectedIdx:', selectedIdx, 'value:', JSON.stringify(e.target.value));
       if (selectedIdx >= 0 && currentSuggestions[selectedIdx] && currentSuggestions[selectedIdx].type !== 'ph') {
         selectSuggestion(selectedIdx);
       } else {
@@ -523,7 +508,5 @@
   } else {
     injectDOM();
   }
-
-  console.log('[CMD] script loaded. delegation active.');
 
 })();
