@@ -258,8 +258,272 @@
     });
   });
 
-  // ── Placeholder stubs (filled in Tasks 8 & 9) ───────────────────────────
-  function renderSuggestions(input) { /* Task 8 */ }
-  async function executeCommand(input) { /* Task 9 */ }
+  // ── Autocomplete Data ────────────────────────────────────────────────────
+  const ROLES    = ['OWNER', 'ADMIN', 'MOD', 'TRAINEE'];
+  const STATUSES = ['OPERATIONAL', 'ONLINE', 'SYNCED', 'OFFLINE', 'DEGRADED'];
+
+  function getArgSource(source) {
+    if (!source || !session) return null;
+    switch (source) {
+      case 'accounts': return (session.accounts || []).map(a => a.username);
+      case 'roles':    return ROLES;
+      case 'statuses': return STATUSES;
+      case 'services': return session.services || [];
+      default:         return null;
+    }
+  }
+
+  function resolveAccount(name) {
+    if (!session || !name) return null;
+    return (session.accounts || []).find(a =>
+      a.username.toLowerCase() === name.toLowerCase()
+    ) || null;
+  }
+
+  // ── Command Registry ─────────────────────────────────────────────────────
+  const COMMANDS = [
+    {
+      id: 'reset-ipaccess',
+      tokens: ['reset', 'ipaccess'],
+      args: [{ name: 'username', source: 'accounts' }],
+      desc: 'Clear IP lock for account',
+    },
+    {
+      id: 'set-role',
+      tokens: ['set', 'role'],
+      args: [{ name: 'username', source: 'accounts' }, { name: 'role', source: 'roles' }],
+      desc: 'Change user role',
+    },
+    {
+      id: 'clear-sessions',
+      tokens: ['clear', 'sessions'],
+      args: [{ name: 'username', source: 'accounts' }],
+      desc: 'Delete all sessions for user',
+    },
+    {
+      id: 'delete-user',
+      tokens: ['delete', 'user'],
+      args: [{ name: 'username', source: 'accounts' }],
+      desc: 'Remove user from DB',
+    },
+    {
+      id: 'kick-player',
+      tokens: ['kick', 'player'],
+      args: [{ name: 'robloxId', source: null }, { name: 'reason...', source: null }],
+      desc: 'Kick player from game',
+    },
+    {
+      id: 'ban-player',
+      tokens: ['ban', 'player'],
+      args: [{ name: 'robloxId', source: null }, { name: 'reason...', source: null }],
+      desc: 'Ban player from game',
+    },
+    {
+      id: 'unban-player',
+      tokens: ['unban', 'player'],
+      args: [{ name: 'robloxId', source: null }],
+      desc: 'Remove game ban',
+    },
+    {
+      id: 'shutdown-server',
+      tokens: ['shutdown', 'server'],
+      args: [{ name: 'serverJobId', source: null }],
+      desc: 'Shutdown specific server (Job ID)',
+    },
+    {
+      id: 'restart-servers',
+      tokens: ['restart', 'servers'],
+      args: [],
+      desc: 'Restart all game servers',
+    },
+    {
+      id: 'clear-ratelimits',
+      tokens: ['clear', 'ratelimits'],
+      args: [],
+      desc: 'Wipe all rate limit entries',
+    },
+    {
+      id: 'set-serverstatus',
+      tokens: ['set', 'serverstatus'],
+      args: [{ name: 'service', source: 'services' }, { name: 'status', source: 'statuses' }],
+      desc: 'Update server status display',
+    },
+    {
+      id: 'announce',
+      tokens: ['announce'],
+      args: [{ name: 'message...', source: null }],
+      desc: 'Post to Discord monitoring webhook',
+    },
+  ];
+
+  // ── Input Parsing ────────────────────────────────────────────────────────
+  function getSuggestions(raw) {
+    const hasTrailing = raw.length > 0 && raw[raw.length - 1] === ' ';
+    const parts = raw.trim().split(/\s+/).filter(Boolean);
+
+    if (parts.length === 0) {
+      return COMMANDS.map(cmd => ({
+        type: 'command', cmd,
+        displayCommand: cmd.tokens.join(' '),
+        displayArgs: cmd.args.map(a => `<${a.name}>`).join(' '),
+        matchLen: 0,
+      }));
+    }
+
+    for (const cmd of COMMANDS) {
+      const n = cmd.tokens.length;
+      if (parts.length < n) continue;
+      const allMatch = cmd.tokens.every((t, i) => t === (parts[i] || '').toLowerCase());
+      if (!allMatch) continue;
+      const cmdFullyTyped = parts.length > n || (parts.length === n && hasTrailing);
+      if (!cmdFullyTyped) continue;
+
+      const argParts = parts.slice(n);
+      const argIdx = hasTrailing ? argParts.length : Math.max(0, argParts.length - 1);
+      const currentArg = cmd.args[argIdx];
+
+      if (!currentArg) return [];
+
+      const partial = hasTrailing ? '' : (argParts[argIdx] || '');
+      const source = getArgSource(currentArg.source);
+      const fixedArgParts = hasTrailing ? argParts : argParts.slice(0, argIdx);
+
+      if (!source) {
+        return [{
+          type: 'placeholder', cmd, argIdx,
+          displayCommand: [...cmd.tokens, ...fixedArgParts].join(' '),
+          displayArgs: `<${currentArg.name}>`,
+          matchLen: 0,
+        }];
+      }
+
+      const filtered = source.filter(v =>
+        !partial || v.toLowerCase().startsWith(partial.toLowerCase())
+      );
+      return filtered.map(v => ({
+        type: 'value', cmd, argIdx, value: v,
+        displayCommand: [...cmd.tokens, ...fixedArgParts, v].join(' '),
+        displayArgs: cmd.args.slice(argIdx + 1).map(a => `<${a.name}>`).join(' '),
+        matchLen: [...cmd.tokens, ...fixedArgParts].join(' ').length + 1,
+        partial,
+      }));
+    }
+
+    const inputLower = raw.trim().toLowerCase();
+    return COMMANDS
+      .filter(cmd => cmd.tokens.join(' ').startsWith(inputLower))
+      .map(cmd => ({
+        type: 'command', cmd,
+        displayCommand: cmd.tokens.join(' '),
+        displayArgs: cmd.args.map(a => `<${a.name}>`).join(' '),
+        matchLen: inputLower.length,
+      }));
+  }
+
+  // ── Suggestion Rendering ─────────────────────────────────────────────────
+  function highlight(text, matchLen) {
+    if (!matchLen) return `<span class="cmd-match">${escHtml(text)}</span>`;
+    const matched = text.slice(0, matchLen);
+    const rest    = text.slice(matchLen);
+    return `<span class="cmd-match">${escHtml(matched)}</span>${escHtml(rest)}`;
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderSuggestions(raw) {
+    currentSuggestions = getSuggestions(raw);
+    selectedIdx = -1;
+    const container = document.getElementById('cmd-suggestions');
+    if (!container) return;
+
+    if (!currentSuggestions.length) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = currentSuggestions.slice(0, 8).map((sug, i) => `
+      <div class="cmd-suggestion" data-idx="${i}">
+        <span class="cmd-sug-text">${highlight(sug.displayCommand, sug.matchLen)}</span>
+        ${sug.displayArgs ? `<span class="cmd-sug-args">${escHtml(sug.displayArgs)}</span>` : ''}
+        <span class="cmd-sug-desc">${escHtml(sug.cmd.desc)}</span>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.cmd-suggestion').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const idx = parseInt(el.dataset.idx);
+        selectSuggestion(idx);
+      });
+    });
+  }
+
+  function selectSuggestion(idx) {
+    const sug = currentSuggestions[idx];
+    if (!sug) return;
+    const input = document.getElementById('cmd-input');
+
+    if (sug.type === 'command') {
+      input.value = sug.cmd.tokens.join(' ') + (sug.cmd.args.length ? ' ' : '');
+    } else if (sug.type === 'value') {
+      input.value = sug.displayCommand + ' ';
+    } else if (sug.type === 'placeholder') {
+      return;
+    }
+
+    renderSuggestions(input.value);
+    input.focus();
+  }
+
+  // ── Command Input Listeners ──────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const cmdInput = document.getElementById('cmd-input');
+    cmdInput.addEventListener('input', (e) => {
+      renderSuggestions(e.target.value);
+      clearResult();
+    });
+
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIdx = Math.min(selectedIdx + 1, Math.min(currentSuggestions.length, 8) - 1);
+        updateSelectedHighlight();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIdx = Math.max(selectedIdx - 1, -1);
+        updateSelectedHighlight();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        if (selectedIdx >= 0) {
+          selectSuggestion(selectedIdx);
+        } else if (currentSuggestions.length > 0) {
+          selectSuggestion(0);
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedIdx >= 0 && currentSuggestions[selectedIdx]?.type !== 'placeholder') {
+          selectSuggestion(selectedIdx);
+        } else {
+          executeCommand(e.target.value.trim());
+        }
+      }
+    });
+  });
+
+  function updateSelectedHighlight() {
+    document.querySelectorAll('.cmd-suggestion').forEach((el, i) => {
+      el.classList.toggle('cmd-selected', i === selectedIdx);
+    });
+  }
+
+  function clearResult() {
+    const r = document.getElementById('cmd-result');
+    if (r) { r.className = ''; r.textContent = ''; }
+  }
+
+  // ── Placeholder stub (filled in Task 9) ─────────────────────────────────
+  async function executeCommand(raw) { /* Task 9 */ }
 
 })();
