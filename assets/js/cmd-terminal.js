@@ -1,6 +1,6 @@
 /* assets/js/cmd-terminal.js
  * Command Terminal — self-contained, no dependencies.
- * Ctrl+` to open. TOTP auth → 2-min session → command input.
+ * Ctrl+Shift+P to open. TOTP auth → 2-min session → command input.
  */
 (function () {
   'use strict';
@@ -234,7 +234,7 @@
 
     // Ctrl+` toggles overlay; Escape closes
     document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.key === '`') {
+      if (e.ctrlKey && e.shiftKey && e.key === 'P') {
         e.preventDefault();
         const overlay = document.getElementById('cmd-overlay');
         if (!overlay) return;
