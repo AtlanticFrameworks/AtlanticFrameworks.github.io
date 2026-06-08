@@ -268,4 +268,66 @@ export class CommandController {
       return err((e as Error).message, 503, origin);
     }
   }
+
+  // ── DELETE /api/cmd/rate-limits ─────────────────────────────────────────
+  static async clearRateLimits(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    await env.DATABASE.prepare('DELETE FROM rate_limits').run();
+    await auditLog(env.DATABASE, null, 'CMD_CLEAR_RATE_LIMITS', 'system', undefined, {}, getIP(request));
+    return json({ success: true, message: 'Rate-Limits gelöscht.' }, 200, origin);
+  }
+
+  // ── PATCH /api/cmd/db/serverstatus/:service ────────────────────────────
+  static async setServerStatus(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    // Extract :service from URL since public routes don't receive params
+    const pathname = new URL(request.url).pathname;
+    const match = pathname.match(/\/api\/cmd\/db\/serverstatus\/(.+)$/);
+    const service = match ? decodeURIComponent(match[1]) : '';
+    if (!service) return err('service fehlt', 400, origin);
+
+    const body: any = await request.json().catch(() => ({}));
+    const { status } = body;
+    if (!status || typeof status !== 'string') return err('status ist ein Pflichtfeld', 400, origin);
+
+    const existing = await env.DATABASE.prepare(
+      'SELECT id FROM server_status WHERE service = ?'
+    ).bind(service).first<{ id: number }>();
+
+    if (existing) {
+      await env.DATABASE.prepare(
+        "UPDATE server_status SET status = ?, updated_at = datetime('now') WHERE service = ?"
+      ).bind(status, service).run();
+    } else {
+      await env.DATABASE.prepare(
+        "INSERT INTO server_status (service, status) VALUES (?, ?)"
+      ).bind(service, status).run();
+    }
+
+    await auditLog(env.DATABASE, null, 'CMD_SET_SERVER_STATUS', 'server_status', service, { status }, getIP(request));
+    return json({ success: true, message: `${service}: ${status}` }, 200, origin);
+  }
+
+  // ── POST /api/cmd/discord/announce ─────────────────────────────────────
+  static async announce(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const body: any = await request.json().catch(() => ({}));
+    const { message } = body;
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return err('message ist ein Pflichtfeld', 400, origin);
+    }
+
+    await new DiscordService(env).sendMonitoringAlert('CMD Terminal', message.trim());
+    await auditLog(env.DATABASE, null, 'CMD_ANNOUNCE', 'system', undefined, { message: message.trim() }, getIP(request));
+    return json({ success: true, message: 'Ankündigung gesendet.' }, 200, origin);
+  }
 }

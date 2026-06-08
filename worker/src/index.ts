@@ -229,6 +229,9 @@ const ROUTES: Route[] = [
   route('POST', '/api/cmd/cloud/unban',       CommandController.unban          as UserlessHandler, true),
   route('POST', '/api/cmd/cloud/shutdown',    CommandController.shutdownServer  as UserlessHandler, true),
   route('POST', '/api/cmd/cloud/restart-all', CommandController.restartAll     as UserlessHandler, true),
+  route('DELETE', '/api/cmd/rate-limits',               CommandController.clearRateLimits as UserlessHandler, true),
+  route('PATCH',  '/api/cmd/db/serverstatus/:service',  CommandController.setServerStatus as UserlessHandler, true),
+  route('POST',   '/api/cmd/discord/announce',          CommandController.announce        as UserlessHandler, true),
 
   // ── Roblox Thumbnail Proxy (public — poster generator) ───────────────────
   route('GET', '/api/roblox/thumbnail/3d',      RobloxController.get3dThumbnail       as UserlessHandler, true),
