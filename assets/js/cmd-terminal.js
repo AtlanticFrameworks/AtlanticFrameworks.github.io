@@ -259,6 +259,7 @@
   });
 
   // ── Autocomplete Data ────────────────────────────────────────────────────
+  const MAX_SUGGESTIONS = 8;
   const ROLES    = ['OWNER', 'ADMIN', 'MOD', 'TRAINEE'];
   const STATUSES = ['OPERATIONAL', 'ONLINE', 'SYNCED', 'OFFLINE', 'DEGRADED'];
 
@@ -443,7 +444,7 @@
       return;
     }
 
-    container.innerHTML = currentSuggestions.slice(0, 8).map((sug, i) => `
+    container.innerHTML = currentSuggestions.slice(0, MAX_SUGGESTIONS).map((sug, i) => `
       <div class="cmd-suggestion" data-idx="${i}">
         <span class="cmd-sug-text">${highlight(sug.displayCommand, sug.matchLen)}</span>
         ${sug.displayArgs ? `<span class="cmd-sug-args">${escHtml(sug.displayArgs)}</span>` : ''}
@@ -464,6 +465,7 @@
     const sug = currentSuggestions[idx];
     if (!sug) return;
     const input = document.getElementById('cmd-input');
+    if (!input) return;
 
     if (sug.type === 'command') {
       input.value = sug.cmd.tokens.join(' ') + (sug.cmd.args.length ? ' ' : '');
@@ -480,6 +482,7 @@
   // ── Command Input Listeners ──────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     const cmdInput = document.getElementById('cmd-input');
+    if (!cmdInput) return;
     cmdInput.addEventListener('input', (e) => {
       renderSuggestions(e.target.value);
       clearResult();
@@ -488,7 +491,7 @@
     cmdInput.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        selectedIdx = Math.min(selectedIdx + 1, Math.min(currentSuggestions.length, 8) - 1);
+        selectedIdx = Math.min(selectedIdx + 1, Math.min(currentSuggestions.length, MAX_SUGGESTIONS) - 1);
         updateSelectedHighlight();
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
