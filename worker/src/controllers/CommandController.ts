@@ -4,6 +4,7 @@ import { json, err, auditLog, getIP } from '../middleware/auth.js';
 import { verifyTOTP, signSession } from '../utils/totp.js';
 import { requireCmdToken } from '../middleware/cmdAuth.js';
 import { RobloxCloudService } from '../services/RobloxCloudService.js';
+import { DiscordService } from '../services/DiscordService.js';
 
 export class CommandController {
 
@@ -164,6 +165,7 @@ export class CommandController {
         issuedAt: new Date().toISOString(),
       });
       await auditLog(env.DATABASE, null, 'CMD_KICK', 'users', String(robloxId), { reason }, getIP(request));
+      new DiscordService(env).sendMonitoringAlert('CMD Kick', `Kick-Signal für Roblox-ID **${robloxId}** — Grund: ${reason}`).catch(() => {});
       return json({ success: true, message: `Kick-Signal für ${robloxId} gesendet.` }, 200, origin);
     } catch (e) {
       return err((e as Error).message, 503, origin);
@@ -192,6 +194,7 @@ export class CommandController {
         issuedAt: new Date().toISOString(),
       });
       await auditLog(env.DATABASE, null, 'CMD_BAN', 'users', String(robloxId), { reason }, getIP(request));
+      new DiscordService(env).sendMonitoringAlert('CMD Ban', `Roblox-ID **${robloxId}** wurde gesperrt — Grund: ${reason}`).catch(() => {});
       return json({ success: true, message: `${robloxId} wurde gesperrt.` }, 200, origin);
     } catch (e) {
       return err((e as Error).message, 503, origin);
@@ -213,6 +216,7 @@ export class CommandController {
       const cloud = new RobloxCloudService(env);
       await cloud.unbanUser(Number(robloxId));
       await auditLog(env.DATABASE, null, 'CMD_UNBAN', 'users', String(robloxId), {}, getIP(request));
+      new DiscordService(env).sendMonitoringAlert('CMD Unban', `Roblox-ID **${robloxId}** wurde entsperrt.`).catch(() => {});
       return json({ success: true, message: `${robloxId} wurde entsperrt.` }, 200, origin);
     } catch (e) {
       return err((e as Error).message, 503, origin);
