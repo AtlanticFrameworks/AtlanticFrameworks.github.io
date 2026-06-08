@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BWRP Design Reference</title>
+
+  <!--
+  =====================================================================
+  BWRP WEBSITE — DESIGN REFERENCE DOCUMENT
+  =====================================================================
+  Use this file as a style guide when building new pages for the BWRP
+  website. It documents every design token, component pattern, and
+  interaction used across the site.
+
+  STACK
+  ─────
+  • Tailwind CSS (compiled to assets/css/main.css via tailwind.config.js)
+  • Custom overrides in assets/css/style.css
+  • Lucide icons  → <script src="https://unpkg.com/lucide@latest"></script>
+  • Google Fonts  → Oswald (display), Inter (body), Roboto Mono (mono)
+  =====================================================================
+  -->
+
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* ================================================================
+       1. DESIGN TOKENS — copy these into your Tailwind config / CSS
+       ================================================================ */
+
+    :root {
+      /* --- Colour palette --- */
+      --color-bg:          #050505;   /* body background */
+      --color-bg-alt:      #0a0a0a;   /* footer, scrollbar track */
+      --color-bw-dark:     #0f1115;   /* navbar, sections */
+      --color-bw-darker:   #0a0c0f;
+
+      --color-card:        #111111;   /* card backgrounds */
+      --color-card-modal:  #151515;   /* modal / elevated surface */
+      --color-card-dark:   #0a0a0a;   /* modal header */
+
+      --color-gold:        #E2B007;   /* PRIMARY ACCENT — used everywhere */
+      --color-gold-hover:  #cca006;
+
+      --color-border:      rgba(255,255,255,0.05);  /* default subtle border */
+      --color-border-mid:  rgba(255,255,255,0.10);  /* slightly visible border */
+      --color-border-gold: rgba(226,176,7,0.50);    /* gold border on hover */
+
+      --color-text-primary:   #e5e7eb;  /* gray-200 */
+      --color-text-secondary: #9ca3af;  /* gray-400 */
+      --color-text-muted:     #6b7280;  /* gray-500 */
+      --color-text-faint:     #4b5563;  /* gray-600 */
+
+      --color-green: #22c55e;   /* status online */
+      --color-red:   #ef4444;   /* status error / tac-red */
+
+      /* --- Tactical palette (admin / dbpanel pages) --- */
+      --tac-dark:   #08080a;
+      --tac-panel:  #111114;
+      --tac-card:   #16161a;
+      --tac-border: #252529;
+      --tac-amber:  #e2a800;
+      --tac-green:  #10b981;
+      --tac-red:    #ef4444;
+      --tac-blue:   #3b82f6;
+      --tac-purple: #a855f7;
+      --tac-muted:  #71717a;
+
+      /* --- Typography --- */
+      --font-display: 'Oswald', sans-serif;     /* headings, nav, buttons */
+      --font-body:    'Inter', sans-serif;      /* body text */
+      --font-mono:    'Roboto Mono', monospace; /* labels, badges, code */
+    }
+
+    /* ================================================================
+       2. GLOBAL RESETS / BODY
+       ================================================================ */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      /* text selection highlight */
+      --tw-selection-bg: var(--color-gold);
+      --tw-selection-color: #000;
+    }
+    ::selection { background: var(--color-gold); color: #000; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar       { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+
+    /* ================================================================
+       3. TYPOGRAPHY SCALE
+       ================================================================ */
+
+    .t-display-xl  { font-family: var(--font-display); font-size: clamp(3.5rem,10vw,7rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.9; }
+    .t-display-lg  { font-family: var(--font-display); font-size: clamp(2.5rem,6vw,5rem);  font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; }
+    .t-display-md  { font-family: var(--font-display); font-size: 2rem;  font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .t-display-sm  { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; text-transform: uppercase; }
+    .t-body        { font-family: var(--font-body); font-size: 1rem; line-height: 1.6; color: var(--color-text-secondary); }
+    .t-label       { font-family: var(--font-mono); font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3em; }
+    .t-nav         { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; }
+    .t-badge       { font-family: var(--font-mono); font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ================================================================
+       4. EFFECTS & UTILITIES
+       ================================================================ */
+
+    /* Tactical notch — clip the bottom-right corner of a button/card */
+    .tactical-notch {
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+    }
+
+    /* Text stroke (hollow outline text) */
+    .text-stroke {
+      -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+      color: transparent;
+    }
+
+    /* Glitch text hover */
+    .glitch-text:hover {
+      text-shadow: 2px 0 var(--color-gold), -2px 0 #004972;
+      animation: glitch-skew 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both infinite;
+    }
+    @keyframes glitch-skew {
+      0%   { transform: skew(0deg); }
+      20%  { transform: skew(-2deg); }
+      40%  { transform: skew(2deg); }
+      60%  { transform: skew(-1deg); }
+      80%  { transform: skew(1deg); }
+      100% { transform: skew(0deg); }
+    }
+
+    /* Dot-grid / tech background */
+    .bg-grid {
+      background-size: 40px 40px;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom,rgba(255,255,255,0.03) 1px, transparent 1px);
+    }
+
+    /* Fade mask on horizontal scrollers */
+    .mask-gradient {
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+
+    /* CRT scanline overlay — place as fixed full-screen div, z-50 */
+    .scanline-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 50;
+      opacity: 0.03;
+      background:
+        linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%),
+        linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+      background-size: 100% 2px, 3px 100%;
+    }
+
+    /* Scroll-reveal */
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    /* 3D tilt card base */
+    .tilt-card { transform-style: preserve-3d; transform: perspective(1000px); transition: transform 0.1s ease; }
+    .tilt-content { transform: translateZ(20px); }
+
+    /* Gold glow shadow on buttons */
+    .shadow-gold { box-shadow: 0 0 15px rgba(226,176,7,0.3); }
+
+    /* Animations */
+    @keyframes fadeIn  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes glowGreen { from { text-shadow:0 0 10px rgba(34,197,94,0.2); } to { text-shadow:0 0 20px rgba(34,197,94,0.6); } }
+    @keyframes glowRed   { from { text-shadow:0 0 10px rgba(239,68,68,0.2); } to { text-shadow:0 0 20px rgba(239,68,68,0.6); } }
+    @keyframes pingPulse { 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.5); opacity:0; } }
+
+    /* ================================================================
+       5. COMPONENT LIBRARY
+       ================================================================ */
+
+    /* --- layout helpers --- */
+    .container-max { max-width: 80rem; margin-inline: auto; padding-inline: 1rem; }
+    .section-pad   { padding-block: 6rem; }
+
+    /* --- reference doc helpers (not part of site design) --- */
+    .ref-section { border-top: 1px solid rgba(255,255,255,0.06); padding: 3rem 0; }
+    .ref-label   { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-text-faint); margin-bottom: 0.75rem; }
+    .ref-grid    { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
+    .swatch      { height: 3rem; border-radius: 2px; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<!-- ================================================================
+     CRT SCANLINE OVERLAY — include on every page
+     ================================================================ -->
+<div class="scanline-overlay"></div>
+
+<!-- ================================================================
+     NAVBAR PATTERN
+     ================================================================ -->
+<nav style="position:fixed;top:0;width:100%;z-index:40;background:rgba(15,17,21,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.05);">
+  <div class="container-max" style="display:flex;align-items:center;justify-content:space-between;height:5rem;">
+
+    <!-- Logo lockup -->
+    <a href="#" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+      <div style="width:3rem;height:3rem;background:rgba(226,176,7,0.1);border:1px solid rgba(226,176,7,0.3);display:flex;align-items:center;justify-content:center;">
+        <i data-lucide="shield" style="width:1.5rem;height:1.5rem;color:var(--color-gold);"></i>
+      </div>
+      <div style="line-height:1.2;">
+        <span style="display:block;font-family:var(--font-display);font-weight:700;color:#fff;letter-spacing:0.1em;font-size:1.125rem;">BUNDESWEHR</span>
+        <span style="display:block;font-family:var(--font-mono);font-size:0.5625rem;color:var(--color-gold);letter-spacing:0.3em;text-transform:uppercase;">Roleplay</span>
+      </div>
+    </a>
+
+    <!-- Nav links — each has gold underline on hover -->
+    <div style="display:flex;align-items:center;gap:2rem;">
+      <a href="#" style="position:relative;font-family:var(--font-display);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-muted);text-decoration:none;padding-bottom:4px;">
+        Startseite
+        <!-- Gold underline: 0→full width on hover via CSS transition -->
+        <span style="position:absolute;bottom:-1px;left:0;height:2px;width:100%;background:var(--color-gold);"></span>
+      </a>
+      <a href="#" style="font-family:var(--font-display);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-muted);text-decoration:none;">Einheiten</a>
+      <a href="#" style="font-family:var(--font-display);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-muted);text-decoration:none;">Regelwerk</a>
+
+      <!-- Language toggle button -->
+      <button style="font-family:var(--font-display);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-muted);background:transparent;border:1px solid rgba(255,255,255,0.1);padding:0.25rem 0.75rem;cursor:pointer;display:flex;align-items:center;gap:0.25rem;">
+        DE <i data-lucide="globe" style="width:0.75rem;height:0.75rem;display:inline;"></i>
+      </button>
+
+      <!-- CTA button — tactical-notch + gold bg + skew-reveal hover -->
+      <a href="#" class="tactical-notch shadow-gold" style="background:var(--color-gold);color:#000;padding:0.5rem 1.5rem;font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;display:flex;align-items:center;gap:0.5rem;transition:background 0.2s;">
+        <i data-lucide="play" style="width:1rem;height:1rem;fill:currentColor;"></i> JETZT SPIELEN
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ================================================================
+     HERO SECTION PATTERN
+     ================================================================ -->
+<header style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;padding-top:5rem;">
+
+  <!-- Parallax / background image layer -->
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,0.5),rgba(5,5,5,1)),url('') center/cover no-repeat;transform:scale(1.1);"></div>
+
+  <!-- Content -->
+  <div style="position:relative;z-index:10;text-align:center;padding-inline:1rem;max-width:64rem;margin-inline:auto;">
+
+    <!-- Status badge -->
+    <div style="display:inline-flex;align-items:center;gap:0.75rem;background:rgba(0,0,0,0.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);padding:0.5rem 1.5rem;border-radius:9999px;margin-bottom:2rem;">
+      <div style="position:relative;width:0.75rem;height:0.75rem;">
+        <span style="position:absolute;inset:0;border-radius:9999px;background:#4ade80;opacity:0.75;animation:pingPulse 1.5s ease-in-out infinite;"></span>
+        <span style="position:relative;display:block;width:0.75rem;height:0.75rem;border-radius:9999px;background:#22c55e;"></span>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--color-text-secondary);">System Online // v2.4</span>
+    </div>
+
+    <!-- Giant headline — mix outlined + gold -->
+    <h1 class="t-display-xl glitch-text" style="color:#fff;margin-bottom:1.5rem;">
+      <span class="text-stroke" style="display:block;">Wir. Dienen.</span>
+      <span style="display:block;color:var(--color-gold);">Roblox.</span>
+    </h1>
+
+    <!-- Sub-copy -->
+    <p style="color:var(--color-text-secondary);font-size:1.125rem;margin-bottom:3rem;max-width:40rem;margin-inline:auto;line-height:1.7;">
+      Authentisches Rollenspiel. Taktische Tiefe. Deutsche Militärtradition.<br>
+      <span style="color:rgba(226,176,7,0.8);">Tritt der größten deutschen Milsim-Community bei.</span>
+    </p>
+
+    <!-- Button row -->
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1.5rem;">
+      <!-- Primary CTA -->
+      <button class="tactical-notch" style="position:relative;padding:1rem 2rem;background:#fff;color:#000;font-family:var(--font-display);font-weight:700;font-size:1.25rem;text-transform:uppercase;letter-spacing:0.1em;border:none;cursor:pointer;overflow:hidden;">
+        Einsatz Beginnen
+      </button>
+      <!-- Secondary CTA -->
+      <button class="tactical-notch" style="padding:1rem 2rem;background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff;font-family:var(--font-display);font-weight:700;font-size:1.25rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;display:flex;align-items:center;gap:0.5rem;">
+        <i data-lucide="message-square" style="width:1.25rem;height:1.25rem;"></i> Discord
+      </button>
+    </div>
+
+  </div>
+</header>
+
+
+<!-- ================================================================
+     TICKER / STATUS BAR PATTERN
+     ================================================================ -->
+<div style="background:var(--color-bw-dark);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);padding:0.75rem 0;position:relative;z-index:20;overflow:hidden;">
+  <div class="container-max" style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:1.5rem;font-family:var(--font-mono);font-size:0.75rem;">
+      <span style="color:var(--color-green);display:flex;align-items:center;gap:0.5rem;font-weight:700;">
+        <i data-lucide="wifi" style="width:1rem;height:1rem;"></i> VERBINDUNG STABIL
+      </span>
+      <span style="width:1px;height:1rem;background:rgba(255,255,255,0.1);display:inline-block;"></span>
+      <span style="color:var(--color-text-faint);">Online Personal: <strong style="color:#fff;">247</strong></span>
+    </div>
+    <!-- Scrolling news ticker -->
+    <div class="mask-gradient" style="flex:1;margin-inline:3rem;overflow:hidden;white-space:nowrap;">
+      <span style="font-family:var(--font-mono);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-faint);">
+        +++ NEUES UPDATE: KARRIERE CENTER +++ FELDJÄGER FAHRZEUGE EINGETROFFEN +++ KSK REKRUTIERUNG OFFEN +++
+      </span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     DESIGN REFERENCE CONTENT STARTS HERE
+     (everything below documents the design system)
+     ================================================================ -->
+<main class="container-max" style="padding-block:6rem;">
+
+  <!-- SECTION HEADER PATTERN -->
+  <div class="ref-section">
+    <p class="ref-label">Pattern — Section Header</p>
+
+    <!-- Gold line + small gold label + large Oswald heading (used on every section) -->
+    <div style="margin-bottom:4rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+        <span style="height:1px;width:2rem;background:var(--color-gold);display:inline-block;"></span>
+        <span style="font-family:var(--font-mono);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-gold);">Truppengattungen</span>
+      </div>
+      <h2 class="t-display-lg" style="color:#fff;">EINSATZKRÄFTE</h2>
+    </div>
+
+    <!-- Variant: gradient clip text (used in regelwerk hero) -->
+    <h2 class="t-display-lg" style="background:linear-gradient(to bottom right,#fff,#6b7280);-webkit-background-clip:text;background-clip:text;color:transparent;">
+      REGELWERK
+    </h2>
+  </div>
+
+
+  <!-- COLOUR SWATCHES -->
+  <div class="ref-section">
+    <p class="ref-label">Colours</p>
+    <div class="ref-grid">
+      <div><div class="swatch" style="background:#050505;border:1px solid #333;"></div><p class="ref-label">#050505 — bg</p></div>
+      <div><div class="swatch" style="background:#0f1115;"></div><p class="ref-label">#0f1115 — bw-dark</p></div>
+      <div><div class="swatch" style="background:#111111;"></div><p class="ref-label">#111 — card</p></div>
+      <div><div class="swatch" style="background:#151515;"></div><p class="ref-label">#151515 — modal</p></div>
+      <div><div class="swatch" style="background:#E2B007;"></div><p class="ref-label">#E2B007 — gold ★</p></div>
+      <div><div class="swatch" style="background:#22c55e;"></div><p class="ref-label">#22c55e — status green</p></div>
+      <div><div class="swatch" style="background:#ef4444;"></div><p class="ref-label">#ef4444 — status red</p></div>
+      <div><div class="swatch" style="background:#3b82f6;"></div><p class="ref-label">#3b82f6 — tac-blue</p></div>
+    </div>
+  </div>
+
+
+  <!-- TYPOGRAPHY SPECIMENS -->
+  <div class="ref-section">
+    <p class="ref-label">Typography</p>
+
+    <p class="t-display-xl glitch-text" style="color:#fff;margin-bottom:1rem;">Display XL — Oswald 700</p>
+    <p class="t-display-lg" style="color:#fff;margin-bottom:1rem;">Display LG — Oswald 700</p>
+    <p class="t-display-md" style="color:#fff;margin-bottom:1rem;">Display MD — Oswald 700</p>
+    <p class="t-display-sm" style="color:#fff;margin-bottom:1rem;">Display SM — Oswald 700</p>
+    <p class="t-body" style="margin-bottom:1rem;">Body text — Inter 400, color: gray-400. Used for descriptions and paragraph content. Line-height 1.6 for comfortable reading.</p>
+    <p class="t-label" style="color:var(--color-gold);margin-bottom:0.5rem;">Label / Badge — Roboto Mono 700</p>
+    <p class="t-nav" style="color:var(--color-text-muted);margin-bottom:0.5rem;">Nav item — Oswald 700 uppercase</p>
+
+    <!-- Hollow / stroke text -->
+    <p class="t-display-xl text-stroke" style="margin-bottom:1rem;">Stroke Text</p>
+
+    <!-- Mono badge -->
+    <span style="font-family:var(--font-mono);font-size:0.625rem;border:1px solid rgba(255,255,255,0.2);padding:0.25rem 0.5rem;color:var(--color-text-muted);">GP-01</span>
+  </div>
+
+
+  <!-- BUTTONS -->
+  <div class="ref-section">
+    <p class="ref-label">Buttons</p>
+    <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;">
+
+      <!-- Primary: white bg, gold skew-fill on hover, tactical-notch -->
+      <button class="tactical-notch" style="padding:1rem 2rem;background:#fff;color:#000;font-family:var(--font-display);font-weight:700;font-size:1.125rem;text-transform:uppercase;letter-spacing:0.1em;border:none;cursor:pointer;">
+        Primary CTA
+      </button>
+
+      <!-- Gold: main nav CTA -->
+      <a class="tactical-notch shadow-gold" href="#" style="background:var(--color-gold);color:#000;padding:0.5rem 1.5rem;font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;">
+        <i data-lucide="play" style="width:1rem;height:1rem;fill:currentColor;"></i> JETZT SPIELEN
+      </a>
+
+      <!-- Ghost: transparent with white/10 border -->
+      <button class="tactical-notch" style="padding:0.75rem 1.5rem;background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff;font-family:var(--font-display);font-weight:700;font-size:1rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">
+        Ghost Button
+      </button>
+
+      <!-- Tab active (regelwerk sidebar) -->
+      <button style="padding:0.75rem 1rem;background:var(--color-gold);color:#000;font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;border:none;border-left:4px solid var(--color-gold);cursor:pointer;">
+        Tab Active
+      </button>
+
+      <!-- Tab inactive -->
+      <button style="padding:0.75rem 1rem;background:#111;color:var(--color-text-muted);font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;border:none;border-left:4px solid transparent;cursor:pointer;">
+        Tab Inactive
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- CARDS -->
+  <div class="ref-section">
+    <p class="ref-label">Cards — Tilt / Division Card</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2rem;">
+
+      <!-- Division card -->
+      <div class="tilt-card" style="background:#111;border:1px solid rgba(255,255,255,0.05);position:relative;height:25rem;overflow:hidden;cursor:pointer;">
+        <!-- Image layer (grayscale → colour on hover) -->
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);opacity:0.4;"></div>
+        <!-- Gradient overlay -->
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,#000,rgba(0,0,0,0.8),transparent);"></div>
+
+        <div class="tilt-content" style="position:relative;z-index:10;padding:2rem;height:100%;display:flex;flex-direction:column;">
+          <!-- Top row: icon + badge -->
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <i data-lucide="crosshair" style="width:2.5rem;height:2.5rem;color:rgba(255,255,255,0.5);"></i>
+            <span style="font-family:var(--font-mono);font-size:0.625rem;border:1px solid rgba(255,255,255,0.2);padding:0.25rem 0.5rem;color:var(--color-text-muted);">GP-01</span>
+          </div>
+
+          <!-- Bottom: heading + gold bar + desc + cta -->
+          <div style="margin-top:auto;">
+            <h3 class="t-display-md" style="color:#fff;margin-bottom:0.5rem;">KSK</h3>
+            <!-- Gold accent bar — animates to full width on hover -->
+            <div style="height:4px;width:3rem;background:var(--color-gold);margin-bottom:1rem;"></div>
+            <p style="color:var(--color-text-muted);font-size:0.875rem;margin-bottom:1.5rem;">Eliteeinheit für spezielle Operationen.</p>
+            <span style="font-family:var(--font-display);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:var(--color-gold);display:flex;align-items:center;gap:0.5rem;">
+              Details ansehen <i data-lucide="arrow-right" style="width:1rem;height:1rem;"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simpler info card (used in stats / team sections) -->
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.05);padding:2rem;position:relative;">
+        <div style="position:absolute;top:0;left:0;width:100%;height:2px;background:var(--color-gold);"></div>
+        <i data-lucide="users" style="width:2rem;height:2rem;color:var(--color-gold);margin-bottom:1rem;"></i>
+        <p class="t-label" style="color:var(--color-text-muted);margin-bottom:0.5rem;">Aktive Mitglieder</p>
+        <p class="t-display-lg" style="color:#fff;">2,400+</p>
+      </div>
+
+      <!-- Dark panel / modal card -->
+      <div style="background:#151515;border:1px solid rgba(255,255,255,0.1);">
+        <div style="background:#0a0a0a;padding:1.5rem 2rem;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h4 class="t-display-sm" style="color:#fff;">Modal Title</h4>
+            <span class="t-label" style="color:var(--color-gold);">Klassifiziert: Öffentlich</span>
+          </div>
+          <i data-lucide="x" style="width:1.5rem;height:1.5rem;color:var(--color-text-muted);"></i>
+        </div>
+        <div style="padding:2rem;">
+          <p class="t-body">Modal body content. Used for division details, confirmation dialogs, and info panels.</p>
+          <div style="margin-top:1rem;display:flex;justify-content:space-between;font-size:0.75rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:0.5rem;">
+            <span style="color:var(--color-text-muted);">Schwierigkeit</span>
+            <span style="font-family:var(--font-mono);color:var(--color-gold);">Hoch</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- BADGES & STATUS INDICATORS -->
+  <div class="ref-section">
+    <p class="ref-label">Badges &amp; Status</p>
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+
+      <!-- Online badge (hero) -->
+      <div style="display:inline-flex;align-items:center;gap:0.75rem;background:rgba(0,0,0,0.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);padding:0.5rem 1.5rem;border-radius:9999px;">
+        <div style="position:relative;width:0.75rem;height:0.75rem;">
+          <span style="position:absolute;inset:0;border-radius:9999px;background:#4ade80;opacity:0.75;animation:pingPulse 1.5s ease-in-out infinite;"></span>
+          <span style="position:relative;display:block;width:0.75rem;height:0.75rem;border-radius:9999px;background:#22c55e;"></span>
+        </div>
+        <span class="t-label" style="color:var(--color-text-secondary);">System Online // v2.4</span>
+      </div>
+
+      <!-- Gold pill badge -->
+      <div style="display:inline-block;padding:0.25rem 0.75rem;border:1px solid rgba(226,176,7,0.3);background:rgba(226,176,7,0.05);backdrop-filter:blur(8px);border-radius:9999px;">
+        <span class="t-label" style="color:var(--color-gold);">Documentation</span>
+      </div>
+
+      <!-- Monospace type badge (card corner) -->
+      <span style="font-family:var(--font-mono);font-size:0.625rem;border:1px solid rgba(255,255,255,0.2);padding:0.25rem 0.5rem;color:var(--color-text-muted);">GP-03</span>
+
+      <!-- Status dot inline -->
+      <span style="display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--font-mono);font-size:0.75rem;color:var(--color-green);">
+        <span style="width:0.5rem;height:0.5rem;border-radius:9999px;background:currentColor;display:inline-block;"></span>
+        VERBINDUNG STABIL
+      </span>
+
+    </div>
+  </div>
+
+
+  <!-- FORM ELEMENTS -->
+  <div class="ref-section">
+    <p class="ref-label">Form Inputs</p>
+    <div style="max-width:32rem;display:flex;flex-direction:column;gap:1rem;">
+
+      <div>
+        <label class="t-label" style="color:var(--color-text-muted);display:block;margin-bottom:0.5rem;">Roblox Username</label>
+        <input type="text" placeholder="Player123" style="width:100%;background:#111;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:0.75rem 1rem;font-family:var(--font-mono);font-size:0.875rem;outline:none;">
+        <!-- focus-visible: border-color: var(--color-gold) -->
+      </div>
+
+      <div>
+        <label class="t-label" style="color:var(--color-text-muted);display:block;margin-bottom:0.5rem;">Textarea</label>
+        <textarea rows="4" placeholder="Begründung..." style="width:100%;background:#111;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:0.75rem 1rem;font-family:var(--font-body);font-size:0.875rem;resize:vertical;outline:none;"></textarea>
+      </div>
+
+      <div>
+        <label class="t-label" style="color:var(--color-text-muted);display:block;margin-bottom:0.5rem;">Select</label>
+        <select style="width:100%;background:#111;border:1px solid rgba(255,255,255,0.1);color:#fff;padding:0.75rem 1rem;font-family:var(--font-mono);font-size:0.875rem;outline:none;-webkit-appearance:none;">
+          <option>KSK</option>
+          <option>Feldjäger</option>
+          <option>Marine</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- SIDEBAR / TAB NAV PATTERN (Regelwerk) -->
+  <div class="ref-section">
+    <p class="ref-label">Sidebar Tab Nav</p>
+    <div style="width:14rem;">
+      <h3 class="t-display-sm" style="color:#fff;border-bottom:1px solid rgba(226,176,7,0.3);padding-bottom:0.5rem;margin-bottom:1rem;">Kategorien</h3>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <button style="text-align:left;padding:0.75rem 1rem;background:var(--color-gold);color:#000;font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;border:none;border-left:4px solid var(--color-gold);cursor:pointer;">Allgemein</button>
+        <button style="text-align:left;padding:0.75rem 1rem;background:#111;color:var(--color-text-muted);font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;border:none;border-left:4px solid transparent;cursor:pointer;">Ingame</button>
+        <button style="text-align:left;padding:0.75rem 1rem;background:#111;color:var(--color-text-muted);font-family:var(--font-display);font-weight:700;font-size:0.875rem;text-transform:uppercase;border:none;border-left:4px solid transparent;cursor:pointer;">Divisionen</button>
+      </div>
+      <!-- TOC sidebar links -->
+      <div style="margin-top:2rem;border-left:1px solid rgba(255,255,255,0.1);padding-left:1rem;">
+        <p class="t-label" style="color:var(--color-text-muted);margin-bottom:1rem;">Inhalt</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.5rem;font-size:0.75rem;color:var(--color-text-muted);">
+          <li><a href="#" style="color:var(--color-gold);text-decoration:none;font-family:var(--font-body);">§1 Verhaltenskodex</a></li>
+          <li><a href="#" style="color:var(--color-text-muted);text-decoration:none;font-family:var(--font-body);">§2 Serverregeln</a></li>
+          <li><a href="#" style="color:var(--color-text-muted);text-decoration:none;font-family:var(--font-body);">§3 Rollenspiel</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- BACKGROUND TEXTURES -->
+  <div class="ref-section">
+    <p class="ref-label">Background Textures</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.5rem;">
+
+      <!-- Dot grid -->
+      <div class="bg-grid" style="height:8rem;border:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;">
+        <span class="t-label" style="color:var(--color-text-faint);">bg-grid</span>
+      </div>
+
+      <!-- Gradient hero overlay -->
+      <div style="height:8rem;background:linear-gradient(to bottom,rgba(10,10,10,0.5),rgba(5,5,5,1));border:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;">
+        <span class="t-label" style="color:var(--color-text-faint);">hero gradient</span>
+      </div>
+
+      <!-- Card gradient (bottom-up) -->
+      <div style="height:8rem;background:linear-gradient(to top,#000,rgba(0,0,0,0.8),transparent);border:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;">
+        <span class="t-label" style="color:var(--color-text-faint);">card overlay</span>
+      </div>
+
+      <!-- Tactical gold glow -->
+      <div style="height:8rem;background:#111;box-shadow:inset 0 0 40px rgba(226,176,7,0.05);border:1px solid rgba(226,176,7,0.15);display:flex;align-items:center;justify-content:center;">
+        <span class="t-label" style="color:var(--color-gold);">gold glow card</span>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- TABLE / DIVIDER ROWS pattern (modal detail rows) -->
+  <div class="ref-section">
+    <p class="ref-label">Detail Rows</p>
+    <div style="max-width:28rem;display:flex;flex-direction:column;gap:0;">
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:0.5rem;margin-bottom:0.5rem;">
+        <span style="color:var(--color-text-muted);">Zugang</span>
+        <span style="font-family:var(--font-mono);color:#fff;">Gamepass / Bewerbung</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:0.5rem;margin-bottom:0.5rem;">
+        <span style="color:var(--color-text-muted);">Schwierigkeit</span>
+        <span style="font-family:var(--font-mono);color:var(--color-gold);">Hoch</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:0.5rem;">
+        <span style="color:var(--color-text-muted);">Status</span>
+        <span style="font-family:var(--font-mono);color:var(--color-green);">Aktiv</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FOOTER PATTERN -->
+  <div class="ref-section">
+    <p class="ref-label">Footer</p>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="background:#020202;border-top:1px solid rgba(255,255,255,0.05);padding:3rem 0;">
+  <div class="container-max" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1.5rem;font-size:0.75rem;color:var(--color-text-faint);">
+    <p>© 2024-2026 ATLANTIC Studios. Alle Rechte vorbehalten.</p>
+    <div style="display:flex;gap:1.5rem;align-items:center;">
+      <a href="#" style="color:inherit;text-decoration:none;">Datenschutz</a>
+      <a href="#" style="color:inherit;text-decoration:none;">Impressum</a>
+      <a href="#" style="color:inherit;text-decoration:none;">Entbannung</a>
+      <a href="#" style="color:var(--color-text-muted);text-decoration:none;font-family:var(--font-mono);font-size:0.625rem;display:flex;align-items:center;gap:0.25rem;margin-left:1rem;">
+        <i data-lucide="lock" style="width:0.75rem;height:0.75rem;"></i> TEAM
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- ================================================================
+     QUICK-REFERENCE COMMENT — paste this at the top of any new page
+     ================================================================
+
+BWRP DESIGN TOKENS
+──────────────────
+Background:  #050505 (body)  |  #0f1115 (bw-dark)  |  #111 (card)
+Gold accent: #E2B007
+Text:        #e5e7eb (primary)  |  #9ca3af (secondary)  |  #6b7280 (muted)
+Status:      #22c55e (green)  |  #ef4444 (red)
+
+Fonts (Google Fonts):
+  Display / headings / buttons / nav → Oswald 700, uppercase, tight tracking
+  Body copy                          → Inter 400
+  Labels / badges / mono text        → Roboto Mono 400/700
+
+Shared patterns:
+  • .tactical-notch — clip-path bottom-right corner on buttons/cards/modals
+  • .text-stroke     — transparent text with white/30 stroke
+  • .glitch-text     — skew animation + gold/blue shadow on hover
+  • .bg-grid         — subtle 40px dot-grid background
+  • .mask-gradient   — fade-out edges for scroll containers
+  • .reveal          — scroll-animate: opacity 0 + translateY(30px) → active
+  • .tilt-card       — preserve-3d perspective base for 3D hover tilt
+  • .scanline-overlay — fixed, z-50, opacity-[0.03] CRT texture
+
+Icon library: Lucide (https://unpkg.com/lucide@latest)
+  → activate with: lucide.createIcons()
+
+================================================================ -->
+
+<script>
+  // Activate Lucide icons
+  lucide.createIcons();
+
+  // Simple scroll-reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
