@@ -224,6 +224,11 @@ const ROUTES: Route[] = [
   route('PATCH',  '/api/cmd/users/:id/role',      CommandController.setRole          as UserlessHandler, true),
   route('DELETE', '/api/cmd/users/:id/sessions',  CommandController.clearSessions    as UserlessHandler, true),
   route('DELETE', '/api/cmd/users/:id',           CommandController.deleteUser       as UserlessHandler, true),
+  route('POST', '/api/cmd/cloud/kick',        CommandController.kick           as UserlessHandler, true),
+  route('POST', '/api/cmd/cloud/ban',         CommandController.ban            as UserlessHandler, true),
+  route('POST', '/api/cmd/cloud/unban',       CommandController.unban          as UserlessHandler, true),
+  route('POST', '/api/cmd/cloud/shutdown',    CommandController.shutdownServer  as UserlessHandler, true),
+  route('POST', '/api/cmd/cloud/restart-all', CommandController.restartAll     as UserlessHandler, true),
 
   // ── Roblox Thumbnail Proxy (public — poster generator) ───────────────────
   route('GET', '/api/roblox/thumbnail/3d',      RobloxController.get3dThumbnail       as UserlessHandler, true),

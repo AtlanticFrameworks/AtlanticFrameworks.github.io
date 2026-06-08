@@ -3,6 +3,7 @@ import type { Env } from '../types/index.js';
 import { json, err, auditLog, getIP } from '../middleware/auth.js';
 import { verifyTOTP, signSession } from '../utils/totp.js';
 import { requireCmdToken } from '../middleware/cmdAuth.js';
+import { RobloxCloudService } from '../services/RobloxCloudService.js';
 
 export class CommandController {
 
@@ -140,5 +141,127 @@ export class CommandController {
     await auditLog(env.DATABASE, null, 'CMD_DELETE_USER', 'users', String(id), { username: user.username }, getIP(request));
 
     return json({ success: true, message: `Benutzer ${user.username} gelöscht.` }, 200, origin);
+  }
+
+  // ── POST /api/cmd/cloud/kick ────────────────────────────────────────────
+  static async kick(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const body: any = await request.json().catch(() => ({}));
+    const { robloxId, reason } = body;
+    if (!robloxId || !reason) return err('robloxId und reason sind Pflichtfelder', 400, origin);
+    if (isNaN(Number(robloxId)) || Number(robloxId) <= 0) return err('Ungültige Roblox-ID', 400, origin);
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:     'KICK',
+        targetId: Number(robloxId),
+        reason:   reason,
+        issuedBy: 'CMD-TERMINAL',
+        issuedAt: new Date().toISOString(),
+      });
+      await auditLog(env.DATABASE, null, 'CMD_KICK', 'users', String(robloxId), { reason }, getIP(request));
+      return json({ success: true, message: `Kick-Signal für ${robloxId} gesendet.` }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
+
+  // ── POST /api/cmd/cloud/ban ─────────────────────────────────────────────
+  static async ban(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const body: any = await request.json().catch(() => ({}));
+    const { robloxId, reason } = body;
+    if (!robloxId || !reason) return err('robloxId und reason sind Pflichtfelder', 400, origin);
+    if (isNaN(Number(robloxId)) || Number(robloxId) <= 0) return err('Ungültige Roblox-ID', 400, origin);
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.banUser({ userId: Number(robloxId), reason, displayReason: reason, duration: null });
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:     'KICK',
+        targetId: Number(robloxId),
+        reason:   `[GEBANNT] ${reason}`,
+        issuedBy: 'CMD-TERMINAL',
+        issuedAt: new Date().toISOString(),
+      });
+      await auditLog(env.DATABASE, null, 'CMD_BAN', 'users', String(robloxId), { reason }, getIP(request));
+      return json({ success: true, message: `${robloxId} wurde gesperrt.` }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
+
+  // ── POST /api/cmd/cloud/unban ───────────────────────────────────────────
+  static async unban(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const body: any = await request.json().catch(() => ({}));
+    const { robloxId } = body;
+    if (!robloxId) return err('robloxId ist ein Pflichtfeld', 400, origin);
+    if (isNaN(Number(robloxId)) || Number(robloxId) <= 0) return err('Ungültige Roblox-ID', 400, origin);
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.unbanUser(Number(robloxId));
+      await auditLog(env.DATABASE, null, 'CMD_UNBAN', 'users', String(robloxId), {}, getIP(request));
+      return json({ success: true, message: `${robloxId} wurde entsperrt.` }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
+
+  // ── POST /api/cmd/cloud/shutdown ────────────────────────────────────────
+  static async shutdownServer(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const body: any = await request.json().catch(() => ({}));
+    const { serverJobId } = body;
+    if (!serverJobId || typeof serverJobId !== 'string') return err('serverJobId ist ein Pflichtfeld', 400, origin);
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:     'SHUTDOWN_SERVER',
+        jobId:    serverJobId,
+        issuedBy: 'CMD-TERMINAL',
+        issuedAt: new Date().toISOString(),
+      });
+      await auditLog(env.DATABASE, null, 'CMD_SHUTDOWN_SERVER', 'servers', serverJobId, {}, getIP(request));
+      return json({ success: true, message: `Shutdown-Signal an ${serverJobId.slice(0, 8)}... gesendet.` }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
+  }
+
+  // ── POST /api/cmd/cloud/restart-all ────────────────────────────────────
+  static async restartAll(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    try {
+      const cloud = new RobloxCloudService(env);
+      await cloud.publishMessage('StaffPanelUpdates', {
+        type:          'RESTART_ALL',
+        excludeJobIds: [],
+        issuedBy:      'CMD-TERMINAL',
+        issuedAt:      new Date().toISOString(),
+      });
+      await auditLog(env.DATABASE, null, 'CMD_RESTART_ALL', 'servers', undefined, {}, getIP(request));
+      return json({ success: true, message: 'Restart-Signal an alle Server gesendet.' }, 200, origin);
+    } catch (e) {
+      return err((e as Error).message, 503, origin);
+    }
   }
 }
