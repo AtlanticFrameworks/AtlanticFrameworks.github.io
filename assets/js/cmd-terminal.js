@@ -526,7 +526,142 @@
     if (r) { r.className = ''; r.textContent = ''; }
   }
 
-  // ── Placeholder stub (filled in Task 9) ─────────────────────────────────
-  async function executeCommand(raw) { /* Task 9 */ }
+  // ── API Helper ───────────────────────────────────────────────────────────
+  async function cmdFetch(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.token}`,
+      },
+    };
+    if (body !== null && body !== undefined) opts.body = JSON.stringify(body);
+    try {
+      const res  = await fetch(`${API_BASE}${path}`, opts);
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, message: data.message || data.error || JSON.stringify(data) };
+    } catch (e) {
+      return { ok: false, message: e.message };
+    }
+  }
+
+  // ── Command Executors ────────────────────────────────────────────────────
+  const EXECUTORS = {
+    'reset-ipaccess': async (argParts) => {
+      const user = resolveAccount(argParts[0]);
+      if (!user) return { ok: false, message: `Benutzer "${argParts[0] || '?'}" nicht gefunden.` };
+      return cmdFetch('PATCH', `/cmd/users/${user.id}/reset-ip`, null);
+    },
+    'set-role': async (argParts) => {
+      const user = resolveAccount(argParts[0]);
+      if (!user) return { ok: false, message: `Benutzer "${argParts[0] || '?'}" nicht gefunden.` };
+      const role = (argParts[1] || '').toUpperCase();
+      if (!ROLES.includes(role)) return { ok: false, message: `Ungültige Rolle. Erlaubt: ${ROLES.join(', ')}` };
+      return cmdFetch('PATCH', `/cmd/users/${user.id}/role`, { role });
+    },
+    'clear-sessions': async (argParts) => {
+      const user = resolveAccount(argParts[0]);
+      if (!user) return { ok: false, message: `Benutzer "${argParts[0] || '?'}" nicht gefunden.` };
+      return cmdFetch('DELETE', `/cmd/users/${user.id}/sessions`, null);
+    },
+    'delete-user': async (argParts) => {
+      const user = resolveAccount(argParts[0]);
+      if (!user) return { ok: false, message: `Benutzer "${argParts[0] || '?'}" nicht gefunden.` };
+      return cmdFetch('DELETE', `/cmd/users/${user.id}`, null);
+    },
+    'kick-player': async (argParts) => {
+      const robloxId = argParts[0];
+      const reason   = argParts.slice(1).join(' ') || 'Admin kick';
+      if (!robloxId) return { ok: false, message: 'robloxId fehlt.' };
+      return cmdFetch('POST', '/cmd/cloud/kick', { robloxId, reason });
+    },
+    'ban-player': async (argParts) => {
+      const robloxId = argParts[0];
+      const reason   = argParts.slice(1).join(' ') || 'Admin ban';
+      if (!robloxId) return { ok: false, message: 'robloxId fehlt.' };
+      return cmdFetch('POST', '/cmd/cloud/ban', { robloxId, reason });
+    },
+    'unban-player': async (argParts) => {
+      const robloxId = argParts[0];
+      if (!robloxId) return { ok: false, message: 'robloxId fehlt.' };
+      return cmdFetch('POST', '/cmd/cloud/unban', { robloxId });
+    },
+    'shutdown-server': async (argParts) => {
+      const serverJobId = argParts[0];
+      if (!serverJobId) return { ok: false, message: 'serverJobId fehlt.' };
+      return cmdFetch('POST', '/cmd/cloud/shutdown', { serverJobId });
+    },
+    'restart-servers': async () => {
+      return cmdFetch('POST', '/cmd/cloud/restart-all', {});
+    },
+    'clear-ratelimits': async () => {
+      return cmdFetch('DELETE', '/cmd/rate-limits', null);
+    },
+    'set-serverstatus': async (argParts) => {
+      const service = argParts[0];
+      const status  = (argParts[1] || '').toUpperCase();
+      if (!service) return { ok: false, message: 'service fehlt.' };
+      if (!status)  return { ok: false, message: 'status fehlt.' };
+      return cmdFetch('PATCH', `/cmd/db/serverstatus/${encodeURIComponent(service)}`, { status });
+    },
+    'announce': async (argParts) => {
+      const message = argParts.join(' ');
+      if (!message) return { ok: false, message: 'message fehlt.' };
+      return cmdFetch('POST', '/cmd/discord/announce', { message });
+    },
+  };
+
+  // ── Execute ──────────────────────────────────────────────────────────────
+  async function executeCommand(raw) {
+    if (!raw.trim()) return;
+    if (!sessionValid()) {
+      showResult(false, 'Session abgelaufen — bitte erneut authentifizieren.');
+      return;
+    }
+
+    const parts = raw.trim().split(/\s+/);
+
+    let matchedCmd = null;
+    let argParts   = [];
+    for (const cmd of COMMANDS) {
+      const n = cmd.tokens.length;
+      if (parts.length < n) continue;
+      const allMatch = cmd.tokens.every((t, i) => t === (parts[i] || '').toLowerCase());
+      if (allMatch) { matchedCmd = cmd; argParts = parts.slice(n); break; }
+    }
+
+    if (!matchedCmd) {
+      showResult(false, `Unbekannter Befehl: "${parts[0]}"`);
+      return;
+    }
+
+    const executor = EXECUTORS[matchedCmd.id];
+    if (!executor) {
+      showResult(false, `Executor für "${matchedCmd.id}" nicht gefunden.`);
+      return;
+    }
+
+    showResult(null, 'WIRD AUSGEFÜHRT...');
+    const result = await executor(argParts);
+    showResult(result.ok, result.message);
+
+    if (result.ok) {
+      document.getElementById('cmd-input').value = '';
+      renderSuggestions('');
+    }
+  }
+
+  function showResult(ok, message) {
+    const el = document.getElementById('cmd-result');
+    if (!el) return;
+    if (ok === null) {
+      el.className = 'cmd-ok';
+      el.style.color = '#71717a';
+    } else {
+      el.className = ok ? 'cmd-ok' : 'cmd-err';
+      el.style.color = '';
+    }
+    el.textContent = message;
+  }
 
 })();
