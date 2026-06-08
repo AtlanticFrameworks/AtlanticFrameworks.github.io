@@ -21,6 +21,7 @@ import { DiscordController }    from './controllers/DiscordController.js';
 import { DevController }        from './controllers/DevController.js';
 import { FriedenszeitController } from './controllers/FriedenszeitController.js';
 import { PosterAuthController }   from './controllers/PosterAuthController.js';
+import { CommandController }      from './controllers/CommandController.js';
 import { renderDocs }           from './utils/docs.js';
 import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
@@ -214,6 +215,11 @@ const ROUTES: Route[] = [
 
   // ── Poster OAuth (public — poster generator login) ───────────────────────
   route('POST', '/api/poster/auth/exchange', PosterAuthController.exchangeCode as UserlessHandler, true),
+
+  // ── Command Terminal ─────────────────────────────────────────────────────
+  route('POST', '/api/cmd/auth',         CommandController.auth             as UserlessHandler, true),
+  route('GET',  '/api/cmd/users',        CommandController.listUsers        as UserlessHandler, true),
+  route('GET',  '/api/cmd/serverstatus', CommandController.listServiceNames as UserlessHandler, true),
 
   // ── Roblox Thumbnail Proxy (public — poster generator) ───────────────────
   route('GET', '/api/roblox/thumbnail/3d',      RobloxController.get3dThumbnail       as UserlessHandler, true),
