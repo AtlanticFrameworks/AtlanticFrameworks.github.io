@@ -65,8 +65,9 @@
       padding: 8px 14px; font-size: 11px; letter-spacing: .04em;
       border-top: 1px solid #1a1a1e; min-height: 28px; display: none;
     }
-    #cmd-result.cmd-ok  { color: #4ade80; display: block; }
-    #cmd-result.cmd-err { color: #f87171; display: block; }
+    #cmd-result.cmd-ok      { color: #4ade80; display: block; }
+    #cmd-result.cmd-err     { color: #f87171; display: block; }
+    #cmd-result.cmd-pending { color: #71717a; display: block; }
     #cmd-timer { font-size: 11px; color: #e2a800; letter-spacing: .06em; }
     #cmd-timer.cmd-warn { color: #f97316; }
     #cmd-timer.cmd-crit { color: #ef4444; }
@@ -538,8 +539,10 @@
     if (body !== null && body !== undefined) opts.body = JSON.stringify(body);
     try {
       const res  = await fetch(`${API_BASE}${path}`, opts);
-      const data = await res.json().catch(() => ({}));
-      return { ok: res.ok, message: data.message || data.error || JSON.stringify(data) };
+      const text = await res.text().catch(() => '');
+      let data = {};
+      try { data = JSON.parse(text); } catch (_) {}
+      return { ok: res.ok, message: data.message || data.error || text || '?' };
     } catch (e) {
       return { ok: false, message: e.message };
     }
@@ -655,11 +658,9 @@
     const el = document.getElementById('cmd-result');
     if (!el) return;
     if (ok === null) {
-      el.className = 'cmd-ok';
-      el.style.color = '#71717a';
+      el.className = 'cmd-pending';
     } else {
       el.className = ok ? 'cmd-ok' : 'cmd-err';
-      el.style.color = '';
     }
     el.textContent = message;
   }
