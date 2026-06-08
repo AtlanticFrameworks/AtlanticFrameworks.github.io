@@ -128,6 +128,11 @@
             class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-zinc-500 hover:text-white border-l-2 border-transparent hover:border-zinc-700">
             <i data-lucide="terminal" class="w-4 h-4"></i> BEFEHLE
         </button>
+        <button onclick="showTab('sanctions')" data-tab="sanctions"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 text-sm font-mono transition-all text-tac-red/60 hover:text-tac-red border-l-2 border-transparent hover:border-tac-red/50 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-tac-red/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <i data-lucide="gavel" class="w-4 h-4"></i> SANKTIONS-CODES
+        </button>
     </nav>
 
     <!-- Bottom Actions -->
@@ -1206,6 +1211,300 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB: SANKTIONS-CODES
+        =========================================== -->
+        <div id="tab-sanctions" class="tab-content hidden animate-fade-in text-gray-300">
+
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-tac-red/30 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                        <i data-lucide="gavel" class="w-6 h-6 text-tac-red"></i> Sanktions-Framework
+                    </h2>
+                    <p class="font-mono text-xs text-tac-muted mt-1">MODERATIONS-PROTOKOLL // AKTEN-CODES & AUSSCHLUSS-SYSTEM</p>
+                </div>
+                <div class="flex items-center gap-2 bg-tac-red/10 border border-tac-red/30 px-3 py-1.5 clip-br">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-tac-red"></i>
+                    <span class="font-mono text-[10px] text-tac-red tracking-widest">CLASSIFIED STAFF</span>
+                </div>
+            </div>
+
+            <!-- Legend: Modifikatoren -->
+            <div class="mb-8 bg-tac-panel border border-tac-border relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-tac-amber to-transparent opacity-40"></div>
+                <div class="p-5 border-b border-tac-border flex items-center gap-3">
+                    <i data-lucide="info" class="w-4 h-4 text-tac-amber"></i>
+                    <h3 class="font-display text-base font-bold text-white uppercase tracking-widest">System-Legende — Modifikatoren</h3>
+                </div>
+                <div class="p-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <!-- CM -->
+                    <div class="bg-tac-dark border border-tac-border p-3">
+                        <p class="font-mono text-[9px] text-tac-amber tracking-widest mb-1">PRÄFIX</p>
+                        <p class="font-display text-lg font-bold text-white">CM</p>
+                        <p class="font-mono text-[10px] text-tac-muted mt-1">Community<br>IG + Discord</p>
+                    </div>
+                    <!-- IG -->
+                    <div class="bg-tac-dark border border-tac-border p-3">
+                        <p class="font-mono text-[9px] text-tac-amber tracking-widest mb-1">PRÄFIX</p>
+                        <p class="font-display text-lg font-bold text-white">IG</p>
+                        <p class="font-mono text-[10px] text-tac-muted mt-1">Ingame<br>Nur Roblox</p>
+                    </div>
+                    <!-- DC -->
+                    <div class="bg-tac-dark border border-tac-border p-3">
+                        <p class="font-mono text-[9px] text-tac-amber tracking-widest mb-1">PRÄFIX</p>
+                        <p class="font-display text-lg font-bold text-white">DC</p>
+                        <p class="font-mono text-[10px] text-tac-muted mt-1">Discord<br>Nur Server</p>
+                    </div>
+                    <!-- P -->
+                    <div class="bg-tac-dark border border-tac-border p-3">
+                        <p class="font-mono text-[9px] text-white/40 tracking-widest mb-1">MODIFIKATOR</p>
+                        <p class="font-display text-lg font-bold text-white">P</p>
+                        <p class="font-mono text-[10px] text-tac-muted mt-1">Permanent<br>Zeitl. unbegrenzt</p>
+                    </div>
+                    <!-- U -->
+                    <div class="bg-tac-dark border border-tac-red/30 p-3">
+                        <p class="font-mono text-[9px] text-tac-red tracking-widest mb-1">MODIFIKATOR</p>
+                        <p class="font-display text-lg font-bold text-tac-red">U</p>
+                        <p class="font-mono text-[10px] text-tac-muted mt-1">Unwiderruflich<br>Kein Einspruch</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Title -->
+            <div class="flex items-center gap-3 mb-4">
+                <i data-lucide="list" class="w-5 h-5 text-tac-amber"></i>
+                <h3 class="font-display text-lg font-bold text-white uppercase tracking-wider">Akten-Codes — Ausschluss-Typen</h3>
+                <div class="flex-1 h-px bg-tac-border ml-2"></div>
+                <span class="font-mono text-[10px] text-tac-muted">8 CODES</span>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+                <!-- CMA — Temporärer Community-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-border relative overflow-hidden group hover:border-tac-border/80 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-zinc-600"></div>
+                    <div class="bg-black/40 px-5 py-4 border-b border-tac-border flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-white leading-none">CMA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Community-Ausschluss</p>
+                        </div>
+                        <i data-lucide="globe" class="w-5 h-5 text-tac-muted mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">IG + Discord</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-zinc-300">Temporär</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-green font-bold">JA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PCMA — Permanenter Community-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-amber/20 relative overflow-hidden group hover:border-tac-amber/40 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-tac-amber"></div>
+                    <div class="bg-black/40 px-5 py-4 border-b border-tac-border flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-tac-amber leading-none">PCMA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Perm. Community-Ausschluss</p>
+                        </div>
+                        <i data-lucide="globe" class="w-5 h-5 text-tac-amber mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">IG + Discord</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-tac-amber font-bold">Permanent</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-green font-bold">JA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IGA — Temporärer Ingame-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-border relative overflow-hidden group hover:border-tac-border/80 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-zinc-600"></div>
+                    <div class="bg-black/40 px-5 py-4 border-b border-tac-border flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-white leading-none">IGA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Ingame-Ausschluss</p>
+                        </div>
+                        <i data-lucide="gamepad-2" class="w-5 h-5 text-tac-muted mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">Nur Roblox</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-zinc-300">Temporär</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-green font-bold">JA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PIGA — Permanenter Ingame-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-amber/20 relative overflow-hidden group hover:border-tac-amber/40 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-tac-amber"></div>
+                    <div class="bg-black/40 px-5 py-4 border-b border-tac-border flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-tac-amber leading-none">PIGA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Perm. Ingame-Ausschluss</p>
+                        </div>
+                        <i data-lucide="gamepad-2" class="w-5 h-5 text-tac-amber mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">Nur Roblox</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-tac-amber font-bold">Permanent</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-green font-bold">JA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DCA — Temporärer Discord-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-border relative overflow-hidden group hover:border-tac-border/80 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-zinc-600"></div>
+                    <div class="bg-black/40 px-5 py-4 border-b border-tac-border flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-white leading-none">DCA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Discord-Ausschluss</p>
+                        </div>
+                        <i data-lucide="message-square" class="w-5 h-5 text-tac-muted mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">Nur Discord</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-zinc-300">Temporär</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-green font-bold">JA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PDCA — Permanenter Discord-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-amber/20 relative overflow-hidden group hover:border-tac-amber/40 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-tac-amber"></div>
+                    <div class="bg-black/40 px-5 py-4 border-b border-tac-border flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-tac-amber leading-none">PDCA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Perm. Discord-Ausschluss</p>
+                        </div>
+                        <i data-lucide="message-square" class="w-5 h-5 text-tac-amber mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">Nur Discord</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-border pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-tac-amber font-bold">Permanent</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-green font-bold">JA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UCMA — Unwiderruflicher Community-Ausschluss -->
+                <div class="bg-tac-panel border border-tac-red/40 relative overflow-hidden group hover:border-tac-red/60 transition-colors">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-tac-red"></div>
+                    <div class="bg-tac-red/5 px-5 py-4 border-b border-tac-red/20 flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-tac-red leading-none">UCMA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Unw. Community-Ausschluss</p>
+                        </div>
+                        <i data-lucide="shield-off" class="w-5 h-5 text-tac-red mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-red/10 pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">IG + Discord</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-red/10 pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-zinc-300">Temporär (Zwangspause)</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-red font-bold">NEIN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPCMA — Unwiderruflicher Permanenter Community-Ausschluss -->
+                <div class="sm:col-span-2 xl:col-span-1 bg-tac-panel border border-tac-red/60 relative overflow-hidden group hover:border-tac-red transition-colors" style="box-shadow: 0 0 20px rgba(239,68,68,0.07);">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-tac-red via-red-400 to-tac-red"></div>
+                    <div class="bg-tac-red/10 px-5 py-4 border-b border-tac-red/30 flex justify-between items-start">
+                        <div>
+                            <p class="font-display text-2xl font-bold text-tac-red leading-none" style="text-shadow: 0 0 12px rgba(239,68,68,0.25);">UPCMA</p>
+                            <p class="font-mono text-[10px] text-tac-muted tracking-wider mt-1">Unw. Perm. Community-Ausschluss</p>
+                        </div>
+                        <i data-lucide="skull" class="w-5 h-5 text-tac-red mt-0.5 flex-shrink-0"></i>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-red/10 pb-2">
+                            <span class="text-tac-muted">Plattformen</span>
+                            <span class="text-zinc-300">IG + Discord</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs border-b border-tac-red/10 pb-2">
+                            <span class="text-tac-muted">Dauer</span>
+                            <span class="text-tac-red font-bold">Permanent (Blacklist)</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs">
+                            <span class="text-tac-muted">Einspruch</span>
+                            <span class="text-tac-red font-bold">NEIN — Absolutes Hausverbot</span>
+                        </div>
+                    </div>
+                    <!-- Watermark -->
+                    <div class="absolute bottom-3 right-3 opacity-5 pointer-events-none">
+                        <i data-lucide="skull" class="w-16 h-16 text-tac-red"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer note -->
+            <div class="mt-6 bg-tac-amber/5 border border-tac-amber/20 p-4 flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-tac-amber flex-shrink-0 mt-0.5"></i>
+                <p class="font-mono text-[10px] text-zinc-400 leading-relaxed">
+                    Jeder Bann ist gemäß <strong class="text-zinc-200">§2 der Richtlinien</strong> als IP-Bann durchzuführen. Dokumentationspflicht: <code class="bg-black text-tac-amber px-1">Grund | [CODE] | Gebannt von [Name]</code>
+                </p>
             </div>
         </div>
 
