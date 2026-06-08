@@ -326,7 +326,7 @@ export class CommandController {
       return err('message ist ein Pflichtfeld', 400, origin);
     }
 
-    await new DiscordService(env).sendMonitoringAlert('CMD Terminal', message.trim());
+    await new DiscordService(env).sendMonitoringAlert('CMD Terminal', message.trim()).catch(() => {});
     await auditLog(env.DATABASE, null, 'CMD_ANNOUNCE', 'system', undefined, { message: message.trim() }, getIP(request));
     return json({ success: true, message: 'Ankündigung gesendet.' }, 200, origin);
   }
