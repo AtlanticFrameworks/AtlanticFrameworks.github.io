@@ -232,6 +232,7 @@
     if (e.ctrlKey && e.key === 'k') {
       e.preventDefault();
       const overlay = document.getElementById('cmd-overlay');
+      if (!overlay) return;
       if (overlay.classList.contains('cmd-open')) {
         closeOverlay();
       } else {
@@ -240,6 +241,8 @@
       return;
     }
     if (e.key === 'Escape') {
+      const overlay = document.getElementById('cmd-overlay');
+      if (!overlay) return;
       closeOverlay();
     }
   });
