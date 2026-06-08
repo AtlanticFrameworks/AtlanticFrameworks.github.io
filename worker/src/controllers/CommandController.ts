@@ -51,4 +51,94 @@ export class CommandController {
 
     return json({ services: rows.results.map((r: { service: string }) => r.service) }, 200, origin);
   }
+
+  // ── PATCH /api/cmd/users/:id/reset-ip ──────────────────────────────────
+  static async resetIp(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const match = new URL(request.url).pathname.match(/\/api\/cmd\/users\/(\d+)\/reset-ip$/);
+    const id = match ? parseInt(match[1]) : NaN;
+    if (isNaN(id) || id <= 0) return err('Ungültige User-ID', 400, origin);
+
+    const user = await env.DATABASE.prepare(
+      'SELECT id, username, ip FROM users WHERE id = ?'
+    ).bind(id).first<{ id: number; username: string; ip: string | null }>();
+    if (!user) return err('Benutzer nicht gefunden', 404, origin);
+    if (!user.ip) return err('IP-Sperre bereits zurückgesetzt', 400, origin);
+
+    await env.DATABASE.prepare('UPDATE users SET ip = NULL WHERE id = ?').bind(id).run();
+    await auditLog(env.DATABASE, null, 'CMD_RESET_IP', 'users', String(id), { username: user.username }, getIP(request));
+
+    return json({ success: true, message: `IP-Sperre von ${user.username} aufgehoben.` }, 200, origin);
+  }
+
+  // ── PATCH /api/cmd/users/:id/role ──────────────────────────────────────
+  static async setRole(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const match = new URL(request.url).pathname.match(/\/api\/cmd\/users\/(\d+)\/role$/);
+    const id = match ? parseInt(match[1]) : NaN;
+    if (isNaN(id) || id <= 0) return err('Ungültige User-ID', 400, origin);
+
+    const body: any = await request.json().catch(() => ({}));
+    const { role } = body;
+    const allowedRoles = ['OWNER', 'ADMIN', 'MOD', 'TRAINEE'];
+    if (!role || !allowedRoles.includes(role)) return err('Ungültige Rolle. Erlaubt: OWNER, ADMIN, MOD, TRAINEE', 400, origin);
+
+    const user = await env.DATABASE.prepare(
+      'SELECT id, username, role FROM users WHERE id = ?'
+    ).bind(id).first<{ id: number; username: string; role: string }>();
+    if (!user) return err('Benutzer nicht gefunden', 404, origin);
+
+    await env.DATABASE.prepare('UPDATE users SET role = ? WHERE id = ?').bind(role, id).run();
+    await auditLog(env.DATABASE, null, 'CMD_SET_ROLE', 'users', String(id), { username: user.username, oldRole: user.role, newRole: role }, getIP(request));
+
+    return json({ success: true, message: `Rolle von ${user.username} auf ${role} gesetzt.` }, 200, origin);
+  }
+
+  // ── DELETE /api/cmd/users/:id/sessions ─────────────────────────────────
+  static async clearSessions(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const match = new URL(request.url).pathname.match(/\/api\/cmd\/users\/(\d+)\/sessions$/);
+    const id = match ? parseInt(match[1]) : NaN;
+    if (isNaN(id) || id <= 0) return err('Ungültige User-ID', 400, origin);
+
+    const user = await env.DATABASE.prepare(
+      'SELECT id, username FROM users WHERE id = ?'
+    ).bind(id).first<{ id: number; username: string }>();
+    if (!user) return err('Benutzer nicht gefunden', 404, origin);
+
+    await env.DATABASE.prepare('DELETE FROM sessions WHERE user_id = ?').bind(id).run();
+    await auditLog(env.DATABASE, null, 'CMD_CLEAR_SESSIONS', 'sessions', String(id), { username: user.username }, getIP(request));
+
+    return json({ success: true, message: `Alle Sitzungen von ${user.username} gelöscht.` }, 200, origin);
+  }
+
+  // ── DELETE /api/cmd/users/:id ───────────────────────────────────────────
+  static async deleteUser(request: Request, env: Env): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = await requireCmdToken(request, env);
+    if (bad) return bad;
+
+    const match = new URL(request.url).pathname.match(/\/api\/cmd\/users\/(\d+)$/);
+    const id = match ? parseInt(match[1]) : NaN;
+    if (isNaN(id) || id <= 0) return err('Ungültige User-ID', 400, origin);
+
+    const user = await env.DATABASE.prepare(
+      'SELECT id, username FROM users WHERE id = ?'
+    ).bind(id).first<{ id: number; username: string }>();
+    if (!user) return err('Benutzer nicht gefunden', 404, origin);
+
+    await env.DATABASE.prepare('DELETE FROM users WHERE id = ?').bind(id).run();
+    await auditLog(env.DATABASE, null, 'CMD_DELETE_USER', 'users', String(id), { username: user.username }, getIP(request));
+
+    return json({ success: true, message: `Benutzer ${user.username} gelöscht.` }, 200, origin);
+  }
 }

@@ -217,9 +217,13 @@ const ROUTES: Route[] = [
   route('POST', '/api/poster/auth/exchange', PosterAuthController.exchangeCode as UserlessHandler, true),
 
   // ── Command Terminal ─────────────────────────────────────────────────────
-  route('POST', '/api/cmd/auth',         CommandController.auth             as UserlessHandler, true),
-  route('GET',  '/api/cmd/users',        CommandController.listUsers        as UserlessHandler, true),
-  route('GET',  '/api/cmd/serverstatus', CommandController.listServiceNames as UserlessHandler, true),
+  route('POST',   '/api/cmd/auth',                CommandController.auth             as UserlessHandler, true),
+  route('GET',    '/api/cmd/users',               CommandController.listUsers        as UserlessHandler, true),
+  route('GET',    '/api/cmd/serverstatus',         CommandController.listServiceNames as UserlessHandler, true),
+  route('PATCH',  '/api/cmd/users/:id/reset-ip',  CommandController.resetIp          as UserlessHandler, true),
+  route('PATCH',  '/api/cmd/users/:id/role',      CommandController.setRole          as UserlessHandler, true),
+  route('DELETE', '/api/cmd/users/:id/sessions',  CommandController.clearSessions    as UserlessHandler, true),
+  route('DELETE', '/api/cmd/users/:id',           CommandController.deleteUser       as UserlessHandler, true),
 
   // ── Roblox Thumbnail Proxy (public — poster generator) ───────────────────
   route('GET', '/api/roblox/thumbnail/3d',      RobloxController.get3dThumbnail       as UserlessHandler, true),
