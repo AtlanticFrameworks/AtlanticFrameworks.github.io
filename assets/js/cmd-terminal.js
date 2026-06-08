@@ -1,6 +1,6 @@
 /* assets/js/cmd-terminal.js
  * Command Terminal — self-contained, no dependencies.
- * Ctrl+K to open. TOTP auth → 2-min session → command input.
+ * Ctrl+` to open. TOTP auth → 2-min session → command input.
  */
 (function () {
   'use strict';
@@ -228,36 +228,76 @@
     }
   }
 
-  // ── Keyboard Wiring ──────────────────────────────────────────────────────
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 'k') {
-      e.preventDefault();
-      const overlay = document.getElementById('cmd-overlay');
-      if (!overlay) return;
-      if (overlay.classList.contains('cmd-open')) {
-        closeOverlay();
-      } else {
-        openOverlay();
-      }
-      return;
-    }
-    if (e.key === 'Escape') {
-      const overlay = document.getElementById('cmd-overlay');
-      if (!overlay) return;
-      closeOverlay();
-    }
-  });
-
-  // ── TOTP input listener ──────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
+  // ── DOM Init + All Input Wiring ──────────────────────────────────────────
+  function initListeners() {
     injectDOM();
 
+    // Ctrl+` toggles overlay; Escape closes
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === '`') {
+        e.preventDefault();
+        const overlay = document.getElementById('cmd-overlay');
+        if (!overlay) return;
+        if (overlay.classList.contains('cmd-open')) {
+          closeOverlay();
+        } else {
+          openOverlay();
+        }
+        return;
+      }
+      if (e.key === 'Escape') {
+        const overlay = document.getElementById('cmd-overlay');
+        if (!overlay) return;
+        closeOverlay();
+      }
+    });
+
+    // TOTP input — auto-submit at 6 digits
     document.getElementById('cmd-totp-input').addEventListener('input', (e) => {
       const val = e.target.value.replace(/\D/g, '').slice(0, 6);
       e.target.value = val;
       if (val.length === 6) authenticate(val);
     });
-  });
+
+    // Command input — suggestions + keyboard navigation
+    const cmdInput = document.getElementById('cmd-input');
+    cmdInput.addEventListener('input', (e) => {
+      renderSuggestions(e.target.value);
+      clearResult();
+    });
+
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIdx = Math.min(selectedIdx + 1, Math.min(currentSuggestions.length, MAX_SUGGESTIONS) - 1);
+        updateSelectedHighlight();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIdx = Math.max(selectedIdx - 1, -1);
+        updateSelectedHighlight();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        if (selectedIdx >= 0) {
+          selectSuggestion(selectedIdx);
+        } else if (currentSuggestions.length > 0) {
+          selectSuggestion(0);
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedIdx >= 0 && currentSuggestions[selectedIdx]?.type !== 'placeholder') {
+          selectSuggestion(selectedIdx);
+        } else {
+          executeCommand(e.target.value.trim());
+        }
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initListeners);
+  } else {
+    initListeners();
+  }
 
   // ── Autocomplete Data ────────────────────────────────────────────────────
   const MAX_SUGGESTIONS = 8;
@@ -479,42 +519,6 @@
     renderSuggestions(input.value);
     input.focus();
   }
-
-  // ── Command Input Listeners ──────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
-    const cmdInput = document.getElementById('cmd-input');
-    if (!cmdInput) return;
-    cmdInput.addEventListener('input', (e) => {
-      renderSuggestions(e.target.value);
-      clearResult();
-    });
-
-    cmdInput.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        selectedIdx = Math.min(selectedIdx + 1, Math.min(currentSuggestions.length, MAX_SUGGESTIONS) - 1);
-        updateSelectedHighlight();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        selectedIdx = Math.max(selectedIdx - 1, -1);
-        updateSelectedHighlight();
-      } else if (e.key === 'Tab') {
-        e.preventDefault();
-        if (selectedIdx >= 0) {
-          selectSuggestion(selectedIdx);
-        } else if (currentSuggestions.length > 0) {
-          selectSuggestion(0);
-        }
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (selectedIdx >= 0 && currentSuggestions[selectedIdx]?.type !== 'placeholder') {
-          selectSuggestion(selectedIdx);
-        } else {
-          executeCommand(e.target.value.trim());
-        }
-      }
-    });
-  });
 
   function updateSelectedHighlight() {
     document.querySelectorAll('.cmd-suggestion').forEach((el, i) => {
