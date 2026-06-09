@@ -95,6 +95,15 @@ export class DatabaseController {
     const existing = await env.DATABASE.prepare('SELECT id, username FROM users WHERE id = ?').bind(targetId).first<{ id: number; username: string }>();
     if (!existing) return err('User nicht gefunden', 404, origin);
 
+    // Pre-clear non-cascade FK references so the DELETE FROM users succeeds.
+    // (Migration 0006 adds ON DELETE actions to the schema; this batch is a
+    // belt-and-suspenders guard for the transition and any future edge cases.)
+    await env.DATABASE.batch([
+      env.DATABASE.prepare('UPDATE cases SET moderator_id = NULL WHERE moderator_id = ?').bind(targetId),
+      env.DATABASE.prepare('UPDATE watchlist SET added_by_id = NULL WHERE added_by_id = ?').bind(targetId),
+      env.DATABASE.prepare('UPDATE user_roles SET assigned_by = NULL WHERE assigned_by = ?').bind(targetId),
+      env.DATABASE.prepare('UPDATE audit_logs SET user_id = NULL WHERE user_id = ?').bind(targetId),
+    ]);
     await env.DATABASE.prepare('DELETE FROM users WHERE id = ?').bind(targetId).run();
     await auditLog(env.DATABASE, Number(user.sub), 'DB_DELETE_USER', 'users', String(targetId), { username: existing.username }, getIP(request));
     new DiscordService(env).sendMonitoringAlert('User-Eintrag Gelöscht (OWNER)', `**${user.username}** hat den User-Eintrag von **${existing.username}** (ID: ${targetId}) endgültig aus der D1 gelöscht.`).catch(() => {});
@@ -292,7 +301,7 @@ export class DatabaseController {
     if (bad) return bad;
 
     const { meta } = await env.DATABASE.prepare('DELETE FROM rate_limits').run();
-    await auditLog(env.DATABASE, Number(user.sub), 'DB_CLEAR_RATE_LIMITS', 'rate_limits', null, { rowsDeleted: meta?.changes ?? 0 }, getIP(request));
+    await auditLog(env.DATABASE, Number(user.sub), 'DB_CLEAR_RATE_LIMITS', 'rate_limits', undefined, { rowsDeleted: meta?.changes ?? 0 }, getIP(request));
     new DiscordService(env).sendMonitoringAlert('Rate-Limits Gelöscht', `**${user.username}** hat alle aktiven IP-Sperren (${meta?.changes ?? 0} Einträge) aus der Datenbank gelöscht.`).catch(() => {});
 
     return json({ success: true, rowsDeleted: meta?.changes ?? 0 }, 200, origin);

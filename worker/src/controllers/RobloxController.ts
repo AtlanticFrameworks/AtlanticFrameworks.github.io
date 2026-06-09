@@ -166,10 +166,10 @@ export class RobloxController {
       try {
         const profileRes = await cloudFetch(env, `https://apis.roblox.com/cloud/v2/users/${userId}`);
         if (profileRes.ok) {
-          const data = await profileRes.json() as { id: string; username: string; displayName: string; createTime: string };
+          const data = await profileRes.json() as { id: number; name: string; displayName: string; createTime: string };
           profile = {
-            id:          data.id,
-            username:    data.username,
+            id:          String(data.id),
+            username:    data.name,
             displayName: data.displayName,
             created:     data.createTime,
             description: '',

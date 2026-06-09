@@ -16,7 +16,9 @@ export class ModerationService {
       .prepare('SELECT COUNT(*) as c FROM cases WHERE created_at >= date(\'now\')')
       .first<{ c: number }>();
     const seq = String((count?.c ?? 0) + 1).padStart(3, '0');
-    return `CASE-${date}-${seq}`;
+    // Add a random 4-hex suffix to prevent UNIQUE conflicts on concurrent inserts
+    const suffix = Math.floor(Math.random() * 0xFFFF).toString(16).padStart(4, '0');
+    return `CASE-${date}-${seq}-${suffix}`;
   }
 
   // ── Create Case ───────────────────────────────────────────────────────────
