@@ -10,7 +10,18 @@ export class StaffController {
       .bind(Number(user.sub))
       .first<{ id: number; username: string; avatar_url: string | null; role: string; last_seen: string | null; created_at: string }>();
     if (!row) return err('Benutzer nicht gefunden', 404, origin);
-    return json({ user: row }, 200, origin);
+
+    const roleRows = await env.DATABASE
+      .prepare('SELECT r.permissions FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = ?')
+      .bind(Number(user.sub))
+      .all<{ permissions: string }>();
+
+    const permSet = new Set<string>();
+    for (const r of roleRows.results) {
+      try { (JSON.parse(r.permissions) as string[]).forEach(p => permSet.add(p)); } catch {}
+    }
+
+    return json({ user: { ...row, permissions: [...permSet] } }, 200, origin);
   }
 
   // GET /api/staff/sessions

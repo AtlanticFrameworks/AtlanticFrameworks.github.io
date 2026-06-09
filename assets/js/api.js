@@ -139,6 +139,11 @@ class ApiClient {
     async getPlayerCases(robloxId)    { return this.get(`/moderation/cases/${robloxId}`); }
     async createCase(data)            { return this.post('/moderation/cases', data); }
     async updateCase(caseId, patch)   { return this.patch(`/moderation/cases/${caseId}`, patch); }
+    async deleteCase(caseId) {
+        const res = await this.fetch(`/moderation/cases/${caseId}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
 
     // ── Roblox Proxy ──────────────────────────────────────────────────────────
 

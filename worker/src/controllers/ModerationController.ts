@@ -78,6 +78,41 @@ export class ModerationController {
     return json({ case: newCase }, 201, origin);
   }
 
+  // DELETE /api/moderation/cases/:caseId
+  static async deleteCase(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = requireRole(user, 'TRAINEE');
+    if (bad) return bad;
+
+    const caseId = parseInt(params.caseId);
+    if (isNaN(caseId) || caseId <= 0) return err('Ungültige Fall-ID', 400, origin);
+
+    const existing = await env.DATABASE
+      .prepare('SELECT id, incident_id, moderator_id FROM cases WHERE id = ?')
+      .bind(caseId)
+      .first<{ id: number; incident_id: string; moderator_id: number }>();
+    if (!existing) return err('Fall nicht gefunden', 404, origin);
+
+    const userId = Number(user.sub);
+    const isOwner = existing.moderator_id === userId;
+
+    if (!isOwner) {
+      const roleRows = await env.DATABASE
+        .prepare('SELECT r.permissions FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = ?')
+        .bind(userId)
+        .all<{ permissions: string }>();
+      const hasDeletePerm = roleRows.results.some(r => {
+        try { return (JSON.parse(r.permissions) as string[]).includes('DELETE_CASES'); }
+        catch { return false; }
+      });
+      if (!hasDeletePerm) return err('Keine Berechtigung zum Löschen dieses Falls', 403, origin);
+    }
+
+    await env.DATABASE.prepare('DELETE FROM cases WHERE id = ?').bind(caseId).run();
+    await auditLog(env.DATABASE, userId, 'CASE_DELETE', 'cases', String(caseId), { incidentId: existing.incident_id }, getIP(request));
+    return json({ success: true }, 200, origin);
+  }
+
   // PATCH /api/moderation/cases/:caseId
   static async updateCase(request: Request, env: Env, user: JWTPayload, params: Record<string,string>): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';

@@ -97,6 +97,8 @@ async function checkSession() {
         try {
             const res = await window.api.getMe();
             meData = res.user;
+            window._currentUserId = meData.id;
+            window._currentUserPermissions = meData.permissions ?? [];
         } catch (e) {
             if (e?.status === 401) return;
             const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -224,6 +226,11 @@ async function checkOAuthCallback() {
         if (verifyText) verifyText.textContent = 'ZUGRIFF GEWÄHRT';
 
         saveSession({ userId: targetUserId, username: targetUsername, rank: userRole.toUpperCase(), avatarUrl });
+        window._currentUserId = targetUserId;
+        try {
+            const meRes = await window.api.getMe();
+            window._currentUserPermissions = meRes.user?.permissions ?? [];
+        } catch { window._currentUserPermissions = []; }
         setTimeout(() => enterDashboard(targetUsername, userRole.toUpperCase(), avatarUrl), 1000);
     } catch (err) {
         console.error('OAuth-Fehler:', err);

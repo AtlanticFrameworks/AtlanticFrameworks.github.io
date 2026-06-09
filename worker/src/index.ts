@@ -204,7 +204,8 @@ const ROUTES: Route[] = [
   route('GET',   '/api/moderation/all',             ModerationController.getAllCases as Handler),
   route('GET',   '/api/moderation/cases/:playerId', ModerationController.getCases    as Handler),
   route('POST',  '/api/moderation/cases',           ModerationController.createCase  as Handler),
-  route('PATCH', '/api/moderation/cases/:caseId',   ModerationController.updateCase  as Handler),
+  route('PATCH',  '/api/moderation/cases/:caseId',   ModerationController.updateCase  as Handler),
+  route('DELETE', '/api/moderation/cases/:caseId',   ModerationController.deleteCase  as Handler),
 
   // ── Shifts ───────────────────────────────────────────────────────────────
   route('POST', '/api/shifts/start',     ShiftController.start     as Handler),

@@ -1638,10 +1638,13 @@
                     return;
                 }
 
+                const _hasGlobalDelete = (window._currentUserPermissions ?? []).includes('DELETE_CASES');
                 cases.forEach(c => {
                     const badge = CASE_BADGE[c.type] || 'border-tac-border text-tac-muted bg-transparent';
                     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '?';
                     const dur = c.duration_days ? ` · ${c.duration_days}d` : '';
+                    const canDelete = _hasGlobalDelete || (window._currentUserId != null && window._currentUserId === c.moderator_id);
+                    const safeUsername = c.target_username.replace(/'/g, "\\'");
                     const row = document.createElement('div');
                     row.className = 'flex items-start gap-3 bg-tac-panel border border-tac-border p-3 hover:border-zinc-600 transition-colors';
                     row.innerHTML = `
@@ -1655,18 +1658,34 @@
                         <p class="font-mono text-xs text-zinc-400 mt-0.5 truncate">${c.reason}</p>
                         <p class="font-mono text-[9px] text-tac-muted mt-1">${date} · ${c.moderator_username ?? 'Unbekannt'}</p>
                     </div>
-                    <button onclick="pinTicketToNotes(${c.id}, '${c.incident_id}', '${c.type}', '${c.target_username.replace(/'/g, "\\'")}', '${c.created_at}')"
+                    <button onclick="pinTicketToNotes(${c.id}, '${c.incident_id}', '${c.type}', '${safeUsername}', '${c.created_at}')"
                         class="flex-shrink-0 p-1.5 text-tac-muted hover:text-tac-amber transition-colors" title="An Notizen anheften">
                         <i data-lucide="pin" class="w-3.5 h-3.5"></i>
-                    </button>`;
+                    </button>
+                    ${canDelete ? `<button onclick="deleteCaseFromBrowser(${c.id}, '${c.incident_id}', '${safeUsername}')"
+                        class="flex-shrink-0 p-1.5 text-tac-muted hover:text-tac-red transition-colors" title="Fall löschen">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>` : ''}`;
                     listEl.appendChild(row);
                 });
 
                 if (_caseOffset + 50 < total) moreEl?.classList.remove('hidden');
+                if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [listEl] });
 
             } catch (e) {
                 loadingEl?.classList.add('hidden');
                 listEl.innerHTML = `<div class="text-center py-8 font-mono text-xs text-tac-red">FEHLER: ${e.message}</div>`;
+            }
+        };
+
+        window.deleteCaseFromBrowser = async function (caseId, incidentId, targetUsername) {
+            if (!confirm(`Fall ${incidentId} (${targetUsername}) wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)) return;
+            try {
+                await window.api.deleteCase(caseId);
+                showToast(`Fall ${incidentId} gelöscht.`, 'success', 4000);
+                loadCaseBrowser(true);
+            } catch (e) {
+                showToast(friendlyApiError(e, 'Fall konnte nicht gelöscht werden'), 'error', 5000);
             }
         };
 
