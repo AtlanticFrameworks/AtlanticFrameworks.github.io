@@ -383,7 +383,7 @@ async function fetchStaff() {
             const header = document.createElement('div');
             header.className = "col-span-full border-b border-white/10 pb-2 mt-8 mb-4 flex items-center gap-4";
             header.innerHTML = `
-                <h4 class="font-display text-2xl font-bold text-white uppercase tracking-wider">${roleName}</h4>
+                <h4 class="font-display text-lg font-bold text-white uppercase tracking-wider">${roleName}</h4>
                 <div class="h-px bg-bw-gold flex-1 opacity-30"></div>
             `;
             grid.appendChild(header);
@@ -393,15 +393,15 @@ async function fetchStaff() {
                 const imageUrl = member.avatarUrl || 'assets/images/logo.png';
 
                 const card = document.createElement('div');
-                card.className = "bg-[#0a0a0a] border border-white/5 p-6 flex flex-col items-center hover:border-bw-gold/50 transition-colors group relative overflow-hidden";
+                card.className = "bg-[#0a0a0a] border border-white/5 p-4 flex flex-col items-center hover:border-bw-gold/50 transition-colors group relative overflow-hidden";
                 card.innerHTML = `
                     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                    <div class="w-24 h-24 mb-4 relative">
+                    <div class="w-16 h-16 mb-3 relative">
                         <div class="absolute inset-0 bg-bw-gold/10 rounded-full blur-lg group-hover:bg-bw-gold/20 transition-colors"></div>
                         <img src="${imageUrl}" alt="${member.displayName}" class="w-full h-full object-cover rounded-full border-2 border-white/10 group-hover:border-bw-gold transition-colors relative z-10">
                     </div>
-                    <h4 class="font-display font-bold text-white text-lg tracking-wide relative z-10 text-center leading-tight">${member.displayName}</h4>
-                    <span class="text-[10px] text-gray-500 font-mono mt-1 relative z-10">@${member.username}</span>
+                    <h4 class="font-display font-bold text-white text-sm tracking-wide relative z-10 text-center leading-tight">${member.displayName}</h4>
+                    <span class="text-[9px] text-gray-500 font-mono mt-1 relative z-10">@${member.username}</span>
                     <a href="https://www.roblox.com/users/${member.id}/profile" target="_blank" class="absolute inset-0 z-20"></a>
                 `;
                 grid.appendChild(card);
