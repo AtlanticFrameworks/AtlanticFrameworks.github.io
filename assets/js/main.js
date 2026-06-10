@@ -306,43 +306,19 @@ async function fetchStaff() {
 
     const groupId = '34246821'; // ATLANTIC Studios
 
-    // Proxy Helper with Failover
+    // Direct fetch — groups.roblox.com and thumbnails.roblox.com are in CSP connect-src
     async function fetchProxy(targetUrl) {
-        const proxies = [
-            { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl), type: 'direct' },
-            { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl), type: 'json-wrapper' },
-            { url: 'https://corsproxy.io/?' + encodeURIComponent(targetUrl), type: 'direct' }
-        ];
-
-        for (const proxy of proxies) {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-                const res = await fetch(proxy.url, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (!res.ok) continue;
-
-                if (proxy.type === 'json-wrapper') {
-                    const data = await res.json();
-                    if (!data.contents) continue;
-                    try { return JSON.parse(data.contents); } catch (e) { return data.contents; }
-                } else {
-                    return await res.json();
-                }
-            } catch (e) {
-                console.warn(`Proxy fail: ${proxy.url}`, e);
-                continue;
-            }
-        }
-        throw new Error("All proxies failed.");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const res = await fetch(targetUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error(`Roblox API error: ${res.status}`);
+        return res.json();
     }
 
     try {
         // 1. Get Roles
         const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
-        console.log("DEBUG: Available Group Roles:", rolesData.roles.map(r => r.name));
 
         // Define the roles we want to show and their display order
         const targetRoles = [
