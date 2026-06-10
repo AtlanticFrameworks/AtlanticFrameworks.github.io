@@ -230,12 +230,18 @@ export class RobloxController {
   }
 
   // GET /api/roblox/group/roles/:roleId/users  – Members of a specific role (with avatar URLs)
-  static async getGroupRoleUsers(_request: Request, env: Env, _user: JWTPayload, params: Record<string, string>): Promise<Response> {
+  static async getGroupRoleUsers(request: Request, env: Env, _user?: JWTPayload, params?: Record<string, string>): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
-    if (!params.roleId || !/^\d+$/.test(params.roleId)) return err('Ungültige roleId', 400, origin);
+    // params may be undefined when called as a public route (dispatcher only passes request, env)
+    let roleId = params?.roleId;
+    if (!roleId) {
+      const m = new URL(request.url).pathname.match(/\/roles\/(\d+)\/users/);
+      roleId = m?.[1];
+    }
+    if (!roleId || !/^\d+$/.test(roleId)) return err('Ungültige roleId', 400, origin);
     try {
       const res = await robloxFetch(
-        `${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles/${params.roleId}/users?sortOrder=Asc&limit=100`,
+        `${ROBLOX_GROUPS_API}/groups/${env.ROBLOX_GROUP_ID}/roles/${roleId}/users?sortOrder=Asc&limit=100`,
       );
       if (!res.ok) return err('Roblox Groups API nicht erreichbar', 502, origin);
       const data = await res.json() as { data: Array<{ userId: number; username: string; displayName: string }> };
