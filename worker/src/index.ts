@@ -241,8 +241,9 @@ const ROUTES: Route[] = [
   // ── Roblox Proxy ─────────────────────────────────────────────────────────
   route('GET', '/api/roblox/player/:identifier',          RobloxController.getPlayer        as Handler),
   route('GET', '/api/roblox/servers',                     RobloxController.getServers       as Handler),
-  route('GET', '/api/roblox/group/roles',                 RobloxController.getGroupRoles    as Handler),
-  route('GET', '/api/roblox/group/roles/:roleId/users',   RobloxController.getGroupRoleUsers as Handler),
+  // Public — group membership is public Roblox data, used by studio.html staff grid
+  route('GET', '/api/roblox/group/roles',                 RobloxController.getGroupRoles    as unknown as UserlessHandler, true),
+  route('GET', '/api/roblox/group/roles/:roleId/users',   RobloxController.getGroupRoleUsers as unknown as UserlessHandler, true),
 
   // ── Roblox Open Cloud ─────────────────────────────────────────────────────
   route('POST', '/api/cloud/kick',                        CloudController.kick           as Handler),

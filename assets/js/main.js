@@ -306,19 +306,19 @@ async function fetchStaff() {
 
     const groupId = '34246821'; // ATLANTIC Studios
 
-    // Direct fetch — groups.roblox.com and thumbnails.roblox.com are in CSP connect-src
-    async function fetchProxy(targetUrl) {
+    // Proxy through bwrp.net/api/roblox/* — no CORS issues, no third-party services
+    async function workerFetch(path) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
-        const res = await fetch(targetUrl, { signal: controller.signal });
+        const res = await fetch(path, { signal: controller.signal });
         clearTimeout(timeoutId);
-        if (!res.ok) throw new Error(`Roblox API error: ${res.status}`);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
         return res.json();
     }
 
     try {
         // 1. Get Roles
-        const rolesData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
+        const rolesData = await workerFetch('/api/roblox/group/roles');
 
         // Define the roles we want to show and their display order
         const targetRoles = [
@@ -331,20 +331,12 @@ async function fetchStaff() {
 
         // Filter and sort roles based on our target list order
         const filteredRoles = rolesData.roles.filter(r => targetRoles.includes(r.name));
-
-        // Sort specifically by the order in targetRoles array
         filteredRoles.sort((a, b) => targetRoles.indexOf(a.name) - targetRoles.indexOf(b.name));
 
-        // 2. Fetch Members & Prepare Groups
+        // 2. Fetch Members (worker endpoint includes avatarUrl in each member)
         let staffGroups = {};
-        let allUserIds = [];
-
-        // Initialize empty arrays for targets to ensure order
-        targetRoles.forEach(r => {
-            if (r !== "Group Owner") staffGroups[r] = [];
-        });
+        targetRoles.forEach(r => { if (r !== "Group Owner") staffGroups[r] = []; });
         if (!staffGroups["Ownership Team"]) staffGroups["Ownership Team"] = [];
-
 
         for (const role of filteredRoles) {
             let targetGroupName = role.name;
@@ -356,7 +348,7 @@ async function fetchStaff() {
             }
 
             if (role.memberCount > 0) {
-                const memData = await fetchProxy(`https://groups.roblox.com/v1/groups/${groupId}/roles/${role.id}/users?limit=25&sortOrder=Desc`);
+                const memData = await workerFetch(`/api/roblox/group/roles/${role.id}/users`);
 
                 if (memData.data) {
                     memData.data.forEach(user => {
@@ -364,10 +356,10 @@ async function fetchStaff() {
                             staffGroups[targetGroupName].push({
                                 id: user.userId,
                                 username: user.username,
-                                displayName: user.displayName, // Use Display Name
+                                displayName: user.displayName,
+                                avatarUrl: user.avatarUrl,
                                 role: displayRoleName
                             });
-                            allUserIds.push(user.userId);
                         }
                     });
                 }
@@ -376,16 +368,13 @@ async function fetchStaff() {
 
         // 3. Clear Grid
         grid.innerHTML = '';
-        if (allUserIds.length === 0) {
+        const allMembers = Object.values(staffGroups).flat();
+        if (allMembers.length === 0) {
             grid.innerHTML = '<div class="col-span-full text-center text-gray-500">Keine Staff-Mitglieder in den genannten Rängen gefunden.</div>';
             return;
         }
 
-        // 4. Fetch Avatars (Batch)
-        const avatarUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${allUserIds.join(',')}&size=150x150&format=Png&isCircular=false`;
-        const avatarData = await fetchProxy(avatarUrl);
-
-        // 5. Render Groups
+        // 4. Render Groups (avatarUrl already included from worker response)
         for (const roleName of targetRoles) {
             const groupMembers = staffGroups[roleName];
             if (!groupMembers || groupMembers.length === 0) continue;
@@ -401,8 +390,7 @@ async function fetchStaff() {
 
             // Cards
             groupMembers.forEach(member => {
-                const imgData = avatarData.data.find(img => img.targetId === member.id);
-                const imageUrl = imgData ? imgData.imageUrl : 'assets/images/logo.png';
+                const imageUrl = member.avatarUrl || 'assets/images/logo.png';
 
                 const card = document.createElement('div');
                 card.className = "bg-[#0a0a0a] border border-white/5 p-6 flex flex-col items-center hover:border-bw-gold/50 transition-colors group relative overflow-hidden";
