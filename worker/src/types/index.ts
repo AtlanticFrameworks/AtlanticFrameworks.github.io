@@ -46,14 +46,15 @@ export interface JWTPayload {
 
 // D1 Row Types
 export interface UserRow {
-  id:         number;
-  roblox_id:  string;
-  username:   string;
-  avatar_url: string | null;
-  role:       Role;
-  ip:         string | null;
-  last_seen:  string | null;
-  created_at: string;
+  id:            number;
+  roblox_id:     string;
+  username:      string;
+  avatar_url:    string | null;
+  role:          Role;
+  ip:            string | null;
+  login_country: string | null;
+  last_seen:     string | null;
+  created_at:    string;
 }
 
 export interface SessionRow {

@@ -47,8 +47,9 @@ function renderStaffManagement(staffList) {
     const rows = staffList.map(s => {
         const lastSeen = s.last_seen ? new Date(s.last_seen).toLocaleDateString('de-DE') : 'Unbekannt';
 
-        const hwidStatus = s.ipLocked
-            ? '<span class="text-tac-amber flex items-center justify-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Gesperrt</span>'
+        const regionLabel = s.loginRegion ?? '—';
+        const hwidStatus = s.regionLocked
+            ? `<span class="text-tac-amber flex items-center justify-center gap-1" title="Gesperrte Region: ${regionLabel}"><i data-lucide="lock" class="w-3 h-3"></i> ${regionLabel}</span>`
             : '<span class="text-tac-green flex items-center justify-center gap-1"><i data-lucide="unlock" class="w-3 h-3"></i> Offen</span>';
 
         // Role badges + assign button inline
@@ -91,9 +92,9 @@ function renderStaffManagement(staffList) {
                         title="Aktivität anzeigen">
                         <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="resetIpPrompt(${s.id}, '${s.username}')"
+                    <button onclick="resetRegionPrompt(${s.id}, '${s.username}', '${s.loginRegion ?? ''}')"
                         class="px-2 py-1 border border-tac-border text-tac-muted hover:text-tac-amber hover:border-tac-amber/50 transition-colors"
-                        title="IP-Sperre aufheben">
+                        title="Regionssperre aufheben">
                         <i data-lucide="monitor-off" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -105,12 +106,13 @@ function renderStaffManagement(staffList) {
     lucide.createIcons({ nodes: [tbody] });
 }
 
-// ── IP Reset ───────────────────────────────────────────────────────────────────
+// ── Region Reset ──────────────────────────────────────────────────────────────
 
-function resetIpPrompt(id, username) {
-    if (!confirm(`IP-Sperre für ${username} aufheben?`)) return;
+function resetRegionPrompt(id, username, region) {
+    const regionHint = region ? ` (${region})` : '';
+    if (!confirm(`Regionssperre für ${username}${regionHint} aufheben?\n\nDer Nutzer kann sich beim nächsten Login von einer beliebigen Region einloggen und eine neue Region wird gespeichert.`)) return;
     window.api.resetStaffIp(id)
-        .then(() => { showStatus?.(`IP-Sperre für ${username} zurückgesetzt.`, 'success'); loadStaffManagement(); })
+        .then(() => { showStatus?.(`Regionssperre für ${username} zurückgesetzt.`, 'success'); loadStaffManagement(); })
         .catch(e => showStatus?.(`Fehler: ${e.message}`, 'error'));
 }
 

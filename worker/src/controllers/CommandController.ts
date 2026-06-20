@@ -65,15 +65,15 @@ export class CommandController {
     if (isNaN(id) || id <= 0) return err('Ungültige User-ID', 400, origin);
 
     const user = await env.DATABASE.prepare(
-      'SELECT id, username, ip FROM users WHERE id = ?'
-    ).bind(id).first<{ id: number; username: string; ip: string | null }>();
+      'SELECT id, username, login_country FROM users WHERE id = ?'
+    ).bind(id).first<{ id: number; username: string; login_country: string | null }>();
     if (!user) return err('Benutzer nicht gefunden', 404, origin);
-    if (!user.ip) return err('IP-Sperre bereits zurückgesetzt', 400, origin);
+    if (!user.login_country) return err('Regionssperre bereits zurückgesetzt', 400, origin);
 
-    await env.DATABASE.prepare('UPDATE users SET ip = NULL WHERE id = ?').bind(id).run();
-    await auditLog(env.DATABASE, null, 'CMD_RESET_IP', 'users', String(id), { username: user.username }, getIP(request));
+    await env.DATABASE.prepare('UPDATE users SET login_country = NULL WHERE id = ?').bind(id).run();
+    await auditLog(env.DATABASE, null, 'CMD_RESET_REGION', 'users', String(id), { username: user.username, region: user.login_country }, getIP(request));
 
-    return json({ success: true, message: `IP-Sperre von ${user.username} aufgehoben.` }, 200, origin);
+    return json({ success: true, message: `Regionssperre von ${user.username} aufgehoben.` }, 200, origin);
   }
 
   // ── PATCH /api/cmd/users/:id/role ──────────────────────────────────────

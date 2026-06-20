@@ -1,5 +1,5 @@
 import type { Env, UserRow, Role } from '../types/index.js';
-import { signJWT, verifyJWT, setCookie, clearCookie, getIP } from '../middleware/auth.js';
+import { signJWT, verifyJWT, setCookie, clearCookie, getIP, getCountry } from '../middleware/auth.js';
 
 const ROBLOX_TOKEN_URL = 'https://apis.roblox.com/oauth/v1/token';
 const ROBLOX_USERINFO  = 'https://apis.roblox.com/oauth/v1/userinfo';
@@ -67,21 +67,21 @@ export class AuthService {
     } catch { return null; }
   }
 
-  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, ip: string, isDev: boolean = false): Promise<UserRow> {
-    const existing = await this.env.DATABASE.prepare('SELECT id, ip FROM users WHERE roblox_id = ?').bind(robloxId).first<{ id: number; ip: string | null }>();
+  async upsertUser(robloxId: string, username: string, avatarUrl: string | null, role: Role, ip: string, country: string | null, isDev: boolean = false): Promise<UserRow> {
+    const existing = await this.env.DATABASE.prepare('SELECT id, ip, login_country FROM users WHERE roblox_id = ?').bind(robloxId).first<{ id: number; ip: string | null; login_country: string | null }>();
 
     if (existing) {
-      if (!isDev && existing.ip && existing.ip !== ip) {
-        throw new Error('Login von einer anderen IP-Adresse abgelehnt.');
+      if (!isDev && existing.login_country && country && existing.login_country !== country) {
+        throw new Error(`Login aus einer anderen Region abgelehnt (erwartet: ${existing.login_country}, aktuell: ${country}).`);
       }
-      const lockedIp = existing.ip ? existing.ip : ip;
+      const countryToStore = existing.login_country ?? country;
       await this.env.DATABASE
-        .prepare(`UPDATE users SET username=?, avatar_url=?, role=?, ip=?, last_seen=datetime('now') WHERE id=?`)
-        .bind(username, avatarUrl, role, lockedIp, existing.id).run();
+        .prepare(`UPDATE users SET username=?, avatar_url=?, role=?, ip=?, login_country=?, last_seen=datetime('now') WHERE id=?`)
+        .bind(username, avatarUrl, role, ip, countryToStore, existing.id).run();
     } else {
       await this.env.DATABASE
-        .prepare(`INSERT INTO users (roblox_id, username, avatar_url, role, ip, last_seen) VALUES (?, ?, ?, ?, ?, datetime('now'))`)
-        .bind(robloxId, username, avatarUrl, role, ip).run();
+        .prepare(`INSERT INTO users (roblox_id, username, avatar_url, role, ip, login_country, last_seen) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`)
+        .bind(robloxId, username, avatarUrl, role, ip, country).run();
     }
 
     const user = await this.env.DATABASE.prepare('SELECT * FROM users WHERE roblox_id = ?').bind(robloxId).first<UserRow>();

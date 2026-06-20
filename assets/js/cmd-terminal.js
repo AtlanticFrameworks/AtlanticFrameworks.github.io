@@ -22,7 +22,7 @@
   const STATUSES = ['OPERATIONAL', 'ONLINE', 'SYNCED', 'OFFLINE', 'DEGRADED'];
 
   const COMMANDS = [
-    { id: 'reset-ipaccess',   tokens: ['reset',    'ipaccess'],     args: [{ name: 'username',   source: 'accounts' }],                                        desc: 'Clear IP lock for account'          },
+    { id: 'reset-ipaccess',   tokens: ['reset',    'ipaccess'],     args: [{ name: 'username',   source: 'accounts' }],                                        desc: 'Clear region lock for account'      },
     { id: 'set-role',         tokens: ['set',      'role'],         args: [{ name: 'username',   source: 'accounts' }, { name: 'role',   source: 'roles' }],   desc: 'Change user role'                   },
     { id: 'clear-sessions',   tokens: ['clear',    'sessions'],     args: [{ name: 'username',   source: 'accounts' }],                                        desc: 'Delete all sessions for user'       },
     { id: 'delete-user',      tokens: ['delete',   'user'],         args: [{ name: 'username',   source: 'accounts' }],                                        desc: 'Remove user from DB'                },

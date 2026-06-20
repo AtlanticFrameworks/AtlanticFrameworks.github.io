@@ -136,3 +136,9 @@ export async function auditLog(
 export function getIP(request: Request): string {
   return request.headers.get('CF-Connecting-IP') ?? 'unknown';
 }
+
+export function getCountry(request: Request): string | null {
+  const cf = (request as Request & { cf?: { country?: string; regionCode?: string } }).cf;
+  if (!cf?.country) return null;
+  return cf.regionCode ? `${cf.country}-${cf.regionCode}` : cf.country;
+}

@@ -1,6 +1,6 @@
 import type { Env } from '../types/index.js';
 import { AuthService } from '../services/AuthService.js';
-import { json, err, getCookie, setCookie, clearCookie, getIP, auditLog } from '../middleware/auth.js';
+import { json, err, getCookie, setCookie, clearCookie, getIP, getCountry, auditLog } from '../middleware/auth.js';
 
 export class AuthController {
   static async login(request: Request, env: Env): Promise<Response> {
@@ -12,12 +12,13 @@ export class AuthController {
 
     const svc = new AuthService(env);
     try {
-      const ip     = getIP(request);
-      const roblox = await svc.exchangeCode(code, redirect_uri ?? 'https://bwrp.net/team');
-      const role   = await svc.getRobloxRole(roblox.robloxId);
-      if (!role)   return err('Zugriff verweigert: Rang unzureichend oder kein Gruppenmitglied', 403);
+      const ip      = getIP(request);
+      const country = getCountry(request);
+      const roblox  = await svc.exchangeCode(code, redirect_uri ?? 'https://bwrp.net/team');
+      const role    = await svc.getRobloxRole(roblox.robloxId);
+      if (!role)    return err('Zugriff verweigert: Rang unzureichend oder kein Gruppenmitglied', 403);
 
-      const user   = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, ip, isDev);
+      const user    = await svc.upsertUser(roblox.robloxId, roblox.username, roblox.picture, role, ip, country, isDev);
       const cookies = await svc.createSession(user, request);
 
       await auditLog(env.DATABASE, user.id, 'LOGIN', 'sessions', undefined, { ip: getIP(request) }, getIP(request));
@@ -35,8 +36,7 @@ export class AuthController {
       }), { status: 200, headers: loginHeaders });
     } catch (e) {
       const message = (e as Error).message;
-      // IP lock rejection is a client-caused 403, not a server error
-      if (message === 'Login von einer anderen IP-Adresse abgelehnt.') {
+      if (message.startsWith('Login aus einer anderen Region abgelehnt')) {
         return err(message, 403, env.ALLOWED_ORIGIN ?? 'https://bwrp.net');
       }
       return err(message, 500, env.ALLOWED_ORIGIN ?? 'https://bwrp.net');
