@@ -281,7 +281,7 @@
                                 class="bg-tac-amber text-black font-bold font-mono text-sm py-2 hover:bg-white transition-colors clip-br bracket-hover">
                                 DIENST STARTEN
                             </button>
-                            <button onclick="showTab('quickmod')"
+                            <button onclick="showTab('modcenter')"
                                 class="bg-transparent border border-tac-border text-white font-bold font-mono text-sm py-2 hover:border-blue-500 hover:text-blue-400 transition-colors mt-1">
                                 SCHNELL-MODERATOR
                             </button>
@@ -1778,6 +1778,14 @@
                     </div>
                     <div id="gp-search-hint" class="mt-2 font-mono text-[10px] text-tac-muted">Drücke Enter oder klicke
                         Suchen</div>
+                    <!-- Recent Searches -->
+                    <div id="gp-recent-section" class="hidden mt-4 pt-4 border-t border-tac-border/50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="clock" class="w-3 h-3 text-tac-muted"></i>
+                            <span class="font-mono text-[9px] text-tac-muted tracking-widest uppercase">Zuletzt gesucht</span>
+                        </div>
+                        <div id="gp-recent-list" class="flex flex-wrap gap-2"></div>
+                    </div>
                 </section>
 
                 <div id="gp-player-section" class="hidden space-y-6 animate-fade-in">

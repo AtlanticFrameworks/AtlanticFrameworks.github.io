@@ -74,13 +74,46 @@ export class StaffController {
     return json({ roster }, 200, origin);
   }
 
-  // GET /api/staff/status  (server_status rows)
+  // GET /api/staff/status  (live health checks)
   static async status(_request: Request, env: Env, _user: JWTPayload): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
-    const { results } = await env.DATABASE
-      .prepare('SELECT service, status, updated_at FROM server_status ORDER BY id ASC')
-      .all();
-    return json({ status: results }, 200, origin);
+    const now = new Date().toISOString();
+    const TIMEOUT = 5000;
+
+    async function checkDatabase(): Promise<string> {
+      await env.DATABASE.prepare('SELECT 1').first();
+      return 'ONLINE';
+    }
+
+    async function checkRoblox(): Promise<string> {
+      const r = await fetch('https://users.roblox.com/v1/users/1', {
+        signal: AbortSignal.timeout(TIMEOUT),
+      });
+      return r.ok ? 'SYNCED' : 'DEGRADED';
+    }
+
+    async function checkDiscord(): Promise<string> {
+      if (!env.DISCORD_WEBHOOK_URL) return 'OFFLINE';
+      const r = await fetch(env.DISCORD_WEBHOOK_URL, {
+        method: 'GET',
+        signal: AbortSignal.timeout(TIMEOUT),
+      });
+      return r.ok ? 'ONLINE' : 'DEGRADED';
+    }
+
+    const [dbStatus, robloxStatus, discordStatus] = await Promise.all([
+      checkDatabase().catch(() => 'OFFLINE'),
+      checkRoblox().catch(() => 'OFFLINE'),
+      checkDiscord().catch(() => 'OFFLINE'),
+    ]);
+
+    return json({
+      status: [
+        { service: 'Database',    status: dbStatus,      updated_at: now },
+        { service: 'Roblox API',  status: robloxStatus,  updated_at: now },
+        { service: 'Discord Bot', status: discordStatus, updated_at: now },
+      ],
+    }, 200, origin);
   }
 
   // GET /api/staff/stats  (aggregated stats for the current user)

@@ -540,6 +540,7 @@
                     loadStaffHierarchy().catch(e => console.error('Staff Fehler:', e));
                     if (typeof loadAnnouncements === 'function') loadAnnouncements();
                 }
+                if (typeof gpRenderRecentSearches === 'function') gpRenderRecentSearches();
                 checkTutorialAutoStart();
 
             } catch (e) {
@@ -1391,9 +1392,17 @@
             // Initial checklist state
             const fill = document.getElementById('checklist-fill');
             if (fill) toggleChecklist();
-            // Restore last active tab
+            // Restore last active tab and trigger its load function if needed
             const lastTab = localStorage.getItem('bwrp_active_tab');
-            if (lastTab && document.getElementById(`tab-${lastTab}`)) showTab(lastTab);
+            if (lastTab && document.getElementById(`tab-${lastTab}`)) {
+                showTab(lastTab);
+                if (lastTab === 'management' && typeof loadStaffManagement === 'function') loadStaffManagement();
+                if (lastTab === 'watchlist'  && typeof loadWatchlist       === 'function') loadWatchlist();
+                if (lastTab === 'cases'      && typeof loadCaseBrowser     === 'function') loadCaseBrowser();
+                if (lastTab === 'radar'      && typeof loadServerIntel     === 'function') loadServerIntel();
+                if (lastTab === 'shiftlog'   && typeof loadShiftLog        === 'function') loadShiftLog();
+                if (lastTab === 'discord'    && typeof loadDiscordTab      === 'function') loadDiscordTab();
+            }
         };
 
         // ===================================================
@@ -2062,7 +2071,7 @@
 
             try {
                 const { watchlist } = await window.api.getWatchlist();
-                loadingEl.classList.remove('hidden');
+                loadingEl.classList.add('hidden');
 
                 if (badgeEl) badgeEl.textContent = watchlist.length > 0 ? `WATCHLIST (${watchlist.length})` : 'WATCHLIST';
 

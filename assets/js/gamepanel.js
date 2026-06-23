@@ -108,6 +108,7 @@ async function gpLookupPlayer() {
 
         gpLoadRestriction(player.id);
         gpApplyStaffProtection(player.id);
+        gpSaveRecentSearch(player);
 
         if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (e) {
@@ -313,4 +314,48 @@ async function executeGpUnban() {
     } finally {
         btn.textContent = orig; btn.disabled = false;
     }
+}
+
+// ── Recent Searches ───────────────────────────────────────────────────────────
+
+const GP_RECENT_KEY = 'bwrp_gp_recent';
+const GP_RECENT_MAX = 5;
+
+function gpGetRecentSearches() {
+    try { return JSON.parse(localStorage.getItem(GP_RECENT_KEY) || '[]'); } catch { return []; }
+}
+
+function gpSaveRecentSearch(player) {
+    const items = gpGetRecentSearches().filter(p => String(p.id) !== String(player.id));
+    items.unshift({
+        id:          player.id,
+        username:    player.username,
+        displayName: player.displayName || player.username,
+        avatarUrl:   player.avatarUrl || '',
+    });
+    localStorage.setItem(GP_RECENT_KEY, JSON.stringify(items.slice(0, GP_RECENT_MAX)));
+    gpRenderRecentSearches();
+}
+
+function gpRenderRecentSearches() {
+    const section = document.getElementById('gp-recent-section');
+    const list    = document.getElementById('gp-recent-list');
+    if (!section || !list) return;
+    const items = gpGetRecentSearches();
+    if (!items.length) { section.classList.add('hidden'); return; }
+    section.classList.remove('hidden');
+    list.innerHTML = items.map(p => `
+        <button onclick="gpSearchRecent('${escHtml(String(p.id))}')"
+            class="flex items-center gap-2 bg-tac-panel border border-tac-border px-2.5 py-1.5 hover:border-tac-amber/50 transition-colors group max-w-[140px]">
+            <img src="${escHtml(p.avatarUrl)}" onerror="this.src='/assets/images/logo.png'"
+                class="w-6 h-6 object-cover flex-shrink-0 grayscale group-hover:grayscale-0 transition-all">
+            <span class="font-mono text-[10px] text-zinc-300 truncate">${escHtml(p.displayName)}</span>
+        </button>
+    `).join('');
+}
+
+function gpSearchRecent(id) {
+    const el = document.getElementById('gp-search-input');
+    if (el) el.value = String(id);
+    gpLookupPlayer();
 }
