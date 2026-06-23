@@ -1,6 +1,7 @@
 import type { Env, JWTPayload } from '../types/index.js';
 import { ShiftService } from '../services/ShiftService.js';
-import { requireRole, auditLog, getIP, json } from '../middleware/auth.js';
+import { requireRole, auditLog, getIP, json, err } from '../middleware/auth.js';
+import { checkRateLimit } from '../middleware/rateLimit.js';
 
 export class ShiftController {
   // POST /api/shifts/start
@@ -115,7 +116,7 @@ export class ShiftController {
     }
   }
 
-  // POST /api/shifts/discord-log  — sends a shift report embed to SCHICHT_WEBHOOK
+  // POST /api/shifts/discord-log  — auto-logs shift events to SCHICHT_WEBHOOK
   static async discordLog(request: Request, env: Env, user: JWTPayload): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
     const bad = requireRole(user, 'MOD');
@@ -123,13 +124,18 @@ export class ShiftController {
 
     if (!env.SCHICHT_WEBHOOK) return json({ error: 'Webhook nicht konfiguriert.' }, 503, origin);
 
+    // Per-user rate limit: 5 events per 5 minutes
+    const limited = await checkRateLimit(env, `user:${user.sub}`, 'discord-log', 5, 300);
+    if (limited) return limited;
+
     const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+    const event    = String(body.event ?? 'ENDED').toUpperCase() as 'STARTED' | 'PAUSED' | 'ENDED';
     const duration = String(body.duration ?? '—');
     const cases    = Number(body.cases  ?? 0);
     const bans     = Number(body.bans   ?? 0);
     const warns    = Number(body.warns  ?? 0);
     const kicks    = Number(body.kicks  ?? 0);
-    const notes    = body.notes && String(body.notes).trim() !== '-' ? String(body.notes).trim() : null;
+    const notes    = body.notes && String(body.notes).trim() ? String(body.notes).trim() : null;
 
     const row = await env.DATABASE
       .prepare('SELECT username, avatar_url, role FROM users WHERE id = ?')
@@ -140,19 +146,30 @@ export class ShiftController {
     const avatarUrl = row?.avatar_url ?? null;
     const role      = row?.role       ?? user.role;
 
+    const CONFIG = {
+      STARTED: { color: 0x10B981, title: '🟢 Schicht gestartet' },
+      PAUSED:  { color: 0xE2A800, title: '⏸️ Schicht pausiert'  },
+      ENDED:   { color: 0xEF4444, title: '🔴 Schicht beendet'   },
+    };
+    const { color, title } = CONFIG[event] ?? CONFIG.ENDED;
+
+    const statsFields = event !== 'STARTED' ? [
+      { name: 'Dauer',        value: `\`${duration}\``, inline: true },
+      { name: 'Fälle',        value: `\`${cases}\``,    inline: true },
+      { name: 'Bans',         value: `\`${bans}\``,     inline: true },
+      { name: 'Verwarnungen', value: `\`${warns}\``,    inline: true },
+      { name: 'Kicks',        value: `\`${kicks}\``,    inline: true },
+      ...(notes ? [{ name: 'Notizen', value: notes, inline: false }] : []),
+    ] : [];
+
     const embed: Record<string, unknown> = {
-      title:     '📋 Schicht-Bericht',
-      color:     0xE2A800,
+      title,
+      color,
       ...(avatarUrl ? { thumbnail: { url: avatarUrl } } : {}),
       fields: [
-        { name: 'Mitarbeiter',  value: `\`${username}\``,       inline: true },
-        { name: 'Rang',         value: `\`${role}\``,           inline: true },
-        { name: 'Dauer',        value: `\`${duration}\``,       inline: true },
-        { name: 'Fälle',        value: `\`${cases}\``,          inline: true },
-        { name: 'Bans',         value: `\`${bans}\``,           inline: true },
-        { name: 'Verwarnungen', value: `\`${warns}\``,          inline: true },
-        { name: 'Kicks',        value: `\`${kicks}\``,          inline: true },
-        ...(notes ? [{ name: 'Notizen', value: notes, inline: false }] : []),
+        { name: 'Mitarbeiter', value: `\`${username}\``, inline: true },
+        { name: 'Rang',        value: `\`${role}\``,     inline: true },
+        ...statsFields,
       ],
       footer:    { text: 'BWRP Staff Panel' },
       timestamp: new Date().toISOString(),

@@ -809,11 +809,13 @@
                 shiftInterval = setInterval(updateTimerDisplay, 1000);
                 updateShiftButtons('active');
                 window.api.startShift().catch(e => console.warn('[SHIFT] Start fehlgeschlagen:', e.message));
+                autoLogShift('STARTED');
             } else {
                 isShiftActive = false;
                 clearInterval(shiftInterval);
                 shiftTimeElap = Math.floor((Date.now() - shiftStartTime) / 1000);
                 updateShiftButtons('paused');
+                autoLogShift('PAUSED');
             }
             updateTimerDisplay();
             saveShiftState();
@@ -827,16 +829,19 @@
 
         function _doStopShift() {
 
+            // Collect metrics before any state is reset
+            const metrics = {
+                cases_count: parseInt(document.getElementById('shift-cases')?.value || 0),
+                bans_count:  parseInt(document.getElementById('shift-bans')?.value  || 0),
+                warns_count: parseInt(document.getElementById('shift-warns')?.value || 0),
+                kicks_count: parseInt(document.getElementById('shift-kicks')?.value || 0),
+                notes:       document.getElementById('shift-notes')?.value || null,
+            };
+
             // Persist shift metrics to D1 before resetting
             if (shiftStartTime) {
-                const metrics = {
-                    cases_count: parseInt(document.getElementById('shift-cases')?.value || 0),
-                    bans_count: parseInt(document.getElementById('shift-bans')?.value || 0),
-                    warns_count: parseInt(document.getElementById('shift-warns')?.value || 0),
-                    kicks_count: parseInt(document.getElementById('shift-kicks')?.value || 0),
-                    notes: document.getElementById('shift-notes')?.value || null,
-                };
                 window.api.endShift(metrics).catch(e => console.warn('[SHIFT] End fehlgeschlagen:', e.message));
+                autoLogShift('ENDED');
             }
 
             isShiftActive = false;
@@ -884,30 +889,16 @@
             }
         }
 
-        window.logShiftToDiscord = async function () {
-            const btn = document.getElementById('shift-discord-log-btn');
-            if (btn) { btn.disabled = true; btn.textContent = 'WIRD GESENDET...'; }
-
+        function autoLogShift(event) {
             const duration = document.getElementById('shift-timer-display')?.textContent || '00:00:00';
             const cases    = Number(document.getElementById('shift-cases')?.value  || 0);
             const bans     = Number(document.getElementById('shift-bans')?.value   || 0);
             const warns    = Number(document.getElementById('shift-warns')?.value  || 0);
             const kicks    = Number(document.getElementById('shift-kicks')?.value  || 0);
             const notes    = document.getElementById('shift-notes')?.value?.trim() || '';
-
-            try {
-                await window.api.logShiftToDiscord({ duration, cases, bans, warns, kicks, notes });
-                showToast('Schichtbericht auf Discord geloggt!', 'success');
-            } catch (e) {
-                showToast(typeof friendlyApiError === 'function' ? friendlyApiError(e, 'Senden fehlgeschlagen') : 'Senden fehlgeschlagen', 'error');
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> AUF DISCORD LOGGEN';
-                    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [btn] });
-                }
-            }
-        };
+            window.api.logShiftToDiscord({ event, duration, cases, bans, warns, kicks, notes })
+                .catch(e => console.warn('[SHIFT LOG]', e.message));
+        }
 
         // ===================================================
         // METRIC ADJUSTMENT
