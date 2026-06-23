@@ -1,26 +1,30 @@
 [
     {
-        "id": 1,
-        "title": "Neuer Server Browser & Lobby System",
-        "date": "25. Dez 2025",
-        "content": "Das neue BWRP Lobby System ist jetzt live. Spieler können ab sofort Server bequem über die neue Serverauswahl betreten.",
-        "badge": "NEU",
-        "badgeColor": "bg-green-500 text-black"
+        "id": 7,
+        "title": "Status-System: Live-Checks & Discord-Trennung",
+        "date": "23. Juni 2026",
+        "content": "Systemstatus-Kacheln prüfen jetzt automatisch alle 30 Sek. den echten Zustand: Datenbank, Roblox API, Discord API (Webhook) und Discord Bot sind nun getrennte Indikatoren.",
+        "badge": "UPDATE"
     },
     {
-        "id": 2,
-        "title": "Fahrzeug-System Überarbeitung",
-        "date": "26. Dez 2025",
-        "content": "Das Fahrzeug-System wurde vollständig überarbeitet. Enthalten sind ein neues Spawn-UI, bessere Einpark-Mechaniken sowie ein realistisches Schlüssel- und Abschließsystem.",
-        "badge": "UPDATE",
-        "badgeColor": "bg-yellow-500 text-black"
+        "id": 6,
+        "title": "Schichtbericht direkt auf Discord loggen",
+        "date": "23. Juni 2026",
+        "content": "Der neue 'Auf Discord loggen'-Button im Dienst-Tab sendet den Schichtbericht als Embed direkt an Discord. Die Webhook-URL ist serverseitig gesichert und wird nie an den Client übertragen.",
+        "badge": "NEU"
     },
     {
-        "id": 3,
-        "title": "Chat-System Fix",
-        "date": "09. Jan 2026",
-        "content": "TextChat ist wieder für alle Altersgruppen freigeschaltet. Befehle wie !grant werden nicht mehr als Chat-Nachrichten über dem Kopf angezeigt.",
-        "badge": "FIX",
-        "badgeColor": "bg-blue-500 text-white"
+        "id": 5,
+        "title": "Game Panel: Zuletzt gesuchte Spieler",
+        "date": "23. Juni 2026",
+        "content": "Die letzten 5 erfolgreich gesuchten Spieler werden lokal gespeichert und erscheinen als Schnellzugriff unter der Suchleiste im Game Panel.",
+        "badge": "NEU"
+    },
+    {
+        "id": 4,
+        "title": "Tab-Ladeprobleme & Watchlist-Fix",
+        "date": "23. Juni 2026",
+        "content": "Team-Management und weitere Tabs laden jetzt korrekt nach Seitenneustart. Watchlist-Spinner wird korrekt ausgeblendet. Schnell-Moderator-Button navigiert zum Mod-Zentrum.",
+        "badge": "FIX"
     }
 ]
