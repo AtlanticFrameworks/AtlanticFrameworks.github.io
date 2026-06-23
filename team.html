@@ -884,38 +884,29 @@
             }
         }
 
-        window.copyShiftReport = function () {
-            const time = document.getElementById('shift-timer-display')?.textContent || '00:00:00';
-            const cases = document.getElementById('shift-cases')?.value || 0;
-            const bans = document.getElementById('shift-bans')?.value || 0;
-            const warns = document.getElementById('shift-warns')?.value || 0;
-            const kicks = document.getElementById('shift-kicks')?.value || 0;
-            const notes = document.getElementById('shift-notes')?.value || '-';
-            const user = document.getElementById('user-name')?.textContent || 'Unbekannt';
-            const rank = document.getElementById('user-rank')?.textContent || '-';
+        window.logShiftToDiscord = async function () {
+            const btn = document.getElementById('shift-discord-log-btn');
+            if (btn) { btn.disabled = true; btn.textContent = 'WIRD GESENDET...'; }
 
-            const report =
-                `**👮 SCHICHT-BERICHT**\n` +
-                `**Mitarbeiter:** ${user}\n` +
-                `**Rang:** ${rank}\n` +
-                `**Dauer:** ${time}\n` +
-                `**Fälle bearbeitet:** ${cases}\n` +
-                `**Bans erteilt:** ${bans}\n` +
-                `**Verwarnungen:** ${warns}\n` +
-                `**Kicks:** ${kicks}\n` +
-                `**Notizen:** ${notes}`;
+            const duration = document.getElementById('shift-timer-display')?.textContent || '00:00:00';
+            const cases    = Number(document.getElementById('shift-cases')?.value  || 0);
+            const bans     = Number(document.getElementById('shift-bans')?.value   || 0);
+            const warns    = Number(document.getElementById('shift-warns')?.value  || 0);
+            const kicks    = Number(document.getElementById('shift-kicks')?.value  || 0);
+            const notes    = document.getElementById('shift-notes')?.value?.trim() || '';
 
-            navigator.clipboard.writeText(report)
-                .then(() => showToast('Schichtbericht in Zwischenablage kopiert!', 'success'))
-                .catch(() => {
-                    const ta = document.createElement('textarea');
-                    ta.value = report;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    try { document.execCommand('copy'); showToast('Bericht kopiert!', 'success'); }
-                    catch { showToast('Kopieren fehlgeschlagen.', 'error'); }
-                    document.body.removeChild(ta);
-                });
+            try {
+                await window.api.logShiftToDiscord({ duration, cases, bans, warns, kicks, notes });
+                showToast('Schichtbericht auf Discord geloggt!', 'success');
+            } catch (e) {
+                showToast(typeof friendlyApiError === 'function' ? friendlyApiError(e, 'Senden fehlgeschlagen') : 'Senden fehlgeschlagen', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> AUF DISCORD LOGGEN';
+                    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [btn] });
+                }
+            }
         };
 
         // ===================================================

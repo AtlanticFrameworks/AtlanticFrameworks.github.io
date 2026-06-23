@@ -208,11 +208,12 @@ const ROUTES: Route[] = [
   route('DELETE', '/api/moderation/cases/:caseId',   ModerationController.deleteCase  as Handler),
 
   // ── Shifts ───────────────────────────────────────────────────────────────
-  route('POST', '/api/shifts/start',     ShiftController.start     as Handler),
-  route('POST', '/api/shifts/end',       ShiftController.end       as Handler),
-  route('GET',  '/api/shifts/active',    ShiftController.active    as Handler),
-  route('GET',  '/api/shifts/analytics', ShiftController.analytics as Handler),
-  route('GET',  '/api/shifts/all',       ShiftController.all       as Handler),
+  route('POST', '/api/shifts/start',        ShiftController.start       as Handler),
+  route('POST', '/api/shifts/end',          ShiftController.end         as Handler),
+  route('POST', '/api/shifts/discord-log',  ShiftController.discordLog  as Handler),
+  route('GET',  '/api/shifts/active',       ShiftController.active      as Handler),
+  route('GET',  '/api/shifts/analytics',    ShiftController.analytics   as Handler),
+  route('GET',  '/api/shifts/all',          ShiftController.all         as Handler),
 
   // ── Poster OAuth (public — poster generator login) ───────────────────────
   route('POST', '/api/poster/auth/exchange', PosterAuthController.exchangeCode as UserlessHandler, true),

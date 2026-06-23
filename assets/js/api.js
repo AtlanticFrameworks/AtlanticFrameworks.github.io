@@ -124,6 +124,7 @@ class ApiClient {
     async startShift()          { return this.post('/shifts/start', {}); }
     async getActiveShift()      { return this.get('/shifts/active'); }
     async endShift(metrics)     { return this.post('/shifts/end', metrics); }
+    async logShiftToDiscord(data) { return this.post('/shifts/discord-log', data); }
     async getAnalytics()        { return this.get('/shifts/analytics'); }
     async getAllShifts(params = {}) {
         const q = new URLSearchParams(params).toString();

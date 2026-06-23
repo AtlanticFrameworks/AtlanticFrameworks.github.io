@@ -34,5 +34,7 @@ jobs:
           workingDirectory: worker
           secrets: |
             ROBLOX_POSTER_AUTH
+            SCHICHT_WEBHOOK
         env:
           ROBLOX_POSTER_AUTH: ${{ secrets.ROBLOX_POSTER_AUTH }}
+          SCHICHT_WEBHOOK: ${{ secrets.SCHICHT_WEBHOOK }}

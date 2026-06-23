@@ -114,4 +114,57 @@ export class ShiftController {
       return json({ shifts: rows.results, total: total?.c ?? 0, limit, offset, mode }, 200, origin);
     }
   }
+
+  // POST /api/shifts/discord-log  — sends a shift report embed to SCHICHT_WEBHOOK
+  static async discordLog(request: Request, env: Env, user: JWTPayload): Promise<Response> {
+    const origin = env.ALLOWED_ORIGIN ?? 'https://bwrp.net';
+    const bad = requireRole(user, 'MOD');
+    if (bad) return bad;
+
+    if (!env.SCHICHT_WEBHOOK) return json({ error: 'Webhook nicht konfiguriert.' }, 503, origin);
+
+    const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+    const duration = String(body.duration ?? '—');
+    const cases    = Number(body.cases  ?? 0);
+    const bans     = Number(body.bans   ?? 0);
+    const warns    = Number(body.warns  ?? 0);
+    const kicks    = Number(body.kicks  ?? 0);
+    const notes    = body.notes && String(body.notes).trim() !== '-' ? String(body.notes).trim() : null;
+
+    const row = await env.DATABASE
+      .prepare('SELECT username, avatar_url, role FROM users WHERE id = ?')
+      .bind(Number(user.sub))
+      .first<{ username: string; avatar_url: string | null; role: string }>();
+
+    const username  = row?.username  ?? user.username;
+    const avatarUrl = row?.avatar_url ?? null;
+    const role      = row?.role       ?? user.role;
+
+    const embed: Record<string, unknown> = {
+      title:     '📋 Schicht-Bericht',
+      color:     0xE2A800,
+      ...(avatarUrl ? { thumbnail: { url: avatarUrl } } : {}),
+      fields: [
+        { name: 'Mitarbeiter',  value: `\`${username}\``,       inline: true },
+        { name: 'Rang',         value: `\`${role}\``,           inline: true },
+        { name: 'Dauer',        value: `\`${duration}\``,       inline: true },
+        { name: 'Fälle',        value: `\`${cases}\``,          inline: true },
+        { name: 'Bans',         value: `\`${bans}\``,           inline: true },
+        { name: 'Verwarnungen', value: `\`${warns}\``,          inline: true },
+        { name: 'Kicks',        value: `\`${kicks}\``,          inline: true },
+        ...(notes ? [{ name: 'Notizen', value: notes, inline: false }] : []),
+      ],
+      footer:    { text: 'BWRP Staff Panel' },
+      timestamp: new Date().toISOString(),
+    };
+
+    const res = await fetch(env.SCHICHT_WEBHOOK, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ embeds: [embed] }),
+    });
+
+    if (!res.ok) return json({ error: `Discord antwortete mit ${res.status}.` }, 502, origin);
+    return json({ success: true }, 200, origin);
+  }
 }
