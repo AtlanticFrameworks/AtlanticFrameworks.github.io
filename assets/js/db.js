@@ -30,7 +30,7 @@ async function refreshDashboardData() {
 function updateStatusUI(data) {
     if (!Array.isArray(data)) return;
     data.forEach(item => {
-        const elMap = { 'Roblox API': 'status-roblox', 'Discord Bot': 'status-discord', 'Database': 'status-db' };
+        const elMap = { 'Database': 'status-db', 'Roblox API': 'status-roblox', 'Discord API': 'status-discord-api', 'Discord Bot': 'status-discord-bot' };
         const el = document.getElementById(elMap[item.service]);
         if (!el) return;
         el.textContent = item.status;

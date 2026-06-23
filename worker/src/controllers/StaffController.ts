@@ -92,7 +92,7 @@ export class StaffController {
       return r.ok ? 'SYNCED' : 'DEGRADED';
     }
 
-    async function checkDiscord(): Promise<string> {
+    async function checkDiscordApi(): Promise<string> {
       if (!env.DISCORD_WEBHOOK_URL) return 'OFFLINE';
       const r = await fetch(env.DISCORD_WEBHOOK_URL, {
         method: 'GET',
@@ -101,17 +101,28 @@ export class StaffController {
       return r.ok ? 'ONLINE' : 'DEGRADED';
     }
 
-    const [dbStatus, robloxStatus, discordStatus] = await Promise.all([
+    async function checkDiscordBot(): Promise<string> {
+      if (!env.DISCORD_BOT_TOKEN) return 'OFFLINE';
+      const r = await fetch('https://discord.com/api/v10/users/@me', {
+        headers: { Authorization: `Bot ${env.DISCORD_BOT_TOKEN}` },
+        signal: AbortSignal.timeout(TIMEOUT),
+      });
+      return r.ok ? 'ONLINE' : 'DEGRADED';
+    }
+
+    const [dbStatus, robloxStatus, discordApiStatus, discordBotStatus] = await Promise.all([
       checkDatabase().catch(() => 'OFFLINE'),
       checkRoblox().catch(() => 'OFFLINE'),
-      checkDiscord().catch(() => 'OFFLINE'),
+      checkDiscordApi().catch(() => 'OFFLINE'),
+      checkDiscordBot().catch(() => 'OFFLINE'),
     ]);
 
     return json({
       status: [
-        { service: 'Database',    status: dbStatus,      updated_at: now },
-        { service: 'Roblox API',  status: robloxStatus,  updated_at: now },
-        { service: 'Discord Bot', status: discordStatus, updated_at: now },
+        { service: 'Database',    status: dbStatus,          updated_at: now },
+        { service: 'Roblox API',  status: robloxStatus,      updated_at: now },
+        { service: 'Discord API', status: discordApiStatus,  updated_at: now },
+        { service: 'Discord Bot', status: discordBotStatus,  updated_at: now },
       ],
     }, 200, origin);
   }
