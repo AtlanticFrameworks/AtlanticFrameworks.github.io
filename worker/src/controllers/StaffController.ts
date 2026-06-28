@@ -185,7 +185,7 @@ export class StaffController {
     if (!row) return err('Benutzer nicht gefunden', 404, origin);
 
     const ALLOWED_ROLES = [
-      'Group Owner', 'Ownership Team', 'Projektleitung', 'Projektverwaltung', 'Management',
+      'Group Owner', 'Founders Rank', 'Founders', 'Ownership Team', 'Projektleitung', 'Projektverwaltung', 'Management',
       'Teamverwaltung', 'Head Administrator', 'Administrator', 'Junior Administrator',
       'Head Game Moderator', 'Game Moderator', 'Developer',
     ];

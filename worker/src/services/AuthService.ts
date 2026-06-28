@@ -6,6 +6,8 @@ const ROBLOX_USERINFO  = 'https://apis.roblox.com/oauth/v1/userinfo';
 
 const ALLOWED_ROLES: Record<string, Role> = {
   'Group Owner':          'OWNER',
+  'Founders Rank':        'OWNER',
+  'Founders':             'OWNER',
   'Ownership Team':       'OWNER',
   'Projektleitung':       'OWNER',
   'Projektverwaltung':    'OWNER',

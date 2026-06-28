@@ -320,31 +320,38 @@ async function fetchStaff() {
         // 1. Get Roles
         const rolesData = await workerFetch('/api/roblox/group/roles');
 
-        // Define the roles we want to show and their display order
-        const targetRoles = [
+        // Roblox API role names that map to the Founders display group
+        const foundersRoles = new Set(["Group Owner", "Founders Rank", "Founders", "Ownership Team"]);
+
+        // All Roblox role names we want to fetch (includes both old and new Founders name variants)
+        const fetchRoles = [
             "Group Owner",
+            "Founders Rank",
+            "Founders",
             "Ownership Team",
             "Management",
             "Administrator",
             "Game Moderator"
         ];
 
-        // Filter and sort roles based on our target list order
-        const filteredRoles = rolesData.roles.filter(r => targetRoles.includes(r.name));
-        filteredRoles.sort((a, b) => targetRoles.indexOf(a.name) - targetRoles.indexOf(b.name));
+        // Display order for rendering sections
+        const displayRoles = ["Founders", "Management", "Administrator", "Game Moderator"];
+
+        // Filter and sort roles based on our fetch list order
+        const filteredRoles = rolesData.roles.filter(r => fetchRoles.includes(r.name));
+        filteredRoles.sort((a, b) => fetchRoles.indexOf(a.name) - fetchRoles.indexOf(b.name));
 
         // 2. Fetch Members (worker endpoint includes avatarUrl in each member)
         let staffGroups = {};
-        targetRoles.forEach(r => { if (r !== "Group Owner") staffGroups[r] = []; });
-        if (!staffGroups["Ownership Team"]) staffGroups["Ownership Team"] = [];
+        displayRoles.forEach(r => { staffGroups[r] = []; });
 
         for (const role of filteredRoles) {
             let targetGroupName = role.name;
             let displayRoleName = role.name;
 
-            if (role.name === "Group Owner") {
-                targetGroupName = "Ownership Team";
-                displayRoleName = "Ownership Team";
+            if (foundersRoles.has(role.name)) {
+                targetGroupName = "Founders";
+                displayRoleName = "Founders";
             }
 
             if (role.memberCount > 0) {
@@ -375,7 +382,7 @@ async function fetchStaff() {
         }
 
         // 4. Render Groups (avatarUrl already included from worker response)
-        for (const roleName of targetRoles) {
+        for (const roleName of displayRoles) {
             const groupMembers = staffGroups[roleName];
             if (!groupMembers || groupMembers.length === 0) continue;
 
