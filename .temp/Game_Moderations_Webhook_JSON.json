@@ -1,0 +1,53 @@
+{
+  "username": "<WEBHOOK_DISPLAY_NAME>",
+  "avatar_url": "<WEBHOOK_AVATAR_IMAGE_URL>",
+  "embeds": [
+    {
+      "color": "<DECIMAL_COLOR_CODE_INTEGER>", 
+      "author": {
+        "name": "<OFFENDER_USERNAME>",
+        "icon_url": "<OFFENDER_AVATAR_IMAGE_URL>"
+      },
+      "title": "Moderation | <MODERATION_CASE_ID_NUMBER>",
+      "thumbnail": {
+        "url": "<ROBLOX_CHARACTER_THUMBNAIL_URL>"
+      },
+      "fields": [
+        {
+          "name": "User ID",
+          "value": "<OFFENDER_USER_ID>",
+          "inline": true
+        },
+        {
+          "name": "Display Name",
+          "value": "<OFFENDER_DISPLAY_NAME>",
+          "inline": true
+        },
+        {
+          "name": "Account Created",
+          "value": "<OFFENDER_ACCOUNT_CREATION_DATE>",
+          "inline": true
+        },
+        {
+          "name": "Reason",
+          "value": "<MODERATION_REASON_TEXT>",
+          "inline": true
+        },
+        {
+          "name": "Punishment",
+          "value": "<PUNISHMENT_ACTION_AND_DURATION>",
+          "inline": true
+        },
+        {
+          "name": "Previous Moderations",
+          "value": "<FORMATTED_STRING_OF_PREVIOUS_WARNINGS_OR_BANS>",
+          "inline": false
+        }
+      ],
+      "footer": {
+        "text": "Moderator: <MODERATOR_DISCORD_HANDLE>",
+        "icon_url": "<MODERATOR_AVATAR_IMAGE_URL>"
+      }
+    }
+  ]
+}
