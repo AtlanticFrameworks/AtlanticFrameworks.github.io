@@ -261,6 +261,11 @@ class ApiClient {
         return this._parseJson(res);
     }
 
+    async getDivisionSubrolePermissions(slug) { return this.get(`/divisions/${slug}/subrole-permissions`); }
+    async updateDivisionSubrolePermissions(slug, subRole, permissions) {
+        return this.patch(`/divisions/${slug}/subrole-permissions/${encodeURIComponent(subRole)}`, { permissions });
+    }
+
     async getDivisionLeads(slug)             { return this.get(`/divisions/${slug}/leads`); }
     async assignDivisionLead(slug, identifier) { return this.post(`/divisions/${slug}/leads/${identifier}`, {}); }
     async removeDivisionLead(slug, robloxId) {

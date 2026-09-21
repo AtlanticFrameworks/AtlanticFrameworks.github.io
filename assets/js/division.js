@@ -26,6 +26,16 @@ const FALLBACK_DIVISIONS = [
     { slug: 'abc', name: 'ABC Abwehr', color: '#10b981', icon: 'biohazard', description: 'Schutz vor atomaren Bedrohungen.', sub_roles: [] },
     { slug: 'wachbataillon', name: 'Wachbataillon', color: '#eab308', icon: 'flag', description: 'Ehrengarde und Protokoll.', sub_roles: [] },
     { slug: 'un', name: 'United Nations', color: '#38bdf8', icon: 'globe', description: 'Internationale Friedenssicherung.', sub_roles: [] },
+    { slug: 'mg', name: 'Militärgericht (MG)', color: '#7c3aed', icon: 'gavel', description: 'Militärische Gerichtsbarkeit und Disziplinarverfahren.', sub_roles: [] },
+    { slug: 'mad', name: 'MAD (Militärischer Abschirmdienst)', color: '#0d9488', icon: 'eye', description: 'Aufklärung, Spionageabwehr und interne Sicherheit.', sub_roles: [] },
+];
+
+// Mirrors worker/src/types/index.ts DIVISION_PERMISSIONS.
+const DIVISION_PERMISSIONS = [
+    { id: 'MANAGE_MEMBERS', label: 'Mitglieder verwalten' },
+    { id: 'MANAGE_STRIKES', label: 'Strikes verwalten' },
+    { id: 'MANAGE_APPEARANCE', label: 'Erscheinungsbild verwalten' },
+    { id: 'MODERATE_SIGNOFFS', label: 'Abmeldungen anderer löschen' },
 ];
 
 const BASE_TABS = [
@@ -44,6 +54,7 @@ let currentUser = null;       // { username, robloxId }
 let isSystemAdmin = false;
 let myLeadSlugs = [];
 let myMemberSlugs = [];
+let myPermissions = {};       // { [slug]: DivisionPermission[] } — from the caller's Unterrolle
 let activeTab = 'overview';
 let appearanceDraftSubRoles = [];
 let rosterSearch = '';
@@ -72,6 +83,15 @@ function canAccessSelected() {
     if (canManageSelected()) return true;
     if (!currentUser || !selectedDivision) return false;
     return myMemberSlugs.includes(selectedDivision.slug);
+}
+
+// canManage(), OR the caller's Unterrolle has been granted this specific
+// permission for the selected division (see DIVISION_PERMISSIONS).
+function hasDivisionPermission(permission) {
+    if (canManageSelected()) return true;
+    if (!selectedDivision) return false;
+    const perms = myPermissions[selectedDivision.slug] || [];
+    return perms.includes(permission);
 }
 
 function refreshIcons() {
@@ -164,6 +184,7 @@ async function handleLogout() {
     isSystemAdmin = false;
     myLeadSlugs = [];
     myMemberSlugs = [];
+    myPermissions = {};
     activeTab = 'overview';
     if (selectedDivision) renderRosterView();
 }
@@ -312,16 +333,18 @@ async function loadMyLeads() {
         isSystemAdmin = res.isSystemAdmin;
         myLeadSlugs = res.leadOf;
         myMemberSlugs = res.memberOf;
+        myPermissions = res.permissions || {};
     } catch {
         isSystemAdmin = false;
         myLeadSlugs = [];
         myMemberSlugs = [];
+        myPermissions = {};
     }
 }
 
 // ─── Mitglieder tab (public read, Divisionsleitung/OWNER can edit) ─────────
 function renderMembersTab(host) {
-    const can = canManageSelected();
+    const can = hasDivisionPermission('MANAGE_MEMBERS');
     const subRoles = selectedDivision.sub_roles || [];
     host.innerHTML = `
         ${can ? `
@@ -365,7 +388,7 @@ function renderMembersTab(host) {
 function renderMemberRoster() {
     const host = document.getElementById('member-roster');
     if (!host) return;
-    const can = canManageSelected();
+    const can = hasDivisionPermission('MANAGE_MEMBERS');
     const subRoles = selectedDivision.sub_roles || [];
     const groups = subRoles.length ? [...subRoles, ''] : [''];
     const term = rosterSearch.trim().toLowerCase();
@@ -526,7 +549,7 @@ function renderSignoffList(signoffs) {
         list.innerHTML = '<p class="text-gray-500 text-sm">Keine aktuellen Abmeldungen.</p>';
         return;
     }
-    const canModerate = canManageSelected();
+    const canModerate = hasDivisionPermission('MODERATE_SIGNOFFS');
     list.innerHTML = signoffs.map(s => {
         const isOwner = currentUser && s.roblox_id === currentUser.robloxId;
         return `
@@ -569,9 +592,9 @@ async function onRemoveSignoff(id) {
 
 // ─── Strikes tab (locked unless Divisionsleitung/OWNER) ────────────────────
 function renderStrikesGate(host) {
-    if (!canManageSelected()) {
+    if (!hasDivisionPermission('MANAGE_STRIKES')) {
         renderLockedPanel(host, currentUser
-            ? 'Nur die Divisionsleitung dieser Division kann Strikes einsehen und verwalten.'
+            ? 'Dir fehlt die Berechtigung, Strikes dieser Division einzusehen und zu verwalten.'
             : 'Mit deinem Roblox-Account anmelden, um Strikes einzusehen und zu verwalten.');
         return;
     }
@@ -693,9 +716,9 @@ async function onRemoveStrike(id) {
 
 // ─── Erscheinungsbild tab (locked; icon is fixed and not editable here) ────
 function renderAppearanceGate(host) {
-    if (!canManageSelected()) {
+    if (!hasDivisionPermission('MANAGE_APPEARANCE')) {
         renderLockedPanel(host, currentUser
-            ? 'Nur die Divisionsleitung dieser Division kann das Erscheinungsbild bearbeiten.'
+            ? 'Dir fehlt die Berechtigung, das Erscheinungsbild dieser Division zu bearbeiten.'
             : 'Mit deinem Roblox-Account anmelden, um Teamfarbe, Beschreibung und Unterrollen zu bearbeiten.');
         return;
     }
@@ -705,8 +728,12 @@ function renderAppearanceGate(host) {
 function renderAppearanceTab(host) {
     const d = selectedDivision;
     appearanceDraftSubRoles = [...(d.sub_roles || [])];
+    // Editing Unterrollen-Berechtigungen stays lead/admin-only even if this tab was
+    // reached via a delegated MANAGE_APPEARANCE permission — a permission holder
+    // must never be able to grant themselves (or anyone) more.
+    const canEditPermissions = canManageSelected();
     host.innerHTML = `
-        <form id="appearance-form" class="max-w-xl space-y-7">
+        <form id="appearance-form" class="max-w-xl space-y-7 mb-10">
             <div class="flex items-center gap-5">
                 <div>
                     <label class="dv-label">Teamfarbe</label>
@@ -733,6 +760,12 @@ function renderAppearanceTab(host) {
             </div>
             <button class="dv-btn">Speichern</button>
         </form>
+        ${canEditPermissions ? `
+        <div>
+            <p class="dv-label mb-1">Unterrollen-Berechtigungen</p>
+            <p class="dv-stat mb-4">EINER UNTERROLLE EINZELNE RECHTE GEBEN, OHNE VOLLE DIVISIONSLEITUNG ZU SEIN.</p>
+            <div id="subrole-permissions"></div>
+        </div>` : ''}
     `;
     renderSubRoleChips();
     document.getElementById('subrole-input').addEventListener('keydown', e => {
@@ -740,6 +773,56 @@ function renderAppearanceTab(host) {
     });
     document.getElementById('appearance-form').addEventListener('submit', onSaveAppearance);
     refreshIcons();
+    if (canEditPermissions) renderSubRolePermissions();
+}
+
+async function renderSubRolePermissions() {
+    const host = document.getElementById('subrole-permissions');
+    if (!host) return;
+    const subRoles = selectedDivision.sub_roles || [];
+    if (!subRoles.length) {
+        host.innerHTML = '<p class="text-gray-500 text-sm">Definiere zuerst Unterrollen oben, um ihnen Berechtigungen zu geben.</p>';
+        return;
+    }
+    host.innerHTML = '<p class="text-gray-500 text-xs font-mono">LADE ...</p>';
+    let granted = {};
+    try {
+        const res = await window.api.getDivisionSubrolePermissions(selectedDivision.slug);
+        granted = res.permissions || {};
+    } catch (err) {
+        host.innerHTML = `<p class="text-red-400 text-sm">${esc(friendlyApiError(err, 'Berechtigungen konnten nicht geladen werden'))}</p>`;
+        return;
+    }
+
+    host.innerHTML = subRoles.map(role => {
+        const active = granted[role] || [];
+        return `
+        <div class="dv-row px-4 py-3 mb-2">
+            <p class="text-white text-sm font-medium mb-2">${esc(role)}</p>
+            <div class="flex flex-wrap gap-x-5 gap-y-2">
+                ${DIVISION_PERMISSIONS.map(p => `
+                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer">
+                    <input type="checkbox" data-role="${esc(role)}" data-perm="${p.id}" ${active.includes(p.id) ? 'checked' : ''}
+                        onchange="onToggleSubRolePermission(this)" class="accent-current" style="color: var(--division-accent);">
+                    ${p.label}
+                </label>`).join('')}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function onToggleSubRolePermission(checkbox) {
+    const role = checkbox.dataset.role;
+    const perm = checkbox.dataset.perm;
+    const rowChecks = document.querySelectorAll(`#subrole-permissions input[data-role="${CSS.escape(role)}"]`);
+    const permissions = Array.from(rowChecks).filter(c => c.checked).map(c => c.dataset.perm);
+    try {
+        await window.api.updateDivisionSubrolePermissions(selectedDivision.slug, role, permissions);
+        showToast(`Berechtigungen für ${role} gespeichert`, 'success', 1800);
+    } catch (err) {
+        checkbox.checked = !checkbox.checked;
+        showToast(friendlyApiError(err, 'Konnte Berechtigung nicht speichern'), 'error');
+    }
 }
 
 function renderSubRoleChips() {
@@ -781,6 +864,7 @@ async function onSaveAppearance(e) {
         if (idx >= 0) divisions[idx] = selectedDivision;
         renderPicker();
         applyAccent(selectedDivision.color);
+        renderAppearanceTab(document.getElementById('roster-tab-content'));
     } catch (err) {
         showToast(friendlyApiError(err, 'Konnte Erscheinungsbild nicht speichern'), 'error');
     }

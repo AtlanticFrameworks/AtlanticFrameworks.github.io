@@ -202,6 +202,22 @@ export interface DivisionSignoffRow {
   created_at:  string;
 }
 
+// A sub-role (Unterrolle) can be granted a subset of what a full Divisionsleitung
+// can do, scoped to one resource — e.g. MANAGE_STRIKES without full management.
+export const DIVISION_PERMISSIONS = [
+  'MANAGE_MEMBERS',
+  'MANAGE_STRIKES',
+  'MANAGE_APPEARANCE',
+  'MODERATE_SIGNOFFS',
+] as const;
+export type DivisionPermission = (typeof DIVISION_PERMISSIONS)[number];
+
+export interface DivisionSubrolePermissionRow {
+  division_id: number;
+  sub_role:    string;
+  permissions: string;  // JSON array of DivisionPermission
+}
+
 // ── Division session (separate from the staff JWTPayload/ROLE_RANK system) ───
 
 export interface DivisionSessionPayload {

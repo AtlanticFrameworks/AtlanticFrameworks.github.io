@@ -1,4 +1,5 @@
-import type { Env, DivisionRow, DivisionMemberRow, DivisionStrikeRow, DivisionSignoffRow, DivisionSessionPayload } from '../types/index.js';
+import type { Env, DivisionRow, DivisionMemberRow, DivisionStrikeRow, DivisionSignoffRow, DivisionSessionPayload, DivisionPermission } from '../types/index.js';
+import { DIVISION_PERMISSIONS } from '../types/index.js';
 import { json, err, auditLog, getIP, signJWT, setCookie, clearCookie } from '../middleware/auth.js';
 import { resolveUsername } from './RobloxController.js';
 import { AuthService } from '../services/AuthService.js';
@@ -39,7 +40,10 @@ function isSystemAdminUser(actor: DivisionSessionPayload): boolean {
  *   GET    /api/divisions/:slug/signoffs            → list Abmeldungen (system admin, lead, or member of that division)
  *   POST   /api/divisions/:slug/signoffs            → submit an Abmeldung for yourself (system admin, lead, or member)
  *   DELETE /api/divisions/:slug/signoffs/:id        → remove an Abmeldung (its own submitter, or system admin/lead)
- *   GET    /api/divisions/leads/me                  → divisions the caller leads/is a member of
+ *   GET    /api/divisions/:slug/subrole-permissions              → permissions granted to each Unterrolle (system admin or lead)
+ *   PATCH  /api/divisions/:slug/subrole-permissions/:subRole     → set an Unterrolle's permissions (system admin or lead) —
+ *                                                                   never delegable, so a permission holder can't grant themselves more
+ *   GET    /api/divisions/leads/me                  → divisions the caller leads/is a member of, + permissions from their Unterrolle
  *   GET    /api/divisions/:slug/leads               → list Divisionsleitung for a division (system admin only)
  *   POST   /api/divisions/:slug/leads/:identifier    → assign Divisionsleitung by Roblox user ID or username (system admin only) —
  *                                                       the target need not have a `users` row / be staff
@@ -71,6 +75,27 @@ export class DivisionController {
       .bind(actor.robloxId, divisionId)
       .first();
     return !!member;
+  }
+
+  /**
+   * canManage(), OR a plain member whose Unterrolle has been granted this specific
+   * permission via division_subrole_permissions. Lets a Divisionsleitung delegate
+   * one resource (e.g. MANAGE_STRIKES) without making someone a full lead.
+   */
+  private static async hasPermission(env: Env, actor: DivisionSessionPayload, divisionId: number, permission: DivisionPermission): Promise<boolean> {
+    if (await DivisionController.canManage(env, actor, divisionId)) return true;
+    const member = await env.DATABASE
+      .prepare('SELECT sub_role FROM division_members WHERE roblox_id = ? AND division_id = ? AND sub_role != \'\'')
+      .bind(actor.robloxId, divisionId)
+      .first<{ sub_role: string }>();
+    if (!member) return false;
+    const row = await env.DATABASE
+      .prepare('SELECT permissions FROM division_subrole_permissions WHERE division_id = ? AND sub_role = ?')
+      .bind(divisionId, member.sub_role)
+      .first<{ permissions: string }>();
+    if (!row) return false;
+    const perms: string[] = JSON.parse(row.permissions ?? '[]');
+    return perms.includes(permission);
   }
 
   // ══════════════════════════════ Auth ══════════════════════════════════════
@@ -158,7 +183,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_APPEARANCE'))) return err('Zugriff verweigert', 403, o);
 
     const body: any = await request.json().catch(() => ({}));
     const color       = body.color       !== undefined ? String(body.color)       : division.color;
@@ -189,7 +214,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_MEMBERS'))) return err('Zugriff verweigert', 403, o);
 
     const body: any = await request.json().catch(() => ({}));
     const username = String(body.username ?? '').trim();
@@ -216,7 +241,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_MEMBERS'))) return err('Zugriff verweigert', 403, o);
 
     const memberId = parseInt(params.id);
     if (isNaN(memberId)) return err('Ungültige Mitglieds-ID', 400, o);
@@ -248,7 +273,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_MEMBERS'))) return err('Zugriff verweigert', 403, o);
 
     const memberId = parseInt(params.id);
     if (isNaN(memberId)) return err('Ungültige Mitglieds-ID', 400, o);
@@ -265,7 +290,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_STRIKES'))) return err('Zugriff verweigert', 403, o);
 
     const now = new Date().toISOString();
     // Drop expired temp strikes, mirroring the mockup's auto-cleanup behaviour.
@@ -280,7 +305,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_STRIKES'))) return err('Zugriff verweigert', 403, o);
 
     const body: any = await request.json().catch(() => ({}));
     const memberName = String(body.memberName ?? '').trim();
@@ -305,7 +330,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_STRIKES'))) return err('Zugriff verweigert', 403, o);
 
     const strikeId = parseInt(params.id);
     if (isNaN(strikeId)) return err('Ungültige Strike-ID', 400, o);
@@ -328,7 +353,7 @@ export class DivisionController {
     const o = DivisionController.origin(env);
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
-    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!(await DivisionController.hasPermission(env, actor, division.id, 'MANAGE_STRIKES'))) return err('Zugriff verweigert', 403, o);
 
     const strikeId = parseInt(params.id);
     if (isNaN(strikeId)) return err('Ungültige Strike-ID', 400, o);
@@ -394,10 +419,64 @@ export class DivisionController {
     if (!existing) return err('Abmeldung nicht gefunden', 404, o);
 
     const isOwner = existing.roblox_id === actor.robloxId;
-    if (!isOwner && !(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+    if (!isOwner && !(await DivisionController.hasPermission(env, actor, division.id, 'MODERATE_SIGNOFFS'))) return err('Zugriff verweigert', 403, o);
 
     await env.DATABASE.prepare('DELETE FROM division_signoffs WHERE id = ?').bind(signoffId).run();
     await auditLog(env.DATABASE, null, 'DIVISION_SIGNOFF_REMOVE', 'division_signoffs', String(signoffId), { slug: division.slug, actorRobloxId: actor.robloxId }, getIP(request));
+    return json({ success: true }, 200, o);
+  }
+
+  // ══════════════════════════════ Unterrollen-Berechtigungen ═════════════════
+  // Editing these stays Divisionsleitung/system-admin only (canManage, not
+  // hasPermission) — a permission holder must never be able to grant themselves
+  // more.
+
+  // ─── GET /api/divisions/:slug/subrole-permissions ─────────────────────────────
+  static async getSubrolePermissions(_req: Request, env: Env, actor: DivisionSessionPayload, params: Record<string, string>): Promise<Response> {
+    const o = DivisionController.origin(env);
+    const division = await DivisionController.getDivisionBySlug(env, params.slug);
+    if (!division) return err('Division nicht gefunden', 404, o);
+    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+
+    const rows = await env.DATABASE
+      .prepare('SELECT sub_role, permissions FROM division_subrole_permissions WHERE division_id = ?')
+      .bind(division.id)
+      .all<{ sub_role: string; permissions: string }>();
+
+    const permissions: Record<string, string[]> = {};
+    for (const row of rows.results) permissions[row.sub_role] = JSON.parse(row.permissions ?? '[]');
+
+    return json({ permissions, available: DIVISION_PERMISSIONS }, 200, o);
+  }
+
+  // ─── PATCH /api/divisions/:slug/subrole-permissions/:subRole ─────────────────
+  static async updateSubrolePermissions(request: Request, env: Env, actor: DivisionSessionPayload, params: Record<string, string>): Promise<Response> {
+    const o = DivisionController.origin(env);
+    const division = await DivisionController.getDivisionBySlug(env, params.slug);
+    if (!division) return err('Division nicht gefunden', 404, o);
+    if (!(await DivisionController.canManage(env, actor, division.id))) return err('Zugriff verweigert', 403, o);
+
+    const subRole = decodeURIComponent(params.subRole);
+    const allowedSubRoles: string[] = JSON.parse(division.sub_roles ?? '[]');
+    if (!allowedSubRoles.includes(subRole)) return err('Ungültige Unterrolle für diese Division', 400, o);
+
+    const body: any = await request.json().catch(() => ({}));
+    const permissions = Array.isArray(body.permissions) ? body.permissions : [];
+    if (permissions.some((p: unknown) => !DIVISION_PERMISSIONS.includes(p as DivisionPermission))) {
+      return err('Ungültige Berechtigung', 400, o);
+    }
+
+    const permissionsJson = JSON.stringify(permissions);
+    await env.DATABASE
+      .prepare('INSERT OR IGNORE INTO division_subrole_permissions (division_id, sub_role, permissions) VALUES (?, ?, ?)')
+      .bind(division.id, subRole, permissionsJson)
+      .run();
+    await env.DATABASE
+      .prepare('UPDATE division_subrole_permissions SET permissions = ? WHERE division_id = ? AND sub_role = ?')
+      .bind(permissionsJson, division.id, subRole)
+      .run();
+
+    await auditLog(env.DATABASE, null, 'DIVISION_SUBROLE_PERMISSIONS_UPDATE', 'division_subrole_permissions', `${division.id}:${subRole}`, { slug: division.slug, subRole, permissions, actorRobloxId: actor.robloxId }, getIP(request));
     return json({ success: true }, 200, o);
   }
 
@@ -409,20 +488,33 @@ export class DivisionController {
     if (isSystemAdminUser(actor)) {
       const all = await env.DATABASE.prepare('SELECT slug FROM divisions').all<{ slug: string }>();
       const slugs = all.results.map(d => d.slug);
-      return json({ isSystemAdmin: true, leadOf: slugs, memberOf: slugs }, 200, o);
+      return json({ isSystemAdmin: true, leadOf: slugs, memberOf: slugs, permissions: {} }, 200, o);
     }
     const leadRows = await env.DATABASE
       .prepare('SELECT d.slug FROM division_leads dl JOIN divisions d ON d.id = dl.division_id WHERE dl.roblox_id = ?')
       .bind(actor.robloxId)
       .all<{ slug: string }>();
     const memberRows = await env.DATABASE
-      .prepare('SELECT DISTINCT d.slug FROM division_members dm JOIN divisions d ON d.id = dm.division_id WHERE dm.roblox_id = ?')
+      .prepare('SELECT d.id, d.slug, dm.sub_role FROM division_members dm JOIN divisions d ON d.id = dm.division_id WHERE dm.roblox_id = ?')
       .bind(actor.robloxId)
-      .all<{ slug: string }>();
+      .all<{ id: number; slug: string; sub_role: string }>();
+
+    // Effective permissions granted via each membership's Unterrolle, keyed by division slug.
+    const permissions: Record<string, string[]> = {};
+    for (const row of memberRows.results) {
+      if (!row.sub_role) continue;
+      const perm = await env.DATABASE
+        .prepare('SELECT permissions FROM division_subrole_permissions WHERE division_id = ? AND sub_role = ?')
+        .bind(row.id, row.sub_role)
+        .first<{ permissions: string }>();
+      if (perm) permissions[row.slug] = JSON.parse(perm.permissions ?? '[]');
+    }
+
     return json({
       isSystemAdmin: false,
       leadOf: leadRows.results.map(d => d.slug),
       memberOf: memberRows.results.map(d => d.slug),
+      permissions,
     }, 200, o);
   }
 

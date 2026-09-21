@@ -153,7 +153,9 @@ INSERT OR IGNORE INTO divisions (slug, name, color, icon, description, sub_roles
   ('sani',          'Sanitätsdienst',   '#ef4444', 'heart-pulse',  'Medizinische Versorgung.',                        '[]'),
   ('abc',           'ABC Abwehr',       '#10b981', 'biohazard',    'Schutz vor atomaren Bedrohungen.',                '[]'),
   ('wachbataillon', 'Wachbataillon',    '#eab308', 'flag',         'Ehrengarde und Protokoll.',                       '[]'),
-  ('un',            'United Nations',   '#38bdf8', 'globe',        'Internationale Friedenssicherung.',               '[]');
+  ('un',            'United Nations',   '#38bdf8', 'globe',        'Internationale Friedenssicherung.',               '[]'),
+  ('mg',            'Militärgericht (MG)', '#7c3aed', 'gavel',     'Militärische Gerichtsbarkeit und Disziplinarverfahren.', '[]'),
+  ('mad',           'MAD (Militärischer Abschirmdienst)', '#0d9488', 'eye', 'Aufklärung, Spionageabwehr und interne Sicherheit.', '[]');
 
 -- Divisionsleitung grants — presence of a row = user leads that division.
 -- Everyone below is identified purely by Roblox ID (see DivisionSessionPayload /
@@ -210,3 +212,14 @@ CREATE TABLE IF NOT EXISTS division_signoffs (
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_division_signoffs_division ON division_signoffs(division_id);
+
+-- Grants a division's sub-role (Unterrolle) a subset of what a full
+-- Divisionsleitung can do, scoped to one resource at a time. Editing this table
+-- stays Divisionsleitung/system-admin only, same gate as members/strikes/
+-- appearance, so a permission holder can never grant themselves more.
+CREATE TABLE IF NOT EXISTS division_subrole_permissions (
+  division_id INTEGER NOT NULL REFERENCES divisions(id) ON DELETE CASCADE,
+  sub_role    TEXT    NOT NULL,
+  permissions TEXT    NOT NULL DEFAULT '[]',
+  PRIMARY KEY (division_id, sub_role)
+);

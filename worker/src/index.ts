@@ -298,6 +298,8 @@ const ROUTES: Route[] = [
   route('GET',    '/api/divisions/:slug/signoffs',            DivisionController.listSignoffs as DivisionHandler, false, 'division'),
   route('POST',   '/api/divisions/:slug/signoffs',            DivisionController.addSignoff   as DivisionHandler, false, 'division'),
   route('DELETE', '/api/divisions/:slug/signoffs/:id',        DivisionController.removeSignoff as DivisionHandler, false, 'division'),
+  route('GET',    '/api/divisions/:slug/subrole-permissions',            DivisionController.getSubrolePermissions    as DivisionHandler, false, 'division'),
+  route('PATCH',  '/api/divisions/:slug/subrole-permissions/:subRole',   DivisionController.updateSubrolePermissions as DivisionHandler, false, 'division'),
   route('GET',    '/api/divisions/:slug/leads',               DivisionController.listLeads    as DivisionHandler, false, 'division'),
   route('POST',   '/api/divisions/:slug/leads/:identifier',  DivisionController.assignLead   as DivisionHandler, false, 'division'),
   route('DELETE', '/api/divisions/:slug/leads/:robloxId',    DivisionController.removeLead   as DivisionHandler, false, 'division'),

@@ -16,6 +16,8 @@
             { slug: 'abc', name: 'ABC Abwehr', color: '#10b981', icon: 'biohazard', description: 'Schutz vor atomaren Bedrohungen.', sub_roles: [] },
             { slug: 'wachbataillon', name: 'Wachbataillon', color: '#eab308', icon: 'flag', description: 'Ehrengarde und Protokoll.', sub_roles: [] },
             { slug: 'un', name: 'United Nations', color: '#38bdf8', icon: 'globe', description: 'Internationale Friedenssicherung.', sub_roles: [] },
+            { slug: 'mg', name: 'Militärgericht (MG)', color: '#7c3aed', icon: 'gavel', description: 'Militärische Gerichtsbarkeit und Disziplinarverfahren.', sub_roles: [] },
+            { slug: 'mad', name: 'MAD (Militärischer Abschirmdienst)', color: '#0d9488', icon: 'eye', description: 'Aufklärung, Spionageabwehr und interne Sicherheit.', sub_roles: [] },
         ],
         members: {
             marine: [
@@ -44,6 +46,9 @@
         },
         leads: {
             marine: [{ roblox_id: '123456789', username: 'Kapitaen_Hoffmann', assigned_at: '2025-04-01' }],
+        },
+        subrolePermissions: {
+            marine: { BEK: ['MANAGE_STRIKES'] },
         },
     };
 
@@ -107,6 +112,13 @@
     };
     window.api.removeDivisionSignoff = async (slug, id) => {
         DB.signoffs[slug] = (DB.signoffs[slug] || []).filter(x => x.id !== id);
+        return { success: true };
+    };
+
+    window.api.getDivisionSubrolePermissions = async (slug) => ({ permissions: clone(DB.subrolePermissions[slug] || {}) });
+    window.api.updateDivisionSubrolePermissions = async (slug, subRole, permissions) => {
+        const raw = decodeURIComponent(subRole);
+        (DB.subrolePermissions[slug] ||= {})[raw] = permissions;
         return { success: true };
     };
 
