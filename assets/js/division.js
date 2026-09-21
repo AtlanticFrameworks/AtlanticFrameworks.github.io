@@ -88,8 +88,18 @@ function renderLockedPanel(host, message) {
         <div class="dv-hud border border-white/10 bg-[#0d0d0d] p-8 max-w-md">
             <p class="dv-label mb-3">Gesperrt</p>
             <p class="text-gray-400 text-sm mb-5 leading-relaxed">${esc(message)}</p>
-            ${!currentUser ? `<button onclick="startRobloxOAuth()" class="dv-btn w-full">Mit Roblox anmelden</button>` : ''}
+            ${!currentUser ? `<button onclick="startDivisionLogin()" class="dv-btn w-full">Mit Roblox anmelden</button>` : ''}
         </div>`;
+}
+
+// The Roblox OAuth app only has /team registered as a redirect URI, so login is
+// always started with that as the target (see the <script> in division.html that
+// sets window.BWRP_OAUTH_REDIRECT before auth.js loads), and auth.js's existing
+// bwrp_oauth_return mechanism (already used the same way for /dev) forwards the
+// user back here once team.html has exchanged the code.
+function startDivisionLogin() {
+    localStorage.setItem('bwrp_oauth_return', window.location.pathname);
+    startRobloxOAuth();
 }
 
 // ─── Picker ─────────────────────────────────────────────────────────────────
@@ -215,7 +225,7 @@ function renderOverviewTab(host) {
         <div class="dv-hud border border-white/10 bg-[#0d0d0d] p-6 max-w-md">
             <p class="dv-label mb-3">Divisionsleitung</p>
             <p class="text-gray-400 text-sm mb-4 leading-relaxed">Mit deinem Staff-Account anmelden, um diese Division zu verwalten.</p>
-            <button onclick="startRobloxOAuth()" class="dv-btn w-full">Mit Roblox anmelden</button>
+            <button onclick="startDivisionLogin()" class="dv-btn w-full">Mit Roblox anmelden</button>
         </div>` : `
         <p class="dv-stat">ANGEMELDET ALS <b>${esc(currentUser.username)}</b> (${esc(currentUser.role)}${isSystemAdmin ? ' &middot; SYSTEMADMIN' : (canManageSelected() ? ' &middot; DIVISIONSLEITUNG' : '')})</p>`}
     `;

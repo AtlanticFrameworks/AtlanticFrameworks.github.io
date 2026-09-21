@@ -130,6 +130,12 @@
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/components.js"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+        // The Roblox OAuth app only has /team registered as a redirect URI, so
+        // login always targets that; assets/js/division.js forwards back here
+        // afterward via auth.js's bwrp_oauth_return mechanism.
+        window.BWRP_OAUTH_REDIRECT = window.location.origin + '/team';
+    </script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/division.js"></script>
