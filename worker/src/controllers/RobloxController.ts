@@ -42,7 +42,7 @@ async function getOAuthToken(env: Env): Promise<string> {
   return cachedToken.value;
 }
 
-type UsernameResult =
+export type UsernameResult =
   | { type: 'found';    userId: string }
   | { type: 'notFound' }
   | { type: 'apiError'; status: number; message: string; debugUrl: string };
@@ -86,7 +86,7 @@ async function cloudFetch(env: Env, url: string, init: RequestInit = {}): Promis
 // Minimal headers only: spoofed browser UA on POST endpoints triggers Roblox WAF.
 // Falls back to GET /v1/users?username= if the POST endpoint returns an error
 // (Roblox occasionally rate-limits or 403s Workers on the POST endpoint).
-async function resolveUsername(_env: Env, username: string): Promise<UsernameResult> {
+export async function resolveUsername(_env: Env, username: string): Promise<UsernameResult> {
   try {
     const res = await fetch(`${ROBLOX_USERS_API}/usernames/users`, {
       method: 'POST',

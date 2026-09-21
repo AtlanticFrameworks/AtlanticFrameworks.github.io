@@ -242,7 +242,7 @@ class ApiClient {
     }
 
     async getDivisionLeads(slug)             { return this.get(`/divisions/${slug}/leads`); }
-    async assignDivisionLead(slug, robloxId) { return this.post(`/divisions/${slug}/leads/${robloxId}`, {}); }
+    async assignDivisionLead(slug, identifier) { return this.post(`/divisions/${slug}/leads/${identifier}`, {}); }
     async removeDivisionLead(slug, robloxId) {
         const res = await this.fetch(`/divisions/${slug}/leads/${robloxId}`, { method: 'DELETE' });
         if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);

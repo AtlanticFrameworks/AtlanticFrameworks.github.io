@@ -284,7 +284,7 @@ const ROUTES: Route[] = [
   route('PATCH',  '/api/divisions/:slug/strikes/:id',       DivisionController.updateStrike as Handler),
   route('DELETE', '/api/divisions/:slug/strikes/:id',       DivisionController.removeStrike as Handler),
   route('GET',    '/api/divisions/:slug/leads',              DivisionController.listLeads    as Handler),
-  route('POST',   '/api/divisions/:slug/leads/:robloxId',   DivisionController.assignLead   as Handler),
+  route('POST',   '/api/divisions/:slug/leads/:identifier', DivisionController.assignLead   as Handler),
   route('DELETE', '/api/divisions/:slug/leads/:robloxId',   DivisionController.removeLead   as Handler),
 
   // ── Personal Notes ────────────────────────────────────────────────────────

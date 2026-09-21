@@ -93,11 +93,15 @@
     };
 
     window.api.getDivisionLeads = async (slug) => ({ leads: clone(DB.leads[slug] || []) });
-    window.api.assignDivisionLead = async (slug, robloxId) => {
+    window.api.assignDivisionLead = async (slug, identifier) => {
+        const raw = decodeURIComponent(identifier);
+        // Demo stand-in for the real backend's numeric-ID-or-username resolution.
+        const isNumeric = /^\d+$/.test(raw);
+        const robloxId = isNumeric ? raw : String(100000000 + (raw.length * 7919) % 900000000);
+        const username = isNumeric ? null : raw;
         const list = (DB.leads[slug] ||= []);
-        // Demo stand-in for the real backend's best-effort Roblox username lookup.
-        if (!list.some(l => l.roblox_id === robloxId)) list.push({ roblox_id: robloxId, username: null, assigned_at: new Date().toISOString().slice(0, 10) });
-        return { success: true };
+        if (!list.some(l => l.roblox_id === robloxId)) list.push({ roblox_id: robloxId, username, assigned_at: new Date().toISOString().slice(0, 10) });
+        return { success: true, username };
     };
     window.api.removeDivisionLead = async (slug, robloxId) => {
         DB.leads[slug] = (DB.leads[slug] || []).filter(l => l.roblox_id !== robloxId);

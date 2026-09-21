@@ -1,5 +1,6 @@
 import type { Env, JWTPayload, DivisionRow, DivisionMemberRow, DivisionStrikeRow } from '../types/index.js';
 import { json, err, auditLog, getIP } from '../middleware/auth.js';
+import { resolveUsername } from './RobloxController.js';
 
 // The division system administrator is hardcoded to this one Roblox account (username,
 // not display name/nickname) — intentionally independent of the general staff rank
@@ -288,9 +289,11 @@ export class DivisionController {
     return json({ leads: rows.results }, 200, o);
   }
 
-  // ─── POST /api/divisions/:slug/leads/:robloxId ────────────────────────────────
-  // The target is identified purely by Roblox user ID — they need not have ever
-  // logged in / have a `users` row, and this does not add them to the team panel.
+  // ─── POST /api/divisions/:slug/leads/:identifier ──────────────────────────────
+  // identifier can be a Roblox user ID or a Roblox username — resolved the same
+  // way as GET /api/roblox/player/:identifier. The target is identified purely by
+  // Roblox ID — they need not have ever logged in / have a `users` row, and this
+  // does not add them to the team panel.
   static async assignLead(request: Request, env: Env, user: JWTPayload, params: Record<string, string>): Promise<Response> {
     const o = DivisionController.origin(env);
     if (!isSystemAdminUser(user)) return err('Nur der Systemadministrator kann Divisionsleitungen zuweisen', 403, o);
@@ -298,12 +301,21 @@ export class DivisionController {
     const division = await DivisionController.getDivisionBySlug(env, params.slug);
     if (!division) return err('Division nicht gefunden', 404, o);
 
-    const robloxId = params.robloxId;
-    if (!/^\d+$/.test(robloxId)) return err('Ungültige Roblox User-ID', 400, o);
+    const identifier = params.identifier;
+    let robloxId: string;
+    let username: string | null = null;
+
+    if (/^\d+$/.test(identifier)) {
+      robloxId = identifier;
+    } else {
+      const result = await resolveUsername(env, identifier);
+      if (result.type === 'notFound') return err('Roblox-Nutzer nicht gefunden', 404, o);
+      if (result.type === 'apiError') return err(`Roblox-API-Fehler (${result.status}): ${result.message}`, 502, o);
+      robloxId = result.userId;
+    }
 
     // Best-effort username lookup, purely for display in the leads list — the
     // assignment still succeeds even if Roblox's API is unreachable.
-    let username: string | null = null;
     try {
       const res = await fetch(`https://users.roblox.com/v1/users/${robloxId}`, { headers: { 'Accept': 'application/json' } });
       if (res.ok) {

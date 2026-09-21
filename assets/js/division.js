@@ -646,8 +646,8 @@ async function renderLeadsTab(host) {
         <div id="leads-list" class="space-y-2 mb-8"></div>
         <form id="lead-form" class="flex flex-wrap items-end gap-4">
             <div>
-                <label class="dv-label">Roblox User-ID</label>
-                <input name="robloxId" type="text" inputmode="numeric" pattern="[0-9]+" placeholder="z. B. 1185800266" required class="dv-field w-48">
+                <label class="dv-label">Roblox-Nutzername oder User-ID</label>
+                <input name="identifier" type="text" placeholder="z. B. thatzanex oder 1185800266" required class="dv-field w-64">
             </div>
             <button class="dv-btn">Als Divisionsleitung zuweisen</button>
         </form>
@@ -677,11 +677,11 @@ function renderLeadsList(leads) {
 async function onAssignLead(e) {
     e.preventDefault();
     const form = e.target;
-    const robloxId = form.robloxId.value.trim();
-    if (!/^\d+$/.test(robloxId)) { showToast('Bitte eine gültige Roblox User-ID eingeben', 'error'); return; }
+    const identifier = form.identifier.value.trim();
+    if (!identifier) return;
     try {
-        await window.api.assignDivisionLead(selectedDivision.slug, robloxId);
-        showToast('Divisionsleitung zugewiesen', 'success', 3000);
+        const res = await window.api.assignDivisionLead(selectedDivision.slug, encodeURIComponent(identifier));
+        showToast(res.username ? `${res.username} als Divisionsleitung zugewiesen` : 'Divisionsleitung zugewiesen', 'success', 3000);
         renderLeadsTab(document.getElementById('roster-tab-content'));
     } catch (err) {
         showToast(friendlyApiError(err, 'Konnte Divisionsleitung nicht zuweisen'), 'error');
