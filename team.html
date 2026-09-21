@@ -495,12 +495,15 @@
             }
 
             // Initialization
+            // NOTE: checkOAuthCallback()/checkSession() are intentionally NOT called
+            // here — they already run once from the DOMContentLoaded listener near
+            // the bottom of this file. Calling them twice raced the OAuth code
+            // (single-use): when login started from /division and forwarded back
+            // through /team, this duplicate call could redeem the code on /team
+            // itself before the forward-back navigation happened, leaving nothing
+            // valid for /division to redeem and stranding the user on /team.
             document.addEventListener('DOMContentLoaded', () => {
                 if (typeof lucide !== 'undefined') lucide.createIcons();
-                if (typeof auth !== 'undefined') {
-                    auth.checkOAuthCallback();
-                    auth.checkSession();
-                }
             });
         })();
 
