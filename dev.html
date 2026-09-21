@@ -292,7 +292,7 @@
 
             <!-- STEP 1: OAuth -->
             <div id="step-1">
-                <button onclick="startRobloxOAuth()" id="btn-oauth"
+                <button onclick="startDevLogin()" id="btn-oauth"
                     class="w-full bg-white text-black font-display font-bold py-4 uppercase tracking-widest hover:bg-tac-amber transition-all flex items-center justify-center gap-3 clip-both group mb-3">
                     <i data-lucide="gamepad-2" class="w-5 h-5"></i>
                     Mit Roblox anmelden
@@ -815,6 +815,11 @@ MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
     ================================================= -->
     <script>
         window.BWRP_IS_DEV = true;
+        // The Roblox OAuth app only has /team registered as a redirect URI, so
+        // login always targets that; startDevLogin() below (see the inline script
+        // further down) forwards back here afterward via auth.js's existing
+        // bwrp_oauth_return mechanism — same pattern used by /division.
+        window.BWRP_OAUTH_REDIRECT = window.location.origin + '/team';
     </script>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth.js"></script>
@@ -940,11 +945,12 @@ MfG &lt;@DiscordId&gt; | &lt;@&RoleId1&gt; u. &lt;@&RoleId2&gt;
             }
         }
 
-        // ── OAuth helpers (expected by auth.js) ───────────────────────────────────
-        function startRobloxOAuth() {
-            if (typeof auth !== 'undefined' && auth.startRobloxOAuth) {
-                auth.startRobloxOAuth(REDIRECT_URI, ALLOWED_ROLES);
-            }
+        // ── OAuth helper ──────────────────────────────────────────────────────────
+        // Remembers to forward back to /dev, then hands off to auth.js's real
+        // startRobloxOAuth() (window.BWRP_OAUTH_REDIRECT already points it at /team).
+        function startDevLogin() {
+            localStorage.setItem('bwrp_oauth_return', window.location.pathname);
+            startRobloxOAuth();
         }
 
         function showStatus(msg, type) {
