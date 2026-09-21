@@ -217,6 +217,38 @@ class ApiClient {
     async sendDiscordAnnouncement(data) { return this.post('/discord/announce', data); }
     async testDiscordWebhook()          { return this.post('/discord/test', {}); }
 
+    // ── Division Endpoints ────────────────────────────────────────────────────
+
+    async getDivisions()                 { return this.get('/divisions'); }
+    async getDivision(slug)              { return this.get(`/divisions/${slug}`); }
+    async updateDivision(slug, data)     { return this.patch(`/divisions/${slug}`, data); }
+    async getMyDivisionLeads()           { return this.get('/divisions/leads/me'); }
+
+    async addDivisionMember(slug, data)      { return this.post(`/divisions/${slug}/members`, data); }
+    async updateDivisionMember(slug, id, data) { return this.patch(`/divisions/${slug}/members/${id}`, data); }
+    async removeDivisionMember(slug, id) {
+        const res = await this.fetch(`/divisions/${slug}/members/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+
+    async getDivisionStrikes(slug)           { return this.get(`/divisions/${slug}/strikes`); }
+    async addDivisionStrike(slug, data)      { return this.post(`/divisions/${slug}/strikes`, data); }
+    async updateDivisionStrike(slug, id, data) { return this.patch(`/divisions/${slug}/strikes/${id}`, data); }
+    async removeDivisionStrike(slug, id) {
+        const res = await this.fetch(`/divisions/${slug}/strikes/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+
+    async getDivisionLeads(slug)             { return this.get(`/divisions/${slug}/leads`); }
+    async assignDivisionLead(slug, robloxId) { return this.post(`/divisions/${slug}/leads/${robloxId}`, {}); }
+    async removeDivisionLead(slug, robloxId) {
+        const res = await this.fetch(`/divisions/${slug}/leads/${robloxId}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+
     // ── Dev Portal Endpoints ──────────────────────────────────────────────────
 
     async getDevTasks()                  { return this.get('/dev/tasks'); }

@@ -16,6 +16,7 @@ import { CloudController }      from './controllers/CloudController.js';
 import { DatabaseController }   from './controllers/DatabaseController.js';
 import { ManagementController } from './controllers/ManagementController.js';
 import { RolesController }      from './controllers/RolesController.js';
+import { DivisionController }   from './controllers/DivisionController.js';
 import { NotesController }      from './controllers/NotesController.js';
 import { DiscordController }    from './controllers/DiscordController.js';
 import { DevController }        from './controllers/DevController.js';
@@ -269,6 +270,22 @@ const ROUTES: Route[] = [
   route('GET',    '/api/roles/users/:userId',             RolesController.getUserRoles    as Handler),
   route('POST',   '/api/roles/users/:userId/assign',      RolesController.assignRole      as Handler),
   route('DELETE', '/api/roles/users/:userId/:roleId',     RolesController.removeRole      as Handler),
+
+  // ── Divisions (/division page — public reads, OWNER/Divisionsleitung writes) ─
+  route('GET',    '/api/divisions',                        DivisionController.list        as UserlessHandler, true),
+  route('GET',    '/api/divisions/leads/me',                DivisionController.myLeads     as Handler),
+  route('GET',    '/api/divisions/:slug',                   DivisionController.getOne      as UserlessHandler, true),
+  route('PATCH',  '/api/divisions/:slug',                   DivisionController.update      as Handler),
+  route('POST',   '/api/divisions/:slug/members',           DivisionController.addMember   as Handler),
+  route('PATCH',  '/api/divisions/:slug/members/:id',       DivisionController.updateMember as Handler),
+  route('DELETE', '/api/divisions/:slug/members/:id',       DivisionController.removeMember as Handler),
+  route('GET',    '/api/divisions/:slug/strikes',           DivisionController.listStrikes  as Handler),
+  route('POST',   '/api/divisions/:slug/strikes',           DivisionController.addStrike    as Handler),
+  route('PATCH',  '/api/divisions/:slug/strikes/:id',       DivisionController.updateStrike as Handler),
+  route('DELETE', '/api/divisions/:slug/strikes/:id',       DivisionController.removeStrike as Handler),
+  route('GET',    '/api/divisions/:slug/leads',              DivisionController.listLeads    as Handler),
+  route('POST',   '/api/divisions/:slug/leads/:robloxId',   DivisionController.assignLead   as Handler),
+  route('DELETE', '/api/divisions/:slug/leads/:robloxId',   DivisionController.removeLead   as Handler),
 
   // ── Personal Notes ────────────────────────────────────────────────────────
   route('GET',    '/api/notes',                           NotesController.getNote     as Handler),

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Division | Bundeswehr Roleplay (DEMO)</title>
+    <meta name="theme-color" content="#E2B007">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/division.css">
+
+    <style>
+        :root {
+            --division-accent: #E2B007;
+            --division-accent-rgb: 226, 176, 7;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        #toast-container>* {
+            pointer-events: auto;
+        }
+
+        #demo-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: #7c2d12;
+            color: #fed7aa;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: .1em;
+            text-align: center;
+            padding: 6px;
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 font-sans antialiased bg-[#050505]">
+
+    <div id="demo-banner">DEMO-MODUS — Beispieldaten, kein echtes Backend. "Mit Roblox anmelden" simuliert sofort
+        einen Systemadmin-Login.</div>
+    <div id="navbar-container"></div>
+    <div id="toast-container" aria-live="polite"></div>
+
+    <section id="division" class="pt-32 pb-24 px-4 bg-bw-dark relative min-h-screen">
+        <div class="absolute inset-0 bg-grid opacity-20 pointer-events-none"></div>
+        <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-20">
+            <canvas id="particle-canvas"></canvas>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+
+            <!-- ═══ PICKER ═══ -->
+            <div id="picker-view">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4 reveal active">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="h-px w-8 bg-bw-gold"></span>
+                            <span class="text-bw-gold text-xs font-bold uppercase tracking-[0.2em]">Deine
+                                Division</span>
+                        </div>
+                        <h1 class="font-display text-5xl font-bold text-white">DIVISION WÄHLEN</h1>
+                    </div>
+                    <p class="text-gray-500 text-sm font-mono max-w-xs text-right hidden md:block">
+                        WÄHLE DEINE EINHEIT. TEAMFARBE UND ROSTER WERDEN GELADEN.
+                    </p>
+                </div>
+
+                <div id="division-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="col-span-full text-center text-gray-500 text-xs font-mono py-12">LADE DIVISIONEN
+                        ...</div>
+                </div>
+            </div>
+
+            <!-- ═══ DOSSIER + CONSOLE (hidden until a division is picked) ═══ -->
+            <div id="roster-view" class="hidden">
+                <button id="btn-back" type="button"
+                    class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors mb-10">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Andere Division wählen
+                </button>
+
+                <!-- Identity strip -->
+                <div class="flex items-center gap-4 mb-8 border-t-2 pt-6" style="border-color: var(--division-accent);">
+                    <div id="roster-icon-wrap" class="dv-hud w-14 h-14 flex items-center justify-center shrink-0"
+                        style="background: rgba(var(--division-accent-rgb), 0.1);">
+                        <i data-lucide="shield" class="w-7 h-7" style="color: var(--division-accent);"></i>
+                    </div>
+                    <h1 id="roster-name" class="font-display text-3xl font-bold text-white">—</h1>
+                </div>
+
+                <!-- Tabs -->
+                <div id="roster-tabs" class="flex flex-wrap border-b border-white/10 mb-8"></div>
+                <div id="roster-tab-content" class="pb-16"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/division.js"></script>
+    <script src="assets/js/division-demo-mock.js"></script>
+</body>
+
+</html>

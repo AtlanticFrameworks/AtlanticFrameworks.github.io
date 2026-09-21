@@ -144,6 +144,49 @@ export interface NoteRow {
   updated_at:     string;
 }
 
+// ── Divisions (Divisionsleitung RBAC) ────────────────────────────────────────
+
+export interface DivisionRow {
+  id:          number;
+  slug:        string;
+  name:        string;
+  color:       string;
+  icon:        string;
+  description: string;
+  sub_roles:   string;  // JSON array of strings (Unterrollen)
+  created_at:  string;
+}
+
+export interface DivisionLeadRow {
+  roblox_id:   string;   // identifies the lead directly — they need not have a `users` row (may not be staff)
+  division_id: number;
+  username:    string | null;   // best-effort cached Roblox username for display
+  assigned_by: number | null;
+  assigned_at: string;
+}
+
+export interface DivisionMemberRow {
+  id:          number;
+  division_id: number;
+  roblox_id:   string | null;
+  username:    string;
+  sub_role:    string;
+  joined_at:   string | null;
+  added_by:    number | null;
+  created_at:  string;
+}
+
+export interface DivisionStrikeRow {
+  id:          number;
+  division_id: number;
+  member_name: string;
+  count:       number;
+  kind:        'temp' | 'perm';
+  expires_at:  string | null;
+  added_by:    number | null;
+  created_at:  string;
+}
+
 // Request context (attached by auth middleware)
 export interface AuthContext {
   user: JWTPayload;

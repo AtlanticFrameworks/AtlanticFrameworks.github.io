@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Division | Bundeswehr Roleplay</title>
+
+    <meta name="description" content="Wähle deine Division, sieh dir das Team an und verwalte deine Einheit als Divisionsleitung.">
+
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bundeswehr Roleplay">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:url" content="https://bwrp.net/division.html">
+    <meta property="og:title" content="Division | Bundeswehr Roleplay">
+    <meta property="og:description" content="Wähle deine Division, sieh dir das Team an und verwalte deine Einheit als Divisionsleitung.">
+    <meta property="og:image" content="https://bwrp.net/assets/images/og-image.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Bundeswehr Roleplay — Wir. Dienen. Roblox.">
+
+    <!-- X / Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Division | Bundeswehr Roleplay">
+    <meta name="twitter:description" content="Wähle deine Division, sieh dir das Team an und verwalte deine Einheit als Divisionsleitung.">
+    <meta name="twitter:image" content="https://bwrp.net/assets/images/og-image.png">
+    <meta name="twitter:image:alt" content="Bundeswehr Roleplay — Wir. Dienen. Roblox.">
+
+    <meta name="theme-color" content="#E2B007">
+    <link rel="canonical" href="https://bwrp.net/division.html">
+    <!-- Tailwind CSS -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="/assets/images/logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/division.css">
+
+    <style>
+        /* Per-division accent, swapped in JS when a division is selected. */
+        :root {
+            --division-accent: #E2B007;
+            --division-accent-rgb: 226, 176, 7;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        #toast-container>* {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 font-sans antialiased bg-[#050505]">
+
+    <div id="navbar-container"></div>
+    <div id="toast-container" aria-live="polite"></div>
+
+    <section id="division" class="pt-32 pb-24 px-4 bg-bw-dark relative min-h-screen">
+        <div class="absolute inset-0 bg-grid opacity-20 pointer-events-none"></div>
+        <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-20">
+            <canvas id="particle-canvas"></canvas>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+
+            <!-- ═══ PICKER ═══ -->
+            <div id="picker-view">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4 reveal active">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="h-px w-8 bg-bw-gold"></span>
+                            <span class="text-bw-gold text-xs font-bold uppercase tracking-[0.2em]">Deine
+                                Division</span>
+                        </div>
+                        <h1 class="font-display text-5xl font-bold text-white">DIVISION WÄHLEN</h1>
+                    </div>
+                    <p class="text-gray-500 text-sm font-mono max-w-xs text-right hidden md:block">
+                        WÄHLE DEINE EINHEIT. TEAMFARBE UND ROSTER WERDEN GELADEN.
+                    </p>
+                </div>
+
+                <div id="division-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="col-span-full text-center text-gray-500 text-xs font-mono py-12">LADE DIVISIONEN
+                        ...</div>
+                </div>
+            </div>
+
+            <!-- ═══ DOSSIER + CONSOLE (hidden until a division is picked) ═══ -->
+            <div id="roster-view" class="hidden">
+                <button id="btn-back" type="button"
+                    class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors mb-10">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Andere Division wählen
+                </button>
+
+                <!-- Identity strip -->
+                <div class="flex items-center gap-4 mb-8 border-t-2 pt-6" style="border-color: var(--division-accent);">
+                    <div id="roster-icon-wrap" class="dv-hud w-14 h-14 flex items-center justify-center shrink-0"
+                        style="background: rgba(var(--division-accent-rgb), 0.1);">
+                        <i data-lucide="shield" class="w-7 h-7" style="color: var(--division-accent);"></i>
+                    </div>
+                    <h1 id="roster-name" class="font-display text-3xl font-bold text-white">—</h1>
+                </div>
+
+                <!-- Tabs -->
+                <div id="roster-tabs" class="flex flex-wrap border-b border-white/10 mb-8"></div>
+                <div id="roster-tab-content" class="pb-16"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/division.js"></script>
+</body>
+
+</html>
