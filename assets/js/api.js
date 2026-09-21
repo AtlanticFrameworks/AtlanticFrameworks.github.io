@@ -218,6 +218,18 @@ class ApiClient {
     async testDiscordWebhook()          { return this.post('/discord/test', {}); }
 
     // ── Division Endpoints ────────────────────────────────────────────────────
+    // /division has its own lightweight session (bwrp_division_access), separate
+    // from the staff login used by team.html/dev.html.
+
+    async divisionLogin(code, redirectUri) {
+        const res = await this._request('/divisions/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ code, redirect_uri: redirectUri }),
+        });
+        return { ok: res.ok, data: await res.json() };
+    }
+    async divisionLogout()      { await this._request('/divisions/auth/logout', { method: 'POST' }).catch(() => {}); }
+    async getDivisionMe()       { return this.get('/divisions/auth/me'); }
 
     async getDivisions()                 { return this.get('/divisions'); }
     async getDivision(slug)              { return this.get(`/divisions/${slug}`); }
@@ -237,6 +249,14 @@ class ApiClient {
     async updateDivisionStrike(slug, id, data) { return this.patch(`/divisions/${slug}/strikes/${id}`, data); }
     async removeDivisionStrike(slug, id) {
         const res = await this.fetch(`/divisions/${slug}/strikes/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
+        return this._parseJson(res);
+    }
+
+    async getDivisionSignoffs(slug)          { return this.get(`/divisions/${slug}/signoffs`); }
+    async addDivisionSignoff(slug, data)     { return this.post(`/divisions/${slug}/signoffs`, data); }
+    async removeDivisionSignoff(slug, id) {
+        const res = await this.fetch(`/divisions/${slug}/signoffs/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new ApiError(await this._parseJson(res), res.status);
         return this._parseJson(res);
     }

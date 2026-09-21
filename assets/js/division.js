@@ -1,8 +1,19 @@
 /**
  * division.js – /division page logic
- * Picker → per-division tabs (Übersicht/Mitglieder/Strikes/Erscheinungsbild[/Divisionsleitung]).
- * Reuses window.auth (assets/js/auth.js) and window.api (assets/js/api.js) —
- * same Roblox OAuth + JWT session used by team.html.
+ * Picker → per-division tabs (Übersicht/Mitglieder/Abmeldung/Strikes/Erscheinungsbild[/Divisionsleitung]).
+ *
+ * /division has its OWN lightweight login, separate from the staff session
+ * team.html/dev.html use — most division members aren't staff at all, so the
+ * staff login's Roblox-group-rank gate would lock almost everyone out. Anyone
+ * who completes Roblox OAuth can get a division session; the worker decides
+ * what they can do by matching their Roblox ID against the division's
+ * roster/leads, not by rank. See DivisionController.ts for the backend side.
+ *
+ * Still reuses assets/js/auth.js for the generic bits (startRobloxOAuth() to
+ * build the Roblox authorize URL, showToast/friendlyApiError) and the
+ * bwrp_oauth_return forwarding trick (the OAuth app only has /team registered
+ * as a redirect URI) — but NOT auth.js's checkOAuthCallback()/checkSession(),
+ * since those call the staff login endpoint. This file has its own equivalents.
  */
 
 // ─── Static fallback (mirrors worker/schema.sql seed) ─────────────────────────
@@ -20,6 +31,7 @@ const FALLBACK_DIVISIONS = [
 const BASE_TABS = [
     { id: 'overview', label: 'ÜBERSICHT' },
     { id: 'members', label: 'MITGLIEDER' },
+    { id: 'signoffs', label: 'ABMELDUNG' },
     { id: 'strikes', label: 'STRIKES' },
     { id: 'appearance', label: 'ERSCHEINUNGSBILD' },
 ];
@@ -28,9 +40,10 @@ const BASE_TABS = [
 let divisions = [];
 let selectedDivision = null;
 let selectedMembers = [];
-let currentUser = null;       // { username, role }
+let currentUser = null;       // { username, robloxId }
 let isSystemAdmin = false;
 let myLeadSlugs = [];
+let myMemberSlugs = [];
 let activeTab = 'overview';
 let appearanceDraftSubRoles = [];
 let rosterSearch = '';
@@ -52,6 +65,13 @@ function unitCode(index) {
 function canManageSelected() {
     if (!currentUser || !selectedDivision) return false;
     return isSystemAdmin || myLeadSlugs.includes(selectedDivision.slug);
+}
+
+// canManage(), plus a plain roster member of the selected division.
+function canAccessSelected() {
+    if (canManageSelected()) return true;
+    if (!currentUser || !selectedDivision) return false;
+    return myMemberSlugs.includes(selectedDivision.slug);
 }
 
 function refreshIcons() {
@@ -96,10 +116,56 @@ function renderLockedPanel(host, message) {
 // always started with that as the target (see the <script> in division.html that
 // sets window.BWRP_OAUTH_REDIRECT before auth.js loads), and auth.js's existing
 // bwrp_oauth_return mechanism (already used the same way for /dev) forwards the
-// user back here once team.html has exchanged the code.
+// user back here once team.html has forwarded the code along (team.html never
+// redeems it itself when bwrp_oauth_return points elsewhere).
 function startDivisionLogin() {
     localStorage.setItem('bwrp_oauth_return', window.location.pathname);
     startRobloxOAuth();
+}
+
+// Own OAuth-callback handling (NOT auth.js's checkOAuthCallback — that calls the
+// staff login endpoint). Exchanges ?code=... for a division session.
+async function checkDivisionOAuthCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (!code) return;
+
+    const division = params.get('division');
+    window.history.replaceState({}, document.title, window.location.pathname + (division ? `?division=${division}` : ''));
+
+    try {
+        const { ok, data } = await window.api.divisionLogin(code, window.BWRP_OAUTH_REDIRECT);
+        if (!ok || !data.success || !data.user) throw new Error(data?.error || 'Anmeldung fehlgeschlagen');
+        await onDivisionLogin(data.user);
+        showToast(`Angemeldet als ${data.user.username}`, 'success', 3000);
+    } catch (err) {
+        showToast(friendlyApiError(err, 'Anmeldung fehlgeschlagen'), 'error');
+    }
+}
+
+// Own session-restore check (NOT auth.js's checkSession) — reads the
+// bwrp_division_access cookie via GET /api/divisions/auth/me.
+async function checkDivisionSession() {
+    try {
+        const res = await window.api.getDivisionMe();
+        await onDivisionLogin(res.user);
+    } catch { /* not logged in — fine, /division works fine anonymously */ }
+}
+
+async function onDivisionLogin(user) {
+    currentUser = user;
+    await loadMyLeads();
+    if (selectedDivision) renderRosterView();
+}
+
+async function handleLogout() {
+    await window.api.divisionLogout();
+    currentUser = null;
+    isSystemAdmin = false;
+    myLeadSlugs = [];
+    myMemberSlugs = [];
+    activeTab = 'overview';
+    if (selectedDivision) renderRosterView();
 }
 
 // ─── Picker ─────────────────────────────────────────────────────────────────
@@ -206,14 +272,23 @@ function renderRosterTabContent() {
     if (!host) return;
     if (activeTab === 'overview') return renderOverviewTab(host);
     if (activeTab === 'members') return renderMembersTab(host);
+    if (activeTab === 'signoffs') return renderSignoffsGate(host);
     if (activeTab === 'strikes') return renderStrikesGate(host);
     if (activeTab === 'appearance') return renderAppearanceGate(host);
     if (activeTab === 'leads') return renderLeadsGate(host);
 }
 
+function accessTierLabel() {
+    if (isSystemAdmin) return 'SYSTEMADMIN';
+    if (myLeadSlugs.includes(selectedDivision.slug)) return 'DIVISIONSLEITUNG';
+    if (myMemberSlugs.includes(selectedDivision.slug)) return 'MITGLIED';
+    return null;
+}
+
 // ─── Übersicht tab ──────────────────────────────────────────────────────────
 function renderOverviewTab(host) {
     const subRoles = selectedDivision.sub_roles || [];
+    const tier = currentUser ? accessTierLabel() : null;
     host.innerHTML = `
         <p class="text-gray-300 text-sm max-w-xl leading-relaxed mb-6">${esc(selectedDivision.description)}</p>
         <div class="flex flex-wrap gap-x-6 gap-y-1 mb-8">
@@ -223,40 +298,25 @@ function renderOverviewTab(host) {
         </div>
         ${!currentUser ? `
         <div class="dv-hud border border-white/10 bg-[#0d0d0d] p-6 max-w-md">
-            <p class="dv-label mb-3">Divisionsleitung</p>
-            <p class="text-gray-400 text-sm mb-4 leading-relaxed">Mit deinem Staff-Account anmelden, um diese Division zu verwalten.</p>
+            <p class="dv-label mb-3">Anmeldung</p>
+            <p class="text-gray-400 text-sm mb-4 leading-relaxed">Mit deinem Roblox-Account anmelden, um Abmeldungen einzutragen — Divisionsleitung erhält zusätzlich Zugriff auf Mitglieder, Strikes und Erscheinungsbild.</p>
             <button onclick="startDivisionLogin()" class="dv-btn w-full">Mit Roblox anmelden</button>
         </div>` : `
-        <p class="dv-stat">ANGEMELDET ALS <b>${esc(currentUser.username)}</b> (${esc(currentUser.role)}${isSystemAdmin ? ' &middot; SYSTEMADMIN' : (canManageSelected() ? ' &middot; DIVISIONSLEITUNG' : '')})</p>`}
+        <p class="dv-stat">ANGEMELDET ALS <b>${esc(currentUser.username)}</b>${tier ? ` &middot; ${tier}` : ' &middot; KEINE DIVISION ZUGEORDNET'}</p>`}
     `;
 }
 
-// ─── Auth ───────────────────────────────────────────────────────────────────
 async function loadMyLeads() {
     try {
         const res = await window.api.getMyDivisionLeads();
         isSystemAdmin = res.isSystemAdmin;
-        myLeadSlugs = res.divisions;
+        myLeadSlugs = res.leadOf;
+        myMemberSlugs = res.memberOf;
     } catch {
         isSystemAdmin = false;
         myLeadSlugs = [];
+        myMemberSlugs = [];
     }
-}
-
-// Called by assets/js/auth.js after a successful login or restored session.
-async function enterDashboard(username, rank) {
-    currentUser = { username, role: rank };
-    await loadMyLeads();
-    if (selectedDivision) renderRosterView();
-}
-
-function handleLogout() {
-    logout();
-    currentUser = null;
-    isSystemAdmin = false;
-    myLeadSlugs = [];
-    activeTab = 'overview';
-    if (selectedDivision) renderRosterView();
 }
 
 // ─── Mitglieder tab (public read, Divisionsleitung/OWNER can edit) ─────────
@@ -265,10 +325,14 @@ function renderMembersTab(host) {
     const subRoles = selectedDivision.sub_roles || [];
     host.innerHTML = `
         ${can ? `
-        <form id="member-form" class="flex flex-wrap items-end gap-4 mb-8">
+        <form id="member-form" class="flex flex-wrap items-end gap-4 mb-3">
             <div class="flex-1 min-w-[10rem]">
                 <label class="dv-label">Name</label>
                 <input name="username" placeholder="Rufname" required class="dv-field">
+            </div>
+            <div class="w-48">
+                <label class="dv-label">Roblox User-ID (optional)</label>
+                <input name="robloxId" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="für Login-Zugriff" class="dv-field">
             </div>
             <div class="w-40">
                 <label class="dv-label">Unterrolle</label>
@@ -282,7 +346,8 @@ function renderMembersTab(host) {
                 <input name="joinedAt" type="date" class="dv-field">
             </div>
             <button class="dv-btn">Hinzufügen</button>
-        </form>` : ''}
+        </form>
+        <p class="dv-stat mb-8">MIT ROBLOX USER-ID KANN SICH DAS MITGLIED SELBST ANMELDEN UND ABMELDUNGEN EINTRAGEN.</p>` : ''}
         <div class="max-w-sm mb-6">
             <input id="roster-search" type="search" placeholder="Namen suchen …" value="${esc(rosterSearch)}"
                 class="dv-field" aria-label="Mitglieder durchsuchen">
@@ -321,6 +386,8 @@ function renderMemberRoster() {
         <div class="dv-row px-4 py-3 flex flex-wrap items-center gap-3">
             <input value="${esc(m.username)}" onblur="onEditMember(${m.id}, {username: this.value})"
                 class="dv-field flex-1 min-w-[8rem] !border-b !border-transparent hover:!border-white/15 focus:!border-white/30">
+            <input value="${esc(m.roblox_id || '')}" placeholder="Roblox-ID" onblur="onEditMember(${m.id}, {robloxId: this.value})"
+                class="dv-field w-32 !border-b !border-transparent hover:!border-white/15 focus:!border-white/30">
             ${subRoles.length ? `
             <select onchange="onEditMember(${m.id}, {subRole: this.value})" class="dv-field w-32">
                 <option value="" ${!m.sub_role ? 'selected' : ''}>Ohne</option>
@@ -350,8 +417,11 @@ function renderMemberRoster() {
 async function onAddMember(e) {
     e.preventDefault();
     const form = e.target;
+    const robloxId = form.robloxId.value.trim();
+    if (robloxId && !/^\d+$/.test(robloxId)) { showToast('Ungültige Roblox User-ID', 'error'); return; }
     const data = {
         username: form.username.value.trim(),
+        robloxId: robloxId || null,
         subRole: form.subRole.value,
         joinedAt: form.joinedAt.value || null,
     };
@@ -371,13 +441,15 @@ async function onEditMember(id, patch) {
     if (!m) return;
     const next = {
         username: patch.username !== undefined ? patch.username.trim() : m.username,
+        robloxId: patch.robloxId !== undefined ? patch.robloxId.trim() : m.roblox_id,
         subRole: patch.subRole !== undefined ? patch.subRole : m.sub_role,
         joinedAt: patch.joinedAt !== undefined ? (patch.joinedAt || null) : m.joined_at,
     };
-    if (!next.username || (next.username === m.username && next.subRole === m.sub_role && next.joinedAt === m.joined_at)) return;
+    if (next.robloxId && !/^\d+$/.test(next.robloxId)) { showToast('Ungültige Roblox User-ID', 'error'); renderMemberRoster(); return; }
+    if (!next.username || (next.username === m.username && next.robloxId === m.roblox_id && next.subRole === m.sub_role && next.joinedAt === m.joined_at)) return;
     try {
         await window.api.updateDivisionMember(selectedDivision.slug, id, next);
-        Object.assign(m, { username: next.username, sub_role: next.subRole, joined_at: next.joinedAt });
+        Object.assign(m, { username: next.username, roblox_id: next.robloxId || null, sub_role: next.subRole, joined_at: next.joinedAt });
         renderMemberRoster();
         showToast('Gespeichert', 'success', 1800);
     } catch (err) {
@@ -403,12 +475,104 @@ async function refreshSelectedDivision() {
     renderMemberRoster();
 }
 
+// ─── Abmeldung tab (system admin, Divisionsleitung, or a member of this division) ──
+function renderSignoffsGate(host) {
+    if (!canAccessSelected()) {
+        renderLockedPanel(host, currentUser
+            ? 'Du bist kein Mitglied dieser Division.'
+            : 'Mit deinem Roblox-Account anmelden, um Abmeldungen dieser Division zu sehen und einzutragen.');
+        return;
+    }
+    renderSignoffsTab(host);
+}
+
+async function renderSignoffsTab(host) {
+    host.innerHTML = '<p class="text-gray-500 text-xs font-mono">LADE ABMELDUNGEN ...</p>';
+    let signoffs = [];
+    try {
+        const res = await window.api.getDivisionSignoffs(selectedDivision.slug);
+        signoffs = res.signoffs;
+    } catch (err) {
+        host.innerHTML = `<p class="text-red-400 text-sm">${esc(friendlyApiError(err, 'Abmeldungen konnten nicht geladen werden'))}</p>`;
+        return;
+    }
+
+    host.innerHTML = `
+        <form id="signoff-form" class="flex flex-wrap items-end gap-4 mb-8">
+            <div class="w-40">
+                <label class="dv-label">Von</label>
+                <input name="fromDate" type="date" required class="dv-field">
+            </div>
+            <div class="w-40">
+                <label class="dv-label">Bis (optional)</label>
+                <input name="toDate" type="date" class="dv-field">
+            </div>
+            <div class="flex-1 min-w-[12rem]">
+                <label class="dv-label">Grund</label>
+                <input name="reason" placeholder="z. B. Urlaub, Klausurenphase …" required class="dv-field">
+            </div>
+            <button class="dv-btn">Abmelden</button>
+        </form>
+        <p class="dv-stat mb-6">GILT FÜR ${esc(currentUser.username).toUpperCase()} — WIRD AUTOMATISCH ZUGEORDNET.</p>
+        <div id="signoff-list" class="space-y-2"></div>
+    `;
+    document.getElementById('signoff-form').addEventListener('submit', onAddSignoff);
+    renderSignoffList(signoffs);
+}
+
+function renderSignoffList(signoffs) {
+    const list = document.getElementById('signoff-list');
+    if (!signoffs.length) {
+        list.innerHTML = '<p class="text-gray-500 text-sm">Keine aktuellen Abmeldungen.</p>';
+        return;
+    }
+    const canModerate = canManageSelected();
+    list.innerHTML = signoffs.map(s => {
+        const isOwner = currentUser && s.roblox_id === currentUser.robloxId;
+        return `
+        <div class="dv-row px-4 py-3 flex items-center justify-between gap-3">
+            <div>
+                <p class="text-white text-sm">${esc(s.username)}</p>
+                <p class="dv-stat mt-0.5">${esc(s.from_date)}${s.to_date ? ` &ndash; ${esc(s.to_date)}` : ' &middot; UNBEFRISTET'} &middot; ${esc(s.reason)}</p>
+            </div>
+            ${(isOwner || canModerate) ? `<button onclick="onRemoveSignoff(${s.id})" class="text-xs uppercase tracking-widest text-gray-500 hover:text-red-400 transition-colors">Löschen</button>` : ''}
+        </div>`;
+    }).join('');
+}
+
+async function onAddSignoff(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+        fromDate: form.fromDate.value,
+        toDate: form.toDate.value || null,
+        reason: form.reason.value.trim(),
+    };
+    if (!data.fromDate || !data.reason) return;
+    try {
+        await window.api.addDivisionSignoff(selectedDivision.slug, data);
+        showToast('Abmeldung eingetragen', 'success', 3000);
+        renderSignoffsTab(document.getElementById('roster-tab-content'));
+    } catch (err) {
+        showToast(friendlyApiError(err, 'Konnte Abmeldung nicht eintragen'), 'error');
+    }
+}
+
+async function onRemoveSignoff(id) {
+    try {
+        await window.api.removeDivisionSignoff(selectedDivision.slug, id);
+        renderSignoffsTab(document.getElementById('roster-tab-content'));
+    } catch (err) {
+        showToast(friendlyApiError(err, 'Konnte Abmeldung nicht löschen'), 'error');
+    }
+}
+
 // ─── Strikes tab (locked unless Divisionsleitung/OWNER) ────────────────────
 function renderStrikesGate(host) {
     if (!canManageSelected()) {
         renderLockedPanel(host, currentUser
             ? 'Nur die Divisionsleitung dieser Division kann Strikes einsehen und verwalten.'
-            : 'Mit deinem Staff-Account anmelden, um Strikes einzusehen und zu verwalten.');
+            : 'Mit deinem Roblox-Account anmelden, um Strikes einzusehen und zu verwalten.');
         return;
     }
     renderStrikesTab(host);
@@ -532,7 +696,7 @@ function renderAppearanceGate(host) {
     if (!canManageSelected()) {
         renderLockedPanel(host, currentUser
             ? 'Nur die Divisionsleitung dieser Division kann das Erscheinungsbild bearbeiten.'
-            : 'Mit deinem Staff-Account anmelden, um Teamfarbe, Beschreibung und Unterrollen zu bearbeiten.');
+            : 'Mit deinem Roblox-Account anmelden, um Teamfarbe, Beschreibung und Unterrollen zu bearbeiten.');
         return;
     }
     renderAppearanceTab(host);
@@ -701,7 +865,6 @@ async function onRemoveLead(robloxId) {
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btn-back')?.addEventListener('click', backToPicker);
     await loadDivisions();
-    // Reuses the same OAuth-callback + saved-session flow as team.html.
-    await window.auth.checkOAuthCallback();
-    await window.auth.checkSession();
+    await checkDivisionOAuthCallback();
+    await checkDivisionSession();
 });

@@ -1,4 +1,4 @@
-import type { Env, JWTPayload, Role } from '../types/index.js';
+import type { Env, JWTPayload, Role, DivisionSessionPayload } from '../types/index.js';
 import { ROLE_RANK } from '../types/index.js';
 
 // ─── JWT Helpers (Web Crypto API — no external deps) ─────────────────────────
@@ -24,7 +24,7 @@ export async function signJWT(payload: object, secret: string): Promise<string> 
   return `${data}.${b64url(sig)}`;
 }
 
-export async function verifyJWT(token: string, secret: string): Promise<JWTPayload | null> {
+export async function verifyJWT<T extends { exp: number } = JWTPayload>(token: string, secret: string): Promise<T | null> {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
@@ -37,7 +37,7 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
     const sigBytes = Uint8Array.from(b64urlDecode(sig), c => c.charCodeAt(0));
     const valid    = await crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(data));
     if (!valid) return null;
-    const payload = JSON.parse(b64urlDecode(body)) as JWTPayload;
+    const payload = JSON.parse(b64urlDecode(body)) as T;
     if (payload.exp < Math.floor(Date.now() / 1000)) return null;
     return payload;
   } catch {
@@ -105,6 +105,23 @@ export async function requireAuth(request: Request, env: Env): Promise<JWTPayloa
 
   const payload = await verifyJWT(token, env.JWT_SECRET);
   if (!payload)  return err('Ungültiges oder abgelaufenes Token', 401);
+
+  return payload;
+}
+
+// ─── Division Session Auth ────────────────────────────────────────────────────
+// Separate, lightweight session for /division — deliberately independent of the
+// staff bwrp_access/bwrp_refresh system (no ROLE_RANK, no `users` row required).
+// Anyone who successfully completes Roblox OAuth can hold one; DivisionController
+// decides what they're allowed to do by matching their robloxId against
+// divisions/division_leads/division_members, not by rank.
+
+export async function requireDivisionAuth(request: Request, env: Env): Promise<DivisionSessionPayload | Response> {
+  const token = getCookie(request, 'bwrp_division_access');
+  if (!token) return err('Kein Authentifizierungs-Token', 401);
+
+  const payload = await verifyJWT<DivisionSessionPayload>(token, env.JWT_SECRET);
+  if (!payload) return err('Ungültiges oder abgelaufenes Token', 401);
 
   return payload;
 }

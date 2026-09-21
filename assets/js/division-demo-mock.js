@@ -19,22 +19,27 @@
         ],
         members: {
             marine: [
-                { id: 1, username: 'Kapitaen_Hoffmann', sub_role: 'BEK', joined_at: '2025-03-14' },
-                { id: 2, username: 'Matrose_Krueger', sub_role: 'BEK', joined_at: '2025-06-02' },
-                { id: 3, username: 'Obermaat_Schulz', sub_role: 'MSK', joined_at: '2024-11-20' },
-                { id: 4, username: 'Taucher_Lena', sub_role: 'MiTa', joined_at: '2025-01-09' },
-                { id: 5, username: 'Kampfschwimmer_Voss', sub_role: 'KSM', joined_at: '2025-08-30' },
-                { id: 6, username: 'Rekrut_Bauer', sub_role: '', joined_at: '2026-01-05' },
+                { id: 1, roblox_id: '111111111', username: 'Kapitaen_Hoffmann', sub_role: 'BEK', joined_at: '2025-03-14' },
+                { id: 2, roblox_id: '222222222', username: 'Matrose_Krueger', sub_role: 'BEK', joined_at: '2025-06-02' },
+                { id: 3, roblox_id: null, username: 'Obermaat_Schulz', sub_role: 'MSK', joined_at: '2024-11-20' },
+                { id: 4, roblox_id: null, username: 'Taucher_Lena', sub_role: 'MiTa', joined_at: '2025-01-09' },
+                { id: 5, roblox_id: null, username: 'Kampfschwimmer_Voss', sub_role: 'KSM', joined_at: '2025-08-30' },
+                { id: 6, roblox_id: null, username: 'Rekrut_Bauer', sub_role: '', joined_at: '2026-01-05' },
             ],
             ksk: [
-                { id: 7, username: 'Oberfeldwebel_Wagner', sub_role: '', joined_at: '2024-05-11' },
-                { id: 8, username: 'Stabsfeldwebel_Klein', sub_role: '', joined_at: '2025-09-17' },
+                { id: 7, roblox_id: null, username: 'Oberfeldwebel_Wagner', sub_role: '', joined_at: '2024-05-11' },
+                { id: 8, roblox_id: null, username: 'Stabsfeldwebel_Klein', sub_role: '', joined_at: '2025-09-17' },
             ],
         },
         strikes: {
             marine: [
                 { id: 501, member_name: 'Rekrut_Bauer', count: 1, kind: 'temp', expires_at: '2026-10-15T18:00' },
                 { id: 502, member_name: 'Matrose_Krueger', count: 3, kind: 'perm', expires_at: null },
+            ],
+        },
+        signoffs: {
+            marine: [
+                { id: 701, roblox_id: '222222222', username: 'Matrose_Krueger', from_date: '2026-09-20', to_date: '2026-09-28', reason: 'Urlaub' },
             ],
         },
         leads: {
@@ -59,16 +64,17 @@
         return { success: true };
     };
 
-    window.api.getMyDivisionLeads = async () => ({ isSystemAdmin: true, divisions: DB.divisions.map(d => d.slug) });
+    const allSlugs = () => DB.divisions.map(d => d.slug);
+    window.api.getMyDivisionLeads = async () => ({ isSystemAdmin: true, leadOf: allSlugs(), memberOf: allSlugs() });
 
     window.api.addDivisionMember = async (slug, data) => {
         const id = nextId++;
-        (DB.members[slug] ||= []).push({ id, username: data.username, sub_role: data.subRole || '', joined_at: data.joinedAt || null });
+        (DB.members[slug] ||= []).push({ id, roblox_id: data.robloxId || null, username: data.username, sub_role: data.subRole || '', joined_at: data.joinedAt || null });
         return { success: true, id };
     };
     window.api.updateDivisionMember = async (slug, id, data) => {
         const m = (DB.members[slug] || []).find(x => x.id === id);
-        if (m) Object.assign(m, { username: data.username ?? m.username, sub_role: data.subRole ?? m.sub_role, joined_at: data.joinedAt ?? m.joined_at });
+        if (m) Object.assign(m, { username: data.username ?? m.username, roblox_id: data.robloxId !== undefined ? (data.robloxId || null) : m.roblox_id, sub_role: data.subRole ?? m.sub_role, joined_at: data.joinedAt ?? m.joined_at });
         return { success: true };
     };
     window.api.removeDivisionMember = async (slug, id) => {
@@ -92,6 +98,18 @@
         return { success: true };
     };
 
+    window.api.getDivisionSignoffs = async (slug) => ({ signoffs: clone(DB.signoffs[slug] || []) });
+    window.api.addDivisionSignoff = async (slug, data) => {
+        const id = nextId++;
+        const user = window.__divisionDemoUser || { robloxId: 'demo', username: 'Demo' };
+        (DB.signoffs[slug] ||= []).unshift({ id, roblox_id: user.robloxId, username: user.username, from_date: data.fromDate, to_date: data.toDate || null, reason: data.reason });
+        return { success: true, id };
+    };
+    window.api.removeDivisionSignoff = async (slug, id) => {
+        DB.signoffs[slug] = (DB.signoffs[slug] || []).filter(x => x.id !== id);
+        return { success: true };
+    };
+
     window.api.getDivisionLeads = async (slug) => ({ leads: clone(DB.leads[slug] || []) });
     window.api.assignDivisionLead = async (slug, identifier) => {
         const raw = decodeURIComponent(identifier);
@@ -110,8 +128,18 @@
 
     // Instantly "log in" as the hardcoded system admin (real backend checks the Roblox
     // username "thatzanex" specifically) instead of round-tripping through Roblox OAuth.
+    const ADMIN_USER = { robloxId: 'demo-admin', username: 'thatzanex' };
+    window.__divisionDemoUser = null;
+
+    window.api.getDivisionMe = async () => {
+        if (!window.__divisionDemoUser) throw new ApiError({ error: 'Nicht angemeldet' }, 401);
+        return { user: window.__divisionDemoUser };
+    };
+    window.api.divisionLogout = async () => { window.__divisionDemoUser = null; };
+
     window.startRobloxOAuth = function () {
+        window.__divisionDemoUser = ADMIN_USER;
         showToast('Demo-Login als thatzanex (Systemadministrator)', 'success', 2500);
-        enterDashboard('thatzanex', 'OWNER');
+        onDivisionLogin(ADMIN_USER);
     };
 })();

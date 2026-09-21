@@ -3,8 +3,8 @@
  * TypeScript | OOP | Cloudflare D1 | HttpOnly Cookies
  */
 
-import type { Env, JWTPayload } from './types/index.js';
-import { handleOptions, requireAuth, corsHeaders, err, getIP, getCookie } from './middleware/auth.js';
+import type { Env, JWTPayload, DivisionSessionPayload } from './types/index.js';
+import { handleOptions, requireAuth, requireDivisionAuth, corsHeaders, err, getIP, getCookie } from './middleware/auth.js';
 import { checkRateLimit } from './middleware/rateLimit.js';
 import { AuthController }       from './controllers/AuthController.js';
 import { StaffController }      from './controllers/StaffController.js';
@@ -141,21 +141,27 @@ async function renderDocsWithTimer(env: Env, expiresUnix: number): Promise<Respo
 
 type Handler  = (req: Request, env: Env, user: JWTPayload, params: Record<string, string>) => Promise<Response>;
 type UserlessHandler = (req: Request, env: Env) => Promise<Response>;
+// /division has its own lightweight session, independent of the staff JWT/ROLE_RANK
+// system — see requireDivisionAuth in middleware/auth.ts.
+type DivisionHandler = (req: Request, env: Env, actor: DivisionSessionPayload, params: Record<string, string>) => Promise<Response>;
+
+type AuthMode = 'staff' | 'public' | 'division';
 
 interface Route {
-  method:  string;
-  pattern: RegExp;
-  keys:    string[];
-  handler: Handler | UserlessHandler;
-  public:  boolean;    // true = no JWT required
+  method:   string;
+  pattern:  RegExp;
+  keys:     string[];
+  handler:  Handler | UserlessHandler | DivisionHandler;
+  public:   boolean;    // true = no JWT required
+  authMode: AuthMode;
 }
 
-function route(method: string, path: string, handler: Handler | UserlessHandler, isPublic = false): Route {
+function route(method: string, path: string, handler: Handler | UserlessHandler | DivisionHandler, isPublic = false, authMode: AuthMode = isPublic ? 'public' : 'staff'): Route {
   const keys: string[] = [];
   const pattern = new RegExp(
     '^' + path.replace(/:([^/]+)/g, (_: string, k: string) => { keys.push(k); return '([^/]+)'; }) + '$',
   );
-  return { method, pattern, keys, handler, public: isPublic };
+  return { method, pattern, keys, handler, public: isPublic, authMode };
 }
 
 const ROUTES: Route[] = [
@@ -271,21 +277,30 @@ const ROUTES: Route[] = [
   route('POST',   '/api/roles/users/:userId/assign',      RolesController.assignRole      as Handler),
   route('DELETE', '/api/roles/users/:userId/:roleId',     RolesController.removeRole      as Handler),
 
-  // ── Divisions (/division page — public reads, OWNER/Divisionsleitung writes) ─
-  route('GET',    '/api/divisions',                        DivisionController.list        as UserlessHandler, true),
-  route('GET',    '/api/divisions/leads/me',                DivisionController.myLeads     as Handler),
-  route('GET',    '/api/divisions/:slug',                   DivisionController.getOne      as UserlessHandler, true),
-  route('PATCH',  '/api/divisions/:slug',                   DivisionController.update      as Handler),
-  route('POST',   '/api/divisions/:slug/members',           DivisionController.addMember   as Handler),
-  route('PATCH',  '/api/divisions/:slug/members/:id',       DivisionController.updateMember as Handler),
-  route('DELETE', '/api/divisions/:slug/members/:id',       DivisionController.removeMember as Handler),
-  route('GET',    '/api/divisions/:slug/strikes',           DivisionController.listStrikes  as Handler),
-  route('POST',   '/api/divisions/:slug/strikes',           DivisionController.addStrike    as Handler),
-  route('PATCH',  '/api/divisions/:slug/strikes/:id',       DivisionController.updateStrike as Handler),
-  route('DELETE', '/api/divisions/:slug/strikes/:id',       DivisionController.removeStrike as Handler),
-  route('GET',    '/api/divisions/:slug/leads',              DivisionController.listLeads    as Handler),
-  route('POST',   '/api/divisions/:slug/leads/:identifier', DivisionController.assignLead   as Handler),
-  route('DELETE', '/api/divisions/:slug/leads/:robloxId',   DivisionController.removeLead   as Handler),
+  // ── Divisions (/division page) ─────────────────────────────────────────────
+  // Its own lightweight session (bwrp_division_access), separate from the staff
+  // bwrp_access system — see DivisionController's header comment.
+  route('POST',   '/api/divisions/auth/login',              DivisionController.login        as UserlessHandler, true),
+  route('POST',   '/api/divisions/auth/logout',              DivisionController.logout       as UserlessHandler, true),
+  route('GET',    '/api/divisions/auth/me',                  DivisionController.me           as DivisionHandler, false, 'division'),
+
+  route('GET',    '/api/divisions',                          DivisionController.list         as UserlessHandler, true),
+  route('GET',    '/api/divisions/leads/me',                 DivisionController.myLeads      as DivisionHandler, false, 'division'),
+  route('GET',    '/api/divisions/:slug',                    DivisionController.getOne       as UserlessHandler, true),
+  route('PATCH',  '/api/divisions/:slug',                    DivisionController.update       as DivisionHandler, false, 'division'),
+  route('POST',   '/api/divisions/:slug/members',            DivisionController.addMember    as DivisionHandler, false, 'division'),
+  route('PATCH',  '/api/divisions/:slug/members/:id',        DivisionController.updateMember as DivisionHandler, false, 'division'),
+  route('DELETE', '/api/divisions/:slug/members/:id',        DivisionController.removeMember as DivisionHandler, false, 'division'),
+  route('GET',    '/api/divisions/:slug/strikes',            DivisionController.listStrikes  as DivisionHandler, false, 'division'),
+  route('POST',   '/api/divisions/:slug/strikes',            DivisionController.addStrike    as DivisionHandler, false, 'division'),
+  route('PATCH',  '/api/divisions/:slug/strikes/:id',        DivisionController.updateStrike as DivisionHandler, false, 'division'),
+  route('DELETE', '/api/divisions/:slug/strikes/:id',        DivisionController.removeStrike as DivisionHandler, false, 'division'),
+  route('GET',    '/api/divisions/:slug/signoffs',            DivisionController.listSignoffs as DivisionHandler, false, 'division'),
+  route('POST',   '/api/divisions/:slug/signoffs',            DivisionController.addSignoff   as DivisionHandler, false, 'division'),
+  route('DELETE', '/api/divisions/:slug/signoffs/:id',        DivisionController.removeSignoff as DivisionHandler, false, 'division'),
+  route('GET',    '/api/divisions/:slug/leads',               DivisionController.listLeads    as DivisionHandler, false, 'division'),
+  route('POST',   '/api/divisions/:slug/leads/:identifier',  DivisionController.assignLead   as DivisionHandler, false, 'division'),
+  route('DELETE', '/api/divisions/:slug/leads/:robloxId',    DivisionController.removeLead   as DivisionHandler, false, 'division'),
 
   // ── Personal Notes ────────────────────────────────────────────────────────
   route('GET',    '/api/notes',                           NotesController.getNote     as Handler),
@@ -346,7 +361,7 @@ export default {
 
     // ── Rate Limiting ───────────────────────────────────────────────────────────
     // Auth endpoints: 10 req / 60 s per IP (brute-force protection)
-    if (url.pathname === '/api/auth/login' || url.pathname === '/api/auth/refresh' || url.pathname === '/api/poster/auth/exchange') {
+    if (url.pathname === '/api/auth/login' || url.pathname === '/api/auth/refresh' || url.pathname === '/api/poster/auth/exchange' || url.pathname === '/api/divisions/auth/login') {
       const limited = await checkRateLimit(env, ip, 'auth', 10, 60);
       if (limited) return limited;
     }
@@ -371,8 +386,20 @@ export default {
       r.keys.forEach((k, i) => { params[k] = match[i + 1]; });
 
       // Public routes — no JWT check
-      if (r.public) {
+      if (r.authMode === 'public') {
         return (r.handler as UserlessHandler)(request, env);
+      }
+
+      // /division's own lightweight session — independent of the staff cookie
+      if (r.authMode === 'division') {
+        const actor = await requireDivisionAuth(request, env);
+        if (actor instanceof Response) return actor;
+        try {
+          return await (r.handler as DivisionHandler)(request, env, actor, params);
+        } catch (e) {
+          console.error('Route error:', e);
+          return err('Interner Server-Fehler: ' + (e as Error).message, 500, origin);
+        }
       }
 
       // Protected routes — verify cookie token

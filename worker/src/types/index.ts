@@ -145,6 +145,10 @@ export interface NoteRow {
 }
 
 // ── Divisions (Divisionsleitung RBAC) ────────────────────────────────────────
+// Everyone here (system admin, Divisionsleitung, regular members) is identified
+// purely by Roblox ID — see DivisionSessionPayload. `added_by`/`assigned_by`
+// therefore store the acting Roblox ID, not a `users` FK (the actor need not be
+// staff / have a `users` row at all).
 
 export interface DivisionRow {
   id:          number;
@@ -161,7 +165,7 @@ export interface DivisionLeadRow {
   roblox_id:   string;   // identifies the lead directly — they need not have a `users` row (may not be staff)
   division_id: number;
   username:    string | null;   // best-effort cached Roblox username for display
-  assigned_by: number | null;
+  assigned_by: string | null;   // acting admin's Roblox ID
   assigned_at: string;
 }
 
@@ -172,7 +176,7 @@ export interface DivisionMemberRow {
   username:    string;
   sub_role:    string;
   joined_at:   string | null;
-  added_by:    number | null;
+  added_by:    string | null;   // acting lead/admin's Roblox ID
   created_at:  string;
 }
 
@@ -183,8 +187,28 @@ export interface DivisionStrikeRow {
   count:       number;
   kind:        'temp' | 'perm';
   expires_at:  string | null;
-  added_by:    number | null;
+  added_by:    string | null;   // acting lead/admin's Roblox ID
   created_at:  string;
+}
+
+export interface DivisionSignoffRow {
+  id:          number;
+  division_id: number;
+  roblox_id:   string;
+  username:    string;
+  from_date:   string;
+  to_date:     string | null;
+  reason:      string;
+  created_at:  string;
+}
+
+// ── Division session (separate from the staff JWTPayload/ROLE_RANK system) ───
+
+export interface DivisionSessionPayload {
+  robloxId: string;
+  username: string;
+  iat:      number;
+  exp:      number;
 }
 
 // Request context (attached by auth middleware)

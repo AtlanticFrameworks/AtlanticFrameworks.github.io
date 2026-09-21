@@ -156,14 +156,16 @@ INSERT OR IGNORE INTO divisions (slug, name, color, icon, description, sub_roles
   ('un',            'United Nations',   '#38bdf8', 'globe',        'Internationale Friedenssicherung.',               '[]');
 
 -- Divisionsleitung grants — presence of a row = user leads that division.
--- Identified by raw Roblox user ID, not a `users` FK — a Divisionsleitung need not
--- be staff (no row in `users`, doesn't appear on the team panel) unless/until they
--- separately log in through the normal staff gate.
+-- Everyone below is identified purely by Roblox ID (see DivisionSessionPayload /
+-- requireDivisionAuth in worker/src/middleware/auth.ts) — /division has its own
+-- lightweight login, separate from the staff bwrp_access system, so none of these
+-- people need a `users` row / to be staff. added_by/assigned_by store the acting
+-- user's Roblox ID for the same reason.
 CREATE TABLE IF NOT EXISTS division_leads (
   roblox_id   TEXT    NOT NULL,
   division_id INTEGER NOT NULL REFERENCES divisions(id) ON DELETE CASCADE,
   username    TEXT,
-  assigned_by INTEGER REFERENCES users(id),
+  assigned_by TEXT,
   assigned_at TEXT    NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (roblox_id, division_id)
 );
@@ -176,10 +178,11 @@ CREATE TABLE IF NOT EXISTS division_members (
   username    TEXT    NOT NULL,
   sub_role    TEXT    NOT NULL DEFAULT '',
   joined_at   TEXT,
-  added_by    INTEGER REFERENCES users(id),
+  added_by    TEXT,
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_division_members_division ON division_members(division_id);
+CREATE INDEX IF NOT EXISTS idx_division_members_roblox ON division_members(roblox_id);
 
 -- Division-scoped strikes (0-3, temp with expiry or permanent)
 CREATE TABLE IF NOT EXISTS division_strikes (
@@ -189,7 +192,21 @@ CREATE TABLE IF NOT EXISTS division_strikes (
   count       INTEGER NOT NULL DEFAULT 0,
   kind        TEXT    NOT NULL DEFAULT 'perm',
   expires_at  TEXT,
-  added_by    INTEGER REFERENCES users(id),
+  added_by    TEXT,
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_division_strikes_division ON division_strikes(division_id);
+
+-- Abmeldungen (absence sign-offs) — submitted by a logged-in member/lead/admin
+-- about themselves, visible to anyone with access to that division.
+CREATE TABLE IF NOT EXISTS division_signoffs (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  division_id INTEGER NOT NULL REFERENCES divisions(id) ON DELETE CASCADE,
+  roblox_id   TEXT    NOT NULL,
+  username    TEXT    NOT NULL,
+  from_date   TEXT    NOT NULL,
+  to_date     TEXT,
+  reason      TEXT    NOT NULL,
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_division_signoffs_division ON division_signoffs(division_id);
