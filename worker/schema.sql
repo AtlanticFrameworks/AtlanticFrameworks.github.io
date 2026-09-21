@@ -155,7 +155,8 @@ INSERT OR IGNORE INTO divisions (slug, name, color, icon, description, sub_roles
   ('wachbataillon', 'Wachbataillon',    '#eab308', 'flag',         'Ehrengarde und Protokoll.',                       '[]'),
   ('un',            'United Nations',   '#38bdf8', 'globe',        'Internationale Friedenssicherung.',               '[]'),
   ('mg',            'Militärgericht (MG)', '#7c3aed', 'gavel',     'Militärische Gerichtsbarkeit und Disziplinarverfahren.', '[]'),
-  ('mad',           'MAD (Militärischer Abschirmdienst)', '#0d9488', 'eye', 'Aufklärung, Spionageabwehr und interne Sicherheit.', '[]');
+  ('mad',           'MAD (Militärischer Abschirmdienst)', '#0d9488', 'eye', 'Aufklärung, Spionageabwehr und interne Sicherheit.', '[]'),
+  ('ausbilder',     'Ausbilder',        '#f97316', 'graduation-cap', 'Ausbildung und Schulung neuer Rekruten.',         '[]');
 
 -- Divisionsleitung grants — presence of a row = user leads that division.
 -- Everyone below is identified purely by Roblox ID (see DivisionSessionPayload /

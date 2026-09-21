@@ -18,6 +18,7 @@
             { slug: 'un', name: 'United Nations', color: '#38bdf8', icon: 'globe', description: 'Internationale Friedenssicherung.', sub_roles: [] },
             { slug: 'mg', name: 'Militärgericht (MG)', color: '#7c3aed', icon: 'gavel', description: 'Militärische Gerichtsbarkeit und Disziplinarverfahren.', sub_roles: [] },
             { slug: 'mad', name: 'MAD (Militärischer Abschirmdienst)', color: '#0d9488', icon: 'eye', description: 'Aufklärung, Spionageabwehr und interne Sicherheit.', sub_roles: [] },
+            { slug: 'ausbilder', name: 'Ausbilder', color: '#f97316', icon: 'graduation-cap', description: 'Ausbildung und Schulung neuer Rekruten.', sub_roles: [] },
         ],
         members: {
             marine: [
