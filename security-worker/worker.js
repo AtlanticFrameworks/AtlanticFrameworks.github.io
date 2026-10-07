@@ -34,7 +34,7 @@ const CONTENT_SECURITY_POLICY = [
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https://www.roblox.com https://thumbnails.roblox.com https://tr.rbxcdn.com https://*.rbxcdn.com",
   "connect-src 'self' https://unpkg.com https://discord.com https://groups.roblox.com https://thumbnails.roblox.com https://apis.roblox.com https://*.rbxcdn.com",
-  "frame-src 'none'",
+  "frame-src https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -61,6 +61,12 @@ function isHtmlResponse(response) {
 // ── Main handler ──────────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
+    // Serve the clearance page at both extensionless paths on GitHub Pages.
+    const url = new URL(request.url);
+    if (url.pathname === '/clearance' || url.pathname === '/clearance/') {
+      url.pathname = '/clearance.html';
+      request = new Request(url, request);
+    }
     // Subrequests from Cloudflare Workers do NOT re-trigger this worker,
     // so fetch(request) goes directly to the GitHub Pages origin.
     let response;

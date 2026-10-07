@@ -10,6 +10,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        bwBlack: '#0a0a0c',
+        bwDark: '#111111',
+        bwBorder: '#222222',
+        bwYellow: '#ffcc00',
+        bwGreen: '#22c55e',
+        bwRed: '#ef4444',
         // ── Primary bw palette (index, divisions, funkcodes, leitstelle, mad, studio, maintenance, friedenszeit) ──
         bw: {
           dark:      '#0f1115',

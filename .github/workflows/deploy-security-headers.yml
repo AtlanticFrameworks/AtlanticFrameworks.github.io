@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'security-worker/**'
+      - '.github/workflows/deploy-security-headers.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:

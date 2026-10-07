@@ -16,6 +16,8 @@ export const ROLE_RANK: Record<Role, number> = {
 
 // Cloudflare Worker Env Bindings
 export interface Env {
+  SECRET_TARGET_HASH?: string; // Clearance key (literal value, case-insensitive)
+  SECRET_VIDEO_LINK?: string;  // YouTube URL; only returned after key verification
   CALLBACKS:           KVNamespace;
   DATABASE:            D1Database;
   DEV_DATABASE:        D1Database;

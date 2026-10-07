@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'worker/**'
+      - '.github/workflows/deploy-bwrpauth.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -35,6 +37,10 @@ jobs:
           secrets: |
             ROBLOX_POSTER_AUTH
             SCHICHT_WEBHOOK
+            SECRET_TARGET_HASH
+            SECRET_VIDEO_LINK
         env:
           ROBLOX_POSTER_AUTH: ${{ secrets.ROBLOX_POSTER_AUTH }}
           SCHICHT_WEBHOOK: ${{ secrets.SCHICHT_WEBHOOK }}
+          SECRET_TARGET_HASH: ${{ secrets.SECRET_TARGET_HASH }}
+          SECRET_VIDEO_LINK: ${{ secrets.SECRET_VIDEO_LINK }}

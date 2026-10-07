@@ -23,6 +23,7 @@ import { DevController }        from './controllers/DevController.js';
 import { FriedenszeitController } from './controllers/FriedenszeitController.js';
 import { PosterAuthController }   from './controllers/PosterAuthController.js';
 import { CommandController }      from './controllers/CommandController.js';
+import { ClearanceController }    from './controllers/ClearanceController.js';
 import { renderDocs }           from './utils/docs.js';
 import { verifyTOTP, signSession, verifySession } from './utils/totp.js';
 
@@ -165,6 +166,7 @@ function route(method: string, path: string, handler: Handler | UserlessHandler 
 }
 
 const ROUTES: Route[] = [
+  route('POST', '/api/clearance/unlock', ClearanceController.unlock as UserlessHandler, true),
   // ── Public ──────────────────────────────────────────────────────────────
   route('GET',  '/api/docs', (async (req, env) => {
     const cookie = getCookie(req, 'bwrp_docs_session');

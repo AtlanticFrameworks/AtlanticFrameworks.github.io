@@ -33,6 +33,9 @@ ROBLOX_PLACE_ID    = "136750166564584"   # Main Game Place (for server list)
 # PROTECTED_JOB_IDS  = "job-id-1,job-id-2"  # Comma-separated Roblox server Job IDs protected from Restart All
 
 # Secrets – deploy with: wrangler secret put <NAME>
+# SECRET_TARGET_HASH   → literal clearance access key (case-insensitive)
+# SECRET_VIDEO_LINK    → HTTPS YouTube embed, watch or share URL
+#                         Both injected from GitHub Actions; never put in static assets.
 # JWT_SECRET           → random 64+ char string (e.g. openssl rand -hex 32)
 # ROBLOX_AUTH_SECRET   → Roblox OAuth client secret
 # DISCORD_WEBHOOK_URL  → your webhook URL
