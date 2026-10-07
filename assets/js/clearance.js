@@ -28,11 +28,11 @@ const bootSequence = [
             line.className = `${colorClass} mb-1 opacity-0 transition-opacity duration-300`;
             line.textContent = text;
             terminalOutput.appendChild(line);
-            
+
             // Trigger reflow for animation
             void line.offsetWidth;
             line.classList.remove('opacity-0');
-            
+
             // Auto scroll down
             viewTerminal.scrollTop = viewTerminal.scrollHeight;
         }
@@ -43,7 +43,7 @@ const bootSequence = [
                 await new Promise(resolve => setTimeout(resolve, step.delay));
                 addLine(step.text, step.color);
             }
-            
+
             // Show input line after boot
             setTimeout(() => {
                 inputLine.classList.remove('hidden-section');
@@ -115,7 +115,7 @@ const bootSequence = [
         function triggerGlitchAndReveal() {
             // Apply glitch to body
             document.body.classList.add('glitch-anim');
-            
+
             // Flash screen white briefly
             const flash = document.createElement('div');
             flash.style.position = 'fixed';
@@ -129,16 +129,16 @@ const bootSequence = [
             flash.style.transition = 'opacity 0.2s ease-in-out';
             flash.style.pointerEvents = 'none';
             document.body.appendChild(flash);
-            
+
             setTimeout(() => {
                 flash.style.opacity = '1';
-                
+
                 setTimeout(() => {
                     // Remove glitch and hide terminal, show success
                     document.body.classList.remove('glitch-anim');
                     viewTerminal.classList.add('hidden-section');
                     viewSuccess.classList.remove('hidden-section');
-                    
+
                     flash.style.opacity = '0';
                     setTimeout(() => flash.remove(), 200);
                 }, 300);
