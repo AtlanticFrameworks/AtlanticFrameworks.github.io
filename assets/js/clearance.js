@@ -87,14 +87,16 @@ const bootSequence = [
                 const iframe = document.createElement('iframe');
                 iframe.src = url.href;
                 iframe.title = 'Offizieller Trailer';
-                iframe.className = 'w-full h-full border-0';
+                iframe.className = 'clearance-video';
+                iframe.width = '1920';
+                iframe.height = '1080';
                 iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
                 iframe.referrerPolicy = 'strict-origin-when-cross-origin';
                 iframe.allowFullscreen = true;
                 document.getElementById('video-container').replaceChildren(iframe);
                 addLine('ACCESS GRANTED.', 'text-bwGreen font-bold glow-text-green');
                 addLine('DECRYPTING CLASSIFIED DATA...', 'text-bwGreen');
-                setTimeout(triggerGlitchAndReveal, 1200);
+                setTimeout(revealRelease, 1200);
             } catch (error) {
                 addLine(error instanceof Error ? error.message : 'Verbindung fehlgeschlagen.', 'text-bwRed font-bold glow-text-red');
                 addLine('PLEASE ENTER DNS OVERRIDE HASH:');
@@ -111,38 +113,13 @@ const bootSequence = [
             location.reload();
         });
 
-        // The Transition Effect
-        function triggerGlitchAndReveal() {
-            // Apply glitch to body
-            document.body.classList.add('glitch-anim');
-
-            // Flash screen white briefly
-            const flash = document.createElement('div');
-            flash.style.position = 'fixed';
-            flash.style.top = '0';
-            flash.style.left = '0';
-            flash.style.width = '100vw';
-            flash.style.height = '100vh';
-            flash.style.backgroundColor = 'white';
-            flash.style.zIndex = '9999';
-            flash.style.opacity = '0';
-            flash.style.transition = 'opacity 0.2s ease-in-out';
-            flash.style.pointerEvents = 'none';
-            document.body.appendChild(flash);
-
-            setTimeout(() => {
-                flash.style.opacity = '1';
-
-                setTimeout(() => {
-                    // Remove glitch and hide terminal, show success
-                    document.body.classList.remove('glitch-anim');
-                    viewTerminal.classList.add('hidden-section');
-                    viewSuccess.classList.remove('hidden-section');
-
-                    flash.style.opacity = '0';
-                    setTimeout(() => flash.remove(), 200);
-                }, 300);
-            }, 300);
+        // A short reveal keeps text and video sharp; no flashing overlay.
+        function revealRelease() {
+            viewTerminal.classList.add('hidden-section');
+            viewSuccess.classList.remove('hidden-section');
+            viewSuccess.classList.add('reveal');
+            document.getElementById('release-title').focus({ preventScroll: true });
+            window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
         // Start everything on load

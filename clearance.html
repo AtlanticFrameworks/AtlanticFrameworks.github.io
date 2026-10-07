@@ -3,239 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0c0f">
     <title>Bundeswehr Clearance Terminal</title>
     <link rel="icon" href="/favicon.ico">
-
-    <!-- Fonts: JetBrains Mono for terminal, Roboto for UI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="/assets/css/main.css">
-
-    <style>
-        body {
-            background-color: #0a0a0c;
-            color: #d1d5db;
-            margin: 0;
-            font-family: Roboto, sans-serif;
-            overflow-x: hidden;
-        }
-
-        .font-sans { font-family: Roboto, sans-serif; }
-
-        /* CRT Scanline Effect */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 50;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
-
-        /* Terminal Text Glow */
-        .glow-text-yellow {
-            text-shadow: 0 0 5px rgba(255, 204, 0, 0.6);
-        }
-        .glow-text-red {
-            text-shadow: 0 0 5px rgba(239, 68, 68, 0.6);
-        }
-        .glow-text-green {
-            text-shadow: 0 0 5px rgba(34, 197, 94, 0.6);
-        }
-
-        /* Blinking Cursor */
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 1.2em;
-            background-color: #ffcc00;
-            vertical-align: middle;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        /* Input Field Styling */
-        #cmd-input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #ffcc00;
-            font-family: 'JetBrains Mono', monospace;
-            width: calc(100% - 30px);
-            text-transform: uppercase;
-        }
-
-        #cmd-input::placeholder {
-            color: #555;
-        }
-
-        /* Glitch Transition Effect */
-        .glitch-anim {
-            animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-        }
-
-        @keyframes glitch-skew {
-            0% { transform: skew(0deg); }
-            20% { transform: skew(-20deg); filter: hue-rotate(90deg); }
-            40% { transform: skew(20deg); filter: blur(2px); }
-            60% { transform: skew(-10deg); filter: invert(1); }
-            80% { transform: skew(10deg); }
-            100% { transform: skew(0deg); }
-        }
-
-        /* Utility classes to hide/show sections */
-        .hidden-section { display: none !important; }
-        .fade-in { animation: fadeIn 1s ease-in forwards; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/main.css?v=clearance-2">
+    <link rel="stylesheet" href="/assets/css/clearance.css?v=2">
 </head>
-<body class="flex flex-col min-h-screen selection:bg-bwYellow selection:text-black">
-
-    <!-- Header Navigation (Matches Kommando UI) -->
-    <header class="h-16 border-b border-bwBorder flex items-center justify-between px-6 bg-bwBlack z-40 shrink-0 relative">
-        <div class="flex items-center space-x-8">
-            <div class="flex items-center space-x-3 text-bwYellow">
-                <!-- SVG Shield Icon representing the logo -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" class="w-6 h-6 glow-text-yellow">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                <h1 class="text-xl font-bold tracking-widest uppercase font-sans">Kommando</h1>
-            </div>
-
-            <div class="hidden md:flex items-center space-x-2 px-4 py-1 rounded bg-bwDark border border-bwBorder">
-                <div class="w-2 h-2 rounded-full bg-bwGreen animate-pulse"></div>
-                <span class="text-xs font-semibold tracking-wider text-bwGreen uppercase glow-text-green">Verbindung Stabil</span>
-            </div>
-        </div>
-
-        <div class="flex items-center space-x-4">
-            <a href="/" class="hidden sm:block px-4 py-1.5 text-xs font-semibold tracking-widest border border-gray-700 rounded text-gray-400 hover:text-white hover:border-gray-500 transition-colors uppercase font-sans">
-                Aus Dienst
-            </a>
-            <div class="flex items-center space-x-2 text-gray-400 border border-bwBorder px-3 py-1.5 rounded bg-bwDark">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-bwYellow">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span id="clock" class="text-sm font-mono">00:00:00 UHR</span>
-            </div>
+<body class="clearance-page">
+    <header class="clearance-header">
+        <a class="clearance-brand" href="/" aria-label="Kommando – Startseite"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Kommando</span></a>
+        <span class="connection-status"><span class="status-dot" aria-hidden="true"></span>Verbindung stabil</span>
+        <div class="header-actions">
+            <a href="/" class="home-link">Aus Dienst</a>
+            <time id="clock" class="clearance-clock">00:00:00 UHR</time>
         </div>
     </header>
 
-    <!-- TERMINAL VIEW -->
-    <main id="view-terminal" class="flex-1 relative p-6 md:p-12 font-mono text-sm md:text-base flex flex-col z-10 overflow-y-auto">
-        <div class="max-w-4xl mx-auto w-full flex-1 flex flex-col">
-            <!-- Terminal Output lines will be injected here -->
-            <div role="log" aria-live="polite" id="terminal-output" class="space-y-2 mb-2"></div>
-
-            <!-- Interactive Input Line (Hidden during boot) -->
-            <div id="input-line" class="flex items-center text-bwYellow hidden-section">
-                <span class="mr-3 font-bold">&gt;</span>
-                <input type="password" aria-label="Autorisierungsschlüssel" id="cmd-input" autocomplete="off" spellcheck="false" placeholder="_" maxlength="256">
+    <main id="view-terminal" class="terminal-view">
+        <div class="terminal-shell">
+            <div class="terminal-heading"><span>Clearance Terminal</span><span>Zugang gesichert</span></div>
+            <div role="log" aria-live="polite" id="terminal-output"></div>
+            <div id="input-line" class="terminal-input hidden-section">
+                <span aria-hidden="true">&gt;</span>
+                <input type="password" aria-label="Autorisierungsschlüssel" id="cmd-input" autocomplete="off" spellcheck="false" placeholder="Schlüssel eingeben" maxlength="256">
+                <span class="input-hint" aria-hidden="true">ENTER</span>
             </div>
-
-            <!-- Spacer to push content up if needed -->
-            <div class="pb-20"></div>
+            <noscript><p>Bitte JavaScript aktivieren, um den Autorisierungsschlüssel einzugeben.</p></noscript>
         </div>
     </main>
 
-    <!-- SUCCESS VIEW (Hidden by default) -->
-    <main id="view-success" class="flex-1 relative p-6 md:p-12 bg-bwBlack z-10 overflow-y-auto hidden-section">
-        <div class="max-w-5xl mx-auto w-full">
+    <main id="view-success" class="release-view hidden-section" aria-labelledby="release-title">
+        <div class="release-shell">
+            <section class="release-intro">
+                <span class="clearance-badge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.6-2"/></svg>Deklassifiziert</span>
+                <h1 id="release-title" tabindex="-1">Operation Neustart</h1>
+                <p class="release-description">Die Beta-Phase ist beendet. Der komplette Overhaul und der Full Release stehen bevor.</p>
+            </section>
 
-            <div class="flex items-center space-x-4 mb-8 fade-in" style="animation-delay: 0.2s;">
-                <div class="p-3 bg-bwYellow/10 rounded-lg border border-bwYellow/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-bwYellow glow-text-yellow">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-3xl md:text-5xl font-black text-bwYellow tracking-tighter uppercase font-sans">
-                        Operation Neustart Deklassifiziert
-                    </h2>
-                    <p class="text-gray-400 mt-2 text-lg md:text-xl font-medium tracking-wide font-sans border-l-2 border-bwYellow pl-4">
-                        DIE BETA-PHASE IST OFFIZIELL BEENDET. DER KOMPLETTE OVERHAUL UND DER FULL RELEASE SIND IMMINENT.
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12 fade-in" style="animation-delay: 0.6s;">
-
-                <!-- Main Trailer Placeholder -->
-                <div class="lg:col-span-2 group relative bg-bwDark border border-bwBorder rounded-xl overflow-hidden hover:border-bwYellow/50 transition-colors">
-                    <div id="video-container" class="aspect-video bg-[#050505]"></div>
-                    <div class="p-6 relative z-20 font-sans">
-                        <h3 class="text-2xl font-bold text-white uppercase tracking-wider mb-2">Offizieller Trailer</h3>
-                        <p class="text-gray-400">Visuelle Dokumentation der neuen Einsatzumgebung und modernisierten Ausrüstung.</p>
+            <section class="trailer-section" aria-labelledby="trailer-title">
+                <div class="trailer-frame">
+                    <div id="video-container" class="video-frame"></div>
+                    <div class="trailer-caption">
+                        <h2 id="trailer-title">Offizieller Trailer</h2>
+                        <p>Die neue Einsatzumgebung und modernisierte Ausrüstung im ersten Einblick.</p>
                     </div>
                 </div>
+            </section>
 
-                <!-- Gallery / Info Placeholders -->
-                <div class="flex flex-col gap-6">
-                    <!-- Gallery Item 1 -->
-                    <div class="flex-1 bg-bwDark border border-bwBorder rounded-xl p-5 relative hover:border-gray-500 transition-colors flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                </svg>
-                                <span class="px-2 py-0.5 bg-gray-800 rounded text-[10px] font-mono text-gray-400">INTEL</span>
-                            </div>
-                            <h4 class="text-lg font-bold text-white uppercase font-sans mb-1">System Upgrade</h4>
-                            <p class="text-sm text-gray-500 font-sans">Vollständig überarbeitete Interaktionssysteme für maximalen Realismus.</p>
-                        </div>
-                        <div class="mt-4 h-2 w-full bg-gray-800 rounded overflow-hidden">
-                            <div class="h-full bg-bwYellow w-[85%]"></div>
-                        </div>
-                    </div>
+            <section class="release-updates" aria-label="Die Neuerungen">
+                <article class="update-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+                    <div><h2>System Upgrade</h2><p>Vollständig überarbeitete Interaktionssysteme für mehr Realismus.</p></div>
+                </article>
+                <article class="update-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.3 7 12 12l8.7-5M12 22V12"/></svg>
+                    <div><h2>Terrain Remake</h2><p>Neue topografische Daten und eine höhere Detaildichte in der Einsatzumgebung.</p></div>
+                </article>
+            </section>
 
-                    <!-- Gallery Item 2 -->
-                    <div class="flex-1 bg-bwDark border border-bwBorder rounded-xl p-5 relative hover:border-gray-500 transition-colors flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                </svg>
-                                <span class="px-2 py-0.5 bg-gray-800 rounded text-[10px] font-mono text-gray-400">MAP</span>
-                            </div>
-                            <h4 class="text-lg font-bold text-white uppercase font-sans mb-1">Terrain Remake</h4>
-                            <p class="text-sm text-gray-500 font-sans">Neue topografische Daten der Einsatzumgebung. Höhere Detaildichte.</p>
-                        </div>
-                        <div class="mt-4 h-2 w-full bg-gray-800 rounded overflow-hidden">
-                            <div class="h-full bg-bwYellow w-[100%]"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="mt-12 text-center pb-12 fade-in" style="animation-delay: 1s;">
-                <p class="font-mono text-sm text-gray-600 mb-4">++ BEREITHALTEN FÜR WEITERE INSTRUKTIONEN ++</p>
-                <button id="disconnect-button" class="px-8 py-3 bg-transparent border border-bwBorder text-gray-400 font-bold tracking-widest uppercase font-sans rounded hover:bg-bwBorder hover:text-white transition-colors">
-                    Verbindung Trennen
-                </button>
-            </div>
-
+            <footer class="release-footer">
+                <p>Bereithalten für weitere Instruktionen.</p>
+                <button id="disconnect-button" type="button">Verbindung trennen</button>
+            </footer>
         </div>
     </main>
-
-    <script src="/assets/js/clearance.js" defer></script>
+    <script src="/assets/js/clearance.js?v=2" defer></script>
 </body>
 </html>
