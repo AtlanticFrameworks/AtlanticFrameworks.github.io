@@ -25,7 +25,7 @@ const bootSequence = [
 
         function addLine(text, colorClass = "text-gray-300") {
             const line = document.createElement('div');
-            line.className = `${colorClass} mb-1 opacity-0 transition-opacity duration-300`;
+            line.className = `terminal-boot-line ${colorClass} mb-1 opacity-0 transition-opacity duration-300`;
             line.textContent = text;
             terminalOutput.appendChild(line);
 
@@ -113,13 +113,32 @@ const bootSequence = [
             location.reload();
         });
 
-        // A short reveal keeps text and video sharp; no flashing overlay.
+        // Restore the terminal's glitch-and-flash declassification sequence.
         function revealRelease() {
-            viewTerminal.classList.add('hidden-section');
-            viewSuccess.classList.remove('hidden-section');
-            viewSuccess.classList.add('reveal');
-            document.getElementById('release-title').focus({ preventScroll: true });
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            const showRelease = () => {
+                viewTerminal.classList.add('hidden-section');
+                viewTerminal.classList.remove('glitch-anim');
+                viewSuccess.classList.remove('hidden-section');
+                document.getElementById('release-title').focus({ preventScroll: true });
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            };
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                showRelease();
+                return;
+            }
+            viewTerminal.classList.add('glitch-anim');
+            const flash = document.createElement('div');
+            flash.className = 'clearance-flash';
+            flash.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(flash);
+            setTimeout(() => {
+                flash.style.opacity = '0.85';
+                setTimeout(() => {
+                    showRelease();
+                    flash.style.opacity = '0';
+                    setTimeout(() => flash.remove(), 200);
+                }, 220);
+            }, 300);
         }
 
         // Start everything on load

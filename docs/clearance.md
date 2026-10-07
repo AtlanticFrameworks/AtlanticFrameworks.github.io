@@ -5,8 +5,10 @@ worker, using the static `clearance.html`, compiled CSS, the page's own
 `assets/css/clearance.css`, and `assets/js/clearance.js`.
 
 The trailer fills a responsive 16:9 frame using an absolutely positioned iframe.
-Release summaries sit below the video; the header and footer adapt to small
-screens. The scanline texture is limited to the login terminal so it never
+The original tactical styling, timed boot sequence, and glitch declassification
+reveal are preserved; the header and footer adapt to small screens. Feature
+panels and descriptive trailer copy are omitted to avoid revealing upcoming
+content. The scanline texture is limited to the login terminal so it never
 obscures the trailer. Asset version parameters refresh cached styling on deploy.
 
 `POST /api/clearance/unlock` checks the key in the auth worker. The public page
